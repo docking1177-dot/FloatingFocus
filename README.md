@@ -1,5 +1,7 @@
 # Floating Focus
 
+[![Android checks](https://github.com/docking1177-dot/FloatingFocus/actions/workflows/android.yml/badge.svg)](https://github.com/docking1177-dot/FloatingFocus/actions/workflows/android.yml)
+
 Android 原生悬浮渐进式提醒计时器。主动设定一段时间，切换到其他 App 后仍可看见倒计时；提醒从安静深灰逐渐转为橙色、红色和轻缓呼吸，到期后短暂震动，点击「知道了」结束。
 
 本项目迁移并改造 [FloatingCountdownTimer](https://github.com/tberghuis/FloatingCountdownTimer) 的悬浮窗生命周期、拖动和服务模式，使用独立品牌、图标及 applicationId。详见 [开源调研](docs/OPEN_SOURCE_REVIEW.md)、[复用记录](docs/REUSE_REPORT.md)、[第三方声明](docs/THIRD_PARTY_NOTICES.md)。
@@ -8,7 +10,7 @@ Android 原生悬浮渐进式提醒计时器。主动设定一段时间，切换
 
 2026-10-20 验证：Debug 构建成功，4 项单元测试通过，Lint 0 错误、8 个依赖更新警告和 1 个 KTX 建议。APK 签名与完整性检查通过；用户已反馈手机安装运行成功，完整场景验收仍待补充。
 
-后续开发、Git 同步、版本发布、签名与 AI/设备验证方式见 [维护指南](docs/DEVELOPMENT_WORKFLOW.md)。参与开发见 [CONTRIBUTING.md](CONTRIBUTING.md)，版本变化见 [CHANGELOG.md](CHANGELOG.md)。GitHub Actions 配置会自动构建、运行单测和 Lint；首次线上运行结果需另行核实。
+公开仓库：[docking1177-dot/FloatingFocus](https://github.com/docking1177-dot/FloatingFocus)。后续开发、Git 同步、版本发布、签名与 AI/设备验证方式见 [维护指南](docs/DEVELOPMENT_WORKFLOW.md)。参与开发见 [CONTRIBUTING.md](CONTRIBUTING.md)，版本变化见 [CHANGELOG.md](CHANGELOG.md)。GitHub Actions 已完成[云端构建、单测和 Lint](https://github.com/docking1177-dot/FloatingFocus/actions/runs/39431207135)，可在运行页下载 APK 和检查报告。
 
 ## 功能
 

@@ -13,6 +13,14 @@
 
 ## 自动化检查
 
+### GitHub 云端验证
+
+2026-10-20，公开仓库提交 `5f57264ecf70ccd88bcc930237597bccbac7d22c` 在 Ubuntu 24.04 / JDK 17 上完成 `assembleDebug testDebugUnitTest lintDebug`，**BUILD SUCCESSFUL in 2m 45s**。见 [成功的 Actions 运行](https://github.com/docking1177-dot/FloatingFocus/actions/runs/39431207135)。运行页已保存 Debug APK 和检查报告，保留期为 14 天；该 APK 使用 CI 临时测试签名。
+
+首次云端尝试曾因 `sdkmanager: command not found` 失败，补齐 SDK 初始化并固定 runner/Action 版本后重新运行通过。没有将首次失败描述为成功。此验证不包含模拟器、真机或 UI 仪器测试。
+
+### 本地验证
+
 | 检查 | 实际结果 | 范围 |
 |---|---|---|
 | Kotlin 编译与 Debug APK 打包 | 通过 | 当前工程 |

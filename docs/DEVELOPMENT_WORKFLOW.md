@@ -24,7 +24,7 @@ git push -u origin fix/overlay-bounds
 
 发布时先更新版本和 CHANGELOG，构建并验收，再将最终提交打 Tag（例如 v0.1.1）。GitHub Releases 对应此 Tag，附 APK、校验值、更新说明与已知问题。公开的源码版本应与安装包对应。
 
-当前 .github/workflows/android.yml 在 main 推送、v* Tag、PR 或手动触发时执行构建、单测、Lint，并保存 APK 与报告。它没有配置模拟器或真机测试，不能据此声称功能验收通过。首次线上执行前，工作流仅为待验证配置。
+当前 .github/workflows/android.yml 在 main 推送、v* Tag、PR 或手动触发时执行构建、单测、Lint，并保存 APK 与报告。2026-10-20 已完成一次[云端成功验证](https://github.com/docking1177-dot/FloatingFocus/actions/runs/39431207135)。它没有配置模拟器或真机测试，不能据此声称功能验收通过。
 
 ## 覆盖安装与签名
 
@@ -72,7 +72,7 @@ Gradle 构建自身不会显示运行场景。AI 要判断画面，需要额外�
 
 本项目 MIT 与第三方归属已保留。上传源码范围：app/src、构建配置及 wrapper、脚本、docs、licenses、README、CHANGELOG、CONTRIBUTING 和 .github；排除 SDK、缓存、上游快照、local.properties、密钥和 dist。
 
-新建 Public 仓库 FloatingFocus 时不要自动添加 README、许可证或 gitignore，避免与本地初始提交冲突。得到空仓库地址后：
+公开仓库已建立为 https://github.com/docking1177-dot/FloatingFocus，本机 main 已跟踪 origin/main。另一台电脑可直接 git clone。以下命令仅用于以后把独立工程首次关联到空仓库；不要在当前工程重复执行 remote add：
 
 ```powershell
 git remote add origin https://github.com/你的账号/FloatingFocus.git
