@@ -1,0 +1,52 @@
+Floating Focus 0.1.0
+
+This is an independent application, not an official release by any upstream author.
+
+FloatingCountdownTimer
+Copyright (c) 2022 Thomas Berghuis
+https://github.com/tberghuis/FloatingCountdownTimer
+Commit: 785dbb3dd2362635ca61fcc8fb62de9f66fc8825
+MIT License. The full license is included as FloatingCountdownTimer-MIT.txt.
+Modified portions: Compose overlay lifecycle, window parameters, drag coordinate
+handling, and foreground service/notification patterns. See docs/REUSE_REPORT.md.
+
+AndroidX (including Jetpack Compose, Material 3, Activity, Lifecycle, SavedState,
+Core and their AndroidX transitive libraries)
+Copyright The Android Open Source Project
+https://android.googlesource.com/platform/frameworks/support/
+Apache License 2.0; full text included as Apache-2.0.txt.
+
+Kotlin standard library and JetBrains annotations
+Copyright JetBrains s.r.o. and contributors
+https://github.com/JetBrains/kotlin
+https://github.com/JetBrains/java-annotations
+Apache License 2.0.
+
+Kotlin Coroutines and Kotlin Serialization
+Copyright JetBrains s.r.o. and Kotlin Programming Language contributors
+https://github.com/Kotlin/kotlinx.coroutines
+https://github.com/Kotlin/kotlinx.serialization
+Apache License 2.0.
+
+JSpecify annotations
+Copyright The JSpecify Authors
+https://github.com/jspecify/jspecify
+Apache License 2.0.
+
+Guava ListenableFuture (AndroidX transitive dependency)
+Copyright Google LLC and contributors
+https://github.com/google/guava
+Apache License 2.0.
+
+Gradle wrapper (build-time tooling only)
+Copyright the original authors
+https://github.com/gradle/gradle
+Apache License 2.0. Wrapper scripts retain their original copyright headers.
+
+JUnit 4 and Hamcrest (test-time only, not packaged in the application)
+JUnit: Eclipse Public License 1.0
+Hamcrest: BSD 3-Clause
+https://github.com/junit-team/junit4
+https://github.com/hamcrest/JavaHamcrest
+
+No code from Stop-me or touch-grass is included.

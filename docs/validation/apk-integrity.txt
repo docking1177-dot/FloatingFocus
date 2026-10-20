@@ -1,0 +1,11 @@
+Artifact: FloatingFocus-0.1.0-debug.apk
+Size: 24803875 bytes
+SHA-256: df2aec66aadf98875b0eb34e27d0681495cf7cb416ecc176f1899227c8d3f31c
+ZIP CRC: PASS
+License asset matches source: Apache-2.0.txt
+License asset matches source: FloatingCountdownTimer-MIT.txt
+License asset matches source: THIRD_PARTY_NOTICES.txt
+ELF 16 KB PT_LOAD alignment PASS: lib/arm64-v8a/libandroidx.graphics.path.so [16384, 16384, 16384]
+ELF 16 KB PT_LOAD alignment PASS: lib/armeabi-v7a/libandroidx.graphics.path.so [16384, 16384, 16384]
+ELF 16 KB PT_LOAD alignment PASS: lib/x86/libandroidx.graphics.path.so [16384, 16384, 16384]
+ELF 16 KB PT_LOAD alignment PASS: lib/x86_64/libandroidx.graphics.path.so [16384, 16384, 16384]

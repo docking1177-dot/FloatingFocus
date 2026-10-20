@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.floatingfocus.CountdownTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-20T13:00:48" hostname="local-build-host" time="0.03">
+  <properties/>
+  <testcase name="fifteen minute boundaries are based on elapsed time" classname="app.floatingfocus.CountdownTest" time="0.012"/>
+  <testcase name="sleep and skipped callbacks do not lose elapsed time" classname="app.floatingfocus.CountdownTest" time="0.0"/>
+  <testcase name="display rounds up so zero only appears at completion" classname="app.floatingfocus.CountdownTest" time="0.002"/>
+  <testcase name="clock model clamps early reads and prevents invalid durations" classname="app.floatingfocus.CountdownTest" time="0.014"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
