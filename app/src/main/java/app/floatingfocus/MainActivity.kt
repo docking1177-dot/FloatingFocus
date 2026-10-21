@@ -73,6 +73,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun FocusScreen() {
         val session by FloatingService.session.collectAsStateWithLifecycle()
+        val monitor by FloatingService.monitoring.collectAsStateWithLifecycle()
         var minutes by rememberSaveable { mutableIntStateOf(15) }
         var custom by rememberSaveable { mutableStateOf(false) }
         var showCustom by rememberSaveable { mutableStateOf(false) }
@@ -113,28 +114,28 @@ class MainActivity : ComponentActivity() {
                     Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surface) {
                         Column(Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(if (session.active) if (session.stage == ReminderStage.FINISHED) "约定的时间到了" else "还可以享受" else "这次，留给自己", color = Color(0xFF667067))
-                            Text(if (session.active) formatRemaining(session.remainingMillis) else "%02d:00".format(minutes),
+                            Text(if (session.active || monitor.enabled) formatRemaining(session.remainingMillis) else "%02d:00".format(minutes),
                                 fontSize = 58.sp, fontWeight = FontWeight.Light, fontFamily = FontFamily.Monospace,
                                 modifier = Modifier.padding(vertical = 12.dp))
-                            Text(if (session.active) "悬浮胶囊正在提醒你" else "分钟 · 自己决定何时停下", style = MaterialTheme.typography.bodySmall, color = Color(0xFF667067))
+                            Text(if (monitor.enabled) monitor.reason else if (session.active) "悬浮胶囊正在提醒你" else "分钟 · 自己决定何时停下", style = MaterialTheme.typography.bodySmall, color = Color(0xFF667067))
                         }
                     }
                     Spacer(Modifier.height(24.dp))
                     Text("选择时长", style = MaterialTheme.typography.titleSmall)
                     FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(5, 10, 15, 30).forEach { value ->
-                            FilterChip(selected = !custom && minutes == value, enabled = !session.active,
+                            FilterChip(selected = !custom && minutes == value, enabled = !session.active && !monitor.enabled,
                                 onClick = { minutes = value; custom = false }, label = { Text("$value 分", maxLines = 1, softWrap = false) })
                         }
                     }
-                    TextButton(onClick = { input = if (custom) minutes.toString() else ""; showCustom = true }, enabled = !session.active) {
+                    TextButton(onClick = { input = if (custom) minutes.toString() else ""; showCustom = true }, enabled = !session.active && !monitor.enabled) {
                         Text(if (custom) "自定义：$minutes 分钟" else "自定义时长 →")
                     }
                     Spacer(Modifier.height(12.dp))
-                    if (session.active) {
+                    if (session.active || monitor.enabled) {
                         Button(onClick = { FloatingService.stop(this@MainActivity) }, modifier = Modifier.fillMaxWidth().height(56.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)) {
-                            Text(if (session.stage == ReminderStage.FINISHED) "知道了，结束计时" else "结束倒计时")
+                            Text(if (monitor.enabled) "停止 App 监测" else if (session.stage == ReminderStage.FINISHED) "知道了，结束计时" else "结束倒计时")
                         }
                     } else {
                         Button(onClick = {
@@ -143,6 +144,9 @@ class MainActivity : ComponentActivity() {
                         }, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text("开始倒计时") }
                     }
                     Spacer(Modifier.height(20.dp))
+                    TextButton(onClick = { startActivity(Intent(this@MainActivity, AutoTriggerActivity::class.java)) }) {
+                        Text("指定 App 自动计时 · 可选")
+                    }
                     if (!overlayAllowed) {
                         PermissionCard("允许显示悬浮窗", "用于在其他 App 上方显示倒计时。", "去授权") { permissionHelp = true }
                     }

@@ -6,7 +6,7 @@ Android 原生悬浮渐进式提醒计时器。主动设定一段时间，切换
 
 本项目迁移并改造 [FloatingCountdownTimer](https://github.com/tberghuis/FloatingCountdownTimer) 的悬浮窗生命周期、拖动和服务模式，使用独立品牌、图标及 applicationId。详见 [开源调研](docs/OPEN_SOURCE_REVIEW.md)、[复用记录](docs/REUSE_REPORT.md)、[第三方声明](docs/THIRD_PARTY_NOTICES.md)。
 
-本次交付：`dist/FloatingFocus-0.1.1-debug.apk`、`dist/FloatingFocus-source.zip` 和 `dist/SHA256SUMS.txt`。源码包不包含 SDK、缓存和签名私钥；解压后按下文配置开发环境。
+最近正式整理的交付：`dist/FloatingFocus-0.1.1-debug.apk`、`dist/FloatingFocus-source.zip` 和 `dist/SHA256SUMS.txt`。这些产物不包含下文待发布功能；当前开发构建使用 `app/build/outputs/apk/debug/app-debug.apk`。源码包不包含 SDK、缓存和签名私钥；解压后按下文配置开发环境。
 
 0.1.1 修复展开和到期状态下部分区域无法拖动的问题，验证范围见 [0.1.1 检查记录](docs/TEST_RESULTS_0.1.1.md)。2026-10-21 已完成 [Android 16 模拟器交互验证](docs/EMULATOR_VALIDATION.md)，8 项操作通过；真机验收仍待补充。本地模拟器启动见 [操作说明](docs/EMULATOR.md)。
 
@@ -18,9 +18,10 @@ Android 原生悬浮渐进式提醒计时器。主动设定一段时间，切换
 - 一个可拖动胶囊，默认右上方；点击展开「结束计时 / 收起」。整个浮窗（包括按钮、到期提示）均可开始拖动，轻触按钮仍执行对应操作。
 - 0—50% 深灰；50—80% 灰到橙；80—100% 橙到红并轻缓呼吸。
 - 到期显示「时间到了」和「知道了」，执行一次 180ms 震动（受设备能力、静音和勿扰设置影响）。
-- 真实经过时间基于 `SystemClock.elapsedRealtime()`；熄屏、切换 App 不主动暂停。
+- 真实经过时间基于 `SystemClock.elapsedRealtime()`；手动模式熄屏、切换 App 不主动暂停。
+- 可选的指定 App 自动计时（待发布）：使用情况访问授权、App 选择、进入恢复/离开暂停与隐藏，频率可配置；默认关闭，详见 [使用与验证](docs/AUTO_TRIGGER.md)。
 - 用户可从主界面、胶囊或通知结束。停止时清理窗口、Compose、监听和更新回调。
-- 无账号、联网权限、无障碍、应用追踪、数据库或开机自启。
+- 无账号、联网权限、无障碍服务、数据库或开机自启。仅主动开启自动计时后读取本机使用事件；不持久保存或上传使用记录。
 
 ## 工程结构
 
@@ -124,7 +125,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 - Android 14+ 使用 `specialUse` 前台服务和用途 property，Android 15/16 从可见 Activity 的明确点击启动。没有后台自动拉起或开机恢复。
 - Google Play 对 specialUse 用途有单独审核；具备 manifest 声明不代表已获得上架审核通过。
-- 熄屏时真实时间继续流逝。未申请精确闹钟、未持有 WakeLock，深度休眠可能延迟执行到期震动；唤醒后会根据单调时钟立即校准，不能作为精确闹钟替代品。
+- 手动模式熄屏时真实时间继续流逝；自动模式锁屏/息屏暂停。未申请精确闹钟、未持有 WakeLock，深度休眠可能延迟执行手动计时的到期震动；唤醒后会根据单调时钟立即校准，不能作为精确闹钟替代品。
 - 系统强制停止、前台任务管理器停止、进程被回收或设备重启，会结束本次会话；不自动恢复。厂商省电策略可能提前停止服务。
 - 用户撤销悬浮权限时，应用停止计时并清理资源；部分系统会直接杀掉进程。
 - 某些金融/权限/安全页面主动禁止第三方悬浮窗，锁屏界面也可能隐藏它。不会绕过这些限制。
@@ -132,6 +133,8 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 - 系统关闭动画后停止呼吸动画；勿扰或设备设置可能禁止震动。
 
 ## 验证
+
+可选「指定 App 自动计时」支持使用情况访问授权后自动开始/恢复、离开暂停；默认关闭，禁止无障碍实现。配置、分屏/锁屏及系统后台限制见 [AUTO_TRIGGER.md](docs/AUTO_TRIGGER.md)。
 
 Debug 构建的主界面底部提供「提醒实验室」：三种提醒策略切换、时间/超时模拟、连续或节点变化、参数调节及真实跨应用实验悬浮窗。实验状态与正式计时隔离，Release 不包含实验页面或服务。使用与实现见 [REMINDER_LAB.md](docs/REMINDER_LAB.md)。
 

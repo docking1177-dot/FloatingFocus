@@ -6,6 +6,7 @@
 - 主界面在 `MainActivity.kt`；会话和前台服务在 `FloatingService.kt`；计时模型在 `Countdown.kt`。
 - 浮窗宿主与边界在 `OverlayWindow.kt`，整个窗口的手势分发在 `OverlayTouchLayout.kt`，手势状态在 `OverlayDragGesture.kt`，内容在 `FocusOverlay.kt`。
 - 提醒策略与渲染数据在 `ReminderPresentation.kt`；实验室仅在 `app/src/debug/`，不得把模拟状态写入正式服务。使用与设计按需看 `docs/REMINDER_LAB.md`。
+- 可选 App 自动计时复用 `FloatingService`；事件读取在 `UsageAppMonitor.kt`、纯状态模型在 `AutoTimerEngine.kt`、配置页在 `AutoTriggerActivity.kt`。禁止无障碍路径；边界见 `docs/AUTO_TRIGGER.md`。
 - 上述源码均位于 `app/src/main/java/app/floatingfocus/`；JVM 测试在 `app/src/test/`。
 
 ## 工作与检查
