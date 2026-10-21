@@ -15,16 +15,12 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.content.res.Configuration
-import android.media.AudioAttributes
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
 import android.os.SystemClock
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
 import android.provider.Settings
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -83,7 +79,7 @@ class FloatingService : Service() {
             mutableSession.value = overlayState
             if (stage == ReminderStage.FINISHED && !vibrated) {
                 vibrated = true
-                vibrateOnce()
+                ReminderVibration.once(this@FloatingService)
             }
             if (stage != previousStage) {
                 getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification())
@@ -123,7 +119,10 @@ class FloatingService : Service() {
             } else startForeground(NOTIFICATION_ID, notification())
             val overlay = OverlayWindow(this) { fail("悬浮窗不可用，计时已结束。", it) }
             window = overlay
-            overlay.show { FocusTheme { FocusOverlay(overlayState, interactive) { finishSession() } } }
+            overlay.show { FocusTheme {
+                FocusOverlay(ReminderPresenter.present(ReminderSnapshot(overlayState.remainingMillis, overlayState.progress)),
+                    interactive) { finishSession() }
+            } }
             if (stopping) return START_NOT_STICKY
             ContextCompat.registerReceiver(this, screenReceiver,
                 IntentFilter().apply { addAction(Intent.ACTION_SCREEN_ON); addAction(Intent.ACTION_SCREEN_OFF); addAction(Intent.ACTION_USER_PRESENT) },
@@ -152,16 +151,6 @@ class FloatingService : Service() {
             .setOngoing(true).setOnlyAlertOnce(true).setSilent(true)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .build()
-    }
-
-    @Suppress("DEPRECATION")
-    private fun vibrateOnce() {
-        try {
-            val vibrator = if (Build.VERSION.SDK_INT >= 31) getSystemService(VibratorManager::class.java).defaultVibrator
-                else getSystemService(VIBRATOR_SERVICE) as Vibrator
-            if (vibrator.hasVibrator()) vibrator.vibrate(VibrationEffect.createOneShot(180, VibrationEffect.DEFAULT_AMPLITUDE),
-                AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION).build())
-        } catch (e: RuntimeException) { Log.w(TAG, "Vibration unavailable", e) }
     }
 
     private fun fail(message: String, cause: RuntimeException? = null) {

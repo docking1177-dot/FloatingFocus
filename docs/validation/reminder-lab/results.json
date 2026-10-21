@@ -1,0 +1,197 @@
+{
+  "date": "2026-10-21",
+  "device": "Android 16 API 36 AOSP x86_64 emulator-5554",
+  "debug": {
+    "tests": 23,
+    "failures": 0,
+    "errors": 0,
+    "lintErrors": 0,
+    "lintWarnings": 8,
+    "lintHints": 1
+  },
+  "release": {
+    "tests": 17,
+    "failures": 0,
+    "errors": 0,
+    "debugClassesAbsent": {
+      "ReminderLabActivity": true,
+      "ReminderLabService": true,
+      "ReminderLabState": true,
+      "LabSimulation": true
+    }
+  },
+  "debugApkSha256": "1fc731d4974edea9fbf3160cfcc1eef8503554248e064645a4d518e72f169785",
+  "physicalDeviceTested": false,
+  "size-boundaries": [
+    {
+      "case": "size continuous 0%",
+      "frames": [
+        [
+          189,
+          445,
+          626,
+          679
+        ],
+        [
+          735,
+          235,
+          1036,
+          381
+        ]
+      ]
+    },
+    {
+      "case": "size continuous 50%",
+      "frames": [
+        [
+          189,
+          445,
+          626,
+          679
+        ],
+        [
+          735,
+          235,
+          1036,
+          381
+        ]
+      ]
+    },
+    {
+      "case": "size continuous 80%",
+      "frames": [
+        [
+          189,
+          445,
+          626,
+          717
+        ],
+        [
+          735,
+          235,
+          1036,
+          381
+        ]
+      ]
+    },
+    {
+      "case": "size continuous 100%",
+      "frames": [
+        [
+          189,
+          445,
+          823,
+          973
+        ],
+        [
+          735,
+          235,
+          1036,
+          381
+        ]
+      ]
+    },
+    {
+      "case": "size continuous 120%",
+      "frames": [
+        [
+          189,
+          445,
+          893,
+          973
+        ],
+        [
+          735,
+          235,
+          1036,
+          381
+        ]
+      ]
+    }
+  ],
+  "isolation": {
+    "finished_text_drag_frame": [
+      [
+        0,
+        718,
+        576,
+        1170
+      ],
+      [
+        735,
+        235,
+        1036,
+        381
+      ]
+    ],
+    "after_lab_close": [
+      [
+        735,
+        235,
+        1036,
+        381
+      ]
+    ],
+    "real_timer_survives": true
+  },
+  "parameters-reset": {
+    "before_size_change": [
+      [
+        599,
+        235,
+        1036,
+        469
+      ],
+      [
+        735,
+        235,
+        1036,
+        381
+      ]
+    ],
+    "after_size_change": [
+      [
+        599,
+        235,
+        1036,
+        532
+      ],
+      [
+        735,
+        235,
+        1036,
+        381
+      ]
+    ],
+    "reset_defaults": true,
+    "real_timer_survives_reset": true,
+    "manual_animation_and_vibration_requested": true
+  },
+  "input-playback": {
+    "typed_negative_seconds": true,
+    "playback_crossed_zero": true,
+    "pause_stable": true,
+    "paused_state": [
+      "已用 882.9% · FINISHED"
+    ]
+  },
+  "font-scale": {
+    "font_scale": 2,
+    "label_bounds": {
+      "5 分": "[110,1132][242,1235]",
+      "10 分": "[352,1132][524,1235]",
+      "15 分": "[634,1132][806,1235]",
+      "30 分": "[110,1264][282,1367]"
+    },
+    "heights": [
+      103,
+      103,
+      103,
+      103
+    ]
+  },
+  "permission": {
+    "revocation_removes_overlay_and_service": true,
+    "denied_start_shows_help_without_service": true
+  }
+}

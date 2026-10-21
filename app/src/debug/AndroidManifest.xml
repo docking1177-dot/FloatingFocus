@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity android:name=".ReminderLabActivity" android:exported="false" />
+        <service android:name=".ReminderLabService" android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Debug-only, user-started reminder appearance experiment in a visible overlay. Independent from real countdowns; user can close it at any time." />
+        </service>
+    </application>
+</manifest>

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -120,10 +121,10 @@ class MainActivity : ComponentActivity() {
                     }
                     Spacer(Modifier.height(24.dp))
                     Text("选择时长", style = MaterialTheme.typography.titleSmall)
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(5, 10, 15, 30).forEach { value ->
                             FilterChip(selected = !custom && minutes == value, enabled = !session.active,
-                                onClick = { minutes = value; custom = false }, label = { Text("$value 分") }, modifier = Modifier.weight(1f))
+                                onClick = { minutes = value; custom = false }, label = { Text("$value 分", maxLines = 1, softWrap = false) })
                         }
                     }
                     TextButton(onClick = { input = if (custom) minutes.toString() else ""; showCustom = true }, enabled = !session.active) {
@@ -164,6 +165,7 @@ class MainActivity : ComponentActivity() {
                     Spacer(Modifier.height(20.dp))
                     Text("只提醒，由你决定。\n点击胶囊展开操作，拖动可调整位置。", style = MaterialTheme.typography.bodySmall, color = Color(0xFF667067), lineHeight = 21.sp)
                     TextButton(onClick = { showLicenses = true }) { Text("开源许可") }
+                    DeveloperEntry()
                 }
             }
         }

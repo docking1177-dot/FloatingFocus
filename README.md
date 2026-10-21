@@ -133,6 +133,8 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 ## 验证
 
+Debug 构建的主界面底部提供「提醒实验室」：三种提醒策略切换、时间/超时模拟、连续或节点变化、参数调节及真实跨应用实验悬浮窗。实验状态与正式计时隔离，Release 不包含实验页面或服务。使用与实现见 [REMINDER_LAB.md](docs/REMINDER_LAB.md)。
+
 实际完成的验证及证据见 [0.1.1 检查记录](docs/TEST_RESULTS_0.1.1.md) 和 [0.1.0 检查记录](docs/TEST_RESULTS.md)。未连接设备时不会把真机验收写成通过。
 
 快速真机流程：设置自定义 1 分钟，分别在约 30 秒、48 秒、60 秒观察阶段转换，点击确认；再覆盖跨 App、拖动、横竖屏、熄屏、撤权及通知拒绝路径。完整清单见 [DEVICE\_TEST\_CHECKLIST.md](docs/DEVICE_TEST_CHECKLIST.md)。
