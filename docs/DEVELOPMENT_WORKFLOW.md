@@ -20,7 +20,7 @@ git push -u origin fix/overlay-bounds
 
 ## 版本与发布
 
-当前版本位于 app/build.gradle.kts：versionName 0.1.0、versionCode 1。下一次对外发布例如 0.1.1 / 2；增加功能可用 0.2.0 / 3。versionCode 每次发布递增；文件名改成 0.1.1 不会改变 APK 内部版本。
+当前版本位于 app/build.gradle.kts：versionName 0.1.1、versionCode 2。下一次修复发布例如 0.1.2 / 3；增加功能也可用 0.2.0 / 3。versionCode 每次发布递增；仅修改文件名不会改变 APK 内部版本。
 
 发布时先更新版本和 CHANGELOG，构建并验收，再将最终提交打 Tag（例如 v0.1.1）。GitHub Releases 对应此 Tag，附 APK、校验值、更新说明与已知问题。公开的源码版本应与安装包对应。
 

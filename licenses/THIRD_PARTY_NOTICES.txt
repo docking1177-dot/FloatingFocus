@@ -1,4 +1,4 @@
-Floating Focus 0.1.0
+Floating Focus
 
 This is an independent application, not an official release by any upstream author.
 
