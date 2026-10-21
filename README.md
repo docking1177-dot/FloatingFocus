@@ -62,6 +62,16 @@ sdk.dir=C\:\\Users\\你的用户名\\AppData\\Local\\Android\\Sdk
 
 ## 编译
 
+Windows 工作区的统一检查入口：
+
+```powershell
+.\scripts\check.ps1                # 构建、单测、Lint
+.\scripts\check.ps1 -Mode Unit     # 仅 JVM 单测
+.\scripts\check.ps1 -Mode Emulator # 完整检查后安装启动模拟器应用
+```
+
+本机离线复用缓存可添加 `-Offline`。成功仅输出摘要，完整日志在 `.tools/checks/`；参数与验证范围见 [CHECKS.md](docs/CHECKS.md)。AI 项目入口为 [AGENTS.md](AGENTS.md)。以下为手动构建方式。
+
 Windows PowerShell：
 
 ```powershell

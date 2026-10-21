@@ -12,7 +12,7 @@ Git 仓库只初始化一次。每个完整的小修复提交一次 commit，不
 
 同一问题调试过程中可以反复使用同一版本号。0.1.0 已交付给手机后，将完成的修复作为 0.1.1 交付是合理的；无需每改一行就创建新版本。
 
-模拟器启动与 ADB 操作见 [EMULATOR.md](EMULATOR.md)。
+统一检查使用 `./scripts/check.ps1`；`-Mode Unit` 只跑单测，`-Mode Emulator` 完整检查后安装启动应用，本机缓存可添加 `-Offline`。详见 [CHECKS.md](CHECKS.md)。模拟器启动与 ADB 操作见 [EMULATOR.md](EMULATOR.md)。
 
 日常流程：提出问题 → 建分支 → 修改 → 单测/Lint/构建 → 模拟器或设备回归 → 合并 main → 更新版本 → 打 Tag → 发布 APK。单人项目不需要维护长期 develop 分支。
 
@@ -86,12 +86,15 @@ Gradle 构建自身不会显示运行场景。AI 要判断画面，需要额外�
 
 本项目 MIT 与第三方归属已保留。上传源码范围：app/src、构建配置及 wrapper、脚本、docs、licenses、README、CHANGELOG、CONTRIBUTING 和 .github；排除 SDK、缓存、上游快照、local.properties、密钥和 dist。
 
-公开仓库已建立为 https://github.com/docking1177-dot/FloatingFocus，本机 main 已跟踪 origin/main。另一台电脑可直接 git clone。以下命令仅用于以后把独立工程首次关联到空仓库；不要在当前工程重复执行 remote add：
+公开仓库为 https://github.com/docking1177-dot/FloatingFocus，origin 已配置。2026-10-21 本机已复用 Git Credential Manager 的 docking1177-dot 账号，原生 `git push --dry-run origin HEAD` 验证通过；凭据由系统凭据管理器保存。仓库本地配置固定账号和已验证的 OpenSSL / HTTP 1.1 连接选项，没有修改全局 Git 配置。
+
+日常同步当前开发分支：
 
 ```powershell
-git remote add origin https://github.com/你的账号/FloatingFocus.git
-git push -u origin main
-git push origin v0.1.0
+git status --short
+git diff --stat
+# 检查并提交本次相关文件后
+git push -u origin HEAD
 ```
 
-如果 origin 已存在，先检查 git remote -v，避免覆盖错误地址。推送需要有效 GitHub 登录。仓库地址本身不包含授权，也不要把访问令牌贴进聊天或 remote URL。
+另一台电脑先 clone，再单独登录该电脑的 Git 凭据管理器。需要重新登录时，可运行 `git credential-manager github login --username docking1177-dot --device` 并按终端提示在 GitHub 完成确认。不要运行会打印密码的 `git credential fill`，也不要把访问令牌贴进聊天、脚本或 remote URL。
