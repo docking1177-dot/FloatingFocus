@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-21",
+  "device": "FloatingFocus_API_36",
+  "android": "16",
+  "api": 36,
+  "abi": "x86_64",
+  "emulator": "37.2.12",
+  "acceleration": "WHPX",
+  "apkVersion": "0.1.1",
+  "apkSha256": "f194c4ca25f224b4f482a6695818475da9a683c6cba3a507bd57401b6f1997d7",
+  "fixture": "overlay app-op pre-granted on dedicated emulator",
+  "input": "adb shell input tap/swipe",
+  "assertions": "WindowManager frame moves; tap changes/removes overlay; no FATAL EXCEPTION",
+  "casesPassed": 8
+}

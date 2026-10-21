@@ -12,11 +12,9 @@ import android.graphics.Point
 import android.graphics.Rect
 import android.os.Build
 import android.view.Gravity
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewConfiguration
 import android.view.WindowInsets
 import android.view.WindowManager
+import android.widget.FrameLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -31,7 +29,6 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import kotlin.math.abs
 import kotlin.math.roundToInt
 
 private class FloatingLifecycleOwner : LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
@@ -59,7 +56,12 @@ private class FloatingLifecycleOwner : LifecycleOwner, ViewModelStoreOwner, Save
 class OverlayWindow(private val context: Context, private val onFailure: (RuntimeException) -> Unit) {
     private val manager = context.getSystemService(WindowManager::class.java)
     private val owner = FloatingLifecycleOwner()
-    private val view = ComposeView(context)
+    private val composeView = ComposeView(context)
+    private var dragStartX = 0
+    private var dragStartY = 0
+    private val view = OverlayTouchLayout(context,
+        onDragStart = { dragStartX = params.x; dragStartY = params.y },
+        onDrag = ::dragTo)
     private var attached = false
     private var closed = false
     private var positioned = false
@@ -85,8 +87,10 @@ class OverlayWindow(private val context: Context, private val onFailure: (Runtim
         view.setViewTreeLifecycleOwner(owner)
         view.setViewTreeSavedStateRegistryOwner(owner)
         view.setViewTreeViewModelStoreOwner(owner)
-        view.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-        view.setContent(content)
+        composeView.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        composeView.setContent(content)
+        view.addView(composeView, FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT))
         view.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
             if (!positioned && view.width > 0) {
                 positioned = true
@@ -136,51 +140,22 @@ class OverlayWindow(private val context: Context, private val onFailure: (Runtim
         catch (e: RuntimeException) { onFailure(e) }
     }
 
-    /** Same raw-coordinate drag basis as upstream; only the header captures touches. */
-    @SuppressLint("ClickableViewAccessibility")
-    fun installDrag(handle: View, onTap: () -> Unit) {
-        handle.setOnClickListener { onTap() }
-        var initialX = 0
-        var initialY = 0
-        var rawX = 0f
-        var rawY = 0f
-        var dragging = false
-        val slop = ViewConfiguration.get(context).scaledTouchSlop
-        handle.setOnTouchListener { target, event ->
-            when (event.actionMasked) {
-                MotionEvent.ACTION_DOWN -> {
-                    initialX = params.x; initialY = params.y
-                    rawX = event.rawX; rawY = event.rawY; dragging = false
-                    true
-                }
-                MotionEvent.ACTION_MOVE -> {
-                    val dx = event.rawX - rawX
-                    val dy = event.rawY - rawY
-                    if (abs(dx) > slop || abs(dy) > slop) dragging = true
-                    if (dragging) {
-                        val size = safeSize()
-                        params.x = (initialX + dx).roundToInt().coerceIn(0, (size.x - view.width).coerceAtLeast(0))
-                        params.y = (initialY + dy).roundToInt().coerceIn(0, (size.y - view.height).coerceAtLeast(0))
-                        update()
-                    }
-                    true
-                }
-                MotionEvent.ACTION_UP -> { if (!dragging) target.performClick(); true }
-                MotionEvent.ACTION_CANCEL -> { dragging = false; true }
-                else -> true
-            }
-        }
-    }
-
     fun close() {
         if (closed) return
         closed = true
-        view.disposeComposition()
+        composeView.disposeComposition()
         if (ownerCreated) owner.destroy()
         if (attached) {
             try { manager.removeViewImmediate(view) } catch (_: IllegalArgumentException) { /* already detached */ }
             attached = false
         }
+    }
+
+    private fun dragTo(dx: Float, dy: Float) {
+        val size = safeSize()
+        params.x = (dragStartX + dx).roundToInt().coerceIn(0, (size.x - view.width).coerceAtLeast(0))
+        params.y = (dragStartY + dy).roundToInt().coerceIn(0, (size.y - view.height).coerceAtLeast(0))
+        update()
     }
 
     private fun dp(value: Int) = (value * context.resources.displayMetrics.density).roundToInt()

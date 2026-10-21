@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app.floatingfocus.OverlayDragGestureTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-20T14:22:32" hostname="<host>" time="0.003">
+  <properties/>
+  <testcase name="a tap with small finger jitter keeps the button click" classname="app.floatingfocus.OverlayDragGestureTest" time="0.001"/>
+  <testcase name="returning a drag to its start still cannot click a button" classname="app.floatingfocus.OverlayDragGestureTest" time="0.001"/>
+  <testcase name="large final displacement cannot become a click without prior move events" classname="app.floatingfocus.OverlayDragGestureTest" time="0.0"/>
+  <testcase name="dragging from expanded content cancels the child only once" classname="app.floatingfocus.OverlayDragGestureTest" time="0.0"/>
+  <testcase name="cancellation ignores later moves and resets for the next tap" classname="app.floatingfocus.OverlayDragGestureTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

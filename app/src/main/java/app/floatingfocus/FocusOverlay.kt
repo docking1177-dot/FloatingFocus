@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 
 @Composable
-fun FocusOverlay(state: SessionState, interactive: Boolean, window: OverlayWindow, onStop: () -> Unit) {
+fun FocusOverlay(state: SessionState, interactive: Boolean, onStop: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     val finished = state.stage == ReminderStage.FINISHED
     val color = reminderColor(state.progress)
@@ -52,7 +52,7 @@ fun FocusOverlay(state: SessionState, interactive: Boolean, window: OverlayWindo
                     val v = (12 * resources.displayMetrics.density).toInt()
                     minimumHeight = (48 * resources.displayMetrics.density).toInt()
                     setPadding(h, v, h, v)
-                    window.installDrag(this) { expanded = !expanded }
+                    setOnClickListener { expanded = !expanded }
                 }
             }, update = { handle ->
                 handle.text = if (finished) "◷  时间到了" else "◷  ${formatRemaining(state.remainingMillis)}"

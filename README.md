@@ -1,21 +1,21 @@
 # Floating Focus
 
-[![Android checks](https://github.com/docking1177-dot/FloatingFocus/actions/workflows/android.yml/badge.svg)](https://github.com/docking1177-dot/FloatingFocus/actions/workflows/android.yml)
+![Android checks](https://github.com/docking1177-dot/FloatingFocus/actions/workflows/android.yml/badge.svg)
 
 Android 原生悬浮渐进式提醒计时器。主动设定一段时间，切换到其他 App 后仍可看见倒计时；提醒从安静深灰逐渐转为橙色、红色和轻缓呼吸，到期后短暂震动，点击「知道了」结束。
 
 本项目迁移并改造 [FloatingCountdownTimer](https://github.com/tberghuis/FloatingCountdownTimer) 的悬浮窗生命周期、拖动和服务模式，使用独立品牌、图标及 applicationId。详见 [开源调研](docs/OPEN_SOURCE_REVIEW.md)、[复用记录](docs/REUSE_REPORT.md)、[第三方声明](docs/THIRD_PARTY_NOTICES.md)。
 
-本次交付：`dist/FloatingFocus-0.1.0-debug.apk`（约 23.7 MiB）、`dist/FloatingFocus-source.zip` 和 `dist/SHA256SUMS.txt`。源码包不包含 SDK、缓存和签名私钥；解压后按下文配置开发环境。
+本次交付：`dist/FloatingFocus-0.1.1-debug.apk`、`dist/FloatingFocus-source.zip` 和 `dist/SHA256SUMS.txt`。源码包不包含 SDK、缓存和签名私钥；解压后按下文配置开发环境。
 
-2026-10-20 验证：Debug 构建成功，4 项单元测试通过，Lint 0 错误、8 个依赖更新警告和 1 个 KTX 建议。APK 签名与完整性检查通过；用户已反馈手机安装运行成功，完整场景验收仍待补充。
+0.1.1 修复展开和到期状态下部分区域无法拖动的问题，验证范围见 [0.1.1 检查记录](docs/TEST_RESULTS_0.1.1.md)。2026-10-21 已完成 [Android 16 模拟器交互验证](docs/EMULATOR_VALIDATION.md)，8 项操作通过；真机验收仍待补充。本地模拟器启动见 [操作说明](docs/EMULATOR.md)。
 
 公开仓库：[docking1177-dot/FloatingFocus](https://github.com/docking1177-dot/FloatingFocus)。后续开发、Git 同步、版本发布、签名与 AI/设备验证方式见 [维护指南](docs/DEVELOPMENT_WORKFLOW.md)。参与开发见 [CONTRIBUTING.md](CONTRIBUTING.md)，版本变化见 [CHANGELOG.md](CHANGELOG.md)。GitHub Actions 已完成[云端构建、单测和 Lint](https://github.com/docking1177-dot/FloatingFocus/actions/runs/39431207135)，可在运行页下载 APK 和检查报告。
 
 ## 功能
 
 - 5 / 10 / 15 / 30 分钟和 1—180 分钟自定义时长。
-- 一个可拖动胶囊，默认右上方；点击展开「结束计时 / 收起」。
+- 一个可拖动胶囊，默认右上方；点击展开「结束计时 / 收起」。整个浮窗（包括按钮、到期提示）均可开始拖动，轻触按钮仍执行对应操作。
 - 0—50% 深灰；50—80% 灰到橙；80—100% 橙到红并轻缓呼吸。
 - 到期显示「时间到了」和「知道了」，执行一次 180ms 震动（受设备能力、静音和勿扰设置影响）。
 - 真实经过时间基于 `SystemClock.elapsedRealtime()`；熄屏、切换 App 不主动暂停。
@@ -29,10 +29,12 @@ app/src/main/java/app/floatingfocus/
   MainActivity.kt       时长选择与权限引导
   FloatingService.kt    前台服务、通知、单会话状态、权限撤销、震动
   OverlayWindow.kt      从 A 适配的 Compose 宿主、窗口生命周期与拖动
+  OverlayTouchLayout.kt 整个窗口的触摸分发与按钮点击取消
+  OverlayDragGesture.kt 拖动阈值、位移与取消状态
   FocusOverlay.kt       渐进色彩、轻缓呼吸与展开面板
   Countdown.kt          单调时间模型、ReminderPolicy 与显示格式
   FocusTheme.kt         Material 3 主题
-app/src/test/           JVM 计时行为测试
+app/src/test/           JVM 计时与拖动手势状态测试
 docs/                  调研、归属、测试结果及真机清单
 licenses/              上游 MIT、Apache-2.0
 scripts/build-local.ps1 Windows 本地构建辅助脚本
@@ -59,6 +61,16 @@ sdk.dir=C\:\\Users\\你的用户名\\AppData\\Local\\Android\\Sdk
 ```
 
 ## 编译
+
+Windows 工作区的统一检查入口：
+
+```powershell
+.\scripts\check.ps1                # 构建、单测、Lint
+.\scripts\check.ps1 -Mode Unit     # 仅 JVM 单测
+.\scripts\check.ps1 -Mode Emulator # 完整检查后安装启动模拟器应用
+```
+
+本机离线复用缓存可添加 `-Offline`。成功仅输出摘要，完整日志在 `.tools/checks/`；参数与验证范围见 [CHECKS.md](docs/CHECKS.md)。AI 项目入口为 [AGENTS.md](AGENTS.md)。以下为手动构建方式。
 
 Windows PowerShell：
 
@@ -103,7 +115,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 1. 打开 Floating Focus，选择时长。
 2. 首次开始会说明悬浮权限用途。到系统设置允许「显示在其他应用上层」，返回后再点击开始。
 3. Android 13+ 可点击「开启计时通知」授权。拒绝通知不阻止计时，但通知栏可能不显示通知，仍可从胶囊或主界面结束。
-4. 打开视频 App；点击胶囊可展开，按住胶囊标题拖动。
+4. 打开视频 App；轻触胶囊标题可展开，从悬浮窗任意区域拖动可调整位置，包括展开后的按钮和到期提示。
 5. 到期后点击「知道了」，或随时手动结束。
 
 应用没有要求用户关闭全部系统省电限制，也不通过无障碍绕过系统限制。
@@ -121,7 +133,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 ## 验证
 
-实际完成的验证及证据见 [TEST\_RESULTS.md](docs/TEST_RESULTS.md)。未连接设备时不会把真机验收写成通过。
+实际完成的验证及证据见 [0.1.1 检查记录](docs/TEST_RESULTS_0.1.1.md) 和 [0.1.0 检查记录](docs/TEST_RESULTS.md)。未连接设备时不会把真机验收写成通过。
 
 快速真机流程：设置自定义 1 分钟，分别在约 30 秒、48 秒、60 秒观察阶段转换，点击确认；再覆盖跨 App、拖动、横竖屏、熄屏、撤权及通知拒绝路径。完整清单见 [DEVICE\_TEST\_CHECKLIST.md](docs/DEVICE_TEST_CHECKLIST.md)。
 

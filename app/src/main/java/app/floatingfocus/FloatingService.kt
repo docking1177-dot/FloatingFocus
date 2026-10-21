@@ -123,7 +123,7 @@ class FloatingService : Service() {
             } else startForeground(NOTIFICATION_ID, notification())
             val overlay = OverlayWindow(this) { fail("悬浮窗不可用，计时已结束。", it) }
             window = overlay
-            overlay.show { FocusTheme { FocusOverlay(overlayState, interactive, overlay) { finishSession() } } }
+            overlay.show { FocusTheme { FocusOverlay(overlayState, interactive) { finishSession() } } }
             if (stopping) return START_NOT_STICKY
             ContextCompat.registerReceiver(this, screenReceiver,
                 IntentFilter().apply { addAction(Intent.ACTION_SCREEN_ON); addAction(Intent.ACTION_SCREEN_OFF); addAction(Intent.ACTION_USER_PRESENT) },
