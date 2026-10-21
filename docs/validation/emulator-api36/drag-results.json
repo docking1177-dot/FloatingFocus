@@ -1,0 +1,94 @@
+[
+  {
+    "case": "drag from stop button",
+    "before": [
+      644,
+      235,
+      1080,
+      513
+    ],
+    "after": [
+      364,
+      635,
+      800,
+      913
+    ],
+    "passed": true
+  },
+  {
+    "case": "drag from collapse button",
+    "before": [
+      364,
+      635,
+      800,
+      913
+    ],
+    "after": [
+      164,
+      935,
+      600,
+      1213
+    ],
+    "passed": true
+  },
+  {
+    "case": "tap collapse",
+    "before": [
+      164,
+      935,
+      600,
+      1213
+    ],
+    "after": [
+      164,
+      935,
+      465,
+      1081
+    ],
+    "passed": true
+  },
+  {
+    "case": "tap header expands",
+    "passed": true
+  },
+  {
+    "case": "drag from finished reminder text",
+    "before": [
+      164,
+      935,
+      740,
+      1299
+    ],
+    "after": [
+      364,
+      535,
+      940,
+      899
+    ],
+    "passed": true
+  },
+  {
+    "case": "drag from acknowledgement button",
+    "before": [
+      364,
+      535,
+      940,
+      899
+    ],
+    "after": [
+      164,
+      735,
+      740,
+      1099
+    ],
+    "passed": true
+  },
+  {
+    "case": "tap acknowledgement removes overlay",
+    "passed": true
+  },
+  {
+    "case": "tap stop removes overlay",
+    "passed": true
+  }
+]

@@ -4,6 +4,16 @@
 
 Git 记录源码与文档的每次变更；GitHub 是远程备份、协作与自动检查平台；Gradle 把某次源码提交编译成 APK；手机安装 APK。推送源码不会自动更新手机。
 
+### 日常小修复与发版分开
+
+Git 仓库只初始化一次。每个完整的小修复提交一次 commit，不是重新创建仓库；分支与 PR 用于保存和审查改动。日常调试使用 Gradle 增量构建，再通过 ADB 覆盖安装到模拟器；不必每次增加版本号、复制 dist、压缩源码或发布 Release。修改文档和开发脚本无需重建应用。
+
+适合本项目的轻量流程：修改 → 相关单测与模拟器验证 → commit / push → 自动检查。涉及悬浮触摸的修复还要在目标手机回归；达到可交付状态时再更新版本、整理说明并发布。
+
+同一问题调试过程中可以反复使用同一版本号。0.1.0 已交付给手机后，将完成的修复作为 0.1.1 交付是合理的；无需每改一行就创建新版本。
+
+模拟器启动与 ADB 操作见 [EMULATOR.md](EMULATOR.md)。
+
 日常流程：提出问题 → 建分支 → 修改 → 单测/Lint/构建 → 模拟器或设备回归 → 合并 main → 更新版本 → 打 Tag → 发布 APK。单人项目不需要维护长期 develop 分支。
 
 ```powershell
@@ -23,6 +33,10 @@ git push -u origin fix/overlay-bounds
 当前版本位于 app/build.gradle.kts：versionName 0.1.1、versionCode 2。下一次修复发布例如 0.1.2 / 3；增加功能也可用 0.2.0 / 3。versionCode 每次发布递增；仅修改文件名不会改变 APK 内部版本。
 
 发布时先更新版本和 CHANGELOG，构建并验收，再将最终提交打 Tag（例如 v0.1.1）。GitHub Releases 对应此 Tag，附 APK、校验值、更新说明与已知问题。公开的源码版本应与安装包对应。
+
+GitHub Release 是版本下载页面，Android release 是应用构建类型，两者不同。测试用 debug APK 也可以附在 GitHub Pre-release 中，并明确其测试性质。面向长期使用者的发行包应使用固定、妥善备份的 release 签名；不要在不同机器上临时生成签名来做覆盖更新。
+
+dist 是本地交付目录，不需要保留每次调试构建。此前保留 0.1.0 和 0.1.1 是用于版本对照；确认新版本后可将旧产物归档或删除。Git 保存源码历史，不能代替保留原签名的已发布安装包；Android 通常也不允许直接将更低 versionCode 的旧包覆盖安装。
 
 当前 .github/workflows/android.yml 在 main 推送、v* Tag、PR 或手动触发时执行构建、单测、Lint，并保存 APK 与报告。2026-10-20 已完成一次[云端成功验证](https://github.com/docking1177-dot/FloatingFocus/actions/runs/39431207135)。它没有配置模拟器或真机测试，不能据此声称功能验收通过。
 

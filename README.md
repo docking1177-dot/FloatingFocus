@@ -8,7 +8,7 @@ Android 原生悬浮渐进式提醒计时器。主动设定一段时间，切换
 
 本次交付：`dist/FloatingFocus-0.1.1-debug.apk`、`dist/FloatingFocus-source.zip` 和 `dist/SHA256SUMS.txt`。源码包不包含 SDK、缓存和签名私钥；解压后按下文配置开发环境。
 
-0.1.1 修复展开和到期状态下部分区域无法拖动的问题，验证范围见 [0.1.1 检查记录](docs/TEST_RESULTS_0.1.1.md)。用户已反馈 0.1.0 手机安装运行成功；0.1.1 的完整浮窗拖动与按钮交互仍待真机验收。
+0.1.1 修复展开和到期状态下部分区域无法拖动的问题，验证范围见 [0.1.1 检查记录](docs/TEST_RESULTS_0.1.1.md)。2026-10-21 已完成 [Android 16 模拟器交互验证](docs/EMULATOR_VALIDATION.md)，8 项操作通过；真机验收仍待补充。本地模拟器启动见 [操作说明](docs/EMULATOR.md)。
 
 公开仓库：[docking1177-dot/FloatingFocus](https://github.com/docking1177-dot/FloatingFocus)。后续开发、Git 同步、版本发布、签名与 AI/设备验证方式见 [维护指南](docs/DEVELOPMENT_WORKFLOW.md)。参与开发见 [CONTRIBUTING.md](CONTRIBUTING.md)，版本变化见 [CHANGELOG.md](CHANGELOG.md)。GitHub Actions 已完成[云端构建、单测和 Lint](https://github.com/docking1177-dot/FloatingFocus/actions/runs/39431207135)，可在运行页下载 APK 和检查报告。
 
