@@ -83,6 +83,7 @@ class MainActivity : ComponentActivity() {
         var permissionMessage by rememberSaveable { mutableStateOf<String?>(null) }
         var permissionHelp by rememberSaveable { mutableStateOf(false) }
         var showLicenses by rememberSaveable { mutableStateOf(false) }
+        var quickStarting by remember { mutableStateOf(false) }
         // Result never auto-starts a timer: start must happen while this activity is visible.
         val notificationRequest = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
             notificationAllowed = hasNotificationPermission()
@@ -124,11 +125,11 @@ class MainActivity : ComponentActivity() {
                     Text("选择时长", style = MaterialTheme.typography.titleSmall)
                     FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(5, 10, 15, 30).forEach { value ->
-                            FilterChip(selected = !custom && minutes == value, enabled = !session.active && !monitor.enabled,
+                            FilterChip(selected = !custom && minutes == value, enabled = !session.active && !monitor.enabled && !quickStarting,
                                 onClick = { minutes = value; custom = false }, label = { Text("$value 分", maxLines = 1, softWrap = false) })
                         }
                     }
-                    TextButton(onClick = { input = if (custom) minutes.toString() else ""; showCustom = true }, enabled = !session.active && !monitor.enabled) {
+                    TextButton(onClick = { input = if (custom) minutes.toString() else ""; showCustom = true }, enabled = !session.active && !monitor.enabled && !quickStarting) {
                         Text(if (custom) "自定义：$minutes 分钟" else "自定义时长 →")
                     }
                     Spacer(Modifier.height(12.dp))
@@ -138,14 +139,18 @@ class MainActivity : ComponentActivity() {
                             Text(if (monitor.enabled) "停止 App 监测" else if (session.stage == ReminderStage.FINISHED) "知道了，结束计时" else "结束倒计时")
                         }
                     } else {
-                        Button(onClick = {
+                        Button(enabled = !quickStarting, onClick = {
                             if (!Settings.canDrawOverlays(this@MainActivity)) permissionHelp = true
                             else FloatingService.start(this@MainActivity, minutes * 60_000L)
                         }, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text("开始倒计时") }
                     }
                     Spacer(Modifier.height(20.dp))
-                    TextButton(onClick = { startActivity(Intent(this@MainActivity, AutoTriggerActivity::class.java)) }) {
-                        Text("指定 App 自动计时 · 可选")
+                    QuickLaunchCard(minutes, enabled = !session.active && !monitor.enabled,
+                        onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true })
+                    if (FeatureFlags.APP_USAGE_AUTO_TIMER) {
+                        TextButton(onClick = { startActivity(Intent(this@MainActivity, AutoTriggerActivity::class.java)) }) {
+                            Text("指定 App 自动计时 · 可选")
+                        }
                     }
                     if (!overlayAllowed) {
                         PermissionCard("允许显示悬浮窗", "用于在其他 App 上方显示倒计时。", "去授权") { permissionHelp = true }

@@ -67,6 +67,7 @@ class UsageAppMonitor(
     }
 
     fun start() {
+        if (!FeatureFlags.APP_USAGE_AUTO_TIMER) return
         AutoTriggerLog.record(context, "MONITOR_START intervalMs=${config.intervalMillis} targetCount=${config.packages.size}")
         scope.launch {
             while (!closed) {

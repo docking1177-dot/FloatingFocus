@@ -100,6 +100,11 @@ class FloatingService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) { finishSession(); return START_NOT_STICKY }
+        if (intent?.action == ACTION_MONITOR && !FeatureFlags.APP_USAGE_AUTO_TIMER) {
+            // A stale internal intent must not stop an unrelated manual timer.
+            if (countdown == null && monitor == null) stopSelf(startId)
+            return START_NOT_STICKY
+        }
         if (countdown != null || monitor != null) return START_NOT_STICKY // modes never replace an active session
         if (intent?.action == ACTION_MONITOR) return startMonitoring()
         val duration = intent?.getLongExtra(EXTRA_DURATION, 0L) ?: 0L
@@ -112,7 +117,6 @@ class FloatingService : Service() {
         }
         countdown = Countdown(duration, SystemClock.elapsedRealtime())
         overlayState = SessionState(true, duration)
-        mutableSession.value = overlayState
         interactive = getSystemService(PowerManager::class.java).isInteractive
         val nm = getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(NotificationChannel(CHANNEL, "悬浮计时", NotificationManager.IMPORTANCE_LOW).apply {
@@ -133,6 +137,8 @@ class FloatingService : Service() {
             receiverRegistered = true
             appOps.startWatchingMode(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW, packageName, opsListener)
             watchingOps = true
+            // Publish success only after the foreground service and overlay are ready.
+            mutableSession.value = overlayState
             handler.post(tick)
         } catch (e: RuntimeException) {
             fail("系统未允许启动悬浮计时，请返回主界面重试。", e)
@@ -151,6 +157,7 @@ class FloatingService : Service() {
     }
 
     private fun startMonitoring(): Int {
+        if (!FeatureFlags.APP_USAGE_AUTO_TIMER) { stopSelf(); return START_NOT_STICKY }
         if (!Settings.canDrawOverlays(this) || !AutoTriggerConfig.hasUsageAccess(this)) {
             fail("请先允许悬浮窗和使用情况访问，再主动开启监测。")
             return START_NOT_STICKY
@@ -278,6 +285,7 @@ class FloatingService : Service() {
         private val mutableMonitor = MutableStateFlow(AutoMonitorStatus())
         val monitoring = mutableMonitor.asStateFlow()
         fun startMonitoring(context: Context) {
+            if (!FeatureFlags.APP_USAGE_AUTO_TIMER) return
             if (mutableSession.value.active || mutableMonitor.value.enabled) return
             try {
                 ContextCompat.startForegroundService(context, Intent(context, FloatingService::class.java).setAction(ACTION_MONITOR))
@@ -285,14 +293,17 @@ class FloatingService : Service() {
                 mutableSession.value = SessionState(error = "系统暂时无法开启监测，请保持设置页面可见后重试。")
             }
         }
-        fun start(context: Context, durationMillis: Long) {
-            if (mutableMonitor.value.enabled) return
+        fun start(context: Context, durationMillis: Long): Boolean {
+            if (mutableMonitor.value.enabled || mutableSession.value.active) return false
+            mutableSession.value = SessionState()
             try {
                 ContextCompat.startForegroundService(context, Intent(context, FloatingService::class.java)
                     .setAction(ACTION_START).putExtra(EXTRA_DURATION, durationMillis))
+                return true
             } catch (e: RuntimeException) {
                 Log.w(TAG, "Foreground start rejected", e)
                 mutableSession.value = SessionState(error = "系统暂时无法启动计时，请保持主界面可见后重试。")
+                return false
             }
         }
         fun stop(context: Context) {

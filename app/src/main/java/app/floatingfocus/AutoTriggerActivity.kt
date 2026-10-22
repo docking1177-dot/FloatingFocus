@@ -50,23 +50,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-private data class SelectableApp(val packageName: String, val label: String)
-
 class AutoTriggerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!FeatureFlags.APP_USAGE_AUTO_TIMER) { finish(); return }
         enableEdgeToEdge()
         setContent { FocusTheme { SettingsScreen() } }
-    }
-
-    @Suppress("DEPRECATION")
-    private fun selectableApps(): List<SelectableApp> {
-        val homePackages = packageManager.queryIntentActivities(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0)
-            .map { it.activityInfo.packageName }.toSet()
-        return packageManager.queryIntentActivities(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0)
-            .filter { it.activityInfo.packageName != packageName && it.activityInfo.packageName !in homePackages }
-            .map { SelectableApp(it.activityInfo.packageName, it.loadLabel(packageManager).toString()) }
-            .distinctBy { it.packageName }.sortedBy { it.label.lowercase() }
     }
 
     @Composable
@@ -76,7 +65,7 @@ class AutoTriggerActivity : ComponentActivity() {
         var minutes by rememberSaveable { mutableStateOf((saved.durationMillis / 60_000).toString()) }
         var interval by rememberSaveable { mutableLongStateOf(saved.intervalMillis) }
         var search by rememberSaveable { mutableStateOf("") }
-        var apps by remember { mutableStateOf<List<SelectableApp>>(emptyList()) }
+        var apps by remember { mutableStateOf<List<LaunchableApp>>(emptyList()) }
         var loaded by remember { mutableStateOf(false) }
         var message by remember { mutableStateOf<String?>(null) }
         var usage by remember { mutableStateOf(AutoTriggerConfig.hasUsageAccess(this)) }
@@ -102,7 +91,7 @@ class AutoTriggerActivity : ComponentActivity() {
         }
         LaunchedEffect(Unit) {
             try {
-                apps = withContext(Dispatchers.IO) { selectableApps() }
+                apps = withContext(Dispatchers.IO) { launchableApps() }
                 selected = selected.filter { pkg -> apps.any { it.packageName == pkg } }
             } catch (_: RuntimeException) { message = "无法读取可启动 App 列表，请重新打开页面。" }
             loaded = true
