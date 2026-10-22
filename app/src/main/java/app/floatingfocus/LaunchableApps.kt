@@ -3,8 +3,6 @@ package app.floatingfocus
 import android.content.Context
 import android.content.Intent
 
-data class LaunchableApp(val packageName: String, val label: String)
-
 /** Shared by the quick launcher and the retained, deferred auto-timer settings. */
 @Suppress("DEPRECATION")
 fun Context.launchableApps(): List<LaunchableApp> {

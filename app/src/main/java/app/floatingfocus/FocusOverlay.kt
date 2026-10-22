@@ -27,14 +27,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 
 @Composable
 fun FocusOverlay(
     appearance: ReminderPresentation,
     interactive: Boolean,
-    simulation: Boolean = false,
     animationRequest: Int = 0,
     onConfirm: () -> Unit = {},
     onStop: () -> Unit
@@ -61,8 +59,6 @@ fun FocusOverlay(
     Surface(color = Color(appearance.colorArgb), shape = RoundedCornerShape((28 * size).dp),
         modifier = Modifier.padding(2.dp).graphicsLayer { this.alpha = alpha * manualPulse.value * appearance.opacity }) {
         Column {
-            if (simulation) Text("实验预览 · 不影响正式计时", color = Color.White,
-                fontSize = 10.sp, modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp))
             AndroidView(factory = { context ->
                 TextView(context).apply {
                     gravity = Gravity.CENTER
@@ -87,11 +83,11 @@ fun FocusOverlay(
             if (finished) {
                 Text("给眼睛一个休息的机会", color = Color.White, modifier = Modifier.padding(horizontal = 20.dp))
                 TextButton(onClick = onStop, modifier = Modifier.padding(horizontal = 8.dp)) {
-                    Text(if (simulation) "关闭实验悬浮窗" else "知道了", color = Color.White)
+                    Text("知道了", color = Color.White)
                 }
             } else if (expanded) {
                 Row(modifier = Modifier.padding(horizontal = 8.dp)) {
-                    TextButton(onClick = onStop) { Text(if (simulation) "关闭实验悬浮窗" else "结束计时", color = Color.White) }
+                    TextButton(onClick = onStop) { Text("结束计时", color = Color.White) }
                     TextButton(onClick = { expanded = false }) { Text("收起", color = Color.White) }
                 }
             }

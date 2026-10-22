@@ -75,7 +75,7 @@ class ReminderLabActivity : ComponentActivity() {
                 Text("Debug · 仅模拟，不修改正式计时。返回退出会关闭实验悬浮窗；按 Home 可跨应用查看。",
                     style = MaterialTheme.typography.bodySmall)
                 Text("实时预览", style = MaterialTheme.typography.titleMedium)
-                FocusOverlay(lab.appearance, interactive = true, simulation = true,
+                FocusOverlay(lab.appearance, interactive = true,
                     animationRequest = ReminderLabState.animationRequest,
                     onConfirm = { ReminderLabState.simulation = ReminderLabState.simulation.confirm() },
                     onStop = { ReminderLabService.hide(this@ReminderLabActivity) })

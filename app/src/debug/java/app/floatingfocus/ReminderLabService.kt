@@ -67,7 +67,7 @@ class ReminderLabService : Service() {
             window = overlay
             overlay.show { FocusTheme {
                 FocusOverlay(ReminderLabState.simulation.appearance, interactive,
-                    simulation = true, animationRequest = ReminderLabState.animationRequest,
+                    animationRequest = ReminderLabState.animationRequest,
                     onConfirm = { ReminderLabState.simulation = ReminderLabState.simulation.confirm() }, onStop = ::close)
             } }
             // show() can report a synchronous failure and clear window via close().
