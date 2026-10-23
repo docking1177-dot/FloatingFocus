@@ -26,6 +26,8 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.SideEffect
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,7 +50,8 @@ class FloatingService : Service() {
     private var window: OverlayWindow? = null
     private var overlayState by mutableStateOf(SessionState())
     private var interactive by mutableStateOf(true)
-    private var vibrated = false
+    private val completionReminder = CompletionReminder()
+    private val settingsStore by lazy { ReminderSettingsStore.get(this) }
     private var receiverRegistered = false
     private var watchingOps = false
     private var stopping = false
@@ -84,9 +87,9 @@ class FloatingService : Service() {
             val previousStage = overlayState.stage
             overlayState = SessionState(true, remaining, progress, stage)
             mutableSession.value = overlayState
-            if (stage == ReminderStage.FINISHED && !vibrated) {
-                vibrated = true
-                ReminderVibration.once(this@FloatingService)
+            if (completionReminder.consume(active = true, paused = false, remainingMillis = remaining)) {
+                Log.d(TAG, "Timer completed: remaining=$remaining")
+                ReminderVibration.once(this@FloatingService, settingsStore.settings.value.intensity)
             }
             if (stage != previousStage) {
                 getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification())
@@ -116,6 +119,7 @@ class FloatingService : Service() {
             return START_NOT_STICKY
         }
         countdown = Countdown(duration, SystemClock.elapsedRealtime())
+        completionReminder.reset()
         overlayState = SessionState(true, duration)
         interactive = getSystemService(PowerManager::class.java).isInteractive
         val nm = getSystemService(NotificationManager::class.java)
@@ -151,7 +155,10 @@ class FloatingService : Service() {
         val overlay = OverlayWindow(this) { fail("悬浮窗不可用，计时已结束。", it) }
         window = overlay
         overlay.show { FocusTheme {
-            FocusOverlay(ReminderPresenter.present(ReminderSnapshot(overlayState.remainingMillis, overlayState.progress)),
+            val settings by settingsStore.settings.collectAsState()
+            val appearance = ReminderPresenter.present(ReminderSnapshot(overlayState.remainingMillis, overlayState.progress), settings)
+            SideEffect { overlay.setGeometry(appearance.shape, appearance.size) }
+            FocusOverlay(appearance,
                 interactive) { finishSession() }
         } }
     }
@@ -189,9 +196,8 @@ class FloatingService : Service() {
                     mutableSession.value = overlayState
                     if (status.running) {
                         showOverlay()
-                        if (!stopping && snapshot.stage == ReminderStage.FINISHED && !vibrated) {
-                            vibrated = true
-                            ReminderVibration.once(this)
+                        if (!stopping && completionReminder.consume(started, !status.running, snapshot.remainingMillis)) {
+                            ReminderVibration.once(this, settingsStore.settings.value.intensity)
                             AutoTriggerLog.record(this, "TIMER_FINISHED vibration=once")
                         }
                     } else { window?.close(); window = null }
@@ -219,7 +225,7 @@ class FloatingService : Service() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         val finished = overlayState.stage == ReminderStage.FINISHED
         return NotificationCompat.Builder(this, CHANNEL)
-            .setSmallIcon(R.drawable.ic_notification).setContentTitle(if (automatic) "指定 App 监测 · ${if (mutableMonitor.value.running) "计时中" else "已暂停/等待"}" else if (finished) "时间到了 · 休息一下吧" else "Floating Focus · 正在计时")
+            .setSmallIcon(R.drawable.ic_notification).setContentTitle(if (automatic) "指定 App 监测 · ${if (mutableMonitor.value.running) "计时中" else "已暂停/等待"}" else if (finished) "时间到了" else "Floating Focus · 正在计时")
             .setContentText(if (automatic) "${mutableMonitor.value.reason} · 点击管理；可随时停止" else if (finished) "点击悬浮窗上的「知道了」结束" else "点击悬浮胶囊可展开操作")
             .setContentIntent(open).addAction(0, if (automatic) "停止监测" else if (finished) "知道了" else "结束计时", stop)
             .setWhen(System.currentTimeMillis() + overlayState.remainingMillis)

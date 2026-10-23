@@ -159,4 +159,6 @@ class OverlayWindow(private val context: Context, private val onFailure: (Runtim
     }
 
     private fun dp(value: Int) = (value * context.resources.displayMetrics.density).roundToInt()
+
+    fun setGeometry(shape: OverlayShape, size: Float) { view.setGeometry(shape, size) }
 }

@@ -31,10 +31,8 @@ internal fun quickLaunchLayoutPicker(): QuickLaunchLayout {
             }, label = { Text(label) })
         }
     }
-    Text(when (layout) {
-        QuickLaunchLayout.LIST -> "名称完整、点按清楚，适合少量常用 App。"
-        QuickLaunchLayout.GRID -> "同屏展示更多 App，适合多个常用目标。"
-        QuickLaunchLayout.STRIP -> "节省纵向空间，左右滑动查看更多 App。"
-    }, style = MaterialTheme.typography.bodySmall)
+    if (layout == QuickLaunchLayout.STRIP) {
+        Text("左右滑动查看更多 App", style = MaterialTheme.typography.bodySmall)
+    }
     return layout
 }

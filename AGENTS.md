@@ -1,16 +1,23 @@
 # Floating Focus：AI 项目指南
 
 ## 项目与入口
+
 - Android 原生 Kotlin / Jetpack Compose 悬浮渐进提醒计时器，包名 `app.floatingfocus`。
 - 保持轻量：功能变更以当前需求为界，不顺带扩展权限、依赖或后台保活机制。
+- 首页服务于快速开始计时：优先呈现时长选择、开始按钮和常用 App 快捷启动；不放重复的大型时间展示。运行状态采用紧凑、可操作的表达，时间感知主要交给悬浮窗；删减内容时同步收紧首屏间距。
+- 界面文案从简：只保留操作、状态、必要说明与错误提示；删除宣传语、情绪性文案、重复提示和非必要的颜色阶段介绍，并收起删除后多余的留白。可保留 Floating Focus 标题，不以精简为由删去权限说明、操作指引或必要的调试信息。
+- 外观设置需要即时可见的反馈：优先复用真实渲染组件，调参时保持预览可见；预览状态不进入真实计时，也不触发服务或震动。保留必要说明，明确预览进度与真实进度的区别。
+- 主动归纳用户反复强调或明确确认的产品取舍，在相关改动中同步更新本指南，无需等待单独要求写文档。记录原则、适用边界与代码入口，不把一次性的实现选择扩大成永久规则，不擅自扩大功能或权限范围。
 - 主界面在 `MainActivity.kt`；会话和前台服务在 `FloatingService.kt`；计时模型在 `Countdown.kt`。
 - 浮窗宿主与边界在 `OverlayWindow.kt`，整个窗口的手势分发在 `OverlayTouchLayout.kt`，手势状态在 `OverlayDragGesture.kt`，内容在 `FocusOverlay.kt`。
 - 提醒策略与渲染数据在 `ReminderPresentation.kt`；实验室仅在 `app/src/debug/`，不得把模拟状态写入正式服务。使用与设计按需看 `docs/REMINDER_LAB.md`。
+- 正式外观设置在 `SettingsActivity.kt`，统一由 `ReminderSettingsStore.kt` 持久化并实时共享；实验室只读取外观配置，不新增平行调参入口。颜色/形状、版本边界及震动链路见 `docs/SETTINGS.md`，归零单次触发由 `CompletionReminder.kt` 管理。
 - App 自动计时已 Deferred：`FeatureFlags.APP_USAGE_AUTO_TIMER=false`，禁止未经新需求重新启用或继续优化监测；保留代码和测试，进度/恢复步骤见 `docs/AUTO_TRIGGER.md`。禁止无障碍路径。
 - 一键打开目标 App + 手动计时在 `QuickLaunchCard.kt`，复用 `FloatingService`；多选迁移在 `QuickLaunchTargets.kt`，App 列表在 `LaunchableApps.kt`。Debug 的 `QuickLaunchLayoutPicker.kt` 提供布局比较，Release 固定列表。不读取使用事件，行为与验收见 `docs/QUICK_LAUNCH.md`。
 - 上述源码均位于 `app/src/main/java/app/floatingfocus/`；JVM 测试在 `app/src/test/`。
 
 ## 工作与检查
+
 - 开始修改前检查 Git 状态，保留用户现有改动；先定位相关代码，不要求每次通读全部文档。
 - Windows 统一检查入口：`./scripts/check.ps1`，默认完整构建、单测和 Lint。
 - 只跑 JVM 单测：`./scripts/check.ps1 -Mode Unit`。
@@ -22,6 +29,7 @@
 - 报告区分源码检查、JVM 单测、模拟器和真机结果；未执行的项目不能写成通过。
 
 ## 环境、签名与产物
+
 - 本机 SDK 在 `.tools/android-sdk`，AVD 在 `.tools/avd`，Gradle 缓存在 `.gradle-home`；详细设置按需看 `docs/EMULATOR.md`。
 - 使用现有 JDK 17/21 和 `scripts/build-local.ps1`；不改系统代理配置，不为普通构建重装整个工具链。
 - `.tools/debug.keystore` 对应此前交付到手机的测试签名，须保留。密钥、凭据、SDK、AVD、缓存和 `local.properties` 不提交、不打印。
@@ -29,13 +37,17 @@
 - 新版本覆盖安装前确认包名、签名兼容；公开交付时递增 versionCode。CI 临时 Debug 签名不能假定可覆盖手机现有包。
 
 ## Git 与发布
+
 - 一个完整改动形成一次逻辑清晰的提交。使用原生 Git 同步，先核对当前分支及远端。
 - 凭据交给 Git Credential Manager；不把令牌写进脚本、remote URL、日志或仓库文件。
 - 不覆盖用户改动，不强推或重写既有远端历史。遇到远端前进先检查差异再同步。
 - 修改、提交、推送与正式发版分开；普通修复调试无需每次增加版本、打标签、压缩源码或创建 Release。
+- 主动完成收尾：已完成且通过必要检查的逻辑改动应形成提交；已有同步授权时推送当前开发分支，不因改动小而长期只留本地。先检查已有差异的归属；不混入无关用户改动。报告提交、推送目标、是否合并主分支及未完成的验证，不把构建 APK 等同于 GitHub 更新。
+- 版本在发布节点决定：同一轮 Debug 迭代可保持版本号；公开交付新版本时递增 versionCode，纯修复通常增加补丁号，新功能里程碑通常增加次版本号。先完成发布范围判断，再修改版本、打标签；普通分支同步不自动触发发版。
 - 当前任务授权范围内完成必要验证与同步；合并或发布按用户当次指令执行。
 
 ## 按需参考
+
 - 构建环境与功能：`README.md`。
 - 开发、同步、签名和发布：`docs/DEVELOPMENT_WORKFLOW.md`。
 - 统一检查参数：`docs/CHECKS.md`。

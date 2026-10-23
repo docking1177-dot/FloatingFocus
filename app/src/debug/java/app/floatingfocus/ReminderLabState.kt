@@ -12,8 +12,8 @@ internal object ReminderLabState {
     var overlayVisible by mutableStateOf(false)
     var message by mutableStateOf<String?>(null)
 
-    fun reset() {
-        simulation = LabSimulation()
+    fun reset(settings: ReminderSettings = ReminderSettings()) {
+        simulation = LabSimulation(settings = settings)
         animationRequest = 0
         message = null
     }

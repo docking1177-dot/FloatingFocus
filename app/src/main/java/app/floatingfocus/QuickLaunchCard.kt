@@ -108,15 +108,14 @@ fun QuickLaunchCard(minutes: Int, enabled: Boolean, onBusyChange: (Boolean) -> U
         }
     }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("打开 App，开始专注", style = MaterialTheme.typography.titleSmall)
+        Text("打开 App 并计时", style = MaterialTheme.typography.titleSmall)
         TextButton(enabled = enabled && !busy, onClick = { choosing = true }) {
             Text(if (targets.isEmpty()) "添加常用 App" else "管理常用 App（${targets.size}）")
         }
         val layout = quickLaunchLayoutPicker()
-        if (targets.isEmpty()) Text("可选择多个常用 App，添加后点任意一个即可打开并计时。", style = MaterialTheme.typography.bodySmall)
         QuickLaunchButtons(targets, layout, enabled && !busy, launch)
         if (busy) Text("正在启动…")
-        Text("使用上方所选的 $minutes 分钟；离开目标 App 后计时仍继续。", style = MaterialTheme.typography.bodySmall)
+        if (targets.isNotEmpty()) Text("离开 App 后计时仍继续。", style = MaterialTheme.typography.bodySmall)
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
     }
     if (choosing) {

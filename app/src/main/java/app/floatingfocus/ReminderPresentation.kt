@@ -15,6 +15,12 @@ data class ReminderSnapshot(val remainingMillis: Long, val progress: Float, val 
 
 enum class ReminderStyle { COLOR, SIZE, CONFIRM }
 enum class ChangeMode { CONTINUOUS, STEPS }
+enum class OverlayShape { ROUNDED_RECTANGLE, CIRCLE }
+enum class OverlayColor(val argb: Int, val label: String) {
+    GRAPHITE(0xFF303833.toInt(), "石墨"), BLUE(0xFF264B73.toInt(), "蓝色"),
+    GREEN(0xFF28553C.toInt(), "绿色"), PURPLE(0xFF583A70.toInt(), "紫色"),
+    BROWN(0xFF70452D.toInt(), "棕色")
+}
 
 data class ReminderSettings(
     val style: ReminderStyle = ReminderStyle.COLOR,
@@ -22,7 +28,9 @@ data class ReminderSettings(
     val sizeMode: ChangeMode = ChangeMode.CONTINUOUS,
     val intensity: Float = 1f,
     val baseSize: Float = 1f,
-    val opacity: Float = 0.94f
+    val opacity: Float = 0.94f,
+    val color: OverlayColor = OverlayColor.GRAPHITE,
+    val shape: OverlayShape = OverlayShape.ROUNDED_RECTANGLE
 ) {
     init {
         require(intensity.isFinite() && intensity in 0f..1f)
@@ -39,7 +47,8 @@ data class ReminderPresentation(
     val size: Float,
     val opacity: Float,
     val pulseDepth: Float,
-    val confirmationRequired: Boolean
+    val confirmationRequired: Boolean,
+    val shape: OverlayShape = OverlayShape.ROUNDED_RECTANGLE
 )
 
 object ReminderPresenter {
@@ -54,15 +63,16 @@ object ReminderPresenter {
     ): ReminderPresentation {
         val p = snapshot.progress.coerceIn(0f, 1f)
         val finished = snapshot.stage == ReminderStage.FINISHED
+        val baseColor = settings.color.argb
         val color = when (settings.colorMode) {
             ChangeMode.STEPS -> when {
-                p < ReminderPolicy.WARM_START -> GREY
+                p < ReminderPolicy.WARM_START -> baseColor
                 p < ReminderPolicy.URGENT_START -> ORANGE
                 else -> RED
             }
             ChangeMode.CONTINUOUS -> when {
-                p < ReminderPolicy.WARM_START -> GREY
-                p < ReminderPolicy.URGENT_START -> mix(GREY, ORANGE, (p - 0.5f) / 0.3f)
+                p < ReminderPolicy.WARM_START -> baseColor
+                p < ReminderPolicy.URGENT_START -> mix(baseColor, ORANGE, (p - 0.5f) / 0.3f)
                 else -> mix(ORANGE, RED, (p - 0.8f) / 0.2f)
             }
         }
@@ -82,12 +92,13 @@ object ReminderPresenter {
                 else -> "◷  ${formatRemaining(snapshot.remainingMillis)}"
             },
             finished = finished,
-            colorArgb = if (settings.style == ReminderStyle.COLOR) mix(GREY, color, settings.intensity) else GREY,
+            colorArgb = if (settings.style == ReminderStyle.COLOR) mix(baseColor, color, settings.intensity) else baseColor,
             size = settings.baseSize * if (settings.style == ReminderStyle.SIZE) 1f + 0.5f * sizeProgress * settings.intensity else 1f,
             opacity = settings.opacity,
             pulseDepth = if (snapshot.stage == ReminderStage.URGENT) 0.18f * settings.intensity else 0f,
             confirmationRequired = settings.style == ReminderStyle.CONFIRM &&
-                snapshot.stage != ReminderStage.QUIET && snapshot.stage != acknowledgedStage
+                snapshot.stage != ReminderStage.QUIET && snapshot.stage != acknowledgedStage,
+            shape = settings.shape
         )
     }
 

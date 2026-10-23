@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-23",
+  "device": "AOSP Android 16 API 36 emulator-5554 (headless, screenshots inspected)",
+  "debug_apk_sha256": "04e122809dd0cefeb7b1dab106a48c30316597fd6796460e79d80ee4afb2c752",
+  "build": {
+    "debug_tests": 50,
+    "release_tests": 44,
+    "failures": 0,
+    "debug_lint_errors": 0,
+    "debug_lint_warnings": 1,
+    "release_lint_issues": 0
+  },
+  "ui_passed": [
+    "Home has no large time card; duration and start remain visible",
+    "Manual timer start and stop with real overlay",
+    "Live color and shape changes in settings preview",
+    "Continuous and step color mode comparison at same preview progress",
+    "Live intensity, base size and opacity changes while preview stays visible",
+    "Preview progress 100 percent with size 1.50 and intensity 1.00 shows completion; no timer service",
+    "Preview native timer text cannot expand or drag",
+    "Settings retained across process restart",
+    "Circle preview fitted with readable text in landscape and 1.3 font scale",
+    "Round rectangle preview after fit change"
+  ],
+  "user_device_feedback": {
+    "model": "REDMI K80",
+    "android": "16",
+    "result": "User reports vibration succeeds on preceding APK; individual scenarios unspecified"
+  },
+  "not_verified": [
+    "New home and preview on physical REDMI K80",
+    "Silent and DND physical vibration scenarios"
+  ],
+  "evidence_directory": ".tools/home-preview-validation/",
+  "notes": [
+    "UI checks ran across incremental builds; final screenshots ending fitted and exact-finished cover the preview-fit correction.",
+    "Window component behavior outside the settings preview retains controlsEnabled=true.",
+    "Older full overlay regression results remain in docs/validation/settings/results.json, tied to their original APK hash."
+  ]
+}

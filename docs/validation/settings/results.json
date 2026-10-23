@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-23",
+  "device": "AOSP Android 16 API 36 emulator-5554",
+  "apk_sha256": "26fcc2c7684dcc670ab343ff9167956fdd6c5f413b8b0a32ff9bdeb05a0d7118",
+  "debug": {
+    "tests": 50,
+    "failures": 0,
+    "lint_errors": 0,
+    "lint_warnings": 1
+  },
+  "release": {
+    "tests": 44,
+    "failures": 0,
+    "lint_issues": 0,
+    "settings_activity_present": true,
+    "lab_classes_absent": true
+  },
+  "ui_passed": [
+    "gear opens settings",
+    "all five controls write preferences",
+    "process restart retains preferences",
+    "live color and shape update without restarting timer",
+    "round rectangle and circle rendering",
+    "circle transparent corner does not initiate drag on API 36",
+    "circle expand and drag",
+    "maximum size circle expiry title and close button visible and clickable",
+    "lab parameter controls removed",
+    "lab reset preserves official settings",
+    "cross-app overlay on launcher and Gallery",
+    "cancel closes overlay"
+  ],
+  "vibration_verified": [
+    "baseline old APK notification 180ms finished",
+    "foreground expiry alarm 441ms finished at intensity 0.805",
+    "background expiry alarm 441ms finished at intensity 0.805",
+    "manual lab alarm 500ms finished at intensity 1",
+    "zero intensity lab reports skipped with no new request",
+    "zero intensity natural expiry has no new request",
+    "raising intensity while already at zero does not replay completion",
+    "cancel and lab reset do not add vibration requests"
+  ],
+  "unit_only": [
+    "pause or inactive completion suppression",
+    "exact remaining zero and per-session reset",
+    "corrupt and absent settings",
+    "all preset dynamic colors meet white-text solid-background contrast 4.5"
+  ],
+  "not_verified": [
+    "REDMI K80 physical vibration with new APK",
+    "vendor power management",
+    "runtime on Android 10-15",
+    "physical vibration in silent or DND mode"
+  ],
+  "compatibility_limit": "API 29-32 rejects shape-corner gestures but public APIs cannot set a nonrectangular window pass-through region",
+  "raw_evidence": ".tools/settings-validation/"
+}

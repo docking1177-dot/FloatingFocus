@@ -19,6 +19,8 @@ import android.provider.Settings
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.SideEffect
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 
@@ -66,7 +68,11 @@ class ReminderLabService : Service() {
             val overlay = OverlayWindow(this) { fail("实验悬浮窗无法显示，请检查权限后重试。") }
             window = overlay
             overlay.show { FocusTheme {
-                FocusOverlay(ReminderLabState.simulation.appearance, interactive,
+                val settings by ReminderSettingsStore.get(this).settings.collectAsState()
+                val lab = ReminderLabState.simulation
+                val appearance = ReminderPresenter.present(lab.snapshot, settings.copy(style = lab.settings.style), lab.acknowledgedStage)
+                SideEffect { overlay.setGeometry(appearance.shape, appearance.size) }
+                FocusOverlay(appearance, interactive,
                     animationRequest = ReminderLabState.animationRequest,
                     onConfirm = { ReminderLabState.simulation = ReminderLabState.simulation.confirm() }, onStop = ::close)
             } }

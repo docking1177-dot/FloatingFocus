@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import java.util.Locale
 import kotlin.math.roundToLong
@@ -55,7 +56,8 @@ class ReminderLabActivity : ComponentActivity() {
 
     @Composable
     private fun LabScreen() {
-        val lab = ReminderLabState.simulation
+        val sharedSettings by ReminderSettingsStore.get(this).settings.collectAsStateWithLifecycle()
+        val lab = ReminderLabState.simulation.let { it.copy(settings = sharedSettings.copy(style = it.settings.style)) }
         var durationInput by rememberSaveable { mutableStateOf("900") }
         var remainingInput by rememberSaveable { mutableStateOf("900") }
         var inputError by rememberSaveable { mutableStateOf<String?>(null) }
@@ -135,19 +137,13 @@ class ReminderLabActivity : ComponentActivity() {
                     }
                 }
                 HorizontalDivider()
-                Text("效果参数", style = MaterialTheme.typography.titleMedium)
-                Text("节点：已用 50%、80%、100%。连续模式在节点之间插值；节点模式在边界立即跳变。", style = MaterialTheme.typography.bodySmall)
-                ModePicker("变色方式", lab.settings.colorMode) { mode -> updateSettings { it.copy(colorMode = mode) } }
-                ModePicker("变尺寸方式", lab.settings.sizeMode) { mode -> updateSettings { it.copy(sizeMode = mode) } }
-                LabSlider("提醒强度", lab.settings.intensity, 0f..1f) { value -> updateSettings { it.copy(intensity = value) } }
-                LabSlider("基础大小", lab.settings.baseSize, 0.75f..1.5f) { value -> updateSettings { it.copy(baseSize = value) } }
-                LabSlider("不透明度", lab.settings.opacity, 0.3f..1f) { value -> updateSettings { it.copy(opacity = value) } }
-                Text("变尺寸方案最大为基础大小的 1.5 倍；系统字体大小仍生效。确认方案在新阶段再次提醒。", style = MaterialTheme.typography.bodySmall)
+                Text("外观参数使用正式设置；本页只切换实验方案。", style = MaterialTheme.typography.bodySmall)
+                TextButton(onClick = { startActivity(Intent(this@ReminderLabActivity, SettingsActivity::class.java)) }) { Text("打开设置") }
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = { ReminderLabState.animationRequest++ }) { Text("触发提醒动画") }
                     OutlinedButton(onClick = {
-                        ReminderLabState.message = if (ReminderVibration.once(this@ReminderLabActivity, lab.settings.intensity))
-                            "已发送一次振动；实际触感请在真机检查。" else "当前强度为零、设备无振动器或系统未允许振动。"
+                        ReminderVibration.once(this@ReminderLabActivity, lab.settings.intensity)
+                        ReminderLabState.message = ReminderVibration.lastDiagnostic
                     }) { Text("触发一次振动") }
                     OutlinedButton(onClick = {
                         ReminderLabState.simulation = lab.copy(acknowledgedStage = null)
@@ -156,9 +152,9 @@ class ReminderLabActivity : ComponentActivity() {
                 Text("模拟跨越零点不会自动振动。动画遵循系统动画开关；手动动画播放两轮。", style = MaterialTheme.typography.bodySmall)
                 Button(onClick = {
                     ReminderLabService.hide(this@ReminderLabActivity)
-                    ReminderLabState.reset()
+                    ReminderLabState.reset(sharedSettings)
                     durationInput = "900"; remainingInput = "900"; inputError = null
-                }) { Text("重置全部测试参数") }
+                }) { Text("重置模拟状态") }
                 TextButton(onClick = { finish() }) { Text("退出实验室") }
                 Spacer(Modifier.height(16.dp))
             }
@@ -172,25 +168,4 @@ class ReminderLabActivity : ComponentActivity() {
         }
         super.onDestroy()
     }
-}
-
-private fun updateSettings(update: (ReminderSettings) -> ReminderSettings) {
-    ReminderLabState.simulation = ReminderLabState.simulation.let { it.copy(settings = update(it.settings)) }
-}
-
-@Composable
-private fun ModePicker(label: String, current: ChangeMode, onChange: (ChangeMode) -> Unit) {
-    Text(label)
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        listOf(ChangeMode.CONTINUOUS to "连续变化", ChangeMode.STEPS to "节点突变").forEach { (mode, title) ->
-            FilterChip(current == mode, { onChange(mode) }, label = { Text(title) },
-                modifier = Modifier.semantics { contentDescription = "$label：$title" })
-        }
-    }
-}
-
-@Composable
-private fun LabSlider(label: String, value: Float, range: ClosedFloatingPointRange<Float>, onChange: (Float) -> Unit) {
-    Text("$label：${"%.2f".format(Locale.ROOT, value)}")
-    Slider(value, onChange, valueRange = range, modifier = Modifier.semantics { contentDescription = label })
 }

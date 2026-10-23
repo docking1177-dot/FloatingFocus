@@ -12,7 +12,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +22,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -34,6 +32,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -51,11 +53,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.net.toUri
@@ -100,28 +100,27 @@ class MainActivity : ComponentActivity() {
         }
         Scaffold(containerColor = MaterialTheme.colorScheme.background) { insets ->
             Box(Modifier.fillMaxSize().padding(insets), contentAlignment = Alignment.TopCenter) {
-                Column(Modifier.widthIn(max = 520.dp).fillMaxWidth().verticalScroll(rememberScrollState()).padding(24.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Surface(color = MaterialTheme.colorScheme.primary, shape = CircleShape) {
-                            Text("◷", color = Color.White, fontSize = 24.sp, modifier = Modifier.padding(10.dp))
+                Column(Modifier.widthIn(max = 520.dp).fillMaxWidth().verticalScroll(rememberScrollState())
+                    .padding(start = 24.dp, top = 8.dp, end = 24.dp, bottom = 24.dp)) {
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Surface(modifier = Modifier.size(40.dp), color = MaterialTheme.colorScheme.primary, shape = CircleShape) {
+                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Icon(painterResource(R.drawable.ic_notification), contentDescription = null,
+                                    tint = Color.White, modifier = Modifier.size(24.dp))
+                            }
                         }
-                        Text("Floating Focus", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-                    }
-                    Spacer(Modifier.height(40.dp))
-                    Text("把时间，\n留在视线里。", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
-                    Spacer(Modifier.height(12.dp))
-                    Text("开始前，给自己一个小小的约定。\n刷视频时，悬浮计时会温柔提醒你。", color = Color(0xFF667067), lineHeight = 25.sp)
-                    Spacer(Modifier.height(30.dp))
-                    Surface(shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surface) {
-                        Column(Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(if (session.active) if (session.stage == ReminderStage.FINISHED) "约定的时间到了" else "还可以享受" else "这次，留给自己", color = Color(0xFF667067))
-                            Text(if (session.active || monitor.enabled) formatRemaining(session.remainingMillis) else "%02d:00".format(minutes),
-                                fontSize = 58.sp, fontWeight = FontWeight.Light, fontFamily = FontFamily.Monospace,
-                                modifier = Modifier.padding(vertical = 12.dp))
-                            Text(if (monitor.enabled) monitor.reason else if (session.active) "悬浮胶囊正在提醒你" else "分钟 · 自己决定何时停下", style = MaterialTheme.typography.bodySmall, color = Color(0xFF667067))
+                        Text("Floating Focus", modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                        IconButton(onClick = { startActivity(Intent(this@MainActivity, SettingsActivity::class.java)) }, modifier = Modifier.size(48.dp)) {
+                            Icon(painterResource(R.drawable.ic_settings), contentDescription = "设置", modifier = Modifier.size(24.dp))
                         }
                     }
-                    Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(16.dp))
+                    if (session.active) {
+                        Text(if (session.stage == ReminderStage.FINISHED) "时间到了" else "计时中 · ${formatRemaining(session.remainingMillis)}",
+                            style = MaterialTheme.typography.bodyMedium, color = Color(0xFF667067))
+                        Spacer(Modifier.height(8.dp))
+                    }
+                    if (monitor.enabled) Text(monitor.reason, style = MaterialTheme.typography.bodySmall, color = Color(0xFF667067))
                     Text("选择时长", style = MaterialTheme.typography.titleSmall)
                     FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(5, 10, 15, 30).forEach { value ->
@@ -132,11 +131,11 @@ class MainActivity : ComponentActivity() {
                     TextButton(onClick = { input = if (custom) minutes.toString() else ""; showCustom = true }, enabled = !session.active && !monitor.enabled && !quickStarting) {
                         Text(if (custom) "自定义：$minutes 分钟" else "自定义时长 →")
                     }
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(4.dp))
                     if (session.active || monitor.enabled) {
                         Button(onClick = { FloatingService.stop(this@MainActivity) }, modifier = Modifier.fillMaxWidth().height(56.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)) {
-                            Text(if (monitor.enabled) "停止 App 监测" else if (session.stage == ReminderStage.FINISHED) "知道了，结束计时" else "结束倒计时")
+                            Text(if (monitor.enabled) "停止 App 监测" else "结束倒计时")
                         }
                     } else {
                         Button(enabled = !quickStarting, onClick = {
@@ -144,7 +143,7 @@ class MainActivity : ComponentActivity() {
                             else FloatingService.start(this@MainActivity, minutes * 60_000L)
                         }, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text("开始倒计时") }
                     }
-                    Spacer(Modifier.height(20.dp))
+                    Spacer(Modifier.height(16.dp))
                     QuickLaunchCard(minutes, enabled = !session.active && !monitor.enabled,
                         onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true })
                     if (FeatureFlags.APP_USAGE_AUTO_TIMER) {
@@ -166,13 +165,7 @@ class MainActivity : ComponentActivity() {
                     }
                     (session.error ?: permissionMessage)?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(vertical = 12.dp)) }
                     Spacer(Modifier.height(20.dp))
-                    Text("轻一点的提醒，渐渐变得清晰", style = MaterialTheme.typography.titleSmall)
-                    Spacer(Modifier.height(12.dp))
-                    ReminderRow(Color(0xFF303833), "前 50%", "安静陪伴")
-                    ReminderRow(Color(0xFFAF580D), "50%—80%", "逐渐转为暖橙色")
-                    ReminderRow(Color(0xFFB52E36), "最后 20%", "渐变红色，轻缓呼吸")
-                    Spacer(Modifier.height(20.dp))
-                    Text("只提醒，由你决定。\n点击胶囊展开操作，拖动可调整位置。", style = MaterialTheme.typography.bodySmall, color = Color(0xFF667067), lineHeight = 21.sp)
+                    Text("点击悬浮窗展开操作，拖动可调整位置。", style = MaterialTheme.typography.bodySmall, color = Color(0xFF667067))
                     TextButton(onClick = { showLicenses = true }) { Text("开源许可") }
                     DeveloperEntry()
                 }
@@ -189,7 +182,7 @@ class MainActivity : ComponentActivity() {
             }, dismissButton = { TextButton(onClick = { showCustom = false }) { Text("取消") } })
         }
         if (permissionHelp) {
-            AlertDialog(onDismissRequest = { permissionHelp = false }, title = { Text("让时间悬浮在其他 App 上方") },
+            AlertDialog(onDismissRequest = { permissionHelp = false }, title = { Text("悬浮窗权限") },
                 text = { Text("请在系统设置中允许 Floating Focus「显示在其他应用上层」。授权后返回，再点击开始。我们不会读取屏幕内容。") },
                 confirmButton = { TextButton(onClick = {
                     permissionHelp = false
@@ -224,14 +217,5 @@ private fun PermissionCard(title: String, description: String, action: String, o
         Text(title, fontWeight = FontWeight.Medium)
         Text(description, style = MaterialTheme.typography.bodySmall, color = Color(0xFF667067))
         OutlinedButton(onClick = onClick) { Text(action) }
-    }
-}
-
-@Composable
-private fun ReminderRow(color: Color, label: String, description: String) {
-    Row(Modifier.padding(vertical = 7.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Box(Modifier.size(8.dp).background(color, CircleShape))
-        Text(label, modifier = Modifier.widthIn(min = 92.dp), style = MaterialTheme.typography.bodySmall)
-        Text(description, color = Color(0xFF667067), style = MaterialTheme.typography.bodySmall)
     }
 }
