@@ -1,0 +1,142 @@
+{
+  "date": "2026-10-24",
+  "base_commit": "189b860e54cd4e32913280aee0bc7f65c100549c",
+  "version": {
+    "name": "0.1.1",
+    "code": 2,
+    "unchanged": true
+  },
+  "apk": {
+    "path": "app/build/outputs/apk/debug/app-debug.apk",
+    "sha256": "70e734a317d5734e74311b9bb1983f4259b4b2ff34b2bfe4274cef1dac7c37d2"
+  },
+  "checks": {
+    "debug": {
+      "tests": 62,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "release": {
+      "tests": 56,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lint": {
+      "debug_errors": 0,
+      "debug_warnings": 1,
+      "release_errors": 0,
+      "release_warnings": 0,
+      "note": "Existing Gradle update warning in Debug"
+    },
+    "logs": [
+      ".tools/checks/check-emulator-20261024-102821-620.log",
+      ".tools/checks/history-release.log"
+    ]
+  },
+  "emulator": {
+    "avd": "FloatingFocus_API_36",
+    "api": 36,
+    "serial": "emulator-5554",
+    "headless": true,
+    "method": "Actual ADB input, screenshot inspection, service/window state and internal atomic JSON checks; not instrumentation tests"
+  },
+  "passed": [
+    "Manual stopwatch starts at zero, runs across Home and saves on explicit stop",
+    "Gallery shortcut starts stopwatch with target app metadata",
+    "Leaving target app does not stop session or record",
+    "Force-stop followed by restart recovers exactly the saved elapsed value as interrupted; no downtime or duplicate record",
+    "Real one-minute countdown continues beyond zero; one completion event and one submitted vibration request",
+    "Overtime overlay stop button ends timer and saves planned and full elapsed duration",
+    "Swipe FF out of recent tasks finalizes TASK_REMOVED record and removes overlay",
+    "System CreateDocument picker saves CSV; UTF-8 CSV parsed with five records and matching statuses",
+    "Stopwatch preset persists across force-stop/restart and launches Gallery in stopwatch mode; manual end persists"
+  ],
+  "evidence": {
+    "recovery": {
+      "manual": {
+        "id": "12e3eefa-df02-425e-af71-65ab254d7376",
+        "appName": "手动计时",
+        "packageName": "",
+        "mode": "STOPWATCH",
+        "plannedMillis": 0,
+        "startedWallMillis": 1792809034583,
+        "elapsedMillis": 10433,
+        "status": "MANUAL"
+      },
+      "before_kill": {
+        "id": "6fd3b804-d99f-4734-aa28-2a8d086b9733",
+        "appName": "Gallery",
+        "packageName": "com.android.gallery3d",
+        "mode": "STOPWATCH",
+        "plannedMillis": 0,
+        "startedWallMillis": 1792809050537,
+        "elapsedMillis": 5970,
+        "status": "RUNNING"
+      },
+      "checkpoint": {
+        "id": "6fd3b804-d99f-4734-aa28-2a8d086b9733",
+        "appName": "Gallery",
+        "packageName": "com.android.gallery3d",
+        "mode": "STOPWATCH",
+        "plannedMillis": 0,
+        "startedWallMillis": 1792809050537,
+        "elapsedMillis": 5970,
+        "status": "RUNNING"
+      },
+      "recovered": {
+        "id": "6fd3b804-d99f-4734-aa28-2a8d086b9733",
+        "appName": "Gallery",
+        "packageName": "com.android.gallery3d",
+        "mode": "STOPWATCH",
+        "plannedMillis": 0,
+        "startedWallMillis": 1792809050537,
+        "elapsedMillis": 5970,
+        "status": "INTERRUPTED"
+      }
+    },
+    "overtime": {
+      "id": "35b64a7a-30fb-42c6-b116-238b91d93354",
+      "appName": "手动计时",
+      "packageName": "",
+      "mode": "COUNTDOWN",
+      "plannedMillis": 60000,
+      "startedWallMillis": 1792809112124,
+      "elapsedMillis": 107410,
+      "status": "MANUAL"
+    },
+    "task_removed": {
+      "id": "ea984467-a61e-4113-ba77-64f19526d4ce",
+      "appName": "Gallery",
+      "packageName": "com.android.gallery3d",
+      "mode": "STOPWATCH",
+      "plannedMillis": 0,
+      "startedWallMillis": 1792809225891,
+      "elapsedMillis": 47795,
+      "status": "TASK_REMOVED"
+    },
+    "stopwatch_preset": {
+      "id": "d1a956ea-f0fe-4358-8583-20f94a9a7bce",
+      "appName": "Gallery",
+      "packageName": "com.android.gallery3d",
+      "mode": "STOPWATCH",
+      "plannedMillis": 0,
+      "startedWallMillis": 1792809350528,
+      "elapsedMillis": 5445,
+      "status": "MANUAL"
+    },
+    "csv_rows": 5,
+    "csv_sha256": "6e8dd40cd251a3b18ee1a5074dda90c921be895abd4542d787578292ac408951",
+    "completion_event_count": 1
+  },
+  "artifacts": ".tools/history-validation/",
+  "limits": [
+    "No physical REDMI K80 testing in this task; vendor task removal callbacks may differ",
+    "Hard process death recovery is approximate at last successful checkpoint, not guaranteed exact kill time",
+    "No app foreground usage monitoring; records measure FF sessions",
+    "Five-minute plan interrupted at 3m20s tested with pure clock/record unit tests, not a three-minute physical-device run",
+    "Physical vibration sensation, deep-sleep kill, storage-full behavior and all system-stop variants not exercised",
+    "Emulator is not currently running at final artifact inspection"
+  ]
+}

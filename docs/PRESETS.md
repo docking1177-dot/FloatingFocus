@@ -6,7 +6,7 @@
 
 ## 复用与数据边界
 
-- `TimerPreset` 保存稳定 ID、名称（1—40 字符）、分钟数（1—180）和整个 `ReminderSettings` 快照。参数范围、默认值和兼容解码沿用 `ReminderSettingsCodec`。
+- `TimerPreset` 保存稳定 ID、名称（1—40 字符）、分钟数（1—180）、计时模式和整个 `ReminderSettings` 快照。参数范围、默认值和兼容解码沿用 `ReminderSettingsCodec`。
 - `TimerPresetStore` 使用本地 SharedPreferences 的 `timer_presets/items` JSON 数组及进程内 StateFlow；无账号、网络、云同步。记录按 ID 更新，损坏的单条记录跳过，重复 ID 保留首条；整个 JSON 损坏时安全返回空列表。
 - `AppTimerLauncher` 从原快捷启动流程提取，常用 App 与方案共用。正式 `FloatingService`、悬浮权限、计时数据和提醒全部复用，目标应用枚举仍使用 `launchableApps()`，不读取使用情况、不启用自动监测或无障碍服务。
 - 真正选定 App 后才应用方案外观；启动成功后这组外观成为正式设置，之后手动计时可继续使用。若 App 已卸载、服务启动失败、等待超时或页面离开导致取消，关闭本次新建计时，恢复启动前的外观；不会取消既有计时，也不会覆盖等待过程中另行修改的设置。
@@ -17,3 +17,5 @@
 JVM 测试覆盖完整配置往返、字段校验、旧形状兼容、按 ID 编辑和同名方案区分。设备回归覆盖新建、重启保留、改名、编辑保存/取消、删除取消/确认、选 App 取消与成功启动，以及现有常用 App 快捷启动。
 
 2026-10-23—24 后续验收：Debug 56 项、Release 50 项 JVM 测试通过，最终 Debug/Release 构建及 Lint 通过（Debug 保留 1 项既有 Gradle 更新警告）。Android 16 后台模拟器实际完成预设管理与启动流程、三种形状跨应用拖动/展开/收起/关闭、连续变尺寸和大字体截图检查。详见 [本轮验收记录](validation/presets/results.json)。截图和原始操作文件保存在本机 `.tools/presets-validation/`；这不代表新改动已通过真机验收。
+
+预设现在保存倒计时/正计时模式，旧记录缺少模式字段时默认倒计时；正计时的分钟字段只为兼容与切回倒计时保留，不设截止时间。会话记录及导出见 [TIME_RECORDS.md](TIME_RECORDS.md)。

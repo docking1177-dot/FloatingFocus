@@ -52,6 +52,7 @@ class SettingsActivity : ComponentActivity() {
                 mutableStateOf(preset?.settings ?: sharedSettings)
             }
             var name by rememberSaveable(presetId) { mutableStateOf(preset?.name.orEmpty()) }
+            var mode by rememberSaveable(presetId) { mutableStateOf(preset?.mode ?: TimerMode.COUNTDOWN) }
             var minutes by rememberSaveable(presetId) { mutableStateOf((preset?.minutes ?: 15).toString()) }
             val settings = if (editing) draft else sharedSettings
             val updateSettings: ((ReminderSettings) -> ReminderSettings) -> Unit = { change ->
@@ -65,18 +66,23 @@ class SettingsActivity : ComponentActivity() {
                             horizontalArrangement = Arrangement.SpaceBetween) {
                             Text(if (editing) "编辑方案" else "设置", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
                             TextButton(onClick = { finish() }) { Text(if (editing) "取消" else "返回") }
-                            if (editing) TextButton(enabled = name.isNotBlank() && minutes.toIntOrNull() in 1..180, onClick = {
-                                presetStore.save(TimerPreset(presetId!!, name.trim(), minutes.toInt(), draft))
+                            if (editing) TextButton(enabled = name.isNotBlank() && (mode == TimerMode.STOPWATCH || minutes.toIntOrNull() in 1..180), onClick = {
+                                presetStore.save(TimerPreset(presetId!!, name.trim(), minutes.toIntOrNull()?.coerceIn(1, 180) ?: 15, draft, mode))
                                 finish()
                             }) { Text("保存") }
                         }
-                        SettingsPreview(settings, previewHeight, (minutes.toIntOrNull()?.coerceIn(1, 180) ?: 15) * 60_000L)
+                        SettingsPreview(settings, previewHeight, (minutes.toIntOrNull()?.coerceIn(1, 180) ?: 15) * 60_000L, if (editing) mode else TimerMode.COUNTDOWN)
                         HorizontalDivider()
                         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 12.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             if (editing) {
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    TimerMode.entries.forEach { option ->
+                                        FilterChip(mode == option, { mode = option }, label = { Text(option.label) })
+                                    }
+                                }
                                 OutlinedTextField(name, { name = it.take(40) }, label = { Text("方案名称") }, singleLine = true)
-                                OutlinedTextField(minutes, { minutes = it.filter(Char::isDigit).take(3) },
+                                if (mode == TimerMode.COUNTDOWN) OutlinedTextField(minutes, { minutes = it.filter(Char::isDigit).take(3) },
                                     label = { Text("分钟（1—180）") }, singleLine = true,
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                     isError = minutes.toIntOrNull() !in 1..180)
@@ -119,9 +125,10 @@ class SettingsActivity : ComponentActivity() {
 
 /** Local visual sample only: never starts a service, changes a session or requests vibration. */
 @Composable
-private fun SettingsPreview(settings: ReminderSettings, height: Dp, durationMillis: Long) {
+private fun SettingsPreview(settings: ReminderSettings, height: Dp, durationMillis: Long, mode: TimerMode) {
     var progress by rememberSaveable { mutableFloatStateOf(0f) }
-    val snapshot = ReminderSnapshot(((1f - progress) * durationMillis).toLong(), progress)
+    val snapshot = if (mode == TimerMode.STOPWATCH) ReminderSnapshot(0, 0f, mode = mode, elapsedMillis = (progress * durationMillis).toLong())
+        else ReminderSnapshot(((1f - progress) * durationMillis).toLong(), progress)
     Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp)) {
         // Measure at natural height before fitting: a short landscape preview must not
         // squeeze the real overlay's text measurement into a tiny circle.

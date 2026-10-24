@@ -47,7 +47,7 @@ import org.json.JSONObject
 
 /** Explicit one-shot user action. Never observes which app is in the foreground. */
 @Composable
-fun QuickLaunchCard(minutes: Int, enabled: Boolean, onBusyChange: (Boolean) -> Unit, onPermissionRequired: () -> Unit) {
+fun QuickLaunchCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled: Boolean, onBusyChange: (Boolean) -> Unit, onPermissionRequired: () -> Unit) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val scope = rememberCoroutineScope()
@@ -66,7 +66,7 @@ fun QuickLaunchCard(minutes: Int, enabled: Boolean, onBusyChange: (Boolean) -> U
                 onBusyChange(true)
                 scope.launch {
                     try {
-                        error = launchAppWithTimer(context, lifecycle, app, minutes)
+                        error = launchAppWithTimer(context, lifecycle, app, minutes, mode = mode)
                     } finally {
                         busy = false
                         onBusyChange(false)

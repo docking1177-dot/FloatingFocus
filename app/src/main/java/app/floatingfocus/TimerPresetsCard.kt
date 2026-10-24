@@ -21,8 +21,8 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 @Composable
-fun TimerPresetsCard(minutes: Int, enabled: Boolean, onBusyChange: (Boolean) -> Unit,
-                     onPermissionRequired: () -> Unit, onApplied: (Int) -> Unit) {
+fun TimerPresetsCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled: Boolean, onBusyChange: (Boolean) -> Unit,
+                     onPermissionRequired: () -> Unit, onApplied: (Int, TimerMode) -> Unit) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val scope = rememberCoroutineScope()
@@ -40,15 +40,15 @@ fun TimerPresetsCard(minutes: Int, enabled: Boolean, onBusyChange: (Boolean) -> 
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text("预设方案", style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
             TextButton(enabled = enabled && !busy, onClick = {
-                saving = TimerPreset(UUID.randomUUID().toString(), "$minutes 分钟", minutes,
-                    ReminderSettingsStore.get(context).settings.value)
+                saving = TimerPreset(UUID.randomUUID().toString(), if (mode == TimerMode.STOPWATCH) "正计时" else "$minutes 分钟", minutes,
+                    ReminderSettingsStore.get(context).settings.value, mode)
             }) { Text("保存当前") }
             if (presets.isNotEmpty()) TextButton(enabled = enabled && !busy, onClick = { managing = true }) { Text("管理") }
         }
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             items(presets, key = { it.id }) { preset ->
                 OutlinedButton(enabled = enabled && !busy, onClick = { choosingApp = preset; error = null }) {
-                    Text("${preset.name} · ${preset.minutes} 分")
+                    Text("${preset.name} · ${if (preset.mode == TimerMode.STOPWATCH) "正计时" else "${preset.minutes} 分"}")
                 }
             }
         }
@@ -72,7 +72,7 @@ fun TimerPresetsCard(minutes: Int, enabled: Boolean, onBusyChange: (Boolean) -> 
             items(presets, key = { it.id }) { preset ->
                 Column {
                     Text(preset.name, style = MaterialTheme.typography.titleSmall)
-                    Text("${preset.minutes} 分 · ${preset.settings.shape.label} · ${preset.settings.color.label}", style = MaterialTheme.typography.bodySmall)
+                    Text("${if (preset.mode == TimerMode.STOPWATCH) "正计时" else "${preset.minutes} 分"} · ${preset.settings.shape.label} · ${preset.settings.color.label}", style = MaterialTheme.typography.bodySmall)
                     Row {
                         TextButton(onClick = { renaming = preset; managing = false },
                             modifier = Modifier.semantics { contentDescription = "重命名 ${preset.name}" }) { Text("重命名") }
@@ -97,8 +97,8 @@ fun TimerPresetsCard(minutes: Int, enabled: Boolean, onBusyChange: (Boolean) -> 
                     onBusyChange(true)
                     scope.launch {
                         try {
-                            error = launchAppWithTimer(context, lifecycle, app, preset.minutes, preset.settings)
-                            if (error == null) onApplied(preset.minutes)
+                            error = launchAppWithTimer(context, lifecycle, app, preset.minutes, preset.settings, preset.mode)
+                            if (error == null) onApplied(preset.minutes, preset.mode)
                         } finally { busy = false; onBusyChange(false) }
                     }
                 }

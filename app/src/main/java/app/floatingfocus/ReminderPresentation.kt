@@ -3,13 +3,14 @@ package app.floatingfocus
 import kotlin.math.roundToInt
 
 /** Immutable input shared by the real clock and the isolated debug simulator. */
-data class ReminderSnapshot(val remainingMillis: Long, val progress: Float, val overtimeMillis: Long = 0) {
+data class ReminderSnapshot(val remainingMillis: Long, val progress: Float, val overtimeMillis: Long = 0,
+                            val mode: TimerMode = TimerMode.COUNTDOWN, val elapsedMillis: Long = 0) {
     val stage: ReminderStage get() = ReminderPolicy.stage(progress)
 
     companion object {
         fun at(timer: Countdown, now: Long) = ReminderSnapshot(
             timer.remainingAt(now), timer.progressAt(now),
-            ((now - timer.startedAt).coerceAtLeast(0) - timer.durationMillis).coerceAtLeast(0))
+            timer.overtimeAt(now), timer.mode, timer.elapsedAt(now))
     }
 }
 
@@ -90,7 +91,8 @@ object ReminderPresenter {
         }
         return ReminderPresentation(
             title = when {
-                snapshot.overtimeMillis > 0 -> "◷  超时 ${formatRemaining(snapshot.overtimeMillis)}"
+                snapshot.mode == TimerMode.STOPWATCH -> "◷  ${formatElapsed(snapshot.elapsedMillis)}"
+                snapshot.overtimeMillis > 0 -> "◷  超时 +${formatElapsed(snapshot.overtimeMillis)}"
                 finished -> "◷  时间到了"
                 else -> "◷  ${formatRemaining(snapshot.remainingMillis)}"
             },

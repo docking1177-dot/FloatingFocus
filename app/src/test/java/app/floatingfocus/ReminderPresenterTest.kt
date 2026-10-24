@@ -85,7 +85,7 @@ class ReminderPresenterTest {
     @Test fun `overtime is explicit and never wraps countdown display`() {
         assertEquals("◷  时间到了", ReminderPresenter.present(ReminderSnapshot.at(Countdown(1000, 0), 1000)).title)
         val output = ReminderPresenter.present(ReminderSnapshot.at(Countdown(1000, 0), 61_000))
-        assertEquals("◷  超时 01:00", output.title)
+        assertEquals("◷  超时 +01:00", output.title)
         assertTrue(output.finished)
     }
 }

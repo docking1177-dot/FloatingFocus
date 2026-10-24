@@ -14,6 +14,7 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:supportsRtl="true" android:theme="@style/Theme.FloatingFocus">
         <activity android:name=".AutoTriggerActivity" android:exported="false" />
+        <activity android:name=".HistoryActivity" android:exported="false" />
         <activity android:name=".SettingsActivity" android:exported="false" />
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
@@ -24,7 +25,7 @@
         <service android:name=".FloatingService" android:exported="false"
             android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="User-started floating countdown with an ongoing stop notification. The user may explicitly open a selected app after starting the timer. No app usage monitoring, accessibility or automatic restart." />
+                android:value="User-started floating countdown or stopwatch with local session records with an ongoing stop notification. The user may explicitly open a selected app after starting the timer. No app usage monitoring, accessibility or automatic restart." />
         </service>
     </application>
 </manifest>

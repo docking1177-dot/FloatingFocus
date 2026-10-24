@@ -81,7 +81,7 @@ fun FocusOverlay(
                     TextButton(onClick = onConfirm, enabled = controlsEnabled) { Text("已看到提醒", style = textStyle) }
                 }
                 if (finished) {
-                    TextButton(onClick = onStop, enabled = controlsEnabled) { Text("知道了", style = textStyle) }
+                    TextButton(onClick = onStop, enabled = controlsEnabled) { Text("结束计时", style = textStyle) }
                 } else if (expanded) {
                     FlowRow(horizontalArrangement = Arrangement.Center) {
                         TextButton(onClick = onStop, enabled = controlsEnabled) { Text("结束计时", style = textStyle) }

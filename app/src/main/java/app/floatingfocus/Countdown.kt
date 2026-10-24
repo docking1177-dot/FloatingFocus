@@ -3,10 +3,14 @@ package app.floatingfocus
 import java.util.Locale
 
 /** Pure clock model: UI cadence, wall-clock changes and sleep cannot accumulate drift. */
-data class Countdown(val durationMillis: Long, val startedAt: Long) {
-    init { require(durationMillis in 1..MAX_DURATION_MILLIS) }
+enum class TimerMode(val label: String) { COUNTDOWN("倒计时"), STOPWATCH("正计时") }
+
+data class Countdown(val durationMillis: Long, val startedAt: Long, val mode: TimerMode = TimerMode.COUNTDOWN) {
+    init { require(if (mode == TimerMode.STOPWATCH) durationMillis == 0L else durationMillis in 1..MAX_DURATION_MILLIS) }
+    fun elapsedAt(now: Long): Long = (now - startedAt).coerceAtLeast(0)
+    fun overtimeAt(now: Long): Long = if (mode == TimerMode.COUNTDOWN) (elapsedAt(now) - durationMillis).coerceAtLeast(0) else 0L
     fun remainingAt(now: Long): Long = (durationMillis - (now - startedAt).coerceAtLeast(0)).coerceAtLeast(0)
-    fun progressAt(now: Long): Float = 1f - remainingAt(now).toFloat() / durationMillis
+    fun progressAt(now: Long): Float = if (mode == TimerMode.STOPWATCH) 0f else 1f - remainingAt(now).toFloat() / durationMillis
     companion object { const val MAX_DURATION_MILLIS = 180 * 60_000L }
 }
 
@@ -26,5 +30,11 @@ object ReminderPolicy {
 
 fun formatRemaining(millis: Long): String {
     val seconds = (millis.coerceAtLeast(0) + 999) / 1000
+    return String.format(Locale.ROOT, "%02d:%02d", seconds / 60, seconds % 60)
+}
+
+/** Elapsed time floors seconds; unlike remaining time it never shows time not yet spent. */
+fun formatElapsed(millis: Long): String {
+    val seconds = millis.coerceAtLeast(0) / 1000
     return String.format(Locale.ROOT, "%02d:%02d", seconds / 60, seconds % 60)
 }
