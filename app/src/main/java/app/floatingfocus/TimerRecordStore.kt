@@ -56,6 +56,7 @@ class TimerRecordStore private constructor(context: Context) {
                 put("mode", record.mode.name); put("plannedMillis", record.plannedMillis)
                 put("startedWallMillis", record.startedWallMillis); put("elapsedMillis", record.elapsedMillis)
                 put("status", record.status.name)
+                record.savedOvertimeMillis?.let { put("overtimeMillis", it) }
             }.toString().toByteArray(Charsets.UTF_8))
             file.finishWrite(stream)
         } catch (e: Exception) { file.failWrite(stream); throw e }
@@ -68,9 +69,10 @@ class TimerRecordStore private constructor(context: Context) {
         val elapsed = row.getLong("elapsedMillis")
         val started = row.getLong("startedWallMillis")
         val mode = TimerMode.valueOf(row.getString("mode"))
-        require(duration in 0..Countdown.MAX_DURATION_MILLIS && elapsed >= 0 && started > 0)
+        require(duration >= 0 && elapsed >= 0 && started > 0)
         return TimerRecord(id, row.getString("appName"), row.getString("packageName"), mode, duration,
-            started, elapsed, RecordStatus.valueOf(row.getString("status")))
+            started, elapsed, RecordStatus.valueOf(row.getString("status")),
+            if (row.has("overtimeMillis")) row.getLong("overtimeMillis").also { require(it >= 0) } else null)
     }
 
     private fun report(e: Exception) {

@@ -33,6 +33,7 @@ fun FocusOverlay(
     animationRequest: Int = 0,
     controlsEnabled: Boolean = true,
     onConfirm: () -> Unit = {},
+    onExtend: (() -> Unit)? = null,
     onStop: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -81,7 +82,10 @@ fun FocusOverlay(
                     TextButton(onClick = onConfirm, enabled = controlsEnabled) { Text("已看到提醒", style = textStyle) }
                 }
                 if (finished) {
-                    TextButton(onClick = onStop, enabled = controlsEnabled) { Text("结束计时", style = textStyle) }
+                    FlowRow(horizontalArrangement = Arrangement.Center) {
+                        if (onExtend != null) TextButton(onClick = onExtend, enabled = controlsEnabled) { Text("加时", style = textStyle) }
+                        TextButton(onClick = onStop, enabled = controlsEnabled) { Text("结束计时", style = textStyle) }
+                    }
                 } else if (expanded) {
                     FlowRow(horizontalArrangement = Arrangement.Center) {
                         TextButton(onClick = onStop, enabled = controlsEnabled) { Text("结束计时", style = textStyle) }

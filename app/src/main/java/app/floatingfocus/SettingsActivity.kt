@@ -52,6 +52,9 @@ class SettingsActivity : ComponentActivity() {
                 mutableStateOf(preset?.settings ?: sharedSettings)
             }
             var name by rememberSaveable(presetId) { mutableStateOf(preset?.name.orEmpty()) }
+            var targetPackage by rememberSaveable(presetId) { mutableStateOf(preset?.targetApp?.packageName.orEmpty()) }
+            var targetLabel by rememberSaveable(presetId) { mutableStateOf(preset?.targetApp?.label.orEmpty()) }
+            val target = targetPackage.takeIf { it.isNotBlank() }?.let { LaunchableApp(it, targetLabel) }
             var mode by rememberSaveable(presetId) { mutableStateOf(preset?.mode ?: TimerMode.COUNTDOWN) }
             var minutes by rememberSaveable(presetId) { mutableStateOf((preset?.minutes ?: 15).toString()) }
             val settings = if (editing) draft else sharedSettings
@@ -66,8 +69,8 @@ class SettingsActivity : ComponentActivity() {
                             horizontalArrangement = Arrangement.SpaceBetween) {
                             Text(if (editing) "编辑方案" else "设置", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
                             TextButton(onClick = { finish() }) { Text(if (editing) "取消" else "返回") }
-                            if (editing) TextButton(enabled = name.isNotBlank() && (mode == TimerMode.STOPWATCH || minutes.toIntOrNull() in 1..180), onClick = {
-                                presetStore.save(TimerPreset(presetId!!, name.trim(), minutes.toIntOrNull()?.coerceIn(1, 180) ?: 15, draft, mode))
+                            if (editing) TextButton(enabled = isSavedShortcut(target) && name.isNotBlank() && (mode == TimerMode.STOPWATCH || minutes.toIntOrNull() in 1..180), onClick = {
+                                presetStore.save(TimerPreset(presetId!!, name.trim(), minutes.toIntOrNull()?.coerceIn(1, 180) ?: 15, draft, mode, target))
                                 finish()
                             }) { Text("保存") }
                         }
@@ -76,6 +79,7 @@ class SettingsActivity : ComponentActivity() {
                         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 12.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             if (editing) {
+                                ShortcutAppPicker(target) { targetPackage = it.packageName; targetLabel = it.label }
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     TimerMode.entries.forEach { option ->
                                         FilterChip(mode == option, { mode = option }, label = { Text(option.label) })

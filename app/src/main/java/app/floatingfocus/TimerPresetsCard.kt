@@ -31,10 +31,29 @@ fun TimerPresetsCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
     var saving by remember { mutableStateOf<TimerPreset?>(null) }
     var renaming by remember { mutableStateOf<TimerPreset?>(null) }
     var deleting by remember { mutableStateOf<TimerPreset?>(null) }
-    var choosingApp by remember { mutableStateOf<TimerPreset?>(null) }
+    var bindingApp by remember { mutableStateOf<TimerPreset?>(null) }
     var managing by rememberSaveable { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+
+    val launch: (TimerPreset) -> Unit = { preset ->
+        if (enabled && !busy) {
+            error = null
+            val app = preset.targetApp
+            if (!context.isSavedShortcut(app)) bindingApp = preset
+            else if (!Settings.canDrawOverlays(context)) onPermissionRequired()
+            else {
+                busy = true
+                onBusyChange(true)
+                scope.launch {
+                    try {
+                        error = launchAppWithTimer(context, lifecycle, app!!, preset.minutes, preset.settings, preset.mode)
+                        if (error == null) onApplied(preset.minutes, preset.mode)
+                    } finally { busy = false; onBusyChange(false) }
+                }
+            }
+        }
+    }
 
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -47,16 +66,16 @@ fun TimerPresetsCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
         }
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             items(presets, key = { it.id }) { preset ->
-                OutlinedButton(enabled = enabled && !busy, onClick = { choosingApp = preset; error = null }) {
-                    Text("${preset.name} · ${if (preset.mode == TimerMode.STOPWATCH) "正计时" else "${preset.minutes} 分"}")
+                OutlinedButton(enabled = enabled && !busy, onClick = { launch(preset) }) {
+                    Text("${preset.name} · ${preset.targetApp?.label ?: "选择 App"} · ${if (preset.mode == TimerMode.STOPWATCH) "正计时" else "${preset.minutes} 分"}")
                 }
             }
         }
         if (busy) Text("正在启动…", style = MaterialTheme.typography.bodySmall)
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
     }
-    saving?.let { preset -> PresetNameDialog("保存预设方案", preset.name, { saving = null }) { name ->
-        store.save(preset.copy(name = name)); saving = null
+    saving?.let { preset -> PresetSaveDialog(preset, { saving = null }) { saved ->
+        store.save(saved); saving = null
     } }
     renaming?.let { preset -> PresetNameDialog("重命名方案", preset.name, { renaming = null }) { name ->
         presets.firstOrNull { it.id == preset.id }?.let { store.save(it.copy(name = name)) }
@@ -72,6 +91,7 @@ fun TimerPresetsCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
             items(presets, key = { it.id }) { preset ->
                 Column {
                     Text(preset.name, style = MaterialTheme.typography.titleSmall)
+                    Text(preset.targetApp?.label ?: "未绑定 App", style = MaterialTheme.typography.bodySmall)
                     Text("${if (preset.mode == TimerMode.STOPWATCH) "正计时" else "${preset.minutes} 分"} · ${preset.settings.shape.label} · ${preset.settings.color.label}", style = MaterialTheme.typography.bodySmall)
                     Row {
                         TextButton(onClick = { renaming = preset; managing = false },
@@ -87,22 +107,9 @@ fun TimerPresetsCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
             }
         }
     }, confirmButton = { TextButton(onClick = { managing = false }) { Text("完成") } })
-    choosingApp?.let { preset ->
-        LaunchableAppPicker("${preset.name} · 选择 App", { choosingApp = null }) { app ->
-            if (enabled && !busy) {
-                choosingApp = null
-                if (!Settings.canDrawOverlays(context)) onPermissionRequired()
-                else {
-                    busy = true
-                    onBusyChange(true)
-                    scope.launch {
-                        try {
-                            error = launchAppWithTimer(context, lifecycle, app, preset.minutes, preset.settings, preset.mode)
-                            if (error == null) onApplied(preset.minutes, preset.mode)
-                        } finally { busy = false; onBusyChange(false) }
-                    }
-                }
-            }
+    bindingApp?.let { preset ->
+        PresetSaveDialog(preset, { bindingApp = null }, title = "绑定快捷 App") { saved ->
+            store.save(saved); bindingApp = null
         }
     }
 }
@@ -114,4 +121,22 @@ private fun PresetNameDialog(title: String, initial: String, onDismiss: () -> Un
         OutlinedTextField(name, { name = it.take(40) }, label = { Text("方案名称") }, singleLine = true)
     }, confirmButton = { TextButton(enabled = name.isNotBlank(), onClick = { onSave(name.trim()) }) { Text("保存") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } })
+}
+
+@Composable
+private fun PresetSaveDialog(preset: TimerPreset, onDismiss: () -> Unit,
+                             title: String = "保存预设方案", onSave: (TimerPreset) -> Unit) {
+    val context = LocalContext.current
+    var name by rememberSaveable(preset.id) { mutableStateOf(preset.name) }
+    var targetPackage by rememberSaveable(preset.id) { mutableStateOf(preset.targetApp?.packageName.orEmpty()) }
+    var targetLabel by rememberSaveable(preset.id) { mutableStateOf(preset.targetApp?.label.orEmpty()) }
+    val target = targetPackage.takeIf { it.isNotBlank() }?.let { LaunchableApp(it, targetLabel) }
+    AlertDialog(onDismissRequest = onDismiss, title = { Text(title) }, text = {
+        Column {
+            OutlinedTextField(name, { name = it.take(40) }, label = { Text("方案名称") }, singleLine = true)
+            ShortcutAppPicker(target) { targetPackage = it.packageName; targetLabel = it.label }
+        }
+    }, confirmButton = { TextButton(enabled = name.isNotBlank() && context.isSavedShortcut(target), onClick = {
+        if (context.isSavedShortcut(target)) onSave(preset.copy(name = name.trim(), targetApp = target))
+    }) { Text("保存") } }, dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } })
 }

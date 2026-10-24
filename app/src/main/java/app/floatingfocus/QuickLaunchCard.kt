@@ -163,7 +163,7 @@ private fun QuickLaunchTile(app: LaunchableApp, enabled: Boolean, modifier: Modi
     }
 }
 
-private fun SharedPreferences.readTargets(): List<LaunchableApp> {
+internal fun SharedPreferences.readTargets(): List<LaunchableApp> {
     val legacy = getString("package", null)?.let { LaunchableApp(it, getString("label", "").orEmpty()) }
     val saved = getString("targets", null)?.let { raw ->
         try {

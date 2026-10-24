@@ -29,6 +29,7 @@ class TimerPresetStore private constructor(context: Context) {
                 val appearance = row.optJSONObject("settings") ?: return@let null
                 val values = appearance.keys().asSequence().associateWith { appearance.opt(it) }
                 TimerPresetCodec.decode(mapOf("id" to row.opt("id"), "name" to row.opt("name"),
+                    "targetPackage" to row.opt("targetPackage"), "targetLabel" to row.opt("targetLabel"),
                     "minutes" to row.opt("minutes"), "mode" to row.opt("mode"), "settings" to values))
             }
         }.distinctBy { it.id }

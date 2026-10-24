@@ -1,0 +1,98 @@
+{
+  "date": "2026-10-24",
+  "baseCommit": "da66e7a49049f0cd7e2cfc51d4da582b9c2f2f7a",
+  "branch": "codex/multi-app-layouts",
+  "apk": "app/build/outputs/apk/debug/app-debug.apk",
+  "apkSha256": "7b85645e4d1b63f526153d6efaa285980a7f7e36b23327a36ab0bd16ba413197",
+  "versionName": "0.1.1",
+  "versionCode": 2,
+  "builds": {
+    "Debug": {
+      "tests": 67,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "lintErrors": 0,
+      "lintWarnings": 1
+    },
+    "Release": {
+      "tests": 61,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "lintErrors": 0,
+      "lintWarnings": 0
+    }
+  },
+  "signatureMatchesArchivedDebug": true,
+  "emulator": {
+    "device": "emulator-5554",
+    "android": 16,
+    "api": 36,
+    "headless": true,
+    "bootCompleted": "1",
+    "install": "Success"
+  },
+  "verified": [
+    "Legacy preset binds only from FF shortcut list and persists across process restart",
+    "Bound preset launches saved App and existing timer in one tap",
+    "New preset saves target App and complete appearance snapshot",
+    "Preset target edit cancel preserves original; save updates target",
+    "Actual cross-app expired overlay opens custom add-time input",
+    "Overlay hidden while editing, restored on cancel and confirm",
+    "Zero minutes rejected; one minute accepted",
+    "Extension preserves record ID and original start, accumulates plan and previous overtime",
+    "Two real countdown legs each emit exactly one completion event",
+    "Manual ending saves one record and survives process restart"
+  ],
+  "extensionRecords": {
+    "original": {
+      "id": "268edf68-91a6-40f0-b0de-78733371fd53",
+      "appName": "Gallery",
+      "packageName": "com.android.gallery3d",
+      "mode": "COUNTDOWN",
+      "plannedMillis": 60000,
+      "startedWallMillis": 1792842524726,
+      "elapsedMillis": 158995,
+      "status": "RUNNING",
+      "overtimeMillis": 99003
+    },
+    "added": {
+      "id": "268edf68-91a6-40f0-b0de-78733371fd53",
+      "appName": "Gallery",
+      "packageName": "com.android.gallery3d",
+      "mode": "COUNTDOWN",
+      "plannedMillis": 120000,
+      "startedWallMillis": 1792842524726,
+      "elapsedMillis": 179996,
+      "status": "RUNNING",
+      "overtimeMillis": 119292
+    },
+    "final": {
+      "id": "268edf68-91a6-40f0-b0de-78733371fd53",
+      "appName": "Gallery",
+      "packageName": "com.android.gallery3d",
+      "mode": "COUNTDOWN",
+      "plannedMillis": 120000,
+      "startedWallMillis": 1792842524726,
+      "elapsedMillis": 249669,
+      "status": "MANUAL",
+      "overtimeMillis": 129673
+    }
+  },
+  "eventCounts": {
+    "completion": 2,
+    "extension": 1
+  },
+  "localArtifacts": ".tools/preset-extend-validation/",
+  "logs": [
+    ".tools/checks/check-full-20261024-194352-851.log",
+    ".tools/checks/preset-extend-release.log"
+  ],
+  "limits": [
+    "REDMI K80 physical-device regression not performed",
+    "Empty shortcut list and removed target handling reviewed in source, not exercised in this UI run",
+    "Homepage add-time entry reviewed in source; actual overlay entry tested",
+    "No claim of physical vibration sensation from emulator logs"
+  ]
+}

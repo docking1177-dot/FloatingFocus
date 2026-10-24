@@ -4,11 +4,11 @@ package app.floatingfocus
 data class TimerRecord(
     val id: String, val appName: String, val packageName: String,
     val mode: TimerMode, val plannedMillis: Long, val startedWallMillis: Long,
-    val elapsedMillis: Long = 0, val status: RecordStatus = RecordStatus.RUNNING
+    val elapsedMillis: Long = 0, val status: RecordStatus = RecordStatus.RUNNING, val savedOvertimeMillis: Long? = null
 ) {
     val endedWallMillis: Long get() = startedWallMillis + elapsedMillis
     val overtimeMillis: Long get() = if (mode == TimerMode.COUNTDOWN)
-        (elapsedMillis - plannedMillis).coerceAtLeast(0) else 0
+        savedOvertimeMillis ?: (elapsedMillis - plannedMillis).coerceAtLeast(0) else 0
     fun checkpoint(startedElapsed: Long, now: Long) = copy(elapsedMillis = (now - startedElapsed).coerceAtLeast(elapsedMillis))
     fun recover() = if (status == RecordStatus.RUNNING) copy(status = RecordStatus.INTERRUPTED) else this
 }

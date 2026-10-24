@@ -1,6 +1,6 @@
 package app.floatingfocus
 
-data class TimerPreset(val id: String, val name: String, val minutes: Int, val settings: ReminderSettings, val mode: TimerMode = TimerMode.COUNTDOWN) {
+data class TimerPreset(val id: String, val name: String, val minutes: Int, val settings: ReminderSettings, val mode: TimerMode = TimerMode.COUNTDOWN, val targetApp: LaunchableApp? = null) {
     init {
         require(id.isNotBlank())
         require(name.isNotBlank() && name.length <= 40)
@@ -12,7 +12,8 @@ data class TimerPreset(val id: String, val name: String, val minutes: Int, val s
 object TimerPresetCodec {
     fun encode(preset: TimerPreset): Map<String, Any> = mapOf(
         "id" to preset.id, "name" to preset.name, "minutes" to preset.minutes,
-        "settings" to ReminderSettingsCodec.encode(preset.settings), "mode" to preset.mode.name)
+        "settings" to ReminderSettingsCodec.encode(preset.settings), "mode" to preset.mode.name,
+        "targetPackage" to preset.targetApp?.packageName.orEmpty(), "targetLabel" to preset.targetApp?.label.orEmpty())
 
     fun decode(row: Map<String, *>): TimerPreset? {
         val id = (row["id"] as? String)?.takeIf { it.isNotBlank() } ?: return null
@@ -21,7 +22,10 @@ object TimerPresetCodec {
         val values = (row["settings"] as? Map<*, *>)?.entries?.filter { it.key is String }
             ?.associate { it.key as String to it.value } ?: return null
         return TimerPreset(id, name, minutes, ReminderSettingsCodec.decode(values),
-            TimerMode.entries.firstOrNull { it.name == row["mode"] } ?: TimerMode.COUNTDOWN)
+            TimerMode.entries.firstOrNull { it.name == row["mode"] } ?: TimerMode.COUNTDOWN,
+            (row["targetPackage"] as? String)?.takeIf { it.isNotBlank() }?.let { pkg ->
+                LaunchableApp(pkg, (row["targetLabel"] as? String)?.takeIf { it.isNotBlank() } ?: pkg)
+            })
     }
 
     fun upsert(items: List<TimerPreset>, preset: TimerPreset): List<TimerPreset> =

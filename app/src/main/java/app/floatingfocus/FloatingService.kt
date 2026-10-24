@@ -43,7 +43,8 @@ data class SessionState(
     val paused: Boolean = false,
     val mode: TimerMode = TimerMode.COUNTDOWN,
     val elapsedMillis: Long = 0,
-    val overtimeMillis: Long = 0
+    val overtimeMillis: Long = 0,
+    val timerStartedAt: Long = 0
 )
 
 class FloatingService : Service() {
@@ -53,6 +54,7 @@ class FloatingService : Service() {
     private var record: TimerRecord? = null
     private var recordStartedAt = 0L
     private var awaitingApp: String? = null
+    private var editingExtension = false
 
     private fun beginRecord(appName: String = "手动计时", appPackage: String = "",
                             wall: Long = System.currentTimeMillis(), elapsed: Long = SystemClock.elapsedRealtime()) {
@@ -63,8 +65,15 @@ class FloatingService : Service() {
         recordStore.save(record!!)
     }
 
+    private fun checkpointRecord(now: Long) {
+        record = record?.checkpoint(recordStartedAt, now)
+        countdown?.let { timer -> record = record?.copy(plannedMillis = timer.totalPlannedMillis,
+            savedOvertimeMillis = timer.totalOvertimeAt(now)) }
+    }
+
     private fun completeRecord(status: RecordStatus, after: (() -> Unit)? = null) {
-        val ended = record?.checkpoint(recordStartedAt, SystemClock.elapsedRealtime())?.copy(status = status)
+        checkpointRecord(SystemClock.elapsedRealtime())
+        val ended = record?.copy(status = status)
         record = null
         if (ended != null) recordStore.save(ended, after = after) else after?.invoke()
     }
@@ -108,8 +117,8 @@ class FloatingService : Service() {
             val stage = ReminderPolicy.stage(progress)
             val previousStage = overlayState.stage
             overlayState = SessionState(true, remaining, progress, stage, mode = timer.mode,
-                elapsedMillis = timer.elapsedAt(now), overtimeMillis = timer.overtimeAt(now))
-            record = record?.checkpoint(recordStartedAt, now)
+                elapsedMillis = timer.elapsedAt(now), overtimeMillis = timer.overtimeAt(now), timerStartedAt = timer.startedAt)
+            checkpointRecord(now)
             record?.let { recordStore.save(it, checkpoint = true) }
             mutableSession.value = overlayState
             if (timer.mode == TimerMode.COUNTDOWN && completionReminder.consume(active = true, paused = false, remainingMillis = remaining)) {
@@ -127,6 +136,32 @@ class FloatingService : Service() {
     override fun onBind(intent: Intent): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_EXTENSION_EDITOR) {
+            val timer = countdown
+            if (timer == null) { if (monitor == null) stopSelf(startId); return START_NOT_STICKY }
+            if (!intent.getBooleanExtra("visible", false)) {
+                editingExtension = false
+                showOverlay()
+            } else if (!stopping && timer.startedAt == intent.getLongExtra("timer_start", -1L) && timer.remainingAt(SystemClock.elapsedRealtime()) == 0L) {
+                editingExtension = true
+                window?.close(); window = null
+            }
+            return START_NOT_STICKY
+        }
+        if (intent?.action == ACTION_EXTEND) {
+            val timer = countdown
+            if (!stopping && timer != null && timer.startedAt == intent.getLongExtra("timer_start", -1L)) {
+                val next = timer.extendAt(SystemClock.elapsedRealtime(), intent.getLongExtra(EXTRA_DURATION, 0L))
+                if (next != null) {
+                    countdown = next
+                    completionReminder.reset()
+                    handler.removeCallbacks(tick)
+                    tick.run()
+                    Log.d(TAG, "Timer extended: extra=${next.durationMillis} totalPlanned=${next.totalPlannedMillis}")
+                }
+            } else if (timer == null && monitor == null) stopSelf(startId)
+            return START_NOT_STICKY
+        }
         if (intent?.action == ACTION_STOP) { finishSession(); return START_NOT_STICKY }
         if (intent?.action == ACTION_APP_OPENED) {
             val target = intent.getStringExtra("app_package")
@@ -157,7 +192,7 @@ class FloatingService : Service() {
         countdown = Countdown(duration, SystemClock.elapsedRealtime(), mode)
         awaitingApp = intent.getStringExtra("app_package")
         completionReminder.reset()
-        overlayState = SessionState(true, duration, mode = mode)
+        overlayState = SessionState(true, duration, mode = mode, timerStartedAt = countdown!!.startedAt)
         interactive = getSystemService(PowerManager::class.java).isInteractive
         val nm = getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(NotificationChannel(CHANNEL, "悬浮计时", NotificationManager.IMPORTANCE_LOW).apply {
@@ -189,7 +224,7 @@ class FloatingService : Service() {
     }
 
     private fun showOverlay() {
-        if (window != null || stopping) return
+        if (window != null || stopping || editingExtension) return
         val overlay = OverlayWindow(this) { fail("悬浮窗不可用，计时已结束。", it) }
         window = overlay
         overlay.show { FocusTheme {
@@ -197,8 +232,10 @@ class FloatingService : Service() {
             val appearance = ReminderPresenter.present(ReminderSnapshot(overlayState.remainingMillis, overlayState.progress,
                 overlayState.overtimeMillis, overlayState.mode, overlayState.elapsedMillis), settings)
             SideEffect { overlay.setGeometry(appearance.shape, appearance.size) }
-            FocusOverlay(appearance,
-                interactive) { finishSession() }
+            FocusOverlay(appearance, interactive, onExtend = if (countdown != null) ({
+                startActivity(Intent(this, AddTimeActivity::class.java)
+                    .putExtra("timer_start", countdown!!.startedAt).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }) else null) { finishSession() }
         } }
     }
 
@@ -288,6 +325,7 @@ class FloatingService : Service() {
     private fun finishSession(preserveError: Boolean = false, status: RecordStatus = RecordStatus.MANUAL) {
         if (stopping) return
         stopping = true
+        checkpointRecord(SystemClock.elapsedRealtime())
         cleanup()
         mutableMonitor.value = AutoMonitorStatus(reason = if (preserveError) mutableSession.value.error ?: "已停止" else "未开启")
         // Keep the service alive until the final atomic record is written.
@@ -334,6 +372,8 @@ class FloatingService : Service() {
         private const val CHANNEL = "focus_timer"
         private const val NOTIFICATION_ID = 1
         private const val ACTION_START = "app.floatingfocus.START"
+        private const val ACTION_EXTENSION_EDITOR = "app.floatingfocus.EXTENSION_EDITOR"
+        private const val ACTION_EXTEND = "app.floatingfocus.EXTEND"
         private const val ACTION_APP_OPENED = "app.floatingfocus.APP_OPENED"
         private const val ACTION_STOP = "app.floatingfocus.STOP"
         private const val ACTION_MONITOR = "app.floatingfocus.MONITOR"
@@ -364,6 +404,16 @@ class FloatingService : Service() {
                 mutableSession.value = SessionState(error = "系统暂时无法启动计时，请保持主界面可见后重试。")
                 return false
             }
+        }
+        fun extensionEditor(context: Context, expectedStart: Long, visible: Boolean) {
+            if (!session.value.active) return
+            context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_EXTENSION_EDITOR)
+                .putExtra("timer_start", expectedStart).putExtra("visible", visible))
+        }
+        fun extend(context: Context, expectedStart: Long, minutes: Int) {
+            if (minutes !in 1..180) return
+            context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_EXTEND)
+                .putExtra("timer_start", expectedStart).putExtra(EXTRA_DURATION, minutes * 60_000L))
         }
         fun appOpened(context: Context, app: LaunchableApp) {
             context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_APP_OPENED)

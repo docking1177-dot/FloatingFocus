@@ -13,8 +13,8 @@
 - 提醒策略与渲染数据在 `ReminderPresentation.kt`；实验室仅在 `app/src/debug/`，不得把模拟状态写入正式服务。使用与设计按需看 `docs/REMINDER_LAB.md`。
 - 正式外观设置在 `SettingsActivity.kt`，统一由 `ReminderSettingsStore.kt` 持久化并实时共享；实验室只读取外观配置，不新增平行调参入口。颜色/形状、版本边界及震动链路见 `docs/SETTINGS.md`，归零单次触发由 `CompletionReminder.kt` 管理。
 - 浮窗透明度统一作用于背景、文字和图标，不添加独立不透明的文字底色；基础尺寸与动态倍率只应用一次，禁止用自动缩字结果循环决定窗口尺寸。`OverlayGeometry.kt` 负责几何计算，`OverlayShapePicker.kt` 提供三种图形化选择，保留旧形状配置键兼容。
-- 预设方案在 `TimerPreset.kt` / `TimerPresetStore.kt`，保存时长及完整外观快照；入口与管理在 `TimerPresetsCard.kt`。编辑复用 `SettingsActivity` 的独立草稿，取消不写回；选 App 后复用 `AppTimerLauncher.kt` 和正式计时服务，禁止新建平行计时系统。行为及存储见 `docs/PRESETS.md`。
-- 倒计时归零后继续显示超时正计时，独立正计时也复用 `Countdown` / `FloatingService`，正计时不得触发归零提醒。时长记录在 `TimerRecord.kt` / `TimerRecordStore.kt`，查看及 CSV 导出在 `HistoryActivity.kt`；记录 FF 会话而非 App 前台使用时间。进程异常结束只能保证最后持久化进度，恢复须标注约计，禁止把停机时间累计进去或承诺精确捕获强杀时刻。划掉 FF 时结算并停止，不新增监测权限、保活或自动重启。见 `docs/TIME_RECORDS.md`。
+- 预设方案在 `TimerPreset.kt` / `TimerPresetStore.kt`，保存时长及完整外观快照；入口与管理在 `TimerPresetsCard.kt`。编辑复用 `SettingsActivity` 的独立草稿，取消不写回；预设绑定的 App 仅通过 `ShortcutAppPicker.kt` 从现有快捷列表选择，点击预设直接启动；旧预设先补绑定。复用 `AppTimerLauncher.kt` 和正式计时服务，禁止新建平行计时系统。行为及存储见 `docs/PRESETS.md`。
+- 倒计时归零后继续显示超时正计时，独立正计时也复用 `Countdown` / `FloatingService`，正计时不得触发归零提醒。到时加时通过 `AddTimeActivity.kt` 输入，从确认时开始新一段，保留同一会话、既有累计时长和超时，防止旧页面或重复操作误加时。时长记录在 `TimerRecord.kt` / `TimerRecordStore.kt`，查看及 CSV 导出在 `HistoryActivity.kt`；记录 FF 会话而非 App 前台使用时间。进程异常结束只能保证最后持久化进度，恢复须标注约计，禁止把停机时间累计进去或承诺精确捕获强杀时刻。划掉 FF 时结算并停止，不新增监测权限、保活或自动重启。见 `docs/TIME_RECORDS.md`。
 - App 自动计时已 Deferred：`FeatureFlags.APP_USAGE_AUTO_TIMER=false`，禁止未经新需求重新启用或继续优化监测；保留代码和测试，进度/恢复步骤见 `docs/AUTO_TRIGGER.md`。禁止无障碍路径。
 - 一键打开目标 App + 手动计时在 `QuickLaunchCard.kt`，复用 `FloatingService`；多选迁移在 `QuickLaunchTargets.kt`，App 列表在 `LaunchableApps.kt`。Debug 的 `QuickLaunchLayoutPicker.kt` 提供布局比较，Release 固定列表。不读取使用事件，行为与验收见 `docs/QUICK_LAUNCH.md`。
 - 上述源码均位于 `app/src/main/java/app/floatingfocus/`；JVM 测试在 `app/src/test/`。
