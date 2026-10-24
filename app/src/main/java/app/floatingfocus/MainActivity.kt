@@ -144,7 +144,11 @@ class MainActivity : ComponentActivity() {
                         }, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text("开始倒计时") }
                     }
                     Spacer(Modifier.height(16.dp))
-                    QuickLaunchCard(minutes, enabled = !session.active && !monitor.enabled,
+                    TimerPresetsCard(minutes, enabled = !session.active && !monitor.enabled && !quickStarting,
+                        onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true },
+                        onApplied = { minutes = it; custom = it !in listOf(5, 10, 15, 30) })
+                    Spacer(Modifier.height(8.dp))
+                    QuickLaunchCard(minutes, enabled = !session.active && !monitor.enabled && !quickStarting,
                         onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true })
                     if (FeatureFlags.APP_USAGE_AUTO_TIMER) {
                         TextButton(onClick = { startActivity(Intent(this@MainActivity, AutoTriggerActivity::class.java)) }) {

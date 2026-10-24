@@ -48,7 +48,7 @@ internal class OverlayTouchLayout(
         val path = Path().apply {
             if (geometry == OverlayShape.CIRCLE) addOval(rect, Path.Direction.CW)
             else {
-                val radius = (28 * scale * density).coerceAtMost(minOf(rect.width(), rect.height()) / 2)
+                val radius = minOf(rect.width(), rect.height()) / 2
                 addRoundRect(rect, radius, radius, Path.Direction.CW)
             }
         }

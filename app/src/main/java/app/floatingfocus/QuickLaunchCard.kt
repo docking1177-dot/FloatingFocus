@@ -38,15 +38,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -70,36 +65,9 @@ fun QuickLaunchCard(minutes: Int, enabled: Boolean, onBusyChange: (Boolean) -> U
                 busy = true
                 onBusyChange(true)
                 scope.launch {
-                    var ownsTimer = false
-                    var opened = false
                     try {
-                        val intent = context.packageManager.getLaunchIntentForPackage(app.packageName)
-                        if (intent == null) {
-                            error = "该 App 已卸载、停用或无法打开，请重新选择。"
-                        } else if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                            error = "请返回主界面后再试。"
-                        } else {
-                            ownsTimer = FloatingService.start(context, minutes * 60_000L)
-                            if (ownsTimer) {
-                                val result = withTimeout(5000) { FloatingService.session.first { it.active || it.error != null } }
-                                if (result.error != null) error = result.error
-                                else if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                                    error = "启动已取消，请在主界面重新点击。"
-                                } else {
-                                    context.startActivity(intent)
-                                    opened = true
-                                }
-                            } else error = FloatingService.session.value.error ?: "已有计时正在运行，请先结束。"
-                        }
-                    } catch (_: TimeoutCancellationException) {
-                        error = "计时器启动超时，请重试。"
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (_: RuntimeException) {
-                        error = "无法打开目标 App，计时已取消，请重新选择或重试。"
+                        error = launchAppWithTimer(context, lifecycle, app, minutes)
                     } finally {
-                        // Only roll back the timer started by this action, never an existing timer.
-                        if (ownsTimer && !opened) FloatingService.stop(context)
                         busy = false
                         onBusyChange(false)
                     }

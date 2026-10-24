@@ -1,0 +1,221 @@
+{
+  "validated_dates": [
+    "2026-10-23",
+    "2026-10-24"
+  ],
+  "base_commit": "a313629d3b06c8567a49a987032d7728c89cc0c8",
+  "version": {
+    "name": "0.1.1",
+    "code": 2,
+    "configuration_changed": false
+  },
+  "apk": {
+    "path": "app/build/outputs/apk/debug/app-debug.apk",
+    "sha256": "1a3ca73f5813a1edf66a0352f26b6cd2459d533419ca4c61d2e1c84d7bf0743d"
+  },
+  "build": {
+    "debug": {
+      "tests": 56,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "release": {
+      "tests": 50,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "debug_lint": {
+      "errors": 0,
+      "warnings": 1,
+      "note": "Existing Gradle update warning"
+    },
+    "release_lint": {
+      "errors": 0,
+      "warnings": 0
+    },
+    "logs": [
+      ".tools/checks/check-emulator-20261023-211705-263.log",
+      ".tools/checks/presets-release.log",
+      ".tools/checks/presets-release-final.log"
+    ]
+  },
+  "environment": {
+    "avd": "FloatingFocus_API_36",
+    "device": "emulator-5554",
+    "api": 36,
+    "headless": true,
+    "method": "ADB input, screenshot inspection, WindowManager frames, app preferences and service/activity state; not an instrumentation test suite"
+  },
+  "preset_ui_passed": [
+    "save name, duration and full appearance snapshot",
+    "force-stop/restart retains preset",
+    "rename preserves identity",
+    "edit cancel preserves preset and global settings",
+    "edit save updates preset only",
+    "app picker cancel starts no service and changes no global settings",
+    "select Gallery applies vertical style and starts 45 minute timer while opening Gallery",
+    "delete cancel retains record; confirm deletes; restart confirms deletion",
+    "existing Gallery quick launch still works"
+  ],
+  "overlay_ui_passed": [
+    "all three graphical shape options render actual matching preview",
+    "no persistent opaque text rectangle; whole overlay opacity applies to icon, text and background",
+    "three shapes start at stable base size with COLOR style",
+    "SIZE continuous effect grows during latter half of real one-minute timer",
+    "three shapes: expand, drag from stop button without stopping, collapse, reject transparent-corner drag, tap stop dismisses window",
+    "font_scale=2 vertical settings preview visually inspected; original font scale restored"
+  ],
+  "gesture_frames": [
+    {
+      "shape": "ROUNDED_RECTANGLE",
+      "startup_frame": [
+        526,
+        235,
+        1036,
+        440
+      ],
+      "expanded_frame": [
+        248,
+        235,
+        1080,
+        595
+      ],
+      "dragged_frame": [
+        68,
+        535,
+        900,
+        895
+      ],
+      "passed": true
+    },
+    {
+      "shape": "VERTICAL_CAPSULE",
+      "startup_frame": [
+        708,
+        235,
+        1036,
+        770
+      ],
+      "expanded_frame": [
+        513,
+        235,
+        1080,
+        1163
+      ],
+      "dragged_frame": [
+        333,
+        535,
+        900,
+        1463
+      ],
+      "passed": true
+    },
+    {
+      "shape": "CIRCLE",
+      "startup_frame": [
+        596,
+        235,
+        1036,
+        675
+      ],
+      "expanded_frame": [
+        413,
+        235,
+        1080,
+        902
+      ],
+      "dragged_frame": [
+        233,
+        535,
+        900,
+        1202
+      ],
+      "passed": true
+    }
+  ],
+  "continuous_size_frames": [
+    {
+      "elapsed": 0.21,
+      "frame": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "elapsed": 1.11,
+      "frame": [
+        526,
+        235,
+        1036,
+        440
+      ]
+    },
+    {
+      "elapsed": 3.24,
+      "frame": [
+        526,
+        235,
+        1036,
+        440
+      ]
+    },
+    {
+      "elapsed": 8.12,
+      "frame": [
+        526,
+        235,
+        1036,
+        440
+      ]
+    },
+    {
+      "elapsed": 30.26,
+      "frame": [
+        526,
+        235,
+        1036,
+        440
+      ]
+    },
+    {
+      "elapsed": 40.18,
+      "frame": [
+        488,
+        235,
+        1080,
+        472
+      ]
+    },
+    {
+      "elapsed": 50.28,
+      "frame": [
+        405,
+        235,
+        1080,
+        504
+      ]
+    },
+    {
+      "elapsed": 58.21,
+      "frame": [
+        338,
+        235,
+        1080,
+        529
+      ]
+    }
+  ],
+  "frame_note": "Initial [0,0,0,0] sample precedes first visible layout and is excluded from visible startup-size assertions.",
+  "local_artifacts": ".tools/presets-validation/",
+  "limits": [
+    "New changes not yet tested on REDMI K80 or any physical phone",
+    "Failed launch rollback paths inspected in source, not all induced on emulator",
+    "Step mode and full geometry matrix covered by JVM tests, not every combination manually replayed",
+    "No new physical vibration or OEM background-policy validation in this task",
+    "Transient standard click ripple can appear during tap; settled screenshots used for persistent-background check"
+  ]
+}

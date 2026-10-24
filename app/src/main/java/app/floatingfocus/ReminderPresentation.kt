@@ -15,7 +15,10 @@ data class ReminderSnapshot(val remainingMillis: Long, val progress: Float, val 
 
 enum class ReminderStyle { COLOR, SIZE, CONFIRM }
 enum class ChangeMode { CONTINUOUS, STEPS }
-enum class OverlayShape { ROUNDED_RECTANGLE, CIRCLE }
+// Keep the persisted legacy key: ROUNDED_RECTANGLE now renders as a horizontal capsule.
+enum class OverlayShape(val label: String) {
+    ROUNDED_RECTANGLE("横向胶囊"), VERTICAL_CAPSULE("纵向胶囊"), CIRCLE("圆形")
+}
 enum class OverlayColor(val argb: Int, val label: String) {
     GRAPHITE(0xFF303833.toInt(), "石墨"), BLUE(0xFF264B73.toInt(), "蓝色"),
     GREEN(0xFF28553C.toInt(), "绿色"), PURPLE(0xFF583A70.toInt(), "紫色"),
