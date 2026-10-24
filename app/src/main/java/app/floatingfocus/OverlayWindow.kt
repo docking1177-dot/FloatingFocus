@@ -65,6 +65,7 @@ class OverlayWindow(private val context: Context, private val onFailure: (Runtim
     private var attached = false
     private var closed = false
     private var positioned = false
+    private val position = OverlayPosition()
     private var ownerCreated = false
     // Raw drag coordinates use the physical left edge, also in RTL locales.
     @SuppressLint("RtlHardcoded")
@@ -96,6 +97,7 @@ class OverlayWindow(private val context: Context, private val onFailure: (Runtim
                 positioned = true
                 params.x = safeSize().x - view.width - dp(16)
                 params.y = dp(36)
+                position.anchor(params.x, params.y, view.width, view.height)
                 update()
             }
             clampPosition()
@@ -124,10 +126,9 @@ class OverlayWindow(private val context: Context, private val onFailure: (Runtim
     }
 
     fun clampPosition() {
-        if (!attached || closed) return
+        if (!attached || closed || !positioned) return
         val size = safeSize()
-        val x = params.x.coerceIn(0, (size.x - view.width).coerceAtLeast(0))
-        val y = params.y.coerceIn(0, (size.y - view.height).coerceAtLeast(0))
+        val (x, y) = position.place(view.width, view.height, size.x, size.y)
         if (params.x == x && params.y == y) return
         params.x = x
         params.y = y
@@ -155,6 +156,7 @@ class OverlayWindow(private val context: Context, private val onFailure: (Runtim
         val size = safeSize()
         params.x = (dragStartX + dx).roundToInt().coerceIn(0, (size.x - view.width).coerceAtLeast(0))
         params.y = (dragStartY + dy).roundToInt().coerceIn(0, (size.y - view.height).coerceAtLeast(0))
+        position.anchor(params.x, params.y, view.width, view.height)
         update()
     }
 

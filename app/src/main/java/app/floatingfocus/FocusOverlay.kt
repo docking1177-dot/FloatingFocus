@@ -3,6 +3,7 @@ package app.floatingfocus
 import android.animation.ValueAnimator
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
@@ -33,11 +34,17 @@ fun FocusOverlay(
     animationRequest: Int = 0,
     controlsEnabled: Boolean = true,
     onConfirm: () -> Unit = {},
-    onExtend: (() -> Unit)? = null,
+    onExtend: ((Int) -> Unit)? = null,
+    extensionRequest: Int = 0,
     onStop: () -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
     val finished = appearance.finished
+    var expanded by remember(finished) { mutableStateOf(false) }
+    var addingTime by remember(finished) { mutableStateOf(false) }
+    var extraMinutes by remember(finished) { mutableIntStateOf(5) }
+    LaunchedEffect(extensionRequest) {
+        if (extensionRequest > 0 && finished && onExtend != null) addingTime = true
+    }
     val size = appearance.size
     val manualPulse = remember { Animatable(1f) }
     LaunchedEffect(animationRequest, interactive) {
@@ -62,7 +69,9 @@ fun FocusOverlay(
         modifier = Modifier.padding(2.dp).graphicsLayer { this.alpha = alpha * manualPulse.value * appearance.opacity }) {
         Layout(content = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                val header = Modifier.clickable(enabled = controlsEnabled) { expanded = !expanded }
+                // The default bounded ripple draws a rectangular patch behind the time.
+                val header = Modifier.clickable(enabled = controlsEnabled,
+                    interactionSource = remember { MutableInteractionSource() }, indication = null) { expanded = !expanded }
                     .semantics { contentDescription = if (controlsEnabled)
                         "${appearance.title}，点击${if (expanded) "收起" else "展开"}操作，可拖动" else appearance.title }
                     .padding(4.dp)
@@ -81,9 +90,31 @@ fun FocusOverlay(
                     Text("确认提醒", style = textStyle)
                     TextButton(onClick = onConfirm, enabled = controlsEnabled) { Text("已看到提醒", style = textStyle) }
                 }
-                if (finished) {
+                if (finished && addingTime && onExtend != null) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        TextButton(onClick = { extraMinutes = (extraMinutes - 1).coerceAtLeast(1) },
+                            enabled = controlsEnabled && extraMinutes > 1,
+                            modifier = Modifier.semantics { contentDescription = "减少一分钟" }) { Text("−", style = textStyle) }
+                        Text("$extraMinutes 分钟", style = textStyle)
+                        TextButton(onClick = { extraMinutes = (extraMinutes + 1).coerceAtMost(180) },
+                            enabled = controlsEnabled && extraMinutes < 180,
+                            modifier = Modifier.semantics { contentDescription = "增加一分钟" }) { Text("+", style = textStyle) }
+                    }
+                    Row {
+                        listOf(5, 10).forEach { step ->
+                            TextButton(onClick = { extraMinutes = (extraMinutes + step).coerceAtMost(180) },
+                                enabled = controlsEnabled && extraMinutes < 180) { Text("+$step 分", style = textStyle) }
+                        }
+                    }
+                    Row {
+                        TextButton(onClick = { addingTime = false }, enabled = controlsEnabled) { Text("取消", style = textStyle) }
+                        TextButton(onClick = { onExtend(extraMinutes); addingTime = false }, enabled = controlsEnabled) {
+                            Text("确认加时", style = textStyle)
+                        }
+                    }
+                } else if (finished) {
                     FlowRow(horizontalArrangement = Arrangement.Center) {
-                        if (onExtend != null) TextButton(onClick = onExtend, enabled = controlsEnabled) { Text("加时", style = textStyle) }
+                        if (onExtend != null) TextButton(onClick = { extraMinutes = 5; addingTime = true }, enabled = controlsEnabled) { Text("加时", style = textStyle) }
                         TextButton(onClick = onStop, enabled = controlsEnabled) { Text("结束计时", style = textStyle) }
                     }
                 } else if (expanded) {

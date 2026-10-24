@@ -1,0 +1,459 @@
+{
+  "date": "2026-10-24",
+  "baseCommit": "0b3df23ea1d25dbfdc6fda7992afd41945f9d224",
+  "branch": "codex/multi-app-layouts",
+  "apk": "app/build/outputs/apk/debug/app-debug.apk",
+  "apkSha256": "3a24073c3d30603118c4e12a0a66905b85f93e51db756e8a1796b117921e2708",
+  "versionName": "0.1.1",
+  "versionCode": 2,
+  "builds": {
+    "Debug": {
+      "tests": 71,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "lintErrors": 0,
+      "lintWarnings": 1
+    },
+    "Release": {
+      "tests": 65,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "lintErrors": 0,
+      "lintWarnings": 0
+    }
+  },
+  "emulator": {
+    "serial": "emulator-5554",
+    "api": 36,
+    "headless": true,
+    "bootCompleted": "1",
+    "installation": "Success"
+  },
+  "edgeRegression": [
+    {
+      "shape": "ROUNDED_RECTANGLE",
+      "edge": "left",
+      "before": [
+        0,
+        1017,
+        410,
+        1183
+      ],
+      "expanded": [
+        0,
+        955,
+        668,
+        1245
+      ],
+      "after": [
+        0,
+        1017,
+        410,
+        1183
+      ],
+      "cycles": 2
+    },
+    {
+      "shape": "ROUNDED_RECTANGLE",
+      "edge": "right",
+      "before": [
+        670,
+        1017,
+        1080,
+        1183
+      ],
+      "expanded": [
+        412,
+        955,
+        1080,
+        1245
+      ],
+      "after": [
+        670,
+        1017,
+        1080,
+        1183
+      ],
+      "cycles": 2
+    },
+    {
+      "shape": "ROUNDED_RECTANGLE",
+      "edge": "top",
+      "before": [
+        335,
+        136,
+        745,
+        302
+      ],
+      "expanded": [
+        206,
+        136,
+        874,
+        426
+      ],
+      "after": [
+        335,
+        136,
+        745,
+        302
+      ],
+      "cycles": 2
+    },
+    {
+      "shape": "ROUNDED_RECTANGLE",
+      "edge": "bottom",
+      "before": [
+        335,
+        2042,
+        745,
+        2208
+      ],
+      "expanded": [
+        206,
+        1918,
+        874,
+        2208
+      ],
+      "after": [
+        335,
+        2042,
+        745,
+        2208
+      ],
+      "cycles": 2
+    },
+    {
+      "shape": "VERTICAL_CAPSULE",
+      "edge": "left",
+      "before": [
+        0,
+        885,
+        265,
+        1315
+      ],
+      "expanded": [
+        0,
+        728,
+        456,
+        1473
+      ],
+      "after": [
+        0,
+        885,
+        265,
+        1315
+      ],
+      "cycles": 2
+    },
+    {
+      "shape": "VERTICAL_CAPSULE",
+      "edge": "right",
+      "before": [
+        815,
+        885,
+        1080,
+        1315
+      ],
+      "expanded": [
+        624,
+        728,
+        1080,
+        1473
+      ],
+      "after": [
+        815,
+        885,
+        1080,
+        1315
+      ],
+      "cycles": 2
+    },
+    {
+      "shape": "VERTICAL_CAPSULE",
+      "edge": "top",
+      "before": [
+        408,
+        136,
+        673,
+        566
+      ],
+      "expanded": [
+        313,
+        136,
+        769,
+        881
+      ],
+      "after": [
+        408,
+        136,
+        673,
+        566
+      ],
+      "cycles": 2
+    },
+    {
+      "shape": "VERTICAL_CAPSULE",
+      "edge": "bottom",
+      "before": [
+        408,
+        1778,
+        673,
+        2208
+      ],
+      "expanded": [
+        313,
+        1463,
+        769,
+        2208
+      ],
+      "after": [
+        408,
+        1778,
+        673,
+        2208
+      ],
+      "cycles": 2
+    },
+    {
+      "shape": "CIRCLE",
+      "edge": "left",
+      "before": [
+        0,
+        923,
+        355,
+        1278
+      ],
+      "expanded": [
+        0,
+        833,
+        536,
+        1369
+      ],
+      "after": [
+        0,
+        923,
+        355,
+        1278
+      ],
+      "cycles": 2
+    },
+    {
+      "shape": "CIRCLE",
+      "edge": "right",
+      "before": [
+        725,
+        923,
+        1080,
+        1278
+      ],
+      "expanded": [
+        544,
+        833,
+        1080,
+        1369
+      ],
+      "after": [
+        725,
+        923,
+        1080,
+        1278
+      ],
+      "cycles": 2
+    },
+    {
+      "shape": "CIRCLE",
+      "edge": "top",
+      "before": [
+        363,
+        136,
+        718,
+        491
+      ],
+      "expanded": [
+        273,
+        136,
+        809,
+        672
+      ],
+      "after": [
+        363,
+        136,
+        718,
+        491
+      ],
+      "cycles": 2
+    },
+    {
+      "shape": "CIRCLE",
+      "edge": "bottom",
+      "before": [
+        363,
+        1853,
+        718,
+        2208
+      ],
+      "expanded": [
+        273,
+        1672,
+        809,
+        2208
+      ],
+      "after": [
+        363,
+        1853,
+        718,
+        2208
+      ],
+      "cycles": 2
+    }
+  ],
+  "initialRun": {
+    "record": {
+      "id": "8c1f2bc8-4268-4305-8825-b379dd06b55c",
+      "appName": "Gallery",
+      "packageName": "com.android.gallery3d",
+      "mode": "COUNTDOWN",
+      "plannedMillis": 60000,
+      "startedWallMillis": 1792845163819,
+      "elapsedMillis": 984,
+      "status": "RUNNING",
+      "overtimeMillis": 0
+    },
+    "frames": {
+      "initial": [
+        644,
+        235,
+        1036,
+        874
+      ],
+      "p25": [
+        644,
+        235,
+        1036,
+        874
+      ],
+      "p50": [
+        638,
+        225,
+        1042,
+        885
+      ],
+      "p75": [
+        581,
+        146,
+        1080,
+        963
+      ],
+      "expired": [
+        200,
+        136,
+        1080,
+        1606
+      ]
+    }
+  },
+  "inlineExtension": {
+    "original": {
+      "id": "8c1f2bc8-4268-4305-8825-b379dd06b55c",
+      "appName": "Gallery",
+      "packageName": "com.android.gallery3d",
+      "mode": "COUNTDOWN",
+      "plannedMillis": 60000,
+      "startedWallMillis": 1792845163819,
+      "elapsedMillis": 115980,
+      "status": "RUNNING",
+      "overtimeMillis": 56001
+    },
+    "added": {
+      "id": "8c1f2bc8-4268-4305-8825-b379dd06b55c",
+      "appName": "Gallery",
+      "packageName": "com.android.gallery3d",
+      "mode": "COUNTDOWN",
+      "plannedMillis": 120000,
+      "startedWallMillis": 1792845163819,
+      "elapsedMillis": 123980,
+      "status": "RUNNING",
+      "overtimeMillis": 62680
+    },
+    "final": {
+      "id": "8c1f2bc8-4268-4305-8825-b379dd06b55c",
+      "appName": "Gallery",
+      "packageName": "com.android.gallery3d",
+      "mode": "COUNTDOWN",
+      "plannedMillis": 120000,
+      "startedWallMillis": 1792845163819,
+      "elapsedMillis": 188686,
+      "status": "MANUAL",
+      "overtimeMillis": 68696
+    },
+    "windowIdentityPreserved": true,
+    "foreground": "topResumedActivity=ActivityRecord{190582150 u0 com.android.gallery3d/.app.GalleryActivity t98}",
+    "settingsUnchanged": true,
+    "frames": {
+      "after": [
+        644,
+        235,
+        1036,
+        874
+      ],
+      "p25": [
+        644,
+        235,
+        1036,
+        874
+      ],
+      "p50": [
+        644,
+        234,
+        1038,
+        876
+      ],
+      "p75": [
+        592,
+        155,
+        1080,
+        954
+      ],
+      "expired": [
+        200,
+        136,
+        1080,
+        1606
+      ]
+    }
+  },
+  "completionEvents": 2,
+  "extensionEvents": 1,
+  "pressedTimeComparison": {
+    "before": "time-before-press.png",
+    "held": "time-held.png",
+    "composite": "press-comparison.png",
+    "differenceBoundsInCrop": [
+      261,
+      343,
+      305,
+      410
+    ],
+    "observation": "Only the last seconds digit changed; no rectangular background appeared during press."
+  },
+  "verified": [
+    "Three shapes, four edges, two expand-collapse cycles each; coordinates restored within one pixel",
+    "Inline add-time quick increments, cancellation, one-minute lower bound and confirmation",
+    "Same overlay window identity and Gallery foreground Activity throughout add-time",
+    "Unchanged appearance settings; restored size exactly matches initial preset window (392 x 639 px)",
+    "Original and extended legs remain at base size before 50 percent, then grow with existing curve",
+    "Two real expiries each emit one completion; same session record retains prior overtime"
+  ],
+  "limits": [
+    "No REDMI K80 physical-device regression in this run",
+    "Inline add-time UI exercised with vertical capsule and maximum base size; horizontal/circle edge interactions exercised separately",
+    "No new rotation/device OEM behavior claim"
+  ],
+  "logs": [
+    ".tools/checks/check-full-20261024-203107-635.log",
+    ".tools/checks/overlay-fixes-release.log"
+  ],
+  "localArtifacts": ".tools\\overlay-fixes-validation"
+}

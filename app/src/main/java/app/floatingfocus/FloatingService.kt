@@ -25,6 +25,7 @@ import android.provider.Settings
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.SideEffect
@@ -54,7 +55,7 @@ class FloatingService : Service() {
     private var record: TimerRecord? = null
     private var recordStartedAt = 0L
     private var awaitingApp: String? = null
-    private var editingExtension = false
+    private var extensionRequest by mutableIntStateOf(0)
 
     private fun beginRecord(appName: String = "手动计时", appPackage: String = "",
                             wall: Long = System.currentTimeMillis(), elapsed: Long = SystemClock.elapsedRealtime()) {
@@ -139,27 +140,10 @@ class FloatingService : Service() {
         if (intent?.action == ACTION_EXTENSION_EDITOR) {
             val timer = countdown
             if (timer == null) { if (monitor == null) stopSelf(startId); return START_NOT_STICKY }
-            if (!intent.getBooleanExtra("visible", false)) {
-                editingExtension = false
-                showOverlay()
-            } else if (!stopping && timer.startedAt == intent.getLongExtra("timer_start", -1L) && timer.remainingAt(SystemClock.elapsedRealtime()) == 0L) {
-                editingExtension = true
-                window?.close(); window = null
+            if (!stopping && timer.mode == TimerMode.COUNTDOWN &&
+                timer.startedAt == intent.getLongExtra("timer_start", -1L) && timer.remainingAt(SystemClock.elapsedRealtime()) == 0L) {
+                extensionRequest++
             }
-            return START_NOT_STICKY
-        }
-        if (intent?.action == ACTION_EXTEND) {
-            val timer = countdown
-            if (!stopping && timer != null && timer.startedAt == intent.getLongExtra("timer_start", -1L)) {
-                val next = timer.extendAt(SystemClock.elapsedRealtime(), intent.getLongExtra(EXTRA_DURATION, 0L))
-                if (next != null) {
-                    countdown = next
-                    completionReminder.reset()
-                    handler.removeCallbacks(tick)
-                    tick.run()
-                    Log.d(TAG, "Timer extended: extra=${next.durationMillis} totalPlanned=${next.totalPlannedMillis}")
-                }
-            } else if (timer == null && monitor == null) stopSelf(startId)
             return START_NOT_STICKY
         }
         if (intent?.action == ACTION_STOP) { finishSession(); return START_NOT_STICKY }
@@ -224,7 +208,7 @@ class FloatingService : Service() {
     }
 
     private fun showOverlay() {
-        if (window != null || stopping || editingExtension) return
+        if (window != null || stopping) return
         val overlay = OverlayWindow(this) { fail("悬浮窗不可用，计时已结束。", it) }
         window = overlay
         overlay.show { FocusTheme {
@@ -232,11 +216,21 @@ class FloatingService : Service() {
             val appearance = ReminderPresenter.present(ReminderSnapshot(overlayState.remainingMillis, overlayState.progress,
                 overlayState.overtimeMillis, overlayState.mode, overlayState.elapsedMillis), settings)
             SideEffect { overlay.setGeometry(appearance.shape, appearance.size) }
-            FocusOverlay(appearance, interactive, onExtend = if (countdown != null) ({
-                startActivity(Intent(this, AddTimeActivity::class.java)
-                    .putExtra("timer_start", countdown!!.startedAt).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-            }) else null) { finishSession() }
+            val timerStart = overlayState.timerStartedAt
+            FocusOverlay(appearance, interactive, extensionRequest = extensionRequest,
+                onExtend = if (countdown != null) ({ minutes -> extendTimer(timerStart, minutes) }) else null) { finishSession() }
         } }
+    }
+
+    private fun extendTimer(expectedStart: Long, minutes: Int) {
+        val timer = countdown ?: return
+        if (stopping || timer.startedAt != expectedStart || minutes !in 1..180) return
+        val next = timer.extendAt(SystemClock.elapsedRealtime(), minutes * 60_000L) ?: return
+        countdown = next
+        completionReminder.reset()
+        handler.removeCallbacks(tick)
+        tick.run()
+        Log.d(TAG, "Timer extended: extra=${next.durationMillis} totalPlanned=${next.totalPlannedMillis}")
     }
 
     private fun startMonitoring(): Int {
@@ -373,7 +367,6 @@ class FloatingService : Service() {
         private const val NOTIFICATION_ID = 1
         private const val ACTION_START = "app.floatingfocus.START"
         private const val ACTION_EXTENSION_EDITOR = "app.floatingfocus.EXTENSION_EDITOR"
-        private const val ACTION_EXTEND = "app.floatingfocus.EXTEND"
         private const val ACTION_APP_OPENED = "app.floatingfocus.APP_OPENED"
         private const val ACTION_STOP = "app.floatingfocus.STOP"
         private const val ACTION_MONITOR = "app.floatingfocus.MONITOR"
@@ -405,15 +398,10 @@ class FloatingService : Service() {
                 return false
             }
         }
-        fun extensionEditor(context: Context, expectedStart: Long, visible: Boolean) {
+        fun requestExtension(context: Context, expectedStart: Long) {
             if (!session.value.active) return
             context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_EXTENSION_EDITOR)
-                .putExtra("timer_start", expectedStart).putExtra("visible", visible))
-        }
-        fun extend(context: Context, expectedStart: Long, minutes: Int) {
-            if (minutes !in 1..180) return
-            context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_EXTEND)
-                .putExtra("timer_start", expectedStart).putExtra(EXTRA_DURATION, minutes * 60_000L))
+                .putExtra("timer_start", expectedStart))
         }
         fun appOpened(context: Context, app: LaunchableApp) {
             context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_APP_OPENED)

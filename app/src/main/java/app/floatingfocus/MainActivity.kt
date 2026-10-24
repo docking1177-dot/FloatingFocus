@@ -125,8 +125,7 @@ class MainActivity : ComponentActivity() {
                             style = MaterialTheme.typography.bodyMedium, color = Color(0xFF667067))
                         Spacer(Modifier.height(8.dp))
                         if (session.mode == TimerMode.COUNTDOWN && session.stage == ReminderStage.FINISHED && !session.automatic)
-                            TextButton(onClick = { startActivity(Intent(this@MainActivity, AddTimeActivity::class.java)
-                                .putExtra("timer_start", session.timerStartedAt)) }) { Text("加时") }
+                            TextButton(onClick = { FloatingService.requestExtension(this@MainActivity, session.timerStartedAt) }) { Text("加时") }
                     }
                     if (monitor.enabled) Text(monitor.reason, style = MaterialTheme.typography.bodySmall, color = Color(0xFF667067))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
