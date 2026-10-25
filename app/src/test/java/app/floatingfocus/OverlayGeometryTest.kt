@@ -30,7 +30,7 @@ class OverlayGeometryTest {
                 assertEquals(widths[0], widths[1])
                 assertTrue(widths.zipWithNext().all { (a, b) -> b >= a })
                 assertEquals(widths.first() * 1.5f, widths.last(), .001f)
-                val fixed = settings.copy(style = ReminderStyle.COLOR)
+                val fixed = settings.copy(sizeEnabled = false, colorEnabled = true)
                 assertEquals(1.2f, ReminderPresenter.present(ReminderSnapshot(0, 1f), fixed).size, 0f)
             }
         }

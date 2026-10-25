@@ -1,6 +1,7 @@
 package app.floatingfocus
 
-data class TimerPreset(val id: String, val name: String, val minutes: Int, val settings: ReminderSettings, val mode: TimerMode = TimerMode.COUNTDOWN, val targetApp: LaunchableApp? = null) {
+data class TimerPreset(val id: String, val name: String, val minutes: Int, val settings: ReminderSettings, val mode: TimerMode = TimerMode.COUNTDOWN, val targetApp: LaunchableApp? = null,
+                       val lastPosition: OverlayAnchor? = null) {
     init {
         require(id.isNotBlank())
         require(name.isNotBlank() && name.length <= 40)
@@ -13,7 +14,8 @@ object TimerPresetCodec {
     fun encode(preset: TimerPreset): Map<String, Any> = mapOf(
         "id" to preset.id, "name" to preset.name, "minutes" to preset.minutes,
         "settings" to ReminderSettingsCodec.encode(preset.settings), "mode" to preset.mode.name,
-        "targetPackage" to preset.targetApp?.packageName.orEmpty(), "targetLabel" to preset.targetApp?.label.orEmpty())
+        "targetPackage" to preset.targetApp?.packageName.orEmpty(), "targetLabel" to preset.targetApp?.label.orEmpty()) +
+        (preset.lastPosition?.let { mapOf("positionX" to it.xFraction, "positionY" to it.yFraction) } ?: emptyMap())
 
     fun decode(row: Map<String, *>): TimerPreset? {
         val id = (row["id"] as? String)?.takeIf { it.isNotBlank() } ?: return null
@@ -25,7 +27,7 @@ object TimerPresetCodec {
             TimerMode.entries.firstOrNull { it.name == row["mode"] } ?: TimerMode.COUNTDOWN,
             (row["targetPackage"] as? String)?.takeIf { it.isNotBlank() }?.let { pkg ->
                 LaunchableApp(pkg, (row["targetLabel"] as? String)?.takeIf { it.isNotBlank() } ?: pkg)
-            })
+            }, OverlayAnchor.decode(row["positionX"], row["positionY"]))
     }
 
     fun upsert(items: List<TimerPreset>, preset: TimerPreset): List<TimerPreset> =

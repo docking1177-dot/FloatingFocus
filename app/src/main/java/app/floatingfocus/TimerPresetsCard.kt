@@ -48,7 +48,7 @@ fun TimerPresetsCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
                 onBusyChange(true)
                 scope.launch {
                     try {
-                        error = launchAppWithTimer(context, lifecycle, app!!, preset.minutes, preset.settings, preset.mode)
+                        error = launchAppWithTimer(context, lifecycle, app!!, preset.minutes, preset.settings, preset.mode, preset.id)
                         if (error == null) onApplied(preset.minutes, preset.mode)
                     } finally { busy = false; onBusyChange(false) }
                 }

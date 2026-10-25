@@ -18,6 +18,7 @@ class ReminderSettingsStore private constructor(context: Context) {
                 when (item) {
                     is String -> putString(key, item)
                     is Float -> putFloat(key, item)
+                    is Boolean -> putBoolean(key, item)
                 }
             }
         }

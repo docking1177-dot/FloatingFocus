@@ -70,7 +70,7 @@ class ReminderLabService : Service() {
             overlay.show { FocusTheme {
                 val settings by ReminderSettingsStore.get(this).settings.collectAsState()
                 val lab = ReminderLabState.simulation
-                val appearance = ReminderPresenter.present(lab.snapshot, settings.copy(style = lab.settings.style), lab.acknowledgedStage)
+                val appearance = ReminderPresenter.present(lab.snapshot, settings.forLabStyle(lab.settings.style), lab.acknowledgedStage)
                 SideEffect { overlay.setGeometry(appearance.shape, appearance.size) }
                 FocusOverlay(appearance, interactive,
                     animationRequest = ReminderLabState.animationRequest,

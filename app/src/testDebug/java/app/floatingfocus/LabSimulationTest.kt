@@ -4,6 +4,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class LabSimulationTest {
+    @Test fun `lab strategy overrides are isolated from both production switches`() {
+        val shared = ReminderSettings(colorEnabled = true, sizeEnabled = true)
+        val confirm = shared.forLabStyle(ReminderStyle.CONFIRM)
+        assertFalse(confirm.colorEnabled)
+        assertFalse(confirm.sizeEnabled)
+        assertTrue(shared.colorEnabled && shared.sizeEnabled)
+        assertTrue(shared.forLabStyle(ReminderStyle.SIZE).sizeEnabled)
+        assertFalse(shared.forLabStyle(ReminderStyle.SIZE).colorEnabled)
+    }
     @Test fun `seeking across zero preserves the independent production clock`() {
         val real = Countdown(900_000, 500)
         val lab = LabSimulation().seek(-60_000)

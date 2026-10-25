@@ -57,7 +57,7 @@ class ReminderLabActivity : ComponentActivity() {
     @Composable
     private fun LabScreen() {
         val sharedSettings by ReminderSettingsStore.get(this).settings.collectAsStateWithLifecycle()
-        val lab = ReminderLabState.simulation.let { it.copy(settings = sharedSettings.copy(style = it.settings.style)) }
+        val lab = ReminderLabState.simulation.let { it.copy(settings = sharedSettings.forLabStyle(it.settings.style)) }
         var durationInput by rememberSaveable { mutableStateOf("900") }
         var remainingInput by rememberSaveable { mutableStateOf("900") }
         var inputError by rememberSaveable { mutableStateOf<String?>(null) }
@@ -98,7 +98,7 @@ class ReminderLabActivity : ComponentActivity() {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(ReminderStyle.COLOR to "变色", ReminderStyle.SIZE to "变尺寸", ReminderStyle.CONFIRM to "交互确认").forEach { (style, title) ->
                         FilterChip(selected = lab.settings.style == style,
-                            onClick = { ReminderLabState.simulation = lab.copy(settings = lab.settings.copy(style = style), acknowledgedStage = null) },
+                            onClick = { ReminderLabState.simulation = lab.copy(settings = lab.settings.forLabStyle(style), acknowledgedStage = null) },
                             label = { Text(title, maxLines = 1) })
                     }
                 }

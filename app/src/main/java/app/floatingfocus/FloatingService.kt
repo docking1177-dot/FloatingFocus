@@ -55,6 +55,7 @@ class FloatingService : Service() {
     private var record: TimerRecord? = null
     private var recordStartedAt = 0L
     private var awaitingApp: String? = null
+    private var activePresetId: String? = null
     private var extensionRequest by mutableIntStateOf(0)
 
     private fun beginRecord(appName: String = "手动计时", appPackage: String = "",
@@ -175,6 +176,9 @@ class FloatingService : Service() {
         }
         countdown = Countdown(duration, SystemClock.elapsedRealtime(), mode)
         awaitingApp = intent.getStringExtra("app_package")
+        activePresetId = intent.getStringExtra("preset_id")?.takeIf { id ->
+            TimerPresetStore.get(this).presets.value.any { it.id == id && it.targetApp?.packageName == awaitingApp }
+        }
         completionReminder.reset()
         overlayState = SessionState(true, duration, mode = mode, timerStartedAt = countdown!!.startedAt)
         interactive = getSystemService(PowerManager::class.java).isInteractive
@@ -209,7 +213,13 @@ class FloatingService : Service() {
 
     private fun showOverlay() {
         if (window != null || stopping) return
-        val overlay = OverlayWindow(this) { fail("悬浮窗不可用，计时已结束。", it) }
+        val presetStore = TimerPresetStore.get(this)
+        val presetId = activePresetId
+        val overlay = OverlayWindow(this,
+            initialPosition = presetStore.presets.value.firstOrNull { it.id == presetId }?.lastPosition,
+            onPositionChanged = { anchor -> presetId?.let { presetStore.rememberPosition(it, anchor) } }) {
+            fail("悬浮窗不可用，计时已结束。", it)
+        }
         window = overlay
         overlay.show { FocusTheme {
             val settings by settingsStore.settings.collectAsState()
@@ -384,13 +394,14 @@ class FloatingService : Service() {
                 mutableSession.value = SessionState(error = "系统暂时无法开启监测，请保持设置页面可见后重试。")
             }
         }
-        fun start(context: Context, durationMillis: Long, mode: TimerMode = TimerMode.COUNTDOWN, targetPackage: String? = null): Boolean {
+        fun start(context: Context, durationMillis: Long, mode: TimerMode = TimerMode.COUNTDOWN, targetPackage: String? = null,
+                  presetId: String? = null): Boolean {
             if (mutableMonitor.value.enabled || mutableSession.value.active) return false
             mutableSession.value = SessionState()
             try {
                 ContextCompat.startForegroundService(context, Intent(context, FloatingService::class.java)
                     .setAction(ACTION_START).putExtra(EXTRA_DURATION, if (mode == TimerMode.STOPWATCH) 0L else durationMillis)
-                    .putExtra("mode", mode.name).putExtra("app_package", targetPackage))
+                    .putExtra("mode", mode.name).putExtra("app_package", targetPackage).putExtra("preset_id", presetId))
                 return true
             } catch (e: RuntimeException) {
                 Log.w(TAG, "Foreground start rejected", e)

@@ -4,6 +4,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class TimerPresetTest {
+    @Test fun `positions belong to stable preset ids and survive rename and full codec`() {
+        val first = TimerPreset("one", "同名", 30, ReminderSettings(colorEnabled = true, sizeEnabled = true),
+            lastPosition = OverlayAnchor(.9f, .1f))
+        val second = first.copy(id = "two", lastPosition = OverlayAnchor(.2f, .8f))
+        assertEquals(first, TimerPresetCodec.decode(TimerPresetCodec.encode(first)))
+        val renamed = first.copy(name = "新名称")
+        assertEquals(listOf(renamed, second), TimerPresetCodec.upsert(listOf(first, second), renamed))
+        assertEquals(first.lastPosition, renamed.lastPosition)
+        val row = TimerPresetCodec.encode(first)
+        assertNull(TimerPresetCodec.decode(row - "positionX" - "positionY")!!.lastPosition)
+        for (bad in listOf(-1, 2, Double.NaN, "0.5")) {
+            val decoded = TimerPresetCodec.decode(row + ("positionX" to bad))!!
+            assertNull(decoded.lastPosition)
+            assertEquals(first.settings, decoded.settings)
+        }
+    }
     @Test fun `full appearance and duration round trip without sharing mutable state`() {
         val settings = ReminderSettings(ReminderStyle.SIZE, ChangeMode.STEPS, ChangeMode.CONTINUOUS,
             .65f, 1.4f, .45f, OverlayColor.BLUE, OverlayShape.VERTICAL_CAPSULE)

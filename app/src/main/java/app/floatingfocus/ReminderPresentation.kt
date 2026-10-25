@@ -35,7 +35,10 @@ data class ReminderSettings(
     val baseSize: Float = 1f,
     val opacity: Float = 0.94f,
     val color: OverlayColor = OverlayColor.GRAPHITE,
-    val shape: OverlayShape = OverlayShape.ROUNDED_RECTANGLE
+    val shape: OverlayShape = OverlayShape.ROUNDED_RECTANGLE,
+    // style remains for legacy storage and the debug confirmation experiment.
+    val colorEnabled: Boolean = style == ReminderStyle.COLOR,
+    val sizeEnabled: Boolean = style == ReminderStyle.SIZE
 ) {
     init {
         require(intensity.isFinite() && intensity in 0f..1f)
@@ -100,8 +103,8 @@ object ReminderPresenter {
                 else -> "◷  ${formatRemaining(snapshot.remainingMillis)}"
             },
             finished = finished,
-            colorArgb = if (settings.style == ReminderStyle.COLOR) mix(baseColor, color, settings.intensity) else baseColor,
-            size = settings.baseSize * if (settings.style == ReminderStyle.SIZE) 1f + 0.5f * sizeProgress * settings.intensity else 1f,
+            colorArgb = if (settings.colorEnabled) mix(baseColor, color, settings.intensity) else baseColor,
+            size = settings.baseSize * if (settings.sizeEnabled) 1f + 0.5f * sizeProgress * settings.intensity else 1f,
             opacity = settings.opacity,
             pulseDepth = if (snapshot.stage == ReminderStage.URGENT) HIGHLIGHT_DEPTH * settings.intensity else 0f,
             confirmationRequired = settings.style == ReminderStyle.CONFIRM &&

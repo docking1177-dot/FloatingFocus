@@ -2,9 +2,12 @@ package app.floatingfocus
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -18,6 +21,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -40,6 +46,12 @@ class SettingsActivity : ComponentActivity() {
             val presets by presetStore.presets.collectAsStateWithLifecycle()
             val preset = presets.firstOrNull { it.id == presetId }
             val editing = presetId != null
+            var showingAppearance by rememberSaveable { mutableStateOf(editing) }
+            BackHandler(enabled = !editing && showingAppearance) { showingAppearance = false }
+            if (!editing && !showingAppearance) {
+                SettingsHome(onBack = { finish() }, onOverlay = { showingAppearance = true })
+                return@FocusTheme
+            }
             if (editing && preset == null) {
                 Column(Modifier.safeDrawingPadding().padding(24.dp)) {
                     Text("方案不存在或已删除。")
@@ -67,10 +79,11 @@ class SettingsActivity : ComponentActivity() {
                     Column(Modifier.fillMaxSize()) {
                         Row(Modifier.fillMaxWidth().padding(horizontal = 24.dp), verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(if (editing) "编辑方案" else "设置", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
-                            TextButton(onClick = { finish() }) { Text(if (editing) "取消" else "返回") }
+                            Text(if (editing) "编辑方案" else "悬浮窗", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
+                            TextButton(onClick = { if (editing) finish() else showingAppearance = false }) { Text(if (editing) "取消" else "返回") }
                             if (editing) TextButton(enabled = isSavedShortcut(target) && name.isNotBlank() && (mode == TimerMode.STOPWATCH || minutes.toIntOrNull() in 1..180), onClick = {
-                                presetStore.save(TimerPreset(presetId!!, name.trim(), minutes.toIntOrNull()?.coerceIn(1, 180) ?: 15, draft, mode, target))
+                                presetStore.save(preset!!.copy(name = name.trim(), minutes = minutes.toIntOrNull()?.coerceIn(1, 180) ?: 15,
+                                    settings = draft, mode = mode, targetApp = target))
                                 finish()
                             }) { Text("保存") }
                         }
@@ -103,16 +116,10 @@ class SettingsActivity : ComponentActivity() {
                                 }
                             }
                             Text("提醒效果", style = MaterialTheme.typography.titleMedium)
-                            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                listOf(ReminderStyle.COLOR to "变色", ReminderStyle.SIZE to "变尺寸").forEach { (style, label) ->
-                                    FilterChip(settings.style == style, { updateSettings { it.copy(style = style) } }, label = { Text(label) })
-                                }
-                            }
-                            Text("变色：从基础颜色渐变至橙、红色。变尺寸：保持基础颜色，最大放大至基础大小的 1.5 倍。",
-                                style = MaterialTheme.typography.bodySmall)
-                            EffectModePicker("变色方式", settings.colorMode) { mode -> updateSettings { it.copy(colorMode = mode) } }
-                            EffectModePicker("变尺寸方式", settings.sizeMode) { mode -> updateSettings { it.copy(sizeMode = mode) } }
-                            Text("方式仅作用于对应提醒效果；节点为已用时间的 50%、80%、100%。", style = MaterialTheme.typography.bodySmall)
+                            EffectSwitch("变色", settings.colorEnabled) { enabled -> updateSettings { it.copy(colorEnabled = enabled) } }
+                            if (settings.colorEnabled) EffectModePicker("变色方式", settings.colorMode) { mode -> updateSettings { it.copy(colorMode = mode) } }
+                            EffectSwitch("变尺寸", settings.sizeEnabled) { enabled -> updateSettings { it.copy(sizeEnabled = enabled) } }
+                            if (settings.sizeEnabled) EffectModePicker("变尺寸方式", settings.sizeMode) { mode -> updateSettings { it.copy(sizeMode = mode) } }
                             EffectSlider("提醒强度", settings.intensity, 0f..1f) { v -> updateSettings { it.copy(intensity = v) } }
                             Text("强度为 0 时不变色、不放大、不震动。震动遵循系统限制。", style = MaterialTheme.typography.bodySmall)
                             EffectSlider("基础大小", settings.baseSize, 0.75f..1.5f) { v -> updateSettings { it.copy(baseSize = v) } }
@@ -125,6 +132,38 @@ class SettingsActivity : ComponentActivity() {
         } }
     }
     companion object { const val EXTRA_PRESET_ID = "preset_id" }
+}
+
+@Composable
+private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit) {
+    Scaffold { insets ->
+        Column(Modifier.fillMaxSize().padding(insets)) {
+            Box(Modifier.fillMaxWidth().height(64.dp)) {
+                IconButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart).padding(start = 8.dp)) {
+                    Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = "返回", modifier = Modifier.rotate(180f))
+                }
+                Text("设置", style = MaterialTheme.typography.titleLarge, modifier = Modifier.align(Alignment.Center))
+            }
+            Spacer(Modifier.height(16.dp))
+            Surface(color = MaterialTheme.colorScheme.surface) {
+                Row(Modifier.fillMaxWidth().clickable(onClick = onOverlay).heightIn(min = 64.dp).padding(horizontal = 24.dp, vertical = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Text("悬浮窗", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                    Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EffectSwitch(label: String, enabled: Boolean, onChange: (Boolean) -> Unit) {
+    Row(Modifier.fillMaxWidth().toggleable(value = enabled, role = Role.Switch, onValueChange = onChange)
+        .heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(label, modifier = Modifier.weight(1f))
+        Switch(checked = enabled, onCheckedChange = null)
+    }
 }
 
 /** Local visual sample only: never starts a service, changes a session or requests vibration. */

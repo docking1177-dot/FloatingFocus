@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class OverlayPositionTest {
+    @Test fun `saved center restores after restart rotation and temporary expansion`() {
+        val first = OverlayPosition().apply { anchor(260, 20, 100, 80) }
+        val saved = first.snapshot(360, 720)
+        val restarted = OverlayPosition().apply { restore(saved, 360, 720) }
+        assertEquals(OverlayOffset(260, 20), restarted.place(100, 80, 360, 720))
+        restarted.place(300, 600, 360, 720)
+        assertEquals(saved, restarted.snapshot(360, 720))
+        restarted.restore(saved, 720, 360)
+        assertEquals(OverlayOffset(570, 0), restarted.place(100, 80, 720, 360))
+        restarted.restore(saved, 360, 720)
+        assertEquals(OverlayOffset(260, 20), restarted.place(100, 80, 360, 720))
+    }
     @Test fun `expansion at every edge restores collapsed position without accumulating drift`() {
         for (x in listOf(0, 130, 260)) for (y in listOf(0, 300, 640)) {
             val position = OverlayPosition().apply { anchor(x, y, 100, 80) }
@@ -37,7 +49,7 @@ class OverlayPositionTest {
             assertEquals(base, size(110_000), .0001f)
             assertEquals(base * 1.25f, size(125_000), .0001f)
             assertEquals(base * 1.5f, size(140_000), .0001f)
-            val fixed = settings.copy(style = ReminderStyle.COLOR)
+            val fixed = settings.copy(sizeEnabled = false, colorEnabled = true)
             assertEquals(base, ReminderPresenter.present(ReminderSnapshot.at(timer, 139_000), fixed).size, .0001f)
         }
     }

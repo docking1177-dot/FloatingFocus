@@ -9,7 +9,8 @@ import kotlinx.coroutines.withTimeout
 
 /** Shared by saved presets and the existing quick launcher. Called from a visible UI on Main. */
 suspend fun launchAppWithTimer(context: Context, lifecycle: Lifecycle, app: LaunchableApp,
-                              minutes: Int, settings: ReminderSettings? = null, mode: TimerMode = TimerMode.COUNTDOWN): String? {
+                              minutes: Int, settings: ReminderSettings? = null, mode: TimerMode = TimerMode.COUNTDOWN,
+                              presetId: String? = null): String? {
     if (FloatingService.session.value.active || FloatingService.monitoring.value.enabled)
         return "已有计时正在运行，请先结束。"
     var ownsTimer = false
@@ -25,7 +26,7 @@ suspend fun launchAppWithTimer(context: Context, lifecycle: Lifecycle, app: Laun
             store.update { settings }
             applied = store.settings.value
         }
-        ownsTimer = FloatingService.start(context, minutes * 60_000L, mode, app.packageName)
+        ownsTimer = FloatingService.start(context, minutes * 60_000L, mode, app.packageName, presetId)
         if (!ownsTimer) return FloatingService.session.value.error ?: "已有计时正在运行，请先结束。"
         val result = withTimeout(5000) { FloatingService.session.first { it.active || it.error != null } }
         if (result.error != null) return result.error

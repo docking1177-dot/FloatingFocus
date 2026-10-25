@@ -15,6 +15,11 @@ class TimerPresetStore private constructor(context: Context) {
     fun save(preset: TimerPreset) = write(TimerPresetCodec.upsert(current.value, preset))
     fun delete(id: String) = write(current.value.filterNot { it.id == id })
 
+    fun rememberPosition(id: String, position: OverlayAnchor) {
+        val preset = current.value.firstOrNull { it.id == id } ?: return // never resurrect a deleted preset
+        if (preset.lastPosition != position) save(preset.copy(lastPosition = position))
+    }
+
     private fun write(items: List<TimerPreset>) {
         val rows = JSONArray()
         items.forEach { rows.put(JSONObject(TimerPresetCodec.encode(it))) }
@@ -30,7 +35,8 @@ class TimerPresetStore private constructor(context: Context) {
                 val values = appearance.keys().asSequence().associateWith { appearance.opt(it) }
                 TimerPresetCodec.decode(mapOf("id" to row.opt("id"), "name" to row.opt("name"),
                     "targetPackage" to row.opt("targetPackage"), "targetLabel" to row.opt("targetLabel"),
-                    "minutes" to row.opt("minutes"), "mode" to row.opt("mode"), "settings" to values))
+                    "minutes" to row.opt("minutes"), "mode" to row.opt("mode"), "settings" to values,
+                    "positionX" to row.opt("positionX"), "positionY" to row.opt("positionY")))
             }
         }.distinctBy { it.id }
     } catch (_: org.json.JSONException) { emptyList() }

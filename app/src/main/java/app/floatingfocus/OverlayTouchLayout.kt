@@ -15,7 +15,8 @@ import android.os.Build
 internal class OverlayTouchLayout(
     context: Context,
     private val onDragStart: () -> Unit,
-    private val onDrag: (Float, Float) -> Unit
+    private val onDrag: (Float, Float) -> Unit,
+    private val onDragEnd: () -> Unit = {}
 ) : FrameLayout(context) {
     private val gesture = OverlayDragGesture(ViewConfiguration.get(context).scaledTouchSlop)
     private var geometry = OverlayShape.ROUNDED_RECTANGLE
@@ -71,6 +72,7 @@ internal class OverlayTouchLayout(
                 // Account for a final displacement even if MOVE events were coalesced.
                 moveWindow(event)
                 if (!gesture.finish()) super.dispatchTouchEvent(event)
+                onDragEnd()
                 acceptingTouch = false
                 return true
             }
@@ -78,12 +80,14 @@ internal class OverlayTouchLayout(
                 // Cancel the whole gesture when another finger joins; never turn it into a click.
                 gesture.cancel()
                 cancelChildTouch(event)
+                onDragEnd()
                 return true
             }
             MotionEvent.ACTION_CANCEL -> {
                 acceptingTouch = false
                 gesture.cancel()
                 super.dispatchTouchEvent(event)
+                onDragEnd()
                 return true
             }
         }

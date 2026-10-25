@@ -5,6 +5,40 @@ import org.junit.Test
 import kotlin.math.pow
 
 class ReminderSettingsTest {
+    @Test fun `independent switches migrate legacy styles and round trip every combination`() {
+        for (style in listOf(ReminderStyle.COLOR, ReminderStyle.SIZE)) {
+            val migrated = ReminderSettingsCodec.decode(mapOf("style" to style.name))
+            assertEquals(style == ReminderStyle.COLOR, migrated.colorEnabled)
+            assertEquals(style == ReminderStyle.SIZE, migrated.sizeEnabled)
+            for (color in listOf(false, true)) for (size in listOf(false, true)) {
+                val settings = migrated.copy(colorEnabled = color, sizeEnabled = size)
+                assertEquals(settings, ReminderSettingsCodec.decode(ReminderSettingsCodec.encode(settings)))
+            }
+        }
+        val malformed = ReminderSettingsCodec.decode(mapOf("style" to "SIZE", "colorEnabled" to "true", "sizeEnabled" to 0))
+        assertFalse(malformed.colorEnabled)
+        assertTrue(malformed.sizeEnabled)
+    }
+
+    @Test fun `color and size compose independently at all important time nodes`() {
+        for (mode in ChangeMode.entries) for (shape in OverlayShape.entries) {
+            val both = ReminderSettings(colorEnabled = true, sizeEnabled = true, colorMode = mode, sizeMode = mode, shape = shape)
+            for (p in listOf(0f, .499f, .5f, .65f, .8f, .9f, 1f)) {
+                val frame = ReminderSnapshot(0, p)
+                val combined = ReminderPresenter.present(frame, both)
+                val colorOnly = ReminderPresenter.present(frame, both.copy(sizeEnabled = false))
+                val sizeOnly = ReminderPresenter.present(frame, both.copy(colorEnabled = false))
+                val neither = ReminderPresenter.present(frame, both.copy(colorEnabled = false, sizeEnabled = false))
+                assertEquals(colorOnly.colorArgb, combined.colorArgb)
+                assertEquals(sizeOnly.size, combined.size, 0f)
+                assertEquals(both.color.argb, neither.colorArgb)
+                assertEquals(both.baseSize, neither.size, 0f)
+                assertEquals(combined.opacity, neither.opacity, 0f)
+            }
+            assertEquals(ReminderPresenter.RED, ReminderPresenter.present(ReminderSnapshot(0, 1f), both).colorArgb)
+            assertEquals(1.5f, ReminderPresenter.present(ReminderSnapshot(0, 1f), both).size, 0f)
+        }
+    }
     @Test fun `missing keys retain original defaults and each field round trips`() {
         assertEquals(ReminderSettings(), ReminderSettingsCodec.decode(emptyMap<String, Any>()))
         val settings = ReminderSettings(ReminderStyle.SIZE, ChangeMode.STEPS, ChangeMode.STEPS,
@@ -34,7 +68,7 @@ class ReminderSettingsTest {
         assertEquals(ReminderPresenter.ORANGE, present(0.8f, base).colorArgb)
         assertEquals(ReminderPresenter.RED, present(1f, base).colorArgb)
         assertEquals(base.color.argb, present(1f, base.copy(intensity = 0f)).colorArgb)
-        assertEquals(base.color.argb, present(1f, base.copy(style = ReminderStyle.SIZE)).colorArgb)
+        assertEquals(base.color.argb, present(1f, base.copy(colorEnabled = false, sizeEnabled = true)).colorArgb)
     }
 
     @Test fun `all shapes retain identical time effects across policy boundaries`() {
