@@ -10,3 +10,5 @@ local.properties
 *.jks
 *.keystore
 dist/
+__pycache__/
+*.pyc

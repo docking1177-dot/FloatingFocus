@@ -11,15 +11,39 @@
 .\scripts\check.ps1 -Mode Emulator
 # 本机复用已缓存的依赖；有临时 Maven init 脚本时自动使用
 .\scripts\check.ps1 -Offline
+# 离线单测；保持 Gradle task 与 --offline 为独立参数
+.\scripts\check.ps1 -Mode Unit -Offline
+# Release 构建、Release 单测、Release Lint（不生成正式签名）
+.\scripts\check.ps1 -Variant Release -Offline
 ```
 
-脚本成功返回退出码 0，失败返回 1；无效参数由 PowerShell 返回非零。成功输出测试数和 Lint 摘要，失败显示错误及日志末尾。完整日志和 `latest.json` 位于 `.tools/checks/`，被 Git 忽略。
+脚本成功返回退出码 0，失败返回 1；无效参数由 PowerShell 返回非零。成功输出测试数和 Lint 摘要，失败显示错误及日志末尾。每次保留独立日志和同名 JSON，`latest.json` 只是最近一次结果的便捷副本，均在 `.tools/checks/`，被 Git 忽略。
+
+JSON 记录 Git commit、源码内容 SHA256 指纹、dirty、未跟踪源码、任务列表、variant、离线模式、起止时间、本地构建输入哈希及 Full 的 APK 路径/校验值。指纹包含全部已跟踪文件（含删除）和未忽略的新文件；未跟踪的用户 `asset/` 只记录排除数量，不列出私人素材文件名、不参与源码指纹，已跟踪的 asset 仍参与。SDK/缓存等忽略项不属于源码；local.properties 与本地 Maven bridge 只记录哈希，不泄露内容。检查期间源码或构建输入改变会判为失败。提交后 SHA 已变，正式发布需在最终提交重新生成检查证据。
+
+`python scripts/source_state.py` 可单独查看当前身份。结果只证明列出的任务，不把 Unit、安装启动或 CI Debug 误作完整发布/交互验收。
 
 `Unit` 不打包 APK、不运行 Lint；`Full` 包含二者；`Emulator` 使用 `Full` 的结果进行安装启动，默认设备为 `emulator-5554`。`-Serial emulator-5556` 可指定另一个已经启动的模拟器；`-BootTimeoutSeconds 240` 可调整等待启动时间。脚本只接受模拟器序列号，不会自动选择连接的手机。
 
 Emulator 模式不会自动授予悬浮权限、点击开始或完成拖动回归，也不会在结束后自动关闭模拟器。显示窗口及停止方式见 [EMULATOR.md](EMULATOR.md)。安装启动通过不等于触摸、权限和前台服务场景通过。
 
 本地构建继续调用现有 `build-local.ps1`，保留同一份测试签名。日常检查不复制 dist、不修改版本、不提交 Git、不发布 Release。
+
+## 可重复的设备回归
+
+```powershell
+./scripts/test-device.ps1 -Suite smoke -AllowTestDataChanges
+./scripts/test-device.ps1 -Suite edges -AllowTestDataChanges
+./scripts/test-device.ps1 -Suite inline -AllowTestDataChanges
+# 发布前三组全部执行
+./scripts/test-device.ps1 -Suite all -AllowTestDataChanges
+```
+
+先启动且等待专用 `FloatingFocus_API_36` 模拟器就绪，结束当前计时。脚本只接受 emulator 序列号并核对 AVD；要求镜像自带 Gallery。首次安装或覆盖安装本地 Debug APK，使用 run-as 备份/还原 app 的 SharedPrefs 和 files；创建自己的预设和快捷 App，不依赖旧临时脚本/数据。失败也尝试还原，备份留在 `.tools/device-checks/<时间>/`，还原失败写入结果并返回失败；只在专用测试模拟器授予悬浮/通知权限，权限和安装版本保留。不要在有重要数据或正在计时的设备执行。
+
+smoke 检查预设启动 Gallery、手动结束、记录；edges 检查三种形状四个边缘展开/收起；inline 等待真实 1 分钟到期，检查取消/确认加时、同窗口/前台/记录、基础尺寸恢复、动态增长及第二次归零。部分浮窗坐标按实际 frame 推导，系统 dumpsys/UI 层级变化仍可能需要维护。截图只供视觉复核，不自动断言像素/震动手感。每组记录成功/失败、源码、APK 哈希和截图。覆盖安装会比对安装前后存储内容；同版本重装通过不冒充跨版本升级通过。
+
+脚本自身回归：`python -m unittest discover -s scripts/tests -v`。无外部测试依赖，覆盖任务参数组合、源码指纹变化、发布证据拒绝和 CI 精确复用。发布步骤见 [RELEASE_AUTOMATION.md](RELEASE_AUTOMATION.md)。
 
 文档改动无需运行 Gradle；开发脚本检查语法并验证实际变更路径。应用改动按范围选择检查，完整交付使用 Full；涉及交互时再执行相关模拟器或真机回归。已有 GitHub Actions 继续在远端执行构建、单测和 Lint。
 

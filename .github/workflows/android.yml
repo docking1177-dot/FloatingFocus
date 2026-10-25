@@ -3,7 +3,7 @@ name: Android checks
 on:
   push:
     branches: [main]
-    tags: ['v*']
+    # Releases reuse the successful main run for their exact commit; tags do not rebuild.
   pull_request:
   workflow_dispatch:
 
@@ -33,14 +33,24 @@ jobs:
         run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
       - name: Build, unit tests and lint
         run: ./gradlew assembleDebug testDebugUnitTest lintDebug --no-daemon --console=plain
+      - name: Workflow script regression
+        run: python -m unittest discover -s scripts/tests -v
+      - name: Bind evidence to source and APK
+        run: |
+          mkdir -p .tools/checks
+          python scripts/source_state.py > .tools/checks/source-state.json
+          sha256sum app/build/outputs/apk/debug/app-debug.apk > .tools/checks/APK_SHA256SUMS.txt
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: android-checks-${{ github.sha }}
+          include-hidden-files: true
           path: |
             app/build/reports/
             app/build/test-results/
+            .tools/checks/source-state.json
+            .tools/checks/APK_SHA256SUMS.txt
           if-no-files-found: warn
           retention-days: 14
       # CI uses a disposable Debug key, not the local phone's existing signing key.
