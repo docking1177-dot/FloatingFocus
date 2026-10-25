@@ -1,6 +1,7 @@
 package app.floatingfocus
 
 import kotlin.math.roundToInt
+import kotlin.math.pow
 
 /** Immutable input shared by the real clock and the isolated debug simulator. */
 data class ReminderSnapshot(val remainingMillis: Long, val progress: Float, val overtimeMillis: Long = 0,
@@ -52,13 +53,15 @@ data class ReminderPresentation(
     val opacity: Float,
     val pulseDepth: Float,
     val confirmationRequired: Boolean,
-    val shape: OverlayShape = OverlayShape.ROUNDED_RECTANGLE
+    val shape: OverlayShape = OverlayShape.ROUNDED_RECTANGLE,
+    val animationStrength: Float = 1f
 )
 
 object ReminderPresenter {
     const val GREY = 0xFF303833.toInt()
-    const val ORANGE = 0xFFAF580D.toInt()
-    const val RED = 0xFFB52E36.toInt()
+    const val ORANGE = 0xFFC47F00.toInt()
+    const val RED = 0xFFD10B25.toInt()
+    const val HIGHLIGHT_DEPTH = 0.4f
 
     fun present(
         snapshot: ReminderSnapshot,
@@ -100,12 +103,27 @@ object ReminderPresenter {
             colorArgb = if (settings.style == ReminderStyle.COLOR) mix(baseColor, color, settings.intensity) else baseColor,
             size = settings.baseSize * if (settings.style == ReminderStyle.SIZE) 1f + 0.5f * sizeProgress * settings.intensity else 1f,
             opacity = settings.opacity,
-            pulseDepth = if (snapshot.stage == ReminderStage.URGENT) 0.18f * settings.intensity else 0f,
+            pulseDepth = if (snapshot.stage == ReminderStage.URGENT) HIGHLIGHT_DEPTH * settings.intensity else 0f,
             confirmationRequired = settings.style == ReminderStyle.CONFIRM &&
                 snapshot.stage != ReminderStage.QUIET && snapshot.stage != acknowledgedStage,
-            shape = settings.shape
+            shape = settings.shape,
+            animationStrength = settings.intensity
         )
     }
+
+    /** Brighten the actual shape paint, never fade the window or add a rectangular layer. */
+    fun highlight(color: Int, amount: Float): Int = mix(color, 0xFFFFFFFF.toInt(), amount)
+
+    fun luminance(color: Int): Double {
+        fun channel(shift: Int): Double {
+            val value = ((color ushr shift) and 255) / 255.0
+            return if (value <= 0.04045) value / 12.92 else ((value + 0.055) / 1.055).pow(2.4)
+        }
+        return 0.2126 * channel(16) + 0.7152 * channel(8) + 0.0722 * channel(0)
+    }
+
+    fun contentColor(background: Int): Int =
+        if (luminance(background) > 0.179) 0xFF000000.toInt() else 0xFFFFFFFF.toInt()
 
     private fun mix(from: Int, to: Int, amount: Float): Int {
         val t = amount.coerceIn(0f, 1f)

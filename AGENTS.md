@@ -10,10 +10,10 @@
 - 主动归纳用户反复强调或明确确认的产品取舍，在相关改动中同步更新本指南，无需等待单独要求写文档。记录原则、适用边界与代码入口，不把一次性的实现选择扩大成永久规则，不擅自扩大功能或权限范围。
 - 主界面在 `MainActivity.kt`；会话和前台服务在 `FloatingService.kt`；计时模型在 `Countdown.kt`。
 - 浮窗宿主与边界在 `OverlayWindow.kt`，整个窗口的手势分发在 `OverlayTouchLayout.kt`，手势状态在 `OverlayDragGesture.kt`，内容在 `FocusOverlay.kt`。
-- 提醒策略与渲染数据在 `ReminderPresentation.kt`；实验室仅在 `app/src/debug/`，不得把模拟状态写入正式服务。使用与设计按需看 `docs/REMINDER_LAB.md`。
+- 提醒策略与渲染数据在 `ReminderPresentation.kt`；阶段色差和提醒动画应清晰可辨，提亮通过背景颜色完成，不降低用户设置的不透明度；文字和图标随背景选择可读的前景色。实验室仅在 `app/src/debug/`，不得把模拟状态写入正式服务。使用与设计按需看 `docs/REMINDER_LAB.md`。
 - 正式外观设置在 `SettingsActivity.kt`，统一由 `ReminderSettingsStore.kt` 持久化并实时共享；实验室只读取外观配置，不新增平行调参入口。颜色/形状、版本边界及震动链路见 `docs/SETTINGS.md`，归零单次触发由 `CompletionReminder.kt` 管理。
 - 浮窗透明度统一作用于背景、文字和图标，不添加独立不透明的文字底色；基础尺寸与动态倍率只应用一次，禁止用自动缩字结果循环决定窗口尺寸。展开、收起及加时面板复用同一个浮窗，临时防越界不能覆盖用户位置锚点；`OverlayPosition.kt` 区分用户拖动与内容缩放。时间区域不使用矩形点击波纹。`OverlayGeometry.kt` 负责几何计算，`OverlayShapePicker.kt` 提供三种图形化选择，保留旧形状配置键兼容。
-- 预设方案在 `TimerPreset.kt` / `TimerPresetStore.kt`，保存时长及完整外观快照；入口与管理在 `TimerPresetsCard.kt`。编辑复用 `SettingsActivity` 的独立草稿，取消不写回；预设绑定的 App 仅通过 `ShortcutAppPicker.kt` 从现有快捷列表选择，点击预设直接启动；旧预设先补绑定。复用 `AppTimerLauncher.kt` 和正式计时服务，禁止新建平行计时系统。行为及存储见 `docs/PRESETS.md`。
+- 预设方案在 `TimerPreset.kt` / `TimerPresetStore.kt`，保存时长及完整外观快照；入口与管理在 `TimerPresetsCard.kt`；预设按双列网格随页面纵向浏览，显示名称、目标 App 和时长，不依赖横向滑动。与快捷启动分区区分：前者使用保存配置，后者使用当前配置。编辑复用 `SettingsActivity` 的独立草稿，取消不写回；预设绑定的 App 仅通过 `ShortcutAppPicker.kt` 从现有快捷列表选择，点击预设直接启动；旧预设先补绑定。复用 `AppTimerLauncher.kt` 和正式计时服务，禁止新建平行计时系统。行为及存储见 `docs/PRESETS.md`。
 - 倒计时归零后继续显示超时正计时，独立正计时也复用 `Countdown` / `FloatingService`，正计时不得触发归零提醒。到时加时直接在 `FocusOverlay.kt` 内调节并确认，不跳转 Activity、不销毁重建窗口，从确认时开始新一段，保留同一会话、既有累计时长和超时，防止旧页面或重复操作误加时。时长记录在 `TimerRecord.kt` / `TimerRecordStore.kt`，查看及 CSV 导出在 `HistoryActivity.kt`；记录 FF 会话而非 App 前台使用时间。进程异常结束只能保证最后持久化进度，恢复须标注约计，禁止把停机时间累计进去或承诺精确捕获强杀时刻。划掉 FF 时结算并停止，不新增监测权限、保活或自动重启。见 `docs/TIME_RECORDS.md`。
 - App 自动计时已 Deferred：`FeatureFlags.APP_USAGE_AUTO_TIMER=false`，禁止未经新需求重新启用或继续优化监测；保留代码和测试，进度/恢复步骤见 `docs/AUTO_TRIGGER.md`。禁止无障碍路径。
 - 一键打开目标 App + 手动计时在 `QuickLaunchCard.kt`，复用 `FloatingService`；多选迁移在 `QuickLaunchTargets.kt`，App 列表在 `LaunchableApps.kt`。Debug 的 `QuickLaunchLayoutPicker.kt` 提供布局比较，Release 固定列表。不读取使用事件，行为与验收见 `docs/QUICK_LAUNCH.md`。

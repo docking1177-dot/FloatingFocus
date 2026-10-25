@@ -46,27 +46,31 @@ fun FocusOverlay(
         if (extensionRequest > 0 && finished && onExtend != null) addingTime = true
     }
     val size = appearance.size
-    val manualPulse = remember { Animatable(1f) }
-    LaunchedEffect(animationRequest, interactive) {
+    val manualPulse = remember { Animatable(0f) }
+    LaunchedEffect(animationRequest, interactive, appearance.animationStrength) {
+        manualPulse.snapTo(0f)
         if (animationRequest > 0 && interactive && ValueAnimator.areAnimatorsEnabled()) {
             repeat(2) {
-                manualPulse.animateTo(0.65f, tween(250))
-                manualPulse.animateTo(1f, tween(350))
+                manualPulse.animateTo(ReminderPresenter.HIGHLIGHT_DEPTH * appearance.animationStrength, tween(250))
+                manualPulse.animateTo(0f, tween(350))
             }
-        } else manualPulse.snapTo(1f)
+        }
     }
-    val alpha = if (appearance.pulseDepth > 0f && interactive && ValueAnimator.areAnimatorsEnabled()) {
+    val automaticHighlight = if (appearance.pulseDepth > 0f && interactive && ValueAnimator.areAnimatorsEnabled()) {
         val transition = rememberInfiniteTransition(label = "gentle reminder")
-        val value by transition.animateFloat(1f, 1f - appearance.pulseDepth,
-            infiniteRepeatable(tween(ReminderPolicy.BREATH_MILLIS / 2), RepeatMode.Reverse), label = "opacity")
+        val value by transition.animateFloat(0f, appearance.pulseDepth,
+            infiniteRepeatable(tween(ReminderPolicy.BREATH_MILLIS / 2), RepeatMode.Reverse), label = "highlight")
         value
-    } else 1f
+    } else 0f
 
     val vertical = appearance.shape == OverlayShape.VERTICAL_CAPSULE
-    val textStyle = TextStyle(color = Color.White, shadow = Shadow(Color.Black, blurRadius = 2f))
+    val background = ReminderPresenter.highlight(appearance.colorArgb, maxOf(automaticHighlight, manualPulse.value))
+    val foreground = Color(ReminderPresenter.contentColor(background))
+    val textStyle = TextStyle(color = foreground,
+        shadow = if (foreground == Color.White) Shadow(Color.Black, blurRadius = 2f) else null)
     // One alpha layer for the whole window. No glyph backgrounds or independent opaque children.
-    Surface(color = Color(appearance.colorArgb), shape = CircleShape,
-        modifier = Modifier.padding(2.dp).graphicsLayer { this.alpha = alpha * manualPulse.value * appearance.opacity }) {
+    Surface(color = Color(background), shape = CircleShape,
+        modifier = Modifier.padding(2.dp).graphicsLayer { this.alpha = appearance.opacity }) {
         Layout(content = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 // The default bounded ripple draws a rectangular patch behind the time.
@@ -77,7 +81,7 @@ fun FocusOverlay(
                     .padding(4.dp)
                 val title: @Composable () -> Unit = {
                     Icon(painterResource(R.drawable.ic_notification), contentDescription = null,
-                        tint = Color.White, modifier = Modifier.size(20.dp))
+                        tint = foreground, modifier = Modifier.size(20.dp))
                     Text(appearance.title.removePrefix("◷").trim(), style = textStyle,
                         fontSize = 18.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.Monospace,
                         maxLines = 1, softWrap = false)

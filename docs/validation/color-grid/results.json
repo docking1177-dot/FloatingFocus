@@ -1,0 +1,327 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "cc3047c389d26a7a2f98f8216c594f7fa2c15708",
+  "branch": "codex/multi-app-layouts",
+  "apk": "app/build/outputs/apk/debug/app-debug.apk",
+  "apkSha256": "26a4c1f28590b0f52437827e864f434542502b25889d640f95fd6c1e7c300aba",
+  "versionName": "0.1.1",
+  "versionCode": 2,
+  "checks": {
+    "Debug": {
+      "tests": 75,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "lintErrors": 0,
+      "lintWarnings": 1
+    },
+    "Release": {
+      "tests": 69,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "lintErrors": 0,
+      "lintWarnings": 0
+    }
+  },
+  "emulator": {
+    "serial": "emulator-5554",
+    "api": 36,
+    "headless": true,
+    "bootCompleted": "1",
+    "installed": "Success"
+  },
+  "grid": [
+    {
+      "name": "短视频 30 分钟",
+      "bounds": [
+        66,
+        1137,
+        529,
+        1434
+      ]
+    },
+    {
+      "name": "睡前阅读与放松的常用方案",
+      "bounds": [
+        551,
+        1137,
+        1014,
+        1434
+      ]
+    },
+    {
+      "name": "学习 15 分钟",
+      "bounds": [
+        66,
+        1445,
+        529,
+        1709
+      ]
+    },
+    {
+      "name": "运动 20 分钟",
+      "bounds": [
+        551,
+        1445,
+        1014,
+        1709
+      ]
+    },
+    {
+      "name": "只记录时长",
+      "bounds": [
+        66,
+        1720,
+        529,
+        1984
+      ]
+    }
+  ],
+  "colorSteps": [
+    {
+      "name": "before-orange",
+      "remaining": 451,
+      "rgb": [
+        60,
+        67,
+        63,
+        255
+      ],
+      "frame": [
+        626,
+        235,
+        1036,
+        401
+      ]
+    },
+    {
+      "name": "orange",
+      "remaining": 450,
+      "rgb": [
+        199,
+        134,
+        15,
+        255
+      ],
+      "frame": [
+        626,
+        235,
+        1036,
+        401
+      ]
+    },
+    {
+      "name": "before-red",
+      "remaining": 181,
+      "rgb": [
+        199,
+        134,
+        15,
+        255
+      ],
+      "frame": [
+        626,
+        235,
+        1036,
+        401
+      ]
+    },
+    {
+      "name": "red",
+      "remaining": 180,
+      "rgb": [
+        211,
+        25,
+        50,
+        255
+      ],
+      "frame": [
+        626,
+        235,
+        1036,
+        401
+      ]
+    }
+  ],
+  "manualPulseSamples": [
+    {
+      "name": "pulse-before",
+      "time": 0.234,
+      "rgb": [
+        60,
+        67,
+        63
+      ],
+      "brightness": 63.333333333333336
+    },
+    {
+      "name": "pulse-0",
+      "time": 0.262,
+      "rgb": [
+        61,
+        68,
+        64
+      ],
+      "brightness": 64.33333333333333
+    },
+    {
+      "name": "pulse-1",
+      "time": 0.52,
+      "rgb": [
+        136,
+        141,
+        138
+      ],
+      "brightness": 138.33333333333334
+    },
+    {
+      "name": "pulse-2",
+      "time": 0.86,
+      "rgb": [
+        63,
+        70,
+        66
+      ],
+      "brightness": 66.33333333333333
+    },
+    {
+      "name": "pulse-3",
+      "time": 1.154,
+      "rgb": [
+        138,
+        142,
+        140
+      ],
+      "brightness": 140.0
+    },
+    {
+      "name": "pulse-4",
+      "time": 1.418,
+      "rgb": [
+        63,
+        70,
+        66
+      ],
+      "brightness": 66.33333333333333
+    },
+    {
+      "name": "pulse-5",
+      "time": 1.632,
+      "rgb": [
+        60,
+        67,
+        63
+      ],
+      "brightness": 63.333333333333336
+    },
+    {
+      "name": "pulse-6",
+      "time": 1.823,
+      "rgb": [
+        60,
+        67,
+        63
+      ],
+      "brightness": 63.333333333333336
+    },
+    {
+      "name": "pulse-7",
+      "time": 2.002,
+      "rgb": [
+        60,
+        67,
+        63
+      ],
+      "brightness": 63.333333333333336
+    },
+    {
+      "name": "pulse-8",
+      "time": 2.183,
+      "rgb": [
+        60,
+        67,
+        63
+      ],
+      "brightness": 63.333333333333336
+    },
+    {
+      "name": "pulse-9",
+      "time": 2.361,
+      "rgb": [
+        60,
+        67,
+        63
+      ],
+      "brightness": 63.333333333333336
+    },
+    {
+      "name": "pulse-10",
+      "time": 2.552,
+      "rgb": [
+        60,
+        67,
+        63
+      ],
+      "brightness": 63.333333333333336
+    },
+    {
+      "name": "pulse-11",
+      "time": 2.747,
+      "rgb": [
+        60,
+        67,
+        63
+      ],
+      "brightness": 63.333333333333336
+    },
+    {
+      "name": "pulse-12",
+      "time": 2.929,
+      "rgb": [
+        60,
+        67,
+        63
+      ],
+      "brightness": 63.333333333333336
+    },
+    {
+      "name": "pulse-13",
+      "time": 3.114,
+      "rgb": [
+        60,
+        67,
+        63
+      ],
+      "brightness": 63.333333333333336
+    },
+    {
+      "name": "pulse-after",
+      "time": 3.306,
+      "rgb": [
+        60,
+        67,
+        63
+      ],
+      "brightness": 63.333333333333336
+    }
+  ],
+  "verified": [
+    "Two-column grid including long names and odd last item",
+    "Grid preset launches bound Gallery and existing timer; manual stop succeeds",
+    "Real overlay steps checked before and at 50/80 percent",
+    "Manual pulse captured two brightness peaks and returned to baseline without fading below normal",
+    "System animator scale zero suppresses highlight; original scale restored"
+  ],
+  "localArtifacts": ".tools\\color-grid-validation",
+  "logs": [
+    ".tools/checks/check-full-20261024-212618-226.log",
+    ".tools/checks/color-grid-release.log"
+  ],
+  "limits": [
+    "REDMI K80 physical-device color and animation perception not tested",
+    "Solid foreground contrast tested; translucent compositing depends on underlying content",
+    "Grid runtime checked in Debug with quick-launch grid selected; Release quick-launch remains list",
+    "Automatic urgent highlight shares renderer and model tests; timed sampling covers manual trigger"
+  ]
+}

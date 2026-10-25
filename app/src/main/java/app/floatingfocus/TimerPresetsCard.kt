@@ -4,7 +4,7 @@ import android.content.Intent
 import android.provider.Settings
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -64,11 +65,26 @@ fun TimerPresetsCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
             }) { Text("保存当前") }
             if (presets.isNotEmpty()) TextButton(enabled = enabled && !busy, onClick = { managing = true }) { Text("管理") }
         }
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(presets, key = { it.id }) { preset ->
-                OutlinedButton(enabled = enabled && !busy, onClick = { launch(preset) }) {
-                    Text("${preset.name} · ${preset.targetApp?.label ?: "选择 App"} · ${if (preset.mode == TimerMode.STOPWATCH) "正计时" else "${preset.minutes} 分"}")
+        presets.chunked(2).forEach { pair ->
+            Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                pair.forEach { preset ->
+                    key(preset.id) {
+                        OutlinedButton(enabled = enabled && !busy, onClick = { launch(preset) },
+                            shape = RoundedCornerShape(16.dp), contentPadding = PaddingValues(12.dp),
+                            modifier = Modifier.weight(1f).fillMaxHeight().heightIn(min = 96.dp)
+                                .semantics { contentDescription = "启动预设 ${preset.name}" }) {
+                            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text(preset.name, style = MaterialTheme.typography.titleSmall,
+                                    maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                Text(preset.targetApp?.label ?: "选择 App", style = MaterialTheme.typography.bodySmall,
+                                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Text(if (preset.mode == TimerMode.STOPWATCH) "正计时" else "${preset.minutes} 分钟",
+                                    style = MaterialTheme.typography.labelLarge)
+                            }
+                        }
+                    }
                 }
+                if (pair.size == 1) Spacer(Modifier.weight(1f))
             }
         }
         if (busy) Text("正在启动…", style = MaterialTheme.typography.bodySmall)

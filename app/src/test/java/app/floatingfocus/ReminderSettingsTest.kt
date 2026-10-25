@@ -52,7 +52,7 @@ class ReminderSettingsTest {
         }
     }
 
-    @Test fun `preset and interpolated opaque text backing meets white text contrast`() {
+    @Test fun `preset and interpolated shape paint meets selected foreground contrast`() {
         fun luminance(color: Int): Double {
             fun channel(shift: Int): Double {
                 val s = ((color ushr shift) and 255) / 255.0
@@ -63,7 +63,9 @@ class ReminderSettingsTest {
         OverlayColor.entries.forEach { color ->
             (0..100).forEach { p ->
                 val output = ReminderPresenter.present(ReminderSnapshot(0, p / 100f), ReminderSettings(color = color))
-                assertTrue("$color at $p", 1.05 / (luminance(output.colorArgb) + 0.05) >= 4.5)
+                val background = luminance(output.colorArgb)
+                val foreground = luminance(ReminderPresenter.contentColor(output.colorArgb))
+                assertTrue("$color at $p", (maxOf(background, foreground) + 0.05) / (minOf(background, foreground) + 0.05) >= 4.5)
             }
         }
     }

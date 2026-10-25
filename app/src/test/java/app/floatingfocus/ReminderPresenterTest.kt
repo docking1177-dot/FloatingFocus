@@ -27,7 +27,7 @@ class ReminderPresenterTest {
             assertEquals(color, ReminderPresenter.present(frame(p)).colorArgb)
         }
         assertEquals(0f, ReminderPresenter.present(frame(0.799f)).pulseDepth, 0f)
-        assertEquals(0.18f, ReminderPresenter.present(frame(0.8f)).pulseDepth, 0.0001f)
+        assertEquals(ReminderPresenter.HIGHLIGHT_DEPTH, ReminderPresenter.present(frame(0.8f)).pulseDepth, 0.0001f)
         assertEquals(0f, ReminderPresenter.present(frame(1f)).pulseDepth, 0f)
     }
 
