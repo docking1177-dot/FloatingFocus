@@ -32,7 +32,7 @@ git push -u origin fix/overlay-bounds
 
 ## 版本与发布
 
-当前版本位于 app/build.gradle.kts：versionName 0.1.1、versionCode 2。下一次修复发布例如 0.1.2 / 3；增加功能也可用 0.2.0 / 3。versionCode 每次发布递增；仅修改文件名不会改变 APK 内部版本。
+当前版本位于 app/build.gradle.kts：versionName 0.2.0、versionCode 3。下一次修复发布例如 0.2.1 / 4；新功能里程碑可用 0.3.0 / 4。versionCode 每次发布递增；仅修改文件名不会改变 APK 内部版本。
 
 发布时先更新版本和 CHANGELOG，构建并验收，再将最终提交打 Tag（例如 v0.1.1）。GitHub Releases 对应此 Tag，附 APK、校验值、更新说明与已知问题。公开的源码版本应与安装包对应。
 
@@ -50,7 +50,7 @@ dist 是本地交付目录，不需要保留每次调试构建。此前保留 0.
 
 Android Studio 的默认 Debug key、另一台电脑生成的 Debug key、GitHub Actions 临时 Debug key都可能不同，不能假设它们可以覆盖当前手机安装包。CI 的 APK 默认用于独立测试。不要把本机 Debug key 上传为公开构建材料。
 
-正式对外持续发行前，应建立专用 release 签名并备份；Debug key 不作为正式发行身份。当前没有配置 release 签名或密钥迁移。切换为不兼容签名时，通常要卸载旧测试包再安装正式包，会清除旧数据；当前版只有少量权限请求偏好，不保存计时历史。
+正式对外持续发行前，应建立专用 release 签名并备份；Debug key 不作为正式发行身份。当前没有配置 release 签名或密钥迁移；0.2.0 以固定本地 Debug 签名的 GitHub Pre-release 交付。切换为不兼容签名时，通常要卸载旧测试包再安装正式包，会清除旧数据；当前版保存预设、常用 App、外观设置和会话记录，卸载前应导出所需 CSV。
 
 签名与版本规则：[Android 应用签名](https://developer.android.com/studio/publish/app-signing)、[应用版本管理](https://developer.android.com/studio/publish/versioning)。
 

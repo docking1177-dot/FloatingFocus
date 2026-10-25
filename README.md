@@ -2,26 +2,26 @@
 
 ![Android checks](https://github.com/docking1177-dot/FloatingFocus/actions/workflows/android.yml/badge.svg)
 
-Android 原生悬浮渐进式提醒计时器。主动设定一段时间，切换到其他 App 后仍可看见倒计时；提醒从安静深灰逐渐转为橙色、红色和轻缓呼吸，到期后短暂震动，点击「知道了」结束。
+Android 原生悬浮计时器，支持倒计时、超时正计时和独立正计时。可一键打开常用 App 并计时，通过颜色、尺寸和提亮提醒控制使用时长，并保存本地会话记录。
 
 本项目迁移并改造 [FloatingCountdownTimer](https://github.com/tberghuis/FloatingCountdownTimer) 的悬浮窗生命周期、拖动和服务模式，使用独立品牌、图标及 applicationId。详见 [开源调研](docs/OPEN_SOURCE_REVIEW.md)、[复用记录](docs/REUSE_REPORT.md)、[第三方声明](docs/THIRD_PARTY_NOTICES.md)。
 
-最近正式整理的交付：`dist/FloatingFocus-0.1.1-debug.apk`、`dist/FloatingFocus-source.zip` 和 `dist/SHA256SUMS.txt`。这些产物不包含下文待发布功能；当前开发构建使用 `app/build/outputs/apk/debug/app-debug.apk`。源码包不包含 SDK、缓存和签名私钥；解压后按下文配置开发环境。
+当前公开测试版：**0.2.0 / versionCode 3**。从 [GitHub Release](https://github.com/docking1177-dot/FloatingFocus/releases/tag/v0.2.0) 下载 `FloatingFocus-0.2.0-debug.apk`、校验值及发布说明。APK 使用此前本机固定 Debug 签名，包含提醒实验室；同签名旧测试包可覆盖安装。更新前结束计时，需要保留的记录可先导出 CSV。GitHub 自动提供对应标签的源码包，私钥／SDK／缓存不在源码中。
 
-0.1.1 修复展开和到期状态下部分区域无法拖动的问题，验证范围见 [0.1.1 检查记录](docs/TEST_RESULTS_0.1.1.md)。2026-10-21 已完成 [Android 16 模拟器交互验证](docs/EMULATOR_VALIDATION.md)，8 项操作通过；真机验收仍待补充。本地模拟器启动见 [操作说明](docs/EMULATOR.md)。
+[更新记录](CHANGELOG.md) · [0.2.0 发布检查](docs/TEST_RESULTS_0.2.0.md)。已完成 Android 16 模拟器回归；REDMI K80 最新完整真机验收待补充。模拟器操作见 [EMULATOR.md](docs/EMULATOR.md)。
 
-公开仓库：[docking1177-dot/FloatingFocus](https://github.com/docking1177-dot/FloatingFocus)。后续开发、Git 同步、版本发布、签名与 AI/设备验证方式见 [维护指南](docs/DEVELOPMENT_WORKFLOW.md)。参与开发见 [CONTRIBUTING.md](CONTRIBUTING.md)，版本变化见 [CHANGELOG.md](CHANGELOG.md)。GitHub Actions 已完成[云端构建、单测和 Lint](https://github.com/docking1177-dot/FloatingFocus/actions/runs/39431207135)，可在运行页下载 APK 和检查报告。
+公开仓库：[docking1177-dot/FloatingFocus](https://github.com/docking1177-dot/FloatingFocus)。后续开发、Git 同步、版本发布、签名与 AI/设备验证方式见 [维护指南](docs/DEVELOPMENT_WORKFLOW.md)。参与开发见 [CONTRIBUTING.md](CONTRIBUTING.md)，版本变化见 [CHANGELOG.md](CHANGELOG.md)。[GitHub Actions](https://github.com/docking1177-dot/FloatingFocus/actions/workflows/android.yml) 运行云端构建、单测和 Lint；其临时签名 APK 用于独立测试，正式下载以 Release 附件为准。
 
 ## 功能
 
-- 5 / 10 / 15 / 30 分钟和 1—180 分钟自定义时长。
-- 一个可拖动胶囊，默认右上方；点击展开「结束计时 / 收起」。整个浮窗（包括按钮、到期提示）均可开始拖动，轻触按钮仍执行对应操作。
-- 0—50% 深灰；50—80% 灰到橙；80—100% 橙到红并轻缓呼吸。
-- 到期显示「时间到了」和「知道了」，执行一次 180ms 震动（受设备能力、静音和勿扰设置影响）。
-- 真实经过时间基于 `SystemClock.elapsedRealtime()`；手动模式熄屏、切换 App 不主动暂停。
-- 一键打开目标 App + 计时（待发布）：保存多个常用 App，点击任意目标按所选时长开始普通计时并打开它；离开后继续计时。Debug 可比较列表、双列网格、横向快捷栏。详见 [使用说明](docs/QUICK_LAUNCH.md)。
-- 用户可从主界面、胶囊或通知结束。停止时清理窗口、Compose、监听和更新回调。
-- 无账号、联网权限、无障碍服务、使用情况访问权限、数据库或开机自启。当前功能不监测前台 App、不读取使用事件。
+- 5／10／15／30 分钟及 1—180 分钟自定义倒计时；另有独立正计时。
+- 归零后继续超时正计时，可在浮窗内加时或结束；每段归零提醒一次。
+- 常用 App 快捷启动；预设绑定已添加的 App，保存完整计时配置，双列网格一键启动。
+- 横向胶囊、纵向胶囊、圆形；整个浮窗可拖动，展开／收起保持位置锚点。
+- 正式设置实时预览颜色、尺寸、透明度及提醒强度；支持连续变化或节点突变，提亮时保持透明度。
+- 本地 FF 会话记录与 CSV 导出；记录累计时长及超时，异常中断仅恢复最后检查点并标记约计。
+- 基于 `SystemClock.elapsedRealtime()` 计时；熄屏、离开目标 App 后继续，手动结束后清理服务资源。
+- 无账号、联网权限、无障碍服务、使用情况访问权限、数据库或开机自启；自动监测保持 Deferred。
 
 ## 工程结构
 
@@ -32,7 +32,7 @@ app/src/main/java/app/floatingfocus/
   OverlayWindow.kt      从 A 适配的 Compose 宿主、窗口生命周期与拖动
   OverlayTouchLayout.kt 整个窗口的触摸分发与按钮点击取消
   OverlayDragGesture.kt 拖动阈值、位移与取消状态
-  FocusOverlay.kt       渐进色彩、轻缓呼吸与展开面板
+  FocusOverlay.kt       渐进色彩、提亮提醒与展开／加时面板
   Countdown.kt          单调时间模型、ReminderPolicy 与显示格式
   FocusTheme.kt         Material 3 主题
 app/src/test/           JVM 计时与拖动手势状态测试
@@ -117,7 +117,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 2. 首次开始会说明悬浮权限用途。到系统设置允许「显示在其他应用上层」，返回后再点击开始。
 3. Android 13+ 可点击「开启计时通知」授权。拒绝通知不阻止计时，但通知栏可能不显示通知，仍可从胶囊或主界面结束。
 4. 打开视频 App；轻触胶囊标题可展开，从悬浮窗任意区域拖动可调整位置，包括展开后的按钮和到期提示。
-5. 到期后点击「知道了」，或随时手动结束。
+5. 到期后显示超时正计时，可在浮窗「加时」，或点击「结束计时」。
 
 应用没有要求用户关闭全部系统省电限制，也不通过无障碍绕过系统限制。
 
@@ -130,17 +130,17 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 - 用户撤销悬浮权限时，应用停止计时并清理资源；部分系统会直接杀掉进程。
 - 某些金融/权限/安全页面主动禁止第三方悬浮窗，锁屏界面也可能隐藏它。不会绕过这些限制。
 - 最低支持 Android 10。窗口边界按系统栏与刘海 Insets 限制，需在手势导航/三键导航、横竖屏和不同 OEM 上复核。
-- 系统关闭动画后停止呼吸动画；勿扰或设备设置可能禁止震动。
+- 系统关闭动画后停止提亮动画；勿扰或设备设置可能禁止震动。
 
 ## 验证
 
 「指定 App 自动计时」已标记 **Deferred**，统一开关关闭所有运行入口；保留已有代码与测试，进度和恢复条件见 [AUTO_TRIGGER.md](docs/AUTO_TRIGGER.md)。当前重点为手动悬浮计时与 [一键启动目标 App](docs/QUICK_LAUNCH.md)。
 
-Debug 构建的主界面底部提供「提醒实验室」：三种提醒策略切换、时间/超时模拟、连续或节点变化、参数调节及真实跨应用实验悬浮窗。实验状态与正式计时隔离，Release 不包含实验页面或服务。使用与实现见 [REMINDER_LAB.md](docs/REMINDER_LAB.md)。
+Debug 构建的主界面底部提供「提醒实验室」：三种提醒策略切换、时间／超时模拟、动画与振动触发及真实跨应用实验悬浮窗；正式参数统一在设置中调整。实验状态与正式计时隔离，Release 不包含实验页面或服务。使用与实现见 [REMINDER_LAB.md](docs/REMINDER_LAB.md)。
 
-实际完成的验证及证据见 [0.1.1 检查记录](docs/TEST_RESULTS_0.1.1.md) 和 [0.1.0 检查记录](docs/TEST_RESULTS.md)。未连接设备时不会把真机验收写成通过。
+当前验证见 [0.2.0 检查记录](docs/TEST_RESULTS_0.2.0.md)，历史证据见 [0.1.1 检查记录](docs/TEST_RESULTS_0.1.1.md) 和 [0.1.0 检查记录](docs/TEST_RESULTS.md)。未连接设备时不会把真机验收写成通过。
 
-快速真机流程：设置自定义 1 分钟，分别在约 30 秒、48 秒、60 秒观察阶段转换，点击确认；再覆盖跨 App、拖动、横竖屏、熄屏、撤权及通知拒绝路径。完整清单见 [DEVICE\_TEST\_CHECKLIST.md](docs/DEVICE_TEST_CHECKLIST.md)。
+快速真机流程：设置自定义 1 分钟，分别在约 30 秒、48 秒、60 秒观察阶段转换、归零和加时；再覆盖跨 App、拖动、横竖屏、熄屏、撤权及通知拒绝路径。完整清单见 [DEVICE\_TEST\_CHECKLIST.md](docs/DEVICE_TEST_CHECKLIST.md)。
 
 ## 下一阶段
 

@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-25",
+  "versionName": "0.2.0",
+  "versionCode": 3,
+  "buildType": "debug",
+  "package": "app.floatingfocus",
+  "minSdk": 29,
+  "targetSdk": 36,
+  "apk": "dist\\0.2.0\\FloatingFocus-0.2.0-debug.apk",
+  "apkSha256": "67ccb3183f8e9efcbf18c8c77b0427992f970d08a7605b8df30ff3124c8d3637",
+  "signerCertificateSha256": "2119d9676b8cbf5a1efee1f01b74d0846cd5573d4f18f6faf64a73146158d11a",
+  "zipalign": "passed (4-byte and 16KiB page checks)",
+  "checks": {
+    "Debug": {
+      "tests": 75,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "lintErrors": 0,
+      "lintWarnings": 1
+    },
+    "Release": {
+      "tests": 69,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "lintErrors": 0,
+      "lintWarnings": 0
+    }
+  },
+  "freshEmulator": {
+    "serial": "emulator-5554",
+    "api": 36,
+    "headless": true,
+    "bootCompleted": "1",
+    "upgradeFrom": {
+      "name": "0.1.1",
+      "code": 2
+    },
+    "upgradeTo": {
+      "name": "0.2.0",
+      "code": 3
+    },
+    "preferencesPreserved": true,
+    "existingRecordCount": 14,
+    "recordsPreserved": true,
+    "boundPresetLaunch": true,
+    "manualStop": true,
+    "historyOpened": true,
+    "newRecordCount": 1,
+    "fatalException": false
+  },
+  "previousFeatureEvidence": [
+    "time-records/results.json",
+    "preset-extension/results.json",
+    "overlay-fixes/results.json",
+    "color-grid/results.json"
+  ],
+  "limits": [
+    "Physical REDMI K80 full regression not completed for this release",
+    "Previous functional emulator evidence used version 0.1.1 with the same feature source; this release changes version metadata and documents",
+    "Debug package includes Reminder Lab; not a store release signing identity",
+    "Forced termination saves checkpoint only; deep sleep may delay completion reminder"
+  ],
+  "logs": [
+    ".tools/checks/check-full-20261025-105400-204.log",
+    ".tools/checks/release-0.2.0-release.log"
+  ],
+  "localArtifacts": ".tools/release-0.2.0-validation"
+}

@@ -36,7 +36,7 @@
 - 本机 SDK 在 `.tools/android-sdk`，AVD 在 `.tools/avd`，Gradle 缓存在 `.gradle-home`；详细设置按需看 `docs/EMULATOR.md`。
 - 使用现有 JDK 17/21 和 `scripts/build-local.ps1`；不改系统代理配置，不为普通构建重装整个工具链。
 - `.tools/debug.keystore` 对应此前交付到手机的测试签名，须保留。密钥、凭据、SDK、AVD、缓存和 `local.properties` 不提交、不打印。
-- 日常调试直接使用 `app/build/outputs/apk/debug/app-debug.apk`；只有交付时整理 `dist`、校验值与版本说明。
+- 日常调试直接使用 `app/build/outputs/apk/debug/app-debug.apk`；只有交付时整理 `dist`、校验值与版本说明。 发布时同步整理 README 与 CHANGELOG：未发布条目置顶，发布条目按实际版本／日期归档，删除过时流程描述；发布说明明确构建类型、签名兼容与未完成验收。
 - 新版本覆盖安装前确认包名、签名兼容；公开交付时递增 versionCode。CI 临时 Debug 签名不能假定可覆盖手机现有包。
 
 ## Git 与发布
