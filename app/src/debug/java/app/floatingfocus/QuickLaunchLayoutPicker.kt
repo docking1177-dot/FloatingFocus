@@ -6,11 +6,13 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
@@ -22,7 +24,9 @@ internal fun quickLaunchLayoutPicker(): QuickLaunchLayout {
     var layout by remember { mutableStateOf(QuickLaunchLayout.entries.firstOrNull {
         it.name == prefs.getString("layout", null)
     } ?: QuickLaunchLayout.LIST) }
-    Text("快捷启动布局 · Debug", style = MaterialTheme.typography.labelMedium)
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    TextButton(onClick = { expanded = !expanded }) { Text(if (expanded) "收起布局比较 · Debug" else "布局比较 · Debug") }
+    if (expanded) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         listOf(QuickLaunchLayout.LIST to "列表", QuickLaunchLayout.GRID to "双列网格", QuickLaunchLayout.STRIP to "横向快捷栏").forEach { (value, label) ->
             FilterChip(layout == value, onClick = {
@@ -31,8 +35,6 @@ internal fun quickLaunchLayoutPicker(): QuickLaunchLayout {
             }, label = { Text(label) })
         }
     }
-    if (layout == QuickLaunchLayout.STRIP) {
-        Text("左右滑动查看更多 App", style = MaterialTheme.typography.bodySmall)
     }
     return layout
 }

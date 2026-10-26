@@ -25,12 +25,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -85,6 +87,7 @@ class MainActivity : ComponentActivity() {
         var permissionMessage by rememberSaveable { mutableStateOf<String?>(null) }
         var permissionHelp by rememberSaveable { mutableStateOf(false) }
         var showLicenses by rememberSaveable { mutableStateOf(false) }
+        var showHelp by rememberSaveable { mutableStateOf(false) }
         var quickStarting by remember { mutableStateOf(false) }
         // Result never auto-starts a timer: start must happen while this activity is visible.
         val notificationRequest = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -158,21 +161,25 @@ class MainActivity : ComponentActivity() {
                             else FloatingService.start(this@MainActivity, minutes * 60_000L, mode)
                         }, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text(if (mode == TimerMode.STOPWATCH) "开始正计时" else "开始倒计时") }
                     }
+                    if (!overlayAllowed) {
+                        PermissionCard("允许显示悬浮窗", "用于在其他 App 上方显示倒计时。", "去授权") { permissionHelp = true }
+                    }
                     Spacer(Modifier.height(16.dp))
                     TimerPresetsCard(minutes, mode = mode, enabled = !session.active && !monitor.enabled && !quickStarting,
                         onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true },
                         onApplied = { selectedMinutes, selectedMode -> minutes = selectedMinutes; mode = selectedMode; custom = selectedMinutes !in listOf(5, 10, 15, 30) })
-                    Spacer(Modifier.height(8.dp))
-                    QuickLaunchCard(minutes, mode = mode, enabled = !session.active && !monitor.enabled && !quickStarting,
-                        onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true })
+                    Spacer(Modifier.height(12.dp))
+                    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface) {
+                        Column(Modifier.padding(12.dp)) {
+                            QuickLaunchCard(minutes, mode = mode, enabled = !session.active && !monitor.enabled && !quickStarting,
+                                onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true })
+                        }
+                    }
                     TextButton(onClick = { startActivity(Intent(this@MainActivity, HistoryActivity::class.java)) }) { Text("时长记录") }
                     if (FeatureFlags.APP_USAGE_AUTO_TIMER) {
                         TextButton(onClick = { startActivity(Intent(this@MainActivity, AutoTriggerActivity::class.java)) }) {
                             Text("指定 App 自动计时 · 可选")
                         }
-                    }
-                    if (!overlayAllowed) {
-                        PermissionCard("允许显示悬浮窗", "用于在其他 App 上方显示倒计时。", "去授权") { permissionHelp = true }
                     }
                     if (!notificationAllowed && Build.VERSION.SDK_INT >= 33) {
                         PermissionCard("开启计时通知", "建议开启；拒绝后仍可计时，可从悬浮窗结束。", "去设置") {
@@ -184,9 +191,18 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     (session.error ?: permissionMessage)?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(vertical = 12.dp)) }
-                    Spacer(Modifier.height(20.dp))
-                    Text("点击悬浮窗展开操作，拖动可调整位置。", style = MaterialTheme.typography.bodySmall, color = Color(0xFF667067))
-                    TextButton(onClick = { showLicenses = true }) { Text("开源许可") }
+                    HorizontalDivider(Modifier.padding(top = 12.dp, bottom = 4.dp))
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        TextButton(onClick = { showHelp = !showHelp }) { Text(if (showHelp) "收起说明" else "使用与提醒说明") }
+                        TextButton(onClick = { showLicenses = true }) { Text("开源许可") }
+                    }
+                    if (showHelp) {
+                        Column(Modifier.padding(bottom = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text("预设使用保存的配置；快捷 App 使用首页当前时长与外观。", style = MaterialTheme.typography.bodySmall)
+                            Text("离开 App 后计时仍继续。点击悬浮窗展开操作，拖动可调整位置。", style = MaterialTheme.typography.bodySmall)
+                            Text("变色、变尺寸可在设置中独立开启。倒计时归零后提醒一次并继续显示超时，可在悬浮窗加时或结束。", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
                     DeveloperEntry()
                 }
             }
@@ -233,9 +249,12 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun PermissionCard(title: String, description: String, action: String, onClick: () -> Unit) {
-    Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-        Text(title, fontWeight = FontWeight.Medium)
-        Text(description, style = MaterialTheme.typography.bodySmall, color = Color(0xFF667067))
-        OutlinedButton(onClick = onClick) { Text(action) }
+    Surface(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.secondaryContainer) {
+        Column(Modifier.padding(12.dp)) {
+            Text(title, fontWeight = FontWeight.Medium)
+            Text(description, style = MaterialTheme.typography.bodySmall, color = Color(0xFF667067))
+            OutlinedButton(onClick = onClick) { Text(action) }
+        }
     }
 }

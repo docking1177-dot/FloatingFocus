@@ -146,6 +146,59 @@ class Device:
         assert self.overlay() is None, 'Overlay did not stop'
 
 
+def home(d):
+    d.seed()
+    d.finish()
+    targets = [{'package': package, 'label': label} for package, label in [
+        ('com.android.gallery3d', 'Gallery'), ('com.android.documentsui', 'Files'),
+        ('com.android.messaging', 'Messaging')]
+        if 'package:' in d.shell('pm', 'path', package)]
+    assert len(targets) >= 2, 'Need two installed fixture Apps for visual comparison'
+    for layout in ('LIST', 'GRID', 'STRIP'):
+        d.stop()
+        d.write_prefs('quick_launch', {'targets': json.dumps(targets)})
+        d.write_prefs('debug_quick_launch', {'layout': layout})
+        d.start()
+        d.dump()  # wait for the startup transition and icon loading before capture
+        d.shot('home-top-' + layout.lower())
+        d.shell('input', 'swipe', d.width//2, int(d.height*.75), d.width//2, int(d.height*.45), 350)
+        d.dump()
+        d.shot('home-' + layout.lower())
+        # Inspect actual controls and then launch through the unchanged semantics.
+        d.tap('打开 Gallery 并计时', scroll=True)
+        time.sleep(.5)
+        assert d.overlay() and 'com.android.gallery3d' in d.foreground()
+        # Return the Activity to its top before ending: after the screenshot
+        # scroll, the default overlay can cover the displaced stop button.
+        d.start()
+        d.dump()
+        d.shell('input', 'swipe', int(d.width*.2), int(d.height*.3), int(d.width*.2), int(d.height*.85), 350)
+        d.dump()
+        d.finish()
+    d.tap('使用与提醒说明', scroll=True)
+    d.shell('input', 'swipe', d.width//2, int(d.height*.8), d.width//2, int(d.height*.4), 350)
+    assert any('离开 App 后计时仍继续' in n.get('text', '') for n in d.dump().iter('node'))
+    d.shot('home-help-expanded')
+    d.tap('收起说明')
+    assert not any('离开 App 后计时仍继续' in n.get('text', '') for n in d.dump().iter('node'))
+    try:
+        d.stop()
+        d.shell('appops', 'set', PACKAGE, 'SYSTEM_ALERT_WINDOW', 'deny')
+        d.start()
+        assert any(n.get('text') == '允许显示悬浮窗' for n in d.dump().iter('node'))
+        d.shot('home-permission-needed')
+        d.tap('开始倒计时')
+        assert any(n.get('text') == '前往系统设置' for n in d.dump().iter('node'))
+        assert d.overlay() is None
+    finally:
+        d.stop()
+        d.shell('appops', 'set', PACKAGE, 'SYSTEM_ALERT_WINDOW', 'allow')
+    d.start()
+    assert not any(n.get('text') == '允许显示悬浮窗' for n in d.dump().iter('node'))
+    return dict(layouts=['LIST', 'GRID', 'STRIP'], quickLaunch=True, collapsibleHelp=True,
+                contextualOverlayPermission=True, icons='screenshots require visual review')
+
+
 def smoke(d):
     before = len(d.records())
     d.seed()
@@ -243,7 +296,7 @@ def inline(d):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--serial', default='emulator-5554')
-    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'settings', 'all'], default='all')
+    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'settings', 'home', 'all'], default='all')
     p.add_argument('--apk', type=Path, default=ROOT / 'app/build/outputs/apk/debug/app-debug.apk')
     p.add_argument('--allow-test-data-changes', action='store_true')
     args = p.parse_args()
@@ -283,7 +336,7 @@ def main():
         # These grants are test-emulator setup only, not production app permission requests.
         d.shell('appops', 'set', PACKAGE, 'SYSTEM_ALERT_WINDOW', 'allow')
         d.shell('pm', 'grant', PACKAGE, 'android.permission.POST_NOTIFICATIONS')
-        for suite in (['smoke', 'edges', 'inline', 'settings'] if args.suite == 'all' else [args.suite]):
+        for suite in (['smoke', 'edges', 'inline', 'settings', 'home'] if args.suite == 'all' else [args.suite]):
             d.shell('logcat', '-c')
             result['details'][suite] = globals()[suite](d)
             runtime = d.shell('logcat', '-d', '-s', 'AndroidRuntime:*')

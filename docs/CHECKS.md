@@ -36,6 +36,7 @@ Emulator 模式不会自动授予悬浮权限、点击开始或完成拖动回�
 ./scripts/test-device.ps1 -Suite edges -AllowTestDataChanges
 ./scripts/test-device.ps1 -Suite inline -AllowTestDataChanges
 ./scripts/test-device.ps1 -Suite settings -AllowTestDataChanges
+./scripts/test-device.ps1 -Suite home -AllowTestDataChanges
 # 发布前全部执行
 ./scripts/test-device.ps1 -Suite all -AllowTestDataChanges
 ```
@@ -47,6 +48,8 @@ smoke 检查预设启动 Gallery、手动结束、记录；edges 检查三种形
 脚本自身回归：`python -m unittest discover -s scripts/tests -v`。无外部测试依赖，覆盖任务参数组合、源码指纹变化、发布证据拒绝和 CI 精确复用。发布步骤见 [RELEASE_AUTOMATION.md](RELEASE_AUTOMATION.md)。
 
 `settings` 回归设置列表/返回、四种开关组合与持久化、两个预设各自位置、重启恢复、横竖屏边界、展开不改位置及手动计时隔离；测试使用自己的预设数据，完成后由同一 runner 还原。`all` 包含这组。
+
+`home` 检查三种快捷布局启动、说明展开/收起、缺失悬浮权限时就近提示与阻止启动；保存图标/分区截图供视觉复核，授权测试后恢复为测试环境的允许状态。`all` 也包含此组。
 
 文档改动无需运行 Gradle；开发脚本检查语法并验证实际变更路径。应用改动按范围选择检查，完整交付使用 Full；涉及交互时再执行相关模拟器或真机回归。已有 GitHub Actions 继续在远端执行构建、单测和 Lint。
 

@@ -16,7 +16,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -76,14 +76,16 @@ fun QuickLaunchCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled
         }
     }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("打开 App 并计时", style = MaterialTheme.typography.titleSmall)
-        TextButton(enabled = enabled && !busy, onClick = { choosing = true }) {
-            Text(if (targets.isEmpty()) "添加常用 App" else "管理常用 App（${targets.size}）")
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text("打开 App 并计时", style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+            TextButton(enabled = enabled && !busy, onClick = { choosing = true }) {
+                Text(if (targets.isEmpty()) "添加" else "管理（${targets.size}）")
+            }
         }
+        if (targets.isNotEmpty()) Text("使用当前时长与外观", style = MaterialTheme.typography.bodySmall)
         val layout = quickLaunchLayoutPicker()
         QuickLaunchButtons(targets, layout, enabled && !busy, launch)
         if (busy) Text("正在启动…")
-        if (targets.isNotEmpty()) Text("离开 App 后计时仍继续。", style = MaterialTheme.typography.bodySmall)
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
     }
     if (choosing) {
@@ -112,6 +114,7 @@ fun QuickLaunchCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled
                             selected = if (it) selected + app.packageName else selected - app.packageName
                         }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                             Checkbox(app.packageName in selected, onCheckedChange = null)
+                            AppIcon(app.packageName, 32.dp)
                             Column(Modifier.weight(1f).padding(start = 8.dp)) {
                                 Text(app.label + if (loaded && apps.none { it.packageName == app.packageName }) "（不可用）" else "")
                                 Text(app.packageName, style = MaterialTheme.typography.bodySmall)
@@ -135,9 +138,11 @@ fun QuickLaunchCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled
 private fun QuickLaunchButtons(targets: List<LaunchableApp>, layout: QuickLaunchLayout, enabled: Boolean, launch: (LaunchableApp) -> Unit) {
     when (layout) {
         QuickLaunchLayout.LIST -> targets.forEach { app ->
-            Button(onClick = { launch(app) }, enabled = enabled, modifier = Modifier.fillMaxWidth()
+            FilledTonalButton(onClick = { launch(app) }, enabled = enabled, modifier = Modifier.fillMaxWidth()
                 .semantics { contentDescription = "打开 ${app.label} 并计时" }) {
-                Text("打开 ${app.label} 并计时", maxLines = 2, overflow = TextOverflow.Ellipsis)
+                AppIcon(app.packageName)
+                Spacer(Modifier.width(12.dp))
+                Text(app.label, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
         }
         QuickLaunchLayout.GRID -> targets.chunked(2).forEach { pair ->
@@ -154,11 +159,11 @@ private fun QuickLaunchButtons(targets: List<LaunchableApp>, layout: QuickLaunch
 
 @Composable
 private fun QuickLaunchTile(app: LaunchableApp, enabled: Boolean, modifier: Modifier, launch: (LaunchableApp) -> Unit) {
-    Button(onClick = { launch(app) }, enabled = enabled, modifier = modifier.heightIn(min = 80.dp)
+    FilledTonalButton(onClick = { launch(app) }, enabled = enabled, modifier = modifier.heightIn(min = 96.dp)
         .semantics { contentDescription = "打开 ${app.label} 并计时" }) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            AppIcon(app.packageName)
             Text(app.label, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            Text("打开并计时", style = MaterialTheme.typography.labelSmall)
         }
     }
 }
