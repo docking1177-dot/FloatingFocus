@@ -37,6 +37,7 @@ Emulator 模式不会自动授予悬浮权限、点击开始或完成拖动回�
 ./scripts/test-device.ps1 -Suite inline -AllowTestDataChanges
 ./scripts/test-device.ps1 -Suite settings -AllowTestDataChanges
 ./scripts/test-device.ps1 -Suite home -AllowTestDataChanges
+./scripts/test-device.ps1 -Suite preferences -AllowTestDataChanges
 # 发布前全部执行
 ./scripts/test-device.ps1 -Suite all -AllowTestDataChanges
 ```
@@ -50,6 +51,10 @@ smoke 检查预设启动 Gallery、手动结束、记录；edges 检查三种形
 `settings` 回归设置列表/返回、四种开关组合与持久化、两个预设各自位置、重启恢复、横竖屏边界、展开不改位置及手动计时隔离；测试使用自己的预设数据，完成后由同一 runner 还原。`all` 包含这组。
 
 `home` 检查三种快捷布局启动、说明展开/收起、缺失悬浮权限时就近提示与阻止启动；保存图标/分区截图供视觉复核，授权测试后恢复为测试环境的允许状态。`all` 也包含此组。
+
+`preferences` 通过真实表单保存四个常用时长、三种提醒策略及混合条件，检查重启持久化；运行真实一分钟倒计时，在 Gallery 前台观察 40%/剩余 20 秒进入第二/三级，核对服务日志与浮窗增长。`inline` 同时保留到时及默认两分钟加时面板截图，再调为一分钟验证取消、确认、二次到期和同一会话。两组共用备份/还原与源码/APK 身份检查。
+
+UIAutomator 每次先删除旧快照并确认新文件生成，失败不沿用旧层级。ActivityManager 的 `am start -W` 若仅返回 timeout，必须同时验证实际前台 MainActivity 和新生成的首页层级才继续交互；完整启动输出保存在 `activity-launch.txt`，次数记为 `activityWaitTimeouts`，不把后续交互通过当作启动耗时合格。
 
 文档改动无需运行 Gradle；开发脚本检查语法并验证实际变更路径。应用改动按范围选择检查，完整交付使用 Full；涉及交互时再执行相关模拟器或真机回归。已有 GitHub Actions 继续在远端执行构建、单测和 Lint。
 

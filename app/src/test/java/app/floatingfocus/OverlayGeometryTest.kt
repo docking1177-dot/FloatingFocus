@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class OverlayGeometryTest {
+    @Test fun `expanded capsules keep orientation with less empty space and fit all content`() {
+        val horizontal = OverlayGeometry.frame(OverlayShape.ROUNDED_RECTANGLE, 160f, 90f, 1f, expanded = true)
+        val previous = OverlayGeometry.frame(OverlayShape.ROUNDED_RECTANGLE, 160f, 90f, 1f)
+        assertTrue(horizontal.width < previous.width)
+        assertTrue(horizontal.width > horizontal.height)
+        val radius = horizontal.height / 2
+        val x = 80f - (horizontal.width / 2 - radius)
+        assertTrue(x*x + 45f*45f <= radius*radius)
+        val vertical = OverlayGeometry.frame(OverlayShape.VERTICAL_CAPSULE, 120f, 160f, 1f, expanded = true)
+        assertTrue(vertical.height > vertical.width)
+        assertTrue(vertical.height < OverlayGeometry.frame(OverlayShape.VERTICAL_CAPSULE, 120f, 160f, 1f).height)
+    }
     @Test fun `shapes keep their orientation and honor base size immediately`() {
         OverlayShape.entries.forEach { shape ->
             val base = OverlayGeometry.frame(shape, 90f, 30f, 1f)

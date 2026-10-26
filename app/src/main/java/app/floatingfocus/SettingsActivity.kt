@@ -46,10 +46,17 @@ class SettingsActivity : ComponentActivity() {
             val presets by presetStore.presets.collectAsStateWithLifecycle()
             val preset = presets.firstOrNull { it.id == presetId }
             val editing = presetId != null
-            var showingAppearance by rememberSaveable { mutableStateOf(editing) }
-            BackHandler(enabled = !editing && showingAppearance) { showingAppearance = false }
-            if (!editing && !showingAppearance) {
-                SettingsHome(onBack = { finish() }, onOverlay = { showingAppearance = true })
+            var page by rememberSaveable { mutableStateOf(if (editing) "appearance" else "home") }
+            val back: () -> Unit = { page = if (editing) "appearance" else "home" }
+            BackHandler(enabled = page != "home" && (!editing || page != "appearance"), onBack = back)
+            if (!editing && page == "home") {
+                SettingsHome(onBack = { finish() }, onOverlay = { page = "appearance" },
+                    onDurations = { page = "durations" }, onStrategy = { page = "strategy" })
+                return@FocusTheme
+            }
+            if (!editing && page == "durations") {
+                val durations by QuickDurationsStore.get(this).durations.collectAsStateWithLifecycle()
+                QuickDurationsScreen(durations, { QuickDurationsStore.get(this).save(it) }, back)
                 return@FocusTheme
             }
             if (editing && preset == null) {
@@ -73,6 +80,10 @@ class SettingsActivity : ComponentActivity() {
             val updateSettings: ((ReminderSettings) -> ReminderSettings) -> Unit = { change ->
                 if (editing) draft = change(draft) else store.update(change)
             }
+            if (page == "strategy") {
+                StrategyScreen(settings.strategy, { strategy -> updateSettings { it.copy(strategy = strategy) } }, back)
+                return@FocusTheme
+            }
             Scaffold { insets ->
                 BoxWithConstraints(Modifier.fillMaxSize().padding(insets)) {
                     val previewHeight = minOf(184.dp, maxHeight * 0.3f)
@@ -80,7 +91,7 @@ class SettingsActivity : ComponentActivity() {
                         Row(Modifier.fillMaxWidth().padding(horizontal = 24.dp), verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween) {
                             Text(if (editing) "编辑方案" else "悬浮窗", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
-                            TextButton(onClick = { if (editing) finish() else showingAppearance = false }) { Text(if (editing) "取消" else "返回") }
+                            TextButton(onClick = { if (editing) finish() else back() }) { Text(if (editing) "取消" else "返回") }
                             if (editing) TextButton(enabled = isSavedShortcut(target) && name.isNotBlank() && (mode == TimerMode.STOPWATCH || minutes.toIntOrNull() in 1..180), onClick = {
                                 presetStore.save(preset!!.copy(name = name.trim(), minutes = minutes.toIntOrNull()?.coerceIn(1, 180) ?: 15,
                                     settings = draft, mode = mode, targetApp = target))
@@ -103,6 +114,7 @@ class SettingsActivity : ComponentActivity() {
                                     label = { Text("分钟（1—180）") }, singleLine = true,
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                     isError = minutes.toIntOrNull() !in 1..180)
+                                TextButton(onClick = { page = "strategy" }) { Text("提醒策略") }
                             }
                             Text("悬浮窗形状", style = MaterialTheme.typography.titleMedium)
                             OverlayShapePicker(settings.shape) { shape -> updateSettings { it.copy(shape = shape) } }
@@ -135,7 +147,7 @@ class SettingsActivity : ComponentActivity() {
 }
 
 @Composable
-private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit) {
+private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onDurations: () -> Unit, onStrategy: () -> Unit) {
     Scaffold { insets ->
         Column(Modifier.fillMaxSize().padding(insets)) {
             Box(Modifier.fillMaxWidth().height(64.dp)) {
@@ -146,11 +158,16 @@ private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit) {
             }
             Spacer(Modifier.height(16.dp))
             Surface(color = MaterialTheme.colorScheme.surface) {
-                Row(Modifier.fillMaxWidth().clickable(onClick = onOverlay).heightIn(min = 64.dp).padding(horizontal = 24.dp, vertical = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically) {
-                    Text("悬浮窗", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-                    Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Column {
+                    listOf("悬浮窗" to onOverlay, "常用时长" to onDurations, "提醒策略" to onStrategy).forEachIndexed { index, (label, action) ->
+                        if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 24.dp))
+                        Row(Modifier.fillMaxWidth().clickable(onClick = action).heightIn(min = 64.dp).padding(horizontal = 24.dp, vertical = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically) {
+                            Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                            Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
                 }
             }
         }
@@ -171,7 +188,7 @@ private fun EffectSwitch(label: String, enabled: Boolean, onChange: (Boolean) ->
 private fun SettingsPreview(settings: ReminderSettings, height: Dp, durationMillis: Long, mode: TimerMode) {
     var progress by rememberSaveable { mutableFloatStateOf(0f) }
     val snapshot = if (mode == TimerMode.STOPWATCH) ReminderSnapshot(0, 0f, mode = mode, elapsedMillis = (progress * durationMillis).toLong())
-        else ReminderSnapshot(((1f - progress) * durationMillis).toLong(), progress)
+        else ReminderSnapshot(((1f - progress) * durationMillis).toLong(), progress, durationMillis = durationMillis)
     Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp)) {
         // Measure at natural height before fitting: a short landscape preview must not
         // squeeze the real overlay's text measurement into a tiny circle.

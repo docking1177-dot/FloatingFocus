@@ -79,7 +79,7 @@ class ReminderLabActivity : ComponentActivity() {
                 Text("实时预览", style = MaterialTheme.typography.titleMedium)
                 FocusOverlay(lab.appearance, interactive = true,
                     animationRequest = ReminderLabState.animationRequest,
-                    onConfirm = { ReminderLabState.simulation = ReminderLabState.simulation.confirm() },
+                    onConfirm = { ReminderLabState.simulation = ReminderLabState.simulation.confirm(sharedSettings.strategy) },
                     onStop = { ReminderLabService.hide(this@ReminderLabActivity) })
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(onClick = {
@@ -125,7 +125,7 @@ class ReminderLabActivity : ComponentActivity() {
                 }
                 inputError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 val elapsed = 1f - lab.signedRemainingMillis.toFloat() / lab.durationMillis
-                Text("已用 ${"%.1f".format(Locale.ROOT, elapsed * 100)}% · ${lab.snapshot.stage}")
+                Text("已用 ${"%.1f".format(Locale.ROOT, elapsed * 100)}% · ${lab.settings.strategy.stage(lab.snapshot)}")
                 Slider(value = elapsed.coerceIn(0f, 2f), onValueChange = {
                     ReminderLabState.simulation = lab.seek(((1f - it) * lab.durationMillis).roundToLong())
                 }, valueRange = 0f..2f, modifier = Modifier.semantics { contentDescription = "模拟已用时间百分比" })

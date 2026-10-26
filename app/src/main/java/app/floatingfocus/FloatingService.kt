@@ -116,7 +116,7 @@ class FloatingService : Service() {
             val now = SystemClock.elapsedRealtime()
             val remaining = timer.remainingAt(now)
             val progress = timer.progressAt(now)
-            val stage = ReminderPolicy.stage(progress)
+            val stage = settingsStore.settings.value.strategy.stage(ReminderSnapshot.at(timer, now))
             val previousStage = overlayState.stage
             overlayState = SessionState(true, remaining, progress, stage, mode = timer.mode,
                 elapsedMillis = timer.elapsedAt(now), overtimeMillis = timer.overtimeAt(now), timerStartedAt = timer.startedAt)
@@ -128,6 +128,7 @@ class FloatingService : Service() {
                 ReminderVibration.once(this@FloatingService, settingsStore.settings.value.intensity)
             }
             if (stage != previousStage) {
+                Log.d(TAG, "Reminder stage: $previousStage -> $stage")
                 getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification())
             }
             // elapsedRealtime is authoritative; this callback only refreshes the display.
@@ -224,7 +225,7 @@ class FloatingService : Service() {
         overlay.show { FocusTheme {
             val settings by settingsStore.settings.collectAsState()
             val appearance = ReminderPresenter.present(ReminderSnapshot(overlayState.remainingMillis, overlayState.progress,
-                overlayState.overtimeMillis, overlayState.mode, overlayState.elapsedMillis), settings)
+                overlayState.overtimeMillis, overlayState.mode, overlayState.elapsedMillis, countdown?.durationMillis ?: 0), settings)
             SideEffect { overlay.setGeometry(appearance.shape, appearance.size) }
             val timerStart = overlayState.timerStartedAt
             FocusOverlay(appearance, interactive, extensionRequest = extensionRequest,

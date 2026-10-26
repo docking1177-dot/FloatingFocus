@@ -16,6 +16,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from source_state import ROOT, sha256, source_state
 from device_settings import settings
+from device_preferences import preferences
 
 PACKAGE = 'app.floatingfocus'
 
@@ -29,6 +30,7 @@ class Device:
     def __init__(self, serial, output):
         self.serial, self.output = serial, output
         self.exe = str(ROOT / '.tools/android-sdk/platform-tools/adb.exe')
+        self.launch_timeouts = 0
 
     def adb(self, *args, data=None):
         return subprocess.run([self.exe, '-s', self.serial, *map(str, args)], input=data,
@@ -42,10 +44,22 @@ class Device:
 
     def start(self):
         launch = self.shell('am', 'start', '-W', '-n', PACKAGE + '/.MainActivity')
-        assert 'Status: ok' in launch, 'Activity launch failed: ' + launch.strip()
+        with (self.output / 'activity-launch.txt').open('a', encoding='utf-8') as file:
+            file.write(launch + '\n')
+        if 'Status: ok' not in launch:
+            # Some emulator sessions time out in ActivityManager's wait despite
+            # a resumed interactive Activity. Never accept that status alone.
+            assert 'Status: timeout' in launch and PACKAGE + '/.MainActivity' in self.foreground(), 'Activity launch failed: ' + launch.strip()
+            tree = self.dump()
+            assert any(n.get('text') == 'Floating Focus' for n in tree.iter('node')), 'Timed-out launch has no fresh home UI'
+            self.launch_timeouts += 1
+            print('WARN: ActivityManager wait timed out; foreground and fresh home UI verified. Startup latency is not a pass.', flush=True)
 
     def dump(self):
-        self.shell('uiautomator', 'dump', '/sdcard/ff-regression.xml')
+        # A failed UIAutomator dump may leave an old file behind and still exit 0.
+        self.shell('rm', '-f', '/sdcard/ff-regression.xml')
+        status = self.shell('uiautomator', 'dump', '/sdcard/ff-regression.xml')
+        assert 'dumped to:' in status, 'UIAutomator did not produce a fresh hierarchy: ' + status.strip()
         raw = self.adb('shell', 'cat', '/sdcard/ff-regression.xml')
         (self.output / 'current.xml').write_bytes(raw)
         return ET.fromstring(raw)
@@ -72,7 +86,7 @@ class Device:
 
     def overlay_tap(self, text, xf, yf):
         # Non-focusable TYPE_APPLICATION_OVERLAY is often omitted by UIAutomator.
-        # Fractions are the existing vertical-capsule inline regression fixture.
+        # Fractions refer to the compact inline regression fixture.
         for node in self.dump().iter('node'):
             if text in (node.get('text'), node.get('content-desc')):
                 x, y, r, b = self.bounds(node)
@@ -109,7 +123,11 @@ class Device:
     def write_prefs(self, name, values):
         tree = ET.Element('map')
         for key, value in values.items():
-            if isinstance(value, float):
+            if isinstance(value, bool):
+                ET.SubElement(tree, 'boolean', name=key, value=str(value).lower())
+            elif isinstance(value, int):
+                ET.SubElement(tree, 'int', name=key, value=str(value))
+            elif isinstance(value, float):
                 ET.SubElement(tree, 'float', name=key, value=str(value))
             else:
                 ET.SubElement(tree, 'string', name=key).text = str(value)
@@ -234,7 +252,13 @@ def edges(d):
                 else:
                     cx, cy = d.center()
                     d.tapxy(cx, cy - 24*d.density*1.5)
+                # Content size and WindowManager position settle on separate frames.
+                # Assert the restored result, not an intermediate resized frame.
+                deadline = time.monotonic() + 3
                 collapsed = d.frame()
+                while max(abs(a-b) for a, b in zip(initial, collapsed)) > 1 and time.monotonic() < deadline:
+                    time.sleep(.1)
+                    collapsed = d.frame()
                 assert max(abs(a-b) for a, b in zip(initial, collapsed)) <= 1, (shape, edge, initial, collapsed)
             results.append(dict(shape=shape, edge=edge, initial=initial, expanded=expanded, collapsed=collapsed))
             d.shot(shape + '-' + edge)
@@ -243,7 +267,7 @@ def edges(d):
 
 
 def inline(d):
-    d.seed('VERTICAL_CAPSULE', 'SIZE', 1)
+    d.seed('ROUNDED_RECTANGLE', 'SIZE', 1)
     initial, wid, front = d.frame(), d.overlay()[0], d.foreground()
     original = d.records()[-1]
     print('Inline: waiting for the real one-minute countdown...', flush=True)
@@ -254,14 +278,15 @@ def inline(d):
         time.sleep(1)
     else:
         raise AssertionError('Countdown did not enter overtime')
-    d.overlay_tap('加时', .27, .62)
-    d.overlay_tap('+5 分', .32, .58)
-    d.overlay_tap('取消', .28, .705)
+    d.shot('inline-expired-compact')
+    d.overlay_tap('加时', .27, .64)
+    d.shot('inline-add-default-two')
+    d.overlay_tap('增加一分钟', .78, .51)
+    d.overlay_tap('取消', .28, .70)
     assert d.records()[-1]['plannedMillis'] == 60000
-    d.overlay_tap('加时', .27, .62)
-    for _ in range(4):
-        d.overlay_tap('减少一分钟', .23, .455)
-    d.overlay_tap('确认加时', .66, .705)
+    d.overlay_tap('加时', .27, .64)
+    d.overlay_tap('减少一分钟', .23, .51)
+    d.overlay_tap('确认加时', .66, .70)
     time.sleep(1.2)
     added = d.records()[-1]
     assert added['id'] == original['id'] and added['plannedMillis'] == 120000
@@ -285,7 +310,7 @@ def inline(d):
     assert log.count('Timer extended:') == 1
     d.shot('inline-second-expiry')
     # End in the overlay: the large expired window can cover the Activity's button.
-    d.overlay_tap('结束计时', .68, .62)
+    d.overlay_tap('结束计时', .68, .64)
     d.wait_stopped()
     final = d.records()[-1]
     assert final['id'] == original['id'] and final['status'] == 'MANUAL'
@@ -296,7 +321,7 @@ def inline(d):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--serial', default='emulator-5554')
-    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'settings', 'home', 'all'], default='all')
+    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'settings', 'home', 'preferences', 'all'], default='all')
     p.add_argument('--apk', type=Path, default=ROOT / 'app/build/outputs/apk/debug/app-debug.apk')
     p.add_argument('--allow-test-data-changes', action='store_true')
     args = p.parse_args()
@@ -336,7 +361,7 @@ def main():
         # These grants are test-emulator setup only, not production app permission requests.
         d.shell('appops', 'set', PACKAGE, 'SYSTEM_ALERT_WINDOW', 'allow')
         d.shell('pm', 'grant', PACKAGE, 'android.permission.POST_NOTIFICATIONS')
-        for suite in (['smoke', 'edges', 'inline', 'settings', 'home'] if args.suite == 'all' else [args.suite]):
+        for suite in (['smoke', 'edges', 'inline', 'settings', 'home', 'preferences'] if args.suite == 'all' else [args.suite]):
             d.shell('logcat', '-c')
             result['details'][suite] = globals()[suite](d)
             runtime = d.shell('logcat', '-d', '-s', 'AndroidRuntime:*')
@@ -366,6 +391,7 @@ def main():
                 result['appDataRestored'] = True
             except Exception as error:
                 result['status'], result['restoreError'] = 'failed', str(error)
+        result['activityWaitTimeouts'] = d.launch_timeouts
         (out / 'results.json').write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8')
         print('Result: ' + str(out / 'results.json'), flush=True)
     if result['status'] != 'passed':

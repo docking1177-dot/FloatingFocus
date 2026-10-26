@@ -21,7 +21,7 @@ data class LabSimulation(
 
     fun seek(remaining: Long) = copy(signedRemainingMillis = remaining.coerceIn(-Countdown.MAX_DURATION_MILLIS, durationMillis),
         acknowledgedStage = null, playback = null)
-    fun confirm() = copy(acknowledgedStage = snapshot.stage)
+    fun confirm(strategy: ReminderStrategy = settings.strategy) = copy(acknowledgedStage = strategy.stage(snapshot))
     fun play(now: Long) = copy(playback = Countdown(durationMillis, now - (durationMillis - signedRemainingMillis)))
     fun tick(now: Long): LabSimulation {
         val clock = playback ?: return this

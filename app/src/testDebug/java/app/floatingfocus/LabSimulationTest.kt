@@ -4,6 +4,16 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class LabSimulationTest {
+    @Test fun `confirmation uses shared custom strategy even before a simulation edit`() {
+        val shared = ReminderSettings(strategy = ReminderStrategy(warm = ReminderNode(40, 60), urgent = ReminderNode(90, 20)))
+        val lab = LabSimulation(100_000, 60_000, ReminderSettings(style = ReminderStyle.CONFIRM))
+        val appearance = shared.forLabStyle(ReminderStyle.CONFIRM)
+        assertTrue(ReminderPresenter.present(lab.snapshot, appearance).confirmationRequired)
+        val acknowledged = lab.confirm(shared.strategy)
+        assertFalse(ReminderPresenter.present(lab.snapshot, appearance, acknowledged.acknowledgedStage).confirmationRequired)
+        assertEquals(ReminderStage.WARM, acknowledged.acknowledgedStage)
+        assertEquals(40, shared.strategy.warm.percent)
+    }
     @Test fun `lab strategy overrides are isolated from both production switches`() {
         val shared = ReminderSettings(colorEnabled = true, sizeEnabled = true)
         val confirm = shared.forLabStyle(ReminderStyle.CONFIRM)

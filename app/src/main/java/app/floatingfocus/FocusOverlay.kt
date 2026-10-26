@@ -41,11 +41,12 @@ fun FocusOverlay(
     val finished = appearance.finished
     var expanded by remember(finished) { mutableStateOf(false) }
     var addingTime by remember(finished) { mutableStateOf(false) }
-    var extraMinutes by remember(finished) { mutableIntStateOf(5) }
+    var extraMinutes by remember(finished) { mutableIntStateOf(2) }
     LaunchedEffect(extensionRequest) {
         if (extensionRequest > 0 && finished && onExtend != null) addingTime = true
     }
     val size = appearance.size
+    val showingControls = expanded || finished || appearance.confirmationRequired
     val manualPulse = remember { Animatable(0f) }
     LaunchedEffect(animationRequest, interactive, appearance.animationStrength) {
         manualPulse.snapTo(0f)
@@ -82,8 +83,8 @@ fun FocusOverlay(
                 val title: @Composable () -> Unit = {
                     Icon(painterResource(R.drawable.ic_notification), contentDescription = null,
                         tint = foreground, modifier = Modifier.size(20.dp))
-                    Text(appearance.title.removePrefix("◷").trim(), style = textStyle,
-                        fontSize = 18.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.Monospace,
+                    Text(appearance.title.removePrefix("◷").trim().let { if (finished) it.removePrefix("超时 ") else it }, style = textStyle,
+                        fontSize = if (showingControls) 16.sp else 18.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.Monospace,
                         maxLines = 1, softWrap = false)
                 }
                 if (vertical) Column(header, horizontalAlignment = Alignment.CenterHorizontally,
@@ -105,20 +106,16 @@ fun FocusOverlay(
                             modifier = Modifier.semantics { contentDescription = "增加一分钟" }) { Text("+", style = textStyle) }
                     }
                     Row {
-                        listOf(5, 10).forEach { step ->
-                            TextButton(onClick = { extraMinutes = (extraMinutes + step).coerceAtMost(180) },
-                                enabled = controlsEnabled && extraMinutes < 180) { Text("+$step 分", style = textStyle) }
-                        }
-                    }
-                    Row {
                         TextButton(onClick = { addingTime = false }, enabled = controlsEnabled) { Text("取消", style = textStyle) }
-                        TextButton(onClick = { onExtend(extraMinutes); addingTime = false }, enabled = controlsEnabled) {
-                            Text("确认加时", style = textStyle)
+                        Button(onClick = { onExtend(extraMinutes); addingTime = false }, enabled = controlsEnabled,
+                            colors = ButtonDefaults.buttonColors(containerColor = foreground, contentColor = Color(background)),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)) {
+                            Text("确认加时", style = textStyle.copy(color = Color(background), shadow = null), fontWeight = FontWeight.SemiBold)
                         }
                     }
                 } else if (finished) {
                     FlowRow(horizontalArrangement = Arrangement.Center) {
-                        if (onExtend != null) TextButton(onClick = { extraMinutes = 5; addingTime = true }, enabled = controlsEnabled) { Text("加时", style = textStyle) }
+                        if (onExtend != null) TextButton(onClick = { extraMinutes = 2; addingTime = true }, enabled = controlsEnabled) { Text("加时", style = textStyle) }
                         TextButton(onClick = onStop, enabled = controlsEnabled) { Text("结束计时", style = textStyle) }
                     }
                 } else if (expanded) {
@@ -132,7 +129,7 @@ fun FocusOverlay(
             // Measure at a stable base size; apply the current reminder scale exactly once.
             val body = measurables.single().measure(Constraints(maxWidth = 240.dp.roundToPx()))
             val frame = OverlayGeometry.frame(appearance.shape, body.width / density, body.height / density, size,
-                constraints.maxWidth / density, constraints.maxHeight / density)
+                constraints.maxWidth / density, constraints.maxHeight / density, expanded = showingControls)
             val width = constraints.constrainWidth((frame.width * density).roundToInt())
             val height = constraints.constrainHeight((frame.height * density).roundToInt())
             layout(width, height) {

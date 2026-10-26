@@ -74,7 +74,7 @@ class ReminderLabService : Service() {
                 SideEffect { overlay.setGeometry(appearance.shape, appearance.size) }
                 FocusOverlay(appearance, interactive,
                     animationRequest = ReminderLabState.animationRequest,
-                    onConfirm = { ReminderLabState.simulation = ReminderLabState.simulation.confirm() }, onStop = ::close)
+                    onConfirm = { ReminderLabState.simulation = ReminderLabState.simulation.confirm(settings.strategy) }, onStop = ::close)
             } }
             // show() can report a synchronous failure and clear window via close().
             if (window == null) return START_NOT_STICKY

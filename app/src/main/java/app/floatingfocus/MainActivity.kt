@@ -77,6 +77,7 @@ class MainActivity : ComponentActivity() {
     private fun FocusScreen() {
         val session by FloatingService.session.collectAsStateWithLifecycle()
         val monitor by FloatingService.monitoring.collectAsStateWithLifecycle()
+        val quickDurations by QuickDurationsStore.get(this).durations.collectAsStateWithLifecycle()
         var mode by rememberSaveable { mutableStateOf(TimerMode.COUNTDOWN) }
         var minutes by rememberSaveable { mutableIntStateOf(15) }
         var custom by rememberSaveable { mutableStateOf(false) }
@@ -140,13 +141,13 @@ class MainActivity : ComponentActivity() {
                     if (mode == TimerMode.COUNTDOWN) {
                     Text("选择时长", style = MaterialTheme.typography.titleSmall)
                     FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf(5, 10, 15, 30).forEach { value ->
-                            FilterChip(selected = !custom && minutes == value, enabled = !session.active && !monitor.enabled && !quickStarting,
+                        quickDurations.forEach { value ->
+                            FilterChip(selected = minutes == value, enabled = !session.active && !monitor.enabled && !quickStarting,
                                 onClick = { minutes = value; custom = false }, label = { Text("$value 分", maxLines = 1, softWrap = false) })
                         }
                     }
                     TextButton(onClick = { input = if (custom) minutes.toString() else ""; showCustom = true }, enabled = !session.active && !monitor.enabled && !quickStarting) {
-                        Text(if (custom) "自定义：$minutes 分钟" else "自定义时长 →")
+                        Text(if (custom || minutes !in quickDurations) "自定义：$minutes 分钟" else "自定义时长 →")
                     }
                     }
                     Spacer(Modifier.height(4.dp))
@@ -167,7 +168,7 @@ class MainActivity : ComponentActivity() {
                     Spacer(Modifier.height(16.dp))
                     TimerPresetsCard(minutes, mode = mode, enabled = !session.active && !monitor.enabled && !quickStarting,
                         onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true },
-                        onApplied = { selectedMinutes, selectedMode -> minutes = selectedMinutes; mode = selectedMode; custom = selectedMinutes !in listOf(5, 10, 15, 30) })
+                        onApplied = { selectedMinutes, selectedMode -> minutes = selectedMinutes; mode = selectedMode; custom = selectedMinutes !in quickDurations })
                     Spacer(Modifier.height(12.dp))
                     Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface) {
                         Column(Modifier.padding(12.dp)) {
