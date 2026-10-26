@@ -16,8 +16,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.mapSaver
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,8 +44,8 @@ class SettingsActivity : ComponentActivity() {
             val presets by presetStore.presets.collectAsStateWithLifecycle()
             val preset = presets.firstOrNull { it.id == presetId }
             val editing = presetId != null
-            var page by rememberSaveable { mutableStateOf(if (editing) "appearance" else "home") }
-            val back: () -> Unit = { page = if (editing) "appearance" else "home" }
+            var page by rememberSaveable { mutableStateOf(if (intent.getBooleanExtra("open_strategy", false)) "strategy" else if (editing) "appearance" else "home") }
+            val back: () -> Unit = { page = if (intent.getBooleanExtra("open_strategy", false)) "strategy" else if (editing) "appearance" else "home" }
             BackHandler(enabled = page != "home" && (!editing || page != "appearance"), onBack = back)
             if (!editing && page == "home") {
                 SettingsHome(onBack = { finish() }, onOverlay = { page = "appearance" },
@@ -75,13 +73,13 @@ class SettingsActivity : ComponentActivity() {
             var targetLabel by rememberSaveable(presetId) { mutableStateOf(preset?.targetApp?.label.orEmpty()) }
             val target = targetPackage.takeIf { it.isNotBlank() }?.let { LaunchableApp(it, targetLabel) }
             var mode by rememberSaveable(presetId) { mutableStateOf(preset?.mode ?: TimerMode.COUNTDOWN) }
-            var minutes by rememberSaveable(presetId) { mutableStateOf((preset?.minutes ?: 15).toString()) }
+            var seconds by rememberSaveable(presetId) { mutableIntStateOf(preset?.durationSeconds ?: intent.getIntExtra("duration_seconds", 900)) }
             val settings = if (editing) draft else sharedSettings
             val updateSettings: ((ReminderSettings) -> ReminderSettings) -> Unit = { change ->
                 if (editing) draft = change(draft) else store.update(change)
             }
             if (page == "strategy") {
-                StrategyScreen(settings.strategy, { strategy -> updateSettings { it.copy(strategy = strategy) } }, back)
+                StrategyScreen(settings.strategy, seconds, { strategy -> updateSettings { it.copy(strategy = strategy) } }, back)
                 return@FocusTheme
             }
             Scaffold { insets ->
@@ -92,13 +90,13 @@ class SettingsActivity : ComponentActivity() {
                             horizontalArrangement = Arrangement.SpaceBetween) {
                             Text(if (editing) "编辑方案" else "悬浮窗", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
                             TextButton(onClick = { if (editing) finish() else back() }) { Text(if (editing) "取消" else "返回") }
-                            if (editing) TextButton(enabled = isSavedShortcut(target) && name.isNotBlank() && (mode == TimerMode.STOPWATCH || minutes.toIntOrNull() in 1..180), onClick = {
-                                presetStore.save(preset!!.copy(name = name.trim(), minutes = minutes.toIntOrNull()?.coerceIn(1, 180) ?: 15,
+                            if (editing) TextButton(enabled = isSavedShortcut(target) && name.isNotBlank() && (mode == TimerMode.STOPWATCH || seconds in 60..10800), onClick = {
+                                presetStore.save(preset!!.copy(name = name.trim(), minutes = (seconds / 60).coerceAtLeast(1), durationSeconds = seconds,
                                     settings = draft, mode = mode, targetApp = target))
                                 finish()
                             }) { Text("保存") }
                         }
-                        SettingsPreview(settings, previewHeight, (minutes.toIntOrNull()?.coerceIn(1, 180) ?: 15) * 60_000L, if (editing) mode else TimerMode.COUNTDOWN)
+                        SettingsPreview(settings, previewHeight, seconds * 1000L, if (editing) mode else TimerMode.COUNTDOWN)
                         HorizontalDivider()
                         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 12.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -110,10 +108,7 @@ class SettingsActivity : ComponentActivity() {
                                     }
                                 }
                                 OutlinedTextField(name, { name = it.take(40) }, label = { Text("方案名称") }, singleLine = true)
-                                if (mode == TimerMode.COUNTDOWN) OutlinedTextField(minutes, { minutes = it.filter(Char::isDigit).take(3) },
-                                    label = { Text("分钟（1—180）") }, singleLine = true,
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    isError = minutes.toIntOrNull() !in 1..180)
+                                if (mode == TimerMode.COUNTDOWN) DurationEntry("计时时长", seconds, { seconds = it })
                                 TextButton(onClick = { page = "strategy" }) { Text("提醒策略") }
                             }
                             Text("悬浮窗形状", style = MaterialTheme.typography.titleMedium)

@@ -22,6 +22,7 @@ internal class OverlayTouchLayout(
     private var geometry = OverlayShape.ROUNDED_RECTANGLE
     private var scale = 1f
     private var acceptingTouch = false
+    private var childScrolling = false
     private val touchRegion = Region()
 
     fun setGeometry(shape: OverlayShape, size: Float) {
@@ -58,19 +59,26 @@ internal class OverlayTouchLayout(
         if (Build.VERSION.SDK_INT >= 33) rootSurfaceControl?.setTouchableRegion(touchRegion)
     }
 
+    override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
+        // Native duration wheels own their gesture until UP; never turn it into a window drag.
+        if (disallowIntercept) childScrolling = true
+        super.requestDisallowInterceptTouchEvent(disallowIntercept)
+    }
+
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
+                childScrolling = false
                 acceptingTouch = touchRegion.contains(event.x.toInt(), event.y.toInt())
                 if (!acceptingTouch) return false
                 gesture.start(event.rawX, event.rawY)
                 onDragStart()
             }
-            MotionEvent.ACTION_MOVE -> { if (!acceptingTouch) return false; moveWindow(event) }
+            MotionEvent.ACTION_MOVE -> { if (!acceptingTouch) return false; if (!childScrolling) moveWindow(event) }
             MotionEvent.ACTION_UP -> {
                 if (!acceptingTouch) return false
                 // Account for a final displacement even if MOVE events were coalesced.
-                moveWindow(event)
+                if (!childScrolling) moveWindow(event)
                 if (!gesture.finish()) super.dispatchTouchEvent(event)
                 onDragEnd()
                 acceptingTouch = false

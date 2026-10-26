@@ -175,6 +175,9 @@ class FloatingService : Service() {
             fail("请先允许 Floating Focus 显示悬浮窗。")
             return START_NOT_STICKY
         }
+        ReminderSettingsStore.get(this).settings.value.strategy.validationError(duration, mode)?.let {
+            fail(it); return START_NOT_STICKY
+        }
         countdown = Countdown(duration, SystemClock.elapsedRealtime(), mode)
         awaitingApp = intent.getStringExtra("app_package")
         activePresetId = intent.getStringExtra("preset_id")?.takeIf { id ->
@@ -229,14 +232,16 @@ class FloatingService : Service() {
             SideEffect { overlay.setGeometry(appearance.shape, appearance.size) }
             val timerStart = overlayState.timerStartedAt
             FocusOverlay(appearance, interactive, extensionRequest = extensionRequest,
-                onExtend = if (countdown != null) ({ minutes -> extendTimer(timerStart, minutes) }) else null) { finishSession() }
+                extensionStrategy = settings.strategy,
+                onExtend = if (countdown != null) ({ seconds -> extendTimer(timerStart, seconds) }) else null) { finishSession() }
         } }
     }
 
-    private fun extendTimer(expectedStart: Long, minutes: Int) {
+    private fun extendTimer(expectedStart: Long, seconds: Int) {
         val timer = countdown ?: return
-        if (stopping || timer.startedAt != expectedStart || minutes !in 1..180) return
-        val next = timer.extendAt(SystemClock.elapsedRealtime(), minutes * 60_000L) ?: return
+        if (stopping || timer.startedAt != expectedStart || seconds !in 60..10800) return
+        if (ReminderSettingsStore.get(this).settings.value.strategy.validationError(seconds * 1000L) != null) return
+        val next = timer.extendAt(SystemClock.elapsedRealtime(), seconds * 1000L) ?: return
         countdown = next
         completionReminder.reset()
         handler.removeCallbacks(tick)
@@ -398,6 +403,9 @@ class FloatingService : Service() {
         fun start(context: Context, durationMillis: Long, mode: TimerMode = TimerMode.COUNTDOWN, targetPackage: String? = null,
                   presetId: String? = null): Boolean {
             if (mutableMonitor.value.enabled || mutableSession.value.active) return false
+            ReminderSettingsStore.get(context).settings.value.strategy.validationError(durationMillis, mode)?.let {
+                mutableSession.value = SessionState(error = it); return false
+            }
             mutableSession.value = SessionState()
             try {
                 ContextCompat.startForegroundService(context, Intent(context, FloatingService::class.java)

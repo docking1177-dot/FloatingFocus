@@ -36,12 +36,13 @@ fun FocusOverlay(
     onConfirm: () -> Unit = {},
     onExtend: ((Int) -> Unit)? = null,
     extensionRequest: Int = 0,
+    extensionStrategy: ReminderStrategy = ReminderStrategy(),
     onStop: () -> Unit
 ) {
     val finished = appearance.finished
     var expanded by remember(finished) { mutableStateOf(false) }
     var addingTime by remember(finished) { mutableStateOf(false) }
-    var extraMinutes by remember(finished) { mutableIntStateOf(2) }
+    var extraSeconds by remember(finished) { mutableIntStateOf(120) }
     LaunchedEffect(extensionRequest) {
         if (extensionRequest > 0 && finished && onExtend != null) addingTime = true
     }
@@ -96,18 +97,12 @@ fun FocusOverlay(
                     TextButton(onClick = onConfirm, enabled = controlsEnabled) { Text("已看到提醒", style = textStyle) }
                 }
                 if (finished && addingTime && onExtend != null) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        TextButton(onClick = { extraMinutes = (extraMinutes - 1).coerceAtLeast(1) },
-                            enabled = controlsEnabled && extraMinutes > 1,
-                            modifier = Modifier.semantics { contentDescription = "减少一分钟" }) { Text("−", style = textStyle) }
-                        Text("$extraMinutes 分钟", style = textStyle)
-                        TextButton(onClick = { extraMinutes = (extraMinutes + 1).coerceAtMost(180) },
-                            enabled = controlsEnabled && extraMinutes < 180,
-                            modifier = Modifier.semantics { contentDescription = "增加一分钟" }) { Text("+", style = textStyle) }
-                    }
+                    DurationWheels(extraSeconds, { extraSeconds = it }, color = foreground, compact = true)
+                    val extensionError = extensionStrategy.validationError(extraSeconds * 1000L)
+                    extensionError?.let { Text(it, style = textStyle, fontSize = 12.sp, modifier = Modifier.widthIn(max = 210.dp)) }
                     Row {
                         TextButton(onClick = { addingTime = false }, enabled = controlsEnabled) { Text("取消", style = textStyle) }
-                        Button(onClick = { onExtend(extraMinutes); addingTime = false }, enabled = controlsEnabled,
+                        Button(onClick = { onExtend(extraSeconds); addingTime = false }, enabled = controlsEnabled && extensionError == null,
                             colors = ButtonDefaults.buttonColors(containerColor = foreground, contentColor = Color(background)),
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)) {
                             Text("确认加时", style = textStyle.copy(color = Color(background), shadow = null), fontWeight = FontWeight.SemiBold)
@@ -115,7 +110,7 @@ fun FocusOverlay(
                     }
                 } else if (finished) {
                     FlowRow(horizontalArrangement = Arrangement.Center) {
-                        if (onExtend != null) TextButton(onClick = { extraMinutes = 2; addingTime = true }, enabled = controlsEnabled) { Text("加时", style = textStyle) }
+                        if (onExtend != null) TextButton(onClick = { extraSeconds = 120; addingTime = true }, enabled = controlsEnabled) { Text("加时", style = textStyle) }
                         TextButton(onClick = onStop, enabled = controlsEnabled) { Text("结束计时", style = textStyle) }
                     }
                 } else if (expanded) {

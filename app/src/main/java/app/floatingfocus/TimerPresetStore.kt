@@ -35,7 +35,7 @@ class TimerPresetStore private constructor(context: Context) {
                 val values = appearance.keys().asSequence().associateWith { appearance.opt(it) }
                 TimerPresetCodec.decode(mapOf("id" to row.opt("id"), "name" to row.opt("name"),
                     "targetPackage" to row.opt("targetPackage"), "targetLabel" to row.opt("targetLabel"),
-                    "minutes" to row.opt("minutes"), "mode" to row.opt("mode"), "settings" to values,
+                    "minutes" to row.opt("minutes"), "durationSeconds" to row.opt("durationSeconds"), "mode" to row.opt("mode"), "settings" to values,
                     "positionX" to row.opt("positionX"), "positionY" to row.opt("positionY")))
             }
         }.distinctBy { it.id }

@@ -1,8 +1,13 @@
 package app.floatingfocus
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -10,9 +15,130 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+
+@Composable
+internal fun QuickDurationsScreen(values: List<Int>, onSave: (List<Int>) -> Unit, onBack: () -> Unit) {
+    var draft by rememberSaveable { mutableStateOf(values) }
+    PreferencePage("常用时长", onBack) {
+        draft.forEachIndexed { i, seconds ->
+            DurationEntry("第 ${i + 1} 个时长", seconds, { next -> draft = draft.toMutableList().also { it[i] = next } })
+        }
+        if (!QuickDurations.validSeconds(draft)) Text("请设置四个不同的时长。", color = MaterialTheme.colorScheme.error)
+        Row {
+            TextButton(onClick = { draft = QuickDurations.defaultSeconds }) { Text("恢复默认") }
+            Button(enabled = QuickDurations.validSeconds(draft), onClick = { onSave(draft); onBack() }) { Text("保存") }
+        }
+    }
+}
+
+@Composable
+internal fun StrategyScreen(value: ReminderStrategy, durationSeconds: Int, onSave: (ReminderStrategy) -> Unit, onBack: () -> Unit) {
+    var draft by rememberSaveable(stateSaver = androidx.compose.runtime.saveable.mapSaver(
+        save = { ReminderSettingsCodec.encode(ReminderSettings(strategy = it)) },
+        restore = { ReminderSettingsCodec.decode(it).strategy })) { mutableStateOf(value) }
+    var selected by rememberSaveable { mutableStateOf<Int?>(null) }
+    val duration = durationSeconds * 1000L
+    val error = draft.validationError(duration)
+    PreferencePage("提醒策略", onBack) {
+        Text("本次时长 · ${durationLabel(durationSeconds)}")
+        Text("拖动节点调整；点击节点设置触发条件。", style = MaterialTheme.typography.bodySmall)
+        if (error == null) StrategyTimeline(draft, duration, { draft = it }, { selected = it })
+        else {
+            // Invalid legacy/shortened-duration configurations have no honest ordered timeline.
+            // Keep identities editable instead of sorting or moving the user's nodes.
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = { selected = 0 }) { Text("修改第二级") }
+                OutlinedButton(onClick = { selected = 1 }) { Text("修改第三级") }
+            }
+        }
+        error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+        Text("归零和超时提醒保持不变。", style = MaterialTheme.typography.bodySmall)
+        Row {
+            TextButton(onClick = { draft = ReminderStrategy() }) { Text("恢复默认") }
+            Button(enabled = error == null, onClick = { onSave(draft); onBack() }) { Text("保存") }
+        }
+    }
+    selected?.let { index ->
+        NodeDialog(index, draft, duration, { selected = null }) { draft = it; selected = null }
+    }
+}
+
+@Composable
+private fun StrategyTimeline(strategy: ReminderStrategy, duration: Long, onChange: (ReminderStrategy) -> Unit, onSelect: (Int) -> Unit) {
+    val current by rememberUpdatedState(strategy)
+    val update by rememberUpdatedState(onChange)
+    BoxWithConstraints(Modifier.fillMaxWidth().height(188.dp)) {
+        val widthPx = with(LocalDensity.current) { maxWidth.toPx() }
+        val trackWidth = (widthPx - with(LocalDensity.current) { 24.dp.toPx() }).coerceAtLeast(1f)
+        Box(Modifier.fillMaxWidth().padding(horizontal = 12.dp).offset(y = 90.dp).height(4.dp)
+            .background(MaterialTheme.colorScheme.outlineVariant, CircleShape))
+        listOf(strategy.warm, strategy.urgent).forEachIndexed { index, node ->
+            val fraction = strategy.position(node, duration).coerceIn(0.0, 1.0).toFloat()
+            val density = LocalDensity.current
+            val x = 12.dp + with(density) { (fraction * trackWidth).toDp() }
+            Box(Modifier.offset(x = x - 6.dp, y = 86.dp).size(12.dp).background(MaterialTheme.colorScheme.primary, CircleShape))
+            val n = strategy.singleNode(node)
+            val caption = when {
+                n.useProgress == n.useRemaining -> "选择触发条件"
+                n.useProgress -> "${n.percent}%"
+                else -> "剩余 ${durationLabel(n.seconds)}"
+            }
+            var dragFraction by remember(index) { mutableDoubleStateOf(0.0) }
+            Surface(shape = MaterialTheme.shapes.small, color = MaterialTheme.colorScheme.secondaryContainer,
+                modifier = Modifier.offset(x = (x - 66.dp).coerceIn(0.dp, (maxWidth - 132.dp).coerceAtLeast(0.dp)),
+                    y = if (index == 0) 16.dp else 108.dp).width(132.dp)
+                    .clickable { onSelect(index) }
+                    .pointerInput(index, duration, trackWidth) {
+                        detectDragGestures(onDragStart = {
+                            dragFraction = current.position(if (index == 0) current.warm else current.urgent, duration)
+                        }) { change, delta ->
+                            change.consume()
+                            dragFraction = (dragFraction + delta.x / trackWidth).coerceIn(0.0, 1.0)
+                            update(current.moved(index == 0, dragFraction, duration))
+                        }
+                    }) {
+                Column(Modifier.padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(if (index == 0) "第二级" else "第三级", style = MaterialTheme.typography.labelLarge)
+                    Text(caption, style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
+        Row(Modifier.fillMaxWidth().align(Alignment.BottomCenter), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("0%", style = MaterialTheme.typography.labelSmall); Text("100%", style = MaterialTheme.typography.labelSmall)
+        }
+    }
+}
+
+@Composable
+private fun NodeDialog(index: Int, strategy: ReminderStrategy, duration: Long, onDismiss: () -> Unit, onSave: (ReminderStrategy) -> Unit) {
+    val initial = strategy.singleNode(if (index == 0) strategy.warm else strategy.urgent)
+    var progress by rememberSaveable { mutableStateOf(initial.useProgress && !initial.useRemaining) }
+    var percent by rememberSaveable { mutableStateOf(initial.percent.toString()) }
+    var seconds by rememberSaveable { mutableIntStateOf(initial.seconds) }
+    val node = initial.copy(percent = percent.toIntOrNull()?.coerceIn(0, 99) ?: initial.percent,
+        seconds = seconds, useProgress = progress, useRemaining = !progress)
+    val next = strategy.copy(mode = TriggerMode.MIXED,
+        warm = if (index == 0) node else strategy.singleNode(strategy.warm),
+        urgent = if (index == 1) node else strategy.singleNode(strategy.urgent))
+    val error = next.validationError(duration)
+    AlertDialog(onDismissRequest = onDismiss, title = { Text(if (index == 0) "第二级提醒" else "第三级提醒") }, text = {
+        Column {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(progress, { progress = true }, label = { Text("进度百分比") })
+                FilterChip(!progress, { progress = false }, label = { Text("剩余时间") })
+            }
+            if (progress) OutlinedTextField(percent, { percent = it.filter(Char::isDigit).take(2) },
+                label = { Text("进度（0—99%）") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+            else DurationWheels(seconds, { seconds = it }, minSeconds = 1)
+            error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+        }
+    }, confirmButton = { TextButton(enabled = (!progress || percent.toIntOrNull() in 0..99), onClick = {
+        // Keep invalid drafts editable across both nodes; the page cannot save/start until resolved.
+        onSave(next)
+    }) { Text("确认") } }, dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } })
+}
 
 @Composable
 internal fun PreferencePage(title: String, onBack: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
@@ -26,104 +152,4 @@ internal fun PreferencePage(title: String, onBack: () -> Unit, content: @Composa
                 verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
         }
     }
-}
-
-@Composable
-internal fun QuickDurationsScreen(values: List<Int>, onSave: (List<Int>) -> Unit, onBack: () -> Unit) {
-    var first by rememberSaveable { mutableStateOf(values[0].toString()) }
-    var second by rememberSaveable { mutableStateOf(values[1].toString()) }
-    var third by rememberSaveable { mutableStateOf(values[2].toString()) }
-    var fourth by rememberSaveable { mutableStateOf(values[3].toString()) }
-    val fields = listOf(first, second, third, fourth)
-    val setters: List<(String) -> Unit> = listOf({ first = it }, { second = it }, { third = it }, { fourth = it })
-    val parsed = fields.mapNotNull { it.toIntOrNull() }
-    PreferencePage("常用时长", onBack) {
-        Text("首页的四个时长按钮，按此顺序显示。", style = MaterialTheme.typography.bodySmall)
-        fields.forEachIndexed { index, value ->
-            NumberField("第 ${index + 1} 个时长（分钟）", value, 1..180, setters[index])
-        }
-        if (parsed.size == 4 && parsed.distinct().size != 4) Text("请设置四个不同的时长。", color = MaterialTheme.colorScheme.error)
-        Row {
-            TextButton(onClick = { first = "5"; second = "10"; third = "15"; fourth = "30" }) { Text("恢复默认") }
-            Button(enabled = QuickDurations.valid(parsed), onClick = { onSave(parsed); onBack() }) { Text("保存") }
-        }
-    }
-}
-
-@Composable
-internal fun StrategyScreen(value: ReminderStrategy, onSave: (ReminderStrategy) -> Unit, onBack: () -> Unit) {
-    var draft by rememberSaveable(stateSaver = androidx.compose.runtime.saveable.mapSaver(
-        save = { ReminderSettingsCodec.encode(ReminderSettings(strategy = it)) },
-        restore = { ReminderSettingsCodec.decode(it).strategy })) { mutableStateOf(value) }
-    var resetGeneration by rememberSaveable { mutableIntStateOf(0) }
-    PreferencePage("提醒策略", onBack) {
-        val valid = key(resetGeneration) { strategyEditor(draft) { draft = it } }
-        Row {
-            TextButton(onClick = { draft = ReminderStrategy(); resetGeneration++ }) { Text("恢复默认") }
-            Button(enabled = valid, onClick = { onSave(draft); onBack() }) { Text("保存") }
-        }
-    }
-}
-
-@Composable
-internal fun strategyEditor(strategy: ReminderStrategy, onChange: (ReminderStrategy) -> Unit): Boolean {
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        TriggerMode.entries.forEach { mode ->
-            FilterChip(strategy.mode == mode, { onChange(strategy.copy(mode = mode)) }, label = { Text(mode.label) })
-        }
-    }
-    Text("第二级和第三级分别设置；满足多个条件时采用较高级别。归零与超时行为保持原有规则。",
-        style = MaterialTheme.typography.bodySmall)
-    if (strategy.mode != TriggerMode.PROGRESS) Text("剩余时间超过本次时长时，该条件会立即满足。", style = MaterialTheme.typography.bodySmall)
-    val warmValid = nodeEditor("第二级", strategy.warm, strategy.mode) { onChange(strategy.copy(warm = it)) }
-    HorizontalDivider()
-    val urgentValid = nodeEditor("第三级", strategy.urgent, strategy.mode) { onChange(strategy.copy(urgent = it)) }
-    return warmValid && urgentValid
-}
-
-@Composable
-private fun nodeEditor(label: String, node: ReminderNode, mode: TriggerMode, onChange: (ReminderNode) -> Unit): Boolean {
-    var valid = true
-    Text(label, style = MaterialTheme.typography.titleMedium)
-    if (mode == TriggerMode.MIXED) {
-        NodeCondition("$label · 进度条件", node.useProgress) { onChange(node.copy(useProgress = it)) }
-        NodeCondition("$label · 剩余时间条件", node.useRemaining) { onChange(node.copy(useRemaining = it)) }
-        if (!node.useProgress && !node.useRemaining) Text("该级未启用触发条件", style = MaterialTheme.typography.bodySmall)
-    }
-    if (mode == TriggerMode.PROGRESS || mode == TriggerMode.MIXED && node.useProgress) {
-        valid = validNodeField("$label · 已用进度（%）", node.percent, 0..99) { onChange(node.copy(percent = it)) } && valid
-    }
-    if (mode == TriggerMode.REMAINING || mode == TriggerMode.MIXED && node.useRemaining) {
-        valid = validNodeField("$label · 剩余时间（秒）", node.seconds, 1..10_800) { onChange(node.copy(seconds = it)) } && valid
-    }
-    return valid
-}
-
-@Composable
-private fun NodeCondition(label: String, enabled: Boolean, onChange: (Boolean) -> Unit) {
-    Row(Modifier.fillMaxWidth().toggleable(enabled, role = Role.Checkbox, onValueChange = onChange).heightIn(min = 48.dp),
-        verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(enabled, onCheckedChange = null)
-        Text(label)
-    }
-}
-
-@Composable
-private fun validNodeField(label: String, value: Int, range: IntRange, onChange: (Int) -> Unit): Boolean {
-    // Editing must not recreate the field on every valid digit and reset its cursor.
-    var text by rememberSaveable(label) { mutableStateOf(value.toString()) }
-    NumberField(label, text, range) {
-        text = it
-        it.toIntOrNull()?.takeIf { number -> number in range }?.let(onChange)
-    }
-    return text.toIntOrNull() in range
-}
-
-@Composable
-private fun NumberField(label: String, text: String, range: IntRange, onChange: (String) -> Unit) {
-    OutlinedTextField(text, { onChange(it.filter(Char::isDigit).take(5)) }, label = { Text(label) },
-        modifier = Modifier.fillMaxWidth(), singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        isError = text.toIntOrNull() !in range,
-        supportingText = { Text("${range.first}—${range.last}") })
 }

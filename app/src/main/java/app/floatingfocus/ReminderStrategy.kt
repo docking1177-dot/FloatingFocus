@@ -11,6 +11,46 @@ data class ReminderNode(val percent: Int, val seconds: Int,
 data class ReminderStrategy(val mode: TriggerMode = TriggerMode.PROGRESS,
                             val warm: ReminderNode = ReminderNode(50, 60),
                             val urgent: ReminderNode = ReminderNode(80, 20)) {
+    /** Legacy global modes are read without rewriting saved values. New edits save one type per node. */
+    fun singleNode(node: ReminderNode): ReminderNode = when (mode) {
+        TriggerMode.PROGRESS -> node.copy(useProgress = true, useRemaining = false)
+        TriggerMode.REMAINING -> node.copy(useProgress = false, useRemaining = true)
+        TriggerMode.MIXED -> node
+    }
+
+    fun position(node: ReminderNode, durationMillis: Long): Double {
+        val n = singleNode(node)
+        return if (n.useProgress) n.percent / 100.0 else 1.0 - n.seconds * 1000.0 / durationMillis
+    }
+
+    fun validationError(durationMillis: Long, timerMode: TimerMode = TimerMode.COUNTDOWN): String? {
+        if (timerMode == TimerMode.STOPWATCH) return null
+        if (durationMillis !in 1..Countdown.MAX_DURATION_MILLIS) return "计时时长无效。"
+        for ((label, node) in listOf("第二级" to warm, "第三级" to urgent)) {
+            val n = singleNode(node)
+            if (n.useProgress == n.useRemaining) return "$label 必须选择一种触发条件，请修改提醒策略。"
+            if (!n.useProgress && n.seconds * 1000L > durationMillis)
+                return "$label 的剩余时间超过本次总时长，请修改提醒策略或计时时长。"
+        }
+        // Compare exact time units, not chart fractions: 0.58 != 1.0 - 0.42 in Double.
+        fun triggerUnits(node: ReminderNode): Long = singleNode(node).let {
+            if (it.useProgress) durationMillis * it.percent else (durationMillis - it.seconds * 1000L) * 100
+        }
+        if (triggerUnits(warm) >= triggerUnits(urgent))
+            return "触发顺序冲突：本次总时长 ${durationLabel((durationMillis / 1000).toInt())}，第三级必须晚于第二级。请修改提醒策略。"
+        return null
+    }
+
+    /** Quantize a dragged node in its own unit; reject crossings rather than swapping identities. */
+    fun moved(warmNode: Boolean, fraction: Double, durationMillis: Long): ReminderStrategy {
+        val old = singleNode(if (warmNode) warm else urgent)
+        if (old.useProgress == old.useRemaining) return this
+        val next = if (old.useProgress) old.copy(percent = kotlin.math.round(fraction * 100).toInt().coerceIn(0, 99))
+            else old.copy(seconds = kotlin.math.round((1 - fraction) * durationMillis / 1000).toInt().coerceIn(1, 10800))
+        val result = copy(mode = TriggerMode.MIXED, warm = if (warmNode) next else singleNode(warm),
+            urgent = if (warmNode) singleNode(urgent) else next)
+        return if (result.validationError(durationMillis) == null) result else this
+    }
     private fun threshold(node: ReminderNode, snapshot: ReminderSnapshot): Float {
         val progress = node.percent / 100f
         val duration = snapshot.durationMillis.takeIf { it > 0 }

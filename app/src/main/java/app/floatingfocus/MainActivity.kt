@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -56,7 +55,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
@@ -79,10 +77,8 @@ class MainActivity : ComponentActivity() {
         val monitor by FloatingService.monitoring.collectAsStateWithLifecycle()
         val quickDurations by QuickDurationsStore.get(this).durations.collectAsStateWithLifecycle()
         var mode by rememberSaveable { mutableStateOf(TimerMode.COUNTDOWN) }
-        var minutes by rememberSaveable { mutableIntStateOf(15) }
-        var custom by rememberSaveable { mutableStateOf(false) }
-        var showCustom by rememberSaveable { mutableStateOf(false) }
-        var input by rememberSaveable { mutableStateOf("") }
+        var seconds by rememberSaveable { mutableIntStateOf(900) }
+        var strategyError by rememberSaveable { mutableStateOf<String?>(null) }
         var overlayAllowed by remember { mutableStateOf(Settings.canDrawOverlays(this)) }
         var notificationAllowed by remember { mutableStateOf(hasNotificationPermission()) }
         var permissionMessage by rememberSaveable { mutableStateOf<String?>(null) }
@@ -116,7 +112,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         Text("Floating Focus", modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-                        IconButton(onClick = { startActivity(Intent(this@MainActivity, SettingsActivity::class.java)) }, modifier = Modifier.size(48.dp)) {
+                        IconButton(onClick = { startActivity(Intent(this@MainActivity, SettingsActivity::class.java).putExtra("duration_seconds", seconds)) }, modifier = Modifier.size(48.dp)) {
                             Icon(painterResource(R.drawable.ic_settings), contentDescription = "设置", modifier = Modifier.size(24.dp))
                         }
                     }
@@ -142,13 +138,13 @@ class MainActivity : ComponentActivity() {
                     Text("选择时长", style = MaterialTheme.typography.titleSmall)
                     FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         quickDurations.forEach { value ->
-                            FilterChip(selected = minutes == value, enabled = !session.active && !monitor.enabled && !quickStarting,
-                                onClick = { minutes = value; custom = false }, label = { Text("$value 分", maxLines = 1, softWrap = false) })
+                            FilterChip(selected = seconds == value, enabled = !session.active && !monitor.enabled && !quickStarting,
+                                onClick = { seconds = value }, label = { Text(durationLabel(value), maxLines = 1, softWrap = false) })
                         }
                     }
-                    TextButton(onClick = { input = if (custom) minutes.toString() else ""; showCustom = true }, enabled = !session.active && !monitor.enabled && !quickStarting) {
-                        Text(if (custom || minutes !in quickDurations) "自定义：$minutes 分钟" else "自定义时长 →")
-                    }
+                    DurationEntry("自定义时长", seconds, { seconds = it },
+                        enabled = !session.active && !monitor.enabled && !quickStarting)
+
                     }
                     Spacer(Modifier.height(4.dp))
                     if (session.active || monitor.enabled) {
@@ -159,20 +155,23 @@ class MainActivity : ComponentActivity() {
                     } else {
                         Button(enabled = !quickStarting, onClick = {
                             if (!Settings.canDrawOverlays(this@MainActivity)) permissionHelp = true
-                            else FloatingService.start(this@MainActivity, minutes * 60_000L, mode)
+                            else {
+                                strategyError = ReminderSettingsStore.get(this@MainActivity).settings.value.strategy.validationError(seconds * 1000L, mode)
+                                if (strategyError == null) FloatingService.start(this@MainActivity, seconds * 1000L, mode)
+                            }
                         }, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text(if (mode == TimerMode.STOPWATCH) "开始正计时" else "开始倒计时") }
                     }
                     if (!overlayAllowed) {
                         PermissionCard("允许显示悬浮窗", "用于在其他 App 上方显示倒计时。", "去授权") { permissionHelp = true }
                     }
                     Spacer(Modifier.height(16.dp))
-                    TimerPresetsCard(minutes, mode = mode, enabled = !session.active && !monitor.enabled && !quickStarting,
+                    TimerPresetsCard(seconds, mode = mode, enabled = !session.active && !monitor.enabled && !quickStarting,
                         onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true },
-                        onApplied = { selectedMinutes, selectedMode -> minutes = selectedMinutes; mode = selectedMode; custom = selectedMinutes !in quickDurations })
+                        onApplied = { selectedSeconds, selectedMode -> seconds = selectedSeconds; mode = selectedMode })
                     Spacer(Modifier.height(12.dp))
                     Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface) {
                         Column(Modifier.padding(12.dp)) {
-                            QuickLaunchCard(minutes, mode = mode, enabled = !session.active && !monitor.enabled && !quickStarting,
+                            QuickLaunchCard(seconds, mode = mode, enabled = !session.active && !monitor.enabled && !quickStarting,
                                 onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true })
                         }
                     }
@@ -208,15 +207,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        if (showCustom) {
-            val value = input.toIntOrNull()
-            AlertDialog(onDismissRequest = { showCustom = false }, title = { Text("自定义时长") }, text = {
-                OutlinedTextField(value = input, onValueChange = { input = it.filter(Char::isDigit).take(3) },
-                    label = { Text("分钟（1—180）") }, singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), isError = input.isNotEmpty() && (value == null || value !in 1..180))
-            }, confirmButton = {
-                TextButton(enabled = value != null && value in 1..180, onClick = { minutes = value!!; custom = true; showCustom = false }) { Text("确定") }
-            }, dismissButton = { TextButton(onClick = { showCustom = false }) { Text("取消") } })
+        strategyError?.let { message ->
+            StrategyConflictDialog(message, seconds, onDismiss = { strategyError = null })
         }
         if (permissionHelp) {
             AlertDialog(onDismissRequest = { permissionHelp = false }, title = { Text("悬浮窗权限") },

@@ -12,12 +12,20 @@ from device_regression import Device
 class DeviceEvidenceTests(unittest.TestCase):
     def test_failed_dump_never_reads_stale_hierarchy(self):
         device = Device('emulator-5554', MagicMock())
-        device.shell = Mock(side_effect=['', 'ERROR: could not get idle state'])
+        device.shell = Mock(side_effect=['', 'ERROR: could not get idle state'] * 3)
         device.adb = Mock(return_value=b'<hierarchy><node text="Floating Focus"/></hierarchy>')
         with self.assertRaises(AssertionError):
             device.dump()
         device.adb.assert_not_called()
         device.shell.assert_any_call('rm', '-f', '/sdcard/ff-regression.xml')
+
+    def test_dump_retries_only_with_a_new_successful_hierarchy(self):
+        device = Device('emulator-5554', MagicMock())
+        device.shell = Mock(side_effect=['', '', '', 'UI hierarchy dumped to: /sdcard/ff-regression.xml'])
+        device.adb = Mock(return_value=b'<hierarchy><node text="fresh"/></hierarchy>')
+        self.assertEqual('fresh', device.dump().find('node').get('text'))
+        self.assertEqual(1, device.hierarchy_retries)
+        device.adb.assert_called_once()
 
     def test_launch_timeout_requires_correct_foreground_and_fresh_home(self):
         for foreground, text, allowed in [

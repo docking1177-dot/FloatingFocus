@@ -47,7 +47,7 @@ import org.json.JSONObject
 
 /** Explicit one-shot user action. Never observes which app is in the foreground. */
 @Composable
-fun QuickLaunchCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled: Boolean, onBusyChange: (Boolean) -> Unit, onPermissionRequired: () -> Unit) {
+fun QuickLaunchCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled: Boolean, onBusyChange: (Boolean) -> Unit, onPermissionRequired: () -> Unit) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val scope = rememberCoroutineScope()
@@ -66,7 +66,7 @@ fun QuickLaunchCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled
                 onBusyChange(true)
                 scope.launch {
                     try {
-                        error = launchAppWithTimer(context, lifecycle, app, minutes, mode = mode)
+                        error = launchAppWithTimer(context, lifecycle, app, seconds, mode = mode)
                     } finally {
                         busy = false
                         onBusyChange(false)
@@ -88,6 +88,7 @@ fun QuickLaunchCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled
         if (busy) Text("正在启动…")
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
     }
+    error?.takeIf { it.contains("提醒策略") }?.let { message -> StrategyConflictDialog(message, seconds, onDismiss = { error = null }) }
     if (choosing) {
         var selected by remember { mutableStateOf(targets.map { it.packageName }.toSet()) }
         var search by remember { mutableStateOf("") }

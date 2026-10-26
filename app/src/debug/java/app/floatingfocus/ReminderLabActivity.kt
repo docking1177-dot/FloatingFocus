@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
@@ -104,10 +105,14 @@ class ReminderLabActivity : ComponentActivity() {
                 }
                 Text("模拟时间（秒）", style = MaterialTheme.typography.titleMedium)
                 Text("负数表示超时。播放速度为真实 1×；拖动进度或应用时间会暂停播放。", style = MaterialTheme.typography.bodySmall)
-                OutlinedTextField(durationInput, { durationInput = it.take(8) }, label = { Text("总时长：1—10800 秒") },
-                    singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(remainingInput, { remainingInput = it.take(9) }, label = { Text("剩余秒数（负数为超时）") },
-                    singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text), modifier = Modifier.fillMaxWidth())
+                DurationEntry("模拟总时长", durationInput.toIntOrNull() ?: 900, { durationInput = it.toString() }, minSeconds = 1)
+                var overtime by rememberSaveable { mutableStateOf(false) }
+                Row {
+                    FilterChip(!overtime, { overtime = false; remainingInput = remainingInput.removePrefix("-") }, label = { Text("剩余") })
+                    FilterChip(overtime, { overtime = true; remainingInput = "-" + remainingInput.removePrefix("-") }, label = { Text("超时") })
+                }
+                DurationEntry(if (overtime) "模拟超时" else "模拟剩余", kotlin.math.abs(remainingInput.toIntOrNull() ?: 900),
+                    { remainingInput = (if (overtime) -it else it).toString() }, minSeconds = 0)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = {
                         val total = durationInput.toLongOrNull()
@@ -153,7 +158,7 @@ class ReminderLabActivity : ComponentActivity() {
                 Button(onClick = {
                     ReminderLabService.hide(this@ReminderLabActivity)
                     ReminderLabState.reset(sharedSettings)
-                    durationInput = "900"; remainingInput = "900"; inputError = null
+                    durationInput = "900"; remainingInput = "900"; overtime = false; inputError = null
                 }) { Text("重置模拟状态") }
                 TextButton(onClick = { finish() }) { Text("退出实验室") }
                 Spacer(Modifier.height(16.dp))

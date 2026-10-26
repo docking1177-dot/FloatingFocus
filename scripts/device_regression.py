@@ -31,6 +31,7 @@ class Device:
         self.serial, self.output = serial, output
         self.exe = str(ROOT / '.tools/android-sdk/platform-tools/adb.exe')
         self.launch_timeouts = 0
+        self.hierarchy_retries = 0
 
     def adb(self, *args, data=None):
         return subprocess.run([self.exe, '-s', self.serial, *map(str, args)], input=data,
@@ -57,8 +58,14 @@ class Device:
 
     def dump(self):
         # A failed UIAutomator dump may leave an old file behind and still exit 0.
-        self.shell('rm', '-f', '/sdcard/ff-regression.xml')
-        status = self.shell('uiautomator', 'dump', '/sdcard/ff-regression.xml')
+        for attempt in range(3):
+            self.shell('rm', '-f', '/sdcard/ff-regression.xml')
+            status = self.shell('uiautomator', 'dump', '/sdcard/ff-regression.xml')
+            if 'dumped to:' in status:
+                break
+            if attempt < 2:
+                self.hierarchy_retries += 1
+                time.sleep(.5)
         assert 'dumped to:' in status, 'UIAutomator did not produce a fresh hierarchy: ' + status.strip()
         raw = self.adb('shell', 'cat', '/sdcard/ff-regression.xml')
         (self.output / 'current.xml').write_bytes(raw)
@@ -151,6 +158,12 @@ class Device:
             time.sleep(.25)
         assert 'com.android.gallery3d' in self.foreground(), 'Target App did not become foreground'
         assert self.overlay()
+        # addView first exposes an invisible [0, inset] frame, before measured placement.
+        # The unpositioned fixture has no saved anchor; wait for its actual right inset.
+        deadline = time.monotonic() + 8
+        while abs(self.frame()[2] - (self.width - round(16*self.density))) > 2 and time.monotonic() < deadline:
+            time.sleep(.15)
+        assert abs(self.frame()[2] - (self.width - round(16*self.density))) <= 2, 'Initial overlay placement not ready'
 
     def finish(self):
         self.start()
@@ -280,13 +293,23 @@ def inline(d):
         raise AssertionError('Countdown did not enter overtime')
     d.shot('inline-expired-compact')
     d.overlay_tap('加时', .27, .64)
+    time.sleep(1)  # allow embedded native wheels and window measurement to settle
     d.shot('inline-add-default-two')
-    d.overlay_tap('增加一分钟', .78, .51)
-    d.overlay_tap('取消', .28, .70)
+    editor = d.frame()
+    x,y,r,b = editor
+    d.shell('input', 'swipe', int(x+(r-x)*.65), int(y+(b-y)*.68), int(x+(r-x)*.65), int(y+(b-y)*.36), 650)
+    time.sleep(.5)
+    assert d.frame() == editor, 'Wheel gesture moved overlay'
+    d.shot('inline-wheel-scrolled')
+    d.overlay_tap('\u53d6\u6d88', .35, .82)
     assert d.records()[-1]['plannedMillis'] == 60000
     d.overlay_tap('加时', .27, .64)
-    d.overlay_tap('减少一分钟', .23, .51)
-    d.overlay_tap('确认加时', .66, .70)
+    time.sleep(1)
+    x,y,r,b = d.frame()
+    d.shell('input', 'swipe', int(x+(r-x)*.35), int(y+(b-y)*.36), int(x+(r-x)*.35), int(y+(b-y)*.68), 650)
+    time.sleep(.6)
+    d.shot('inline-wheel-one-minute')
+    d.overlay_tap('\u786e\u8ba4\u52a0\u65f6', .65, .82)
     time.sleep(1.2)
     added = d.records()[-1]
     assert added['id'] == original['id'] and added['plannedMillis'] == 120000
@@ -392,6 +415,7 @@ def main():
             except Exception as error:
                 result['status'], result['restoreError'] = 'failed', str(error)
         result['activityWaitTimeouts'] = d.launch_timeouts
+        result['hierarchyRetries'] = d.hierarchy_retries
         (out / 'results.json').write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8')
         print('Result: ' + str(out / 'results.json'), flush=True)
     if result['status'] != 'passed':
