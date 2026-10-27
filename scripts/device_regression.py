@@ -18,6 +18,7 @@ from source_state import ROOT, sha256, source_state
 from device_settings import settings
 from device_preferences import preferences
 from device_c4 import c4
+from device_onboarding import onboarding
 
 PACKAGE = 'app.floatingfocus'
 
@@ -383,7 +384,7 @@ def inline(d):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--serial', default='emulator-5554')
-    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'settings', 'home', 'preferences', 'c4', 'all'], default='all')
+    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'settings', 'home', 'preferences', 'c4', 'onboarding', 'all'], default='all')
     p.add_argument('--apk', type=Path, default=ROOT / 'app/build/outputs/apk/debug/app-debug.apk')
     p.add_argument('--allow-test-data-changes', action='store_true')
     args = p.parse_args()
@@ -403,7 +404,7 @@ def main():
         d.density = int(re.findall(r'\d+', d.shell('wm', 'density'))[-1]) / 160
         assert 'package:' in d.shell('pm', 'path', 'com.android.gallery3d'), 'Gallery fixture App missing'
         # Install only if absent. Reinstall after backup exercises upgrade preservation.
-        if 'package:' not in d.shell('pm', 'path', PACKAGE):
+        if 'package:'+PACKAGE not in d.shell('pm', 'list', 'packages', PACKAGE).splitlines():
             assert 'Success' in d.adb('install', str(args.apk)).decode()
         assert d.overlay() is None, 'End the existing test timer before regression'
         d.stop()
@@ -423,7 +424,7 @@ def main():
         # These grants are test-emulator setup only, not production app permission requests.
         d.shell('appops', 'set', PACKAGE, 'SYSTEM_ALERT_WINDOW', 'allow')
         d.shell('pm', 'grant', PACKAGE, 'android.permission.POST_NOTIFICATIONS')
-        for suite in (['smoke', 'edges', 'inline', 'settings', 'home', 'preferences', 'c4'] if args.suite == 'all' else [args.suite]):
+        for suite in (['smoke', 'edges', 'inline', 'settings', 'home', 'preferences', 'c4', 'onboarding'] if args.suite == 'all' else [args.suite]):
             d.shell('logcat', '-c')
             result['details'][suite] = globals()[suite](d)
             runtime = d.shell('logcat', '-d', '-s', 'AndroidRuntime:*')

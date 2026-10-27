@@ -57,7 +57,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
-import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -66,8 +65,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val onboarding = OnboardingStore.get(this)
         TimerRecordStore.get(this)
-        setContent { FocusTheme { FocusScreen() } }
+        setContent {
+            val completed by onboarding.completed.collectAsStateWithLifecycle()
+            if (completed) FocusTheme { FocusScreen() }
+            else OnboardingScreen(onComplete = { onboarding.complete() }, onExit = { finish() },
+                onRequestPermission = { OverlayPermission.request(this) })
+        }
     }
 
     @Composable
@@ -79,7 +84,7 @@ class MainActivity : ComponentActivity() {
         var seconds by rememberSaveable { mutableIntStateOf(900) }
         var customSeconds by rememberSaveable { mutableIntStateOf(60) }
         var strategyError by rememberSaveable { mutableStateOf<String?>(null) }
-        var overlayAllowed by remember { mutableStateOf(Settings.canDrawOverlays(this)) }
+        val overlayAllowed by rememberOverlayPermission()
         var notificationAllowed by remember { mutableStateOf(hasNotificationPermission()) }
         var permissionMessage by rememberSaveable { mutableStateOf<String?>(null) }
         var permissionHelp by rememberSaveable { mutableStateOf(false) }
@@ -93,7 +98,6 @@ class MainActivity : ComponentActivity() {
         DisposableEffect(lifecycle) {
             val observer = LifecycleEventObserver { _, event ->
                 if (event == Lifecycle.Event.ON_RESUME) {
-                    overlayAllowed = Settings.canDrawOverlays(this@MainActivity)
                     notificationAllowed = hasNotificationPermission()
                 }
             }
@@ -163,7 +167,7 @@ class MainActivity : ComponentActivity() {
                             }
                         } else {
                             Button(enabled = !quickStarting, onClick = {
-                                if (!Settings.canDrawOverlays(this@MainActivity)) permissionHelp = true
+                                if (!OverlayPermission.granted(this@MainActivity)) permissionHelp = true
                                 else {
                                     strategyError = ReminderSettingsStore.get(this@MainActivity).settings.value.strategy.validationError(seconds * 1000L, mode)
                                     if (strategyError == null) FloatingService.start(this@MainActivity, seconds * 1000L, mode)
@@ -227,7 +231,7 @@ class MainActivity : ComponentActivity() {
                 text = { Text("请在系统设置中允许 Floating Focus「显示在其他应用上层」。授权后返回，再点击开始。我们不会读取屏幕内容。") },
                 confirmButton = { TextButton(onClick = {
                     permissionHelp = false
-                    if (!openSettings(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:$packageName".toUri()))) {
+                    if (!OverlayPermission.request(this@MainActivity)) {
                         permissionMessage = "无法打开悬浮窗设置，请在系统应用设置中手动授权。"
                     }
                 }) { Text("前往系统设置") } },

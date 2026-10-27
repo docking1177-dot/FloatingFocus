@@ -46,10 +46,15 @@ class SettingsActivity : ComponentActivity() {
             val editing = presetId != null
             var page by rememberSaveable { mutableStateOf(if (intent.getBooleanExtra("open_strategy", false)) "strategy" else if (editing) "appearance" else intent.getStringExtra("settings_page")?.takeIf { it == "durations" } ?: "home") }
             val back: () -> Unit = { page = if (editing) "appearance" else if (page == "strategy") "reminders" else "home" }
-            BackHandler(enabled = page != "home" && (!editing || page != "appearance"), onBack = back)
+            BackHandler(enabled = page != "home" && page != "tutorial" && (!editing || page != "appearance"), onBack = back)
             if (!editing && page == "home") {
                 SettingsHome(onBack = { finish() }, onOverlay = { page = "appearance" },
-                    onDurations = { page = "durations" }, onReminders = { page = "reminders" })
+                    onDurations = { page = "durations" }, onReminders = { page = "reminders" }, onTutorial = { page = "tutorial" })
+                return@FocusTheme
+            }
+            if (!editing && page == "tutorial") {
+                OnboardingScreen(onComplete = { OnboardingStore.get(this).complete(); finish() }, onExit = back,
+                    onRequestPermission = { OverlayPermission.request(this) })
                 return@FocusTheme
             }
             if (!editing && page == "reminders") {
@@ -147,7 +152,7 @@ class SettingsActivity : ComponentActivity() {
 }
 
 @Composable
-private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onDurations: () -> Unit, onReminders: () -> Unit) {
+private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onDurations: () -> Unit, onReminders: () -> Unit, onTutorial: () -> Unit) {
     Scaffold { insets ->
         Column(Modifier.fillMaxSize().padding(insets)) {
             Box(Modifier.fillMaxWidth().height(64.dp)) {
@@ -159,7 +164,7 @@ private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onDurations:
             Spacer(Modifier.height(16.dp))
             Surface(color = MaterialTheme.colorScheme.surface) {
                 Column {
-                    listOf("悬浮窗" to onOverlay, "常用时长" to onDurations, "提醒" to onReminders).forEachIndexed { index, (label, action) ->
+                    listOf("悬浮窗" to onOverlay, "常用时长" to onDurations, "提醒" to onReminders, "使用教程" to onTutorial).forEachIndexed { index, (label, action) ->
                         if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 24.dp))
                         Row(Modifier.fillMaxWidth().clickable(onClick = action).heightIn(min = 64.dp).padding(horizontal = 24.dp, vertical = 16.dp),
                             verticalAlignment = Alignment.CenterVertically) {
