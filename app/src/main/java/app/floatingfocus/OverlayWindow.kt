@@ -53,7 +53,10 @@ private class FloatingLifecycleOwner : LifecycleOwner, ViewModelStoreOwner, Save
     }
 }
 
-class OverlayWindow(private val context: Context, private val onFailure: (RuntimeException) -> Unit) {
+class OverlayWindow(private val context: Context,
+                    private val initialPosition: OverlayAnchor? = null,
+                    private val onPositionChanged: (OverlayAnchor) -> Unit = {},
+                    private val onFailure: (RuntimeException) -> Unit) {
     private val manager = context.getSystemService(WindowManager::class.java)
     private val owner = FloatingLifecycleOwner()
     private val composeView = ComposeView(context)
@@ -61,11 +64,13 @@ class OverlayWindow(private val context: Context, private val onFailure: (Runtim
     private var dragStartY = 0
     private val view = OverlayTouchLayout(context,
         onDragStart = { dragStartX = params.x; dragStartY = params.y },
-        onDrag = ::dragTo)
+        onDrag = ::dragTo, onDragEnd = ::persistPosition)
     private var attached = false
     private var closed = false
     private var positioned = false
     private val position = OverlayPosition()
+    private var rememberedAnchor = initialPosition
+    private var positionChanged = false
     private var ownerCreated = false
     // Raw drag coordinates use the physical left edge, also in RTL locales.
     @SuppressLint("RtlHardcoded")
@@ -90,6 +95,7 @@ class OverlayWindow(private val context: Context, private val onFailure: (Runtim
         view.setViewTreeViewModelStoreOwner(owner)
         composeView.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         composeView.setContent(content)
+        view.alpha = 0f // reveal only after the first measured position is restored
         view.addView(composeView, FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT))
         view.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
@@ -101,6 +107,7 @@ class OverlayWindow(private val context: Context, private val onFailure: (Runtim
                 update()
             }
             clampPosition()
+            view.alpha = 1f
         }
         try {
             manager.addView(view, params)
@@ -128,6 +135,7 @@ class OverlayWindow(private val context: Context, private val onFailure: (Runtim
     fun clampPosition() {
         if (!attached || closed || !positioned) return
         val size = safeSize()
+        rememberedAnchor?.let { position.restore(it, size.x, size.y) }
         val (x, y) = position.place(view.width, view.height, size.x, size.y)
         if (params.x == x && params.y == y) return
         params.x = x
@@ -143,6 +151,7 @@ class OverlayWindow(private val context: Context, private val onFailure: (Runtim
 
     fun close() {
         if (closed) return
+        persistPosition()
         closed = true
         composeView.disposeComposition()
         if (ownerCreated) owner.destroy()
@@ -157,7 +166,15 @@ class OverlayWindow(private val context: Context, private val onFailure: (Runtim
         params.x = (dragStartX + dx).roundToInt().coerceIn(0, (size.x - view.width).coerceAtLeast(0))
         params.y = (dragStartY + dy).roundToInt().coerceIn(0, (size.y - view.height).coerceAtLeast(0))
         position.anchor(params.x, params.y, view.width, view.height)
+        rememberedAnchor = position.snapshot(size.x, size.y)
+        positionChanged = true
         update()
+    }
+
+    private fun persistPosition() {
+        if (!positionChanged) return
+        positionChanged = false
+        rememberedAnchor?.let(onPositionChanged)
     }
 
     private fun dp(value: Int) = (value * context.resources.displayMetrics.density).roundToInt()

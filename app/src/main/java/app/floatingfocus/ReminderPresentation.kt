@@ -5,13 +5,14 @@ import kotlin.math.pow
 
 /** Immutable input shared by the real clock and the isolated debug simulator. */
 data class ReminderSnapshot(val remainingMillis: Long, val progress: Float, val overtimeMillis: Long = 0,
-                            val mode: TimerMode = TimerMode.COUNTDOWN, val elapsedMillis: Long = 0) {
+                            val mode: TimerMode = TimerMode.COUNTDOWN, val elapsedMillis: Long = 0,
+                            val durationMillis: Long = 0) {
     val stage: ReminderStage get() = ReminderPolicy.stage(progress)
 
     companion object {
         fun at(timer: Countdown, now: Long) = ReminderSnapshot(
             timer.remainingAt(now), timer.progressAt(now),
-            timer.overtimeAt(now), timer.mode, timer.elapsedAt(now))
+            timer.overtimeAt(now), timer.mode, timer.elapsedAt(now), timer.durationMillis)
     }
 }
 
@@ -35,7 +36,11 @@ data class ReminderSettings(
     val baseSize: Float = 1f,
     val opacity: Float = 0.94f,
     val color: OverlayColor = OverlayColor.GRAPHITE,
-    val shape: OverlayShape = OverlayShape.ROUNDED_RECTANGLE
+    val shape: OverlayShape = OverlayShape.ROUNDED_RECTANGLE,
+    // style remains for legacy storage and the debug confirmation experiment.
+    val colorEnabled: Boolean = style == ReminderStyle.COLOR,
+    val sizeEnabled: Boolean = style == ReminderStyle.SIZE,
+    val strategy: ReminderStrategy = ReminderStrategy()
 ) {
     init {
         require(intensity.isFinite() && intensity in 0f..1f)
@@ -68,8 +73,9 @@ object ReminderPresenter {
         settings: ReminderSettings = ReminderSettings(),
         acknowledgedStage: ReminderStage? = null
     ): ReminderPresentation {
-        val p = snapshot.progress.coerceIn(0f, 1f)
-        val finished = snapshot.stage == ReminderStage.FINISHED
+        val p = settings.strategy.effectProgress(snapshot)
+        val stage = settings.strategy.stage(snapshot)
+        val finished = stage == ReminderStage.FINISHED
         val baseColor = settings.color.argb
         val color = when (settings.colorMode) {
             ChangeMode.STEPS -> when {
@@ -100,12 +106,12 @@ object ReminderPresenter {
                 else -> "◷  ${formatRemaining(snapshot.remainingMillis)}"
             },
             finished = finished,
-            colorArgb = if (settings.style == ReminderStyle.COLOR) mix(baseColor, color, settings.intensity) else baseColor,
-            size = settings.baseSize * if (settings.style == ReminderStyle.SIZE) 1f + 0.5f * sizeProgress * settings.intensity else 1f,
+            colorArgb = if (settings.colorEnabled) mix(baseColor, color, settings.intensity) else baseColor,
+            size = settings.baseSize * if (settings.sizeEnabled) 1f + 0.5f * sizeProgress * settings.intensity else 1f,
             opacity = settings.opacity,
-            pulseDepth = if (snapshot.stage == ReminderStage.URGENT) HIGHLIGHT_DEPTH * settings.intensity else 0f,
+            pulseDepth = if (stage == ReminderStage.URGENT) HIGHLIGHT_DEPTH * settings.intensity else 0f,
             confirmationRequired = settings.style == ReminderStyle.CONFIRM &&
-                snapshot.stage != ReminderStage.QUIET && snapshot.stage != acknowledgedStage,
+                stage != ReminderStage.QUIET && stage != acknowledgedStage,
             shape = settings.shape,
             animationStrength = settings.intensity
         )

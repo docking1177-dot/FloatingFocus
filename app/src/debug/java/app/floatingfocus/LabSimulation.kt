@@ -1,5 +1,9 @@
 package app.floatingfocus
 
+/** Isolated lab strategies never overwrite the user's independent production switches. */
+fun ReminderSettings.forLabStyle(style: ReminderStyle) = copy(style = style,
+    colorEnabled = style == ReminderStyle.COLOR, sizeEnabled = style == ReminderStyle.SIZE)
+
 /** Debug-only value model. Signed remaining time: negative means overtime. Never stores a SessionState. */
 data class LabSimulation(
     val durationMillis: Long = 900_000,
@@ -17,7 +21,7 @@ data class LabSimulation(
 
     fun seek(remaining: Long) = copy(signedRemainingMillis = remaining.coerceIn(-Countdown.MAX_DURATION_MILLIS, durationMillis),
         acknowledgedStage = null, playback = null)
-    fun confirm() = copy(acknowledgedStage = snapshot.stage)
+    fun confirm(strategy: ReminderStrategy = settings.strategy) = copy(acknowledgedStage = strategy.stage(snapshot))
     fun play(now: Long) = copy(playback = Countdown(durationMillis, now - (durationMillis - signedRemainingMillis)))
     fun tick(now: Long): LabSimulation {
         val clock = playback ?: return this

@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('smoke', 'edges', 'inline', 'all')][string]$Suite = 'all',
+    [ValidateSet('smoke', 'edges', 'inline', 'settings', 'home', 'preferences', 'all')][string]$Suite = 'all',
     [ValidatePattern('^emulator-\d+$')][string]$Serial = 'emulator-5554',
     [switch]$AllowTestDataChanges
 )

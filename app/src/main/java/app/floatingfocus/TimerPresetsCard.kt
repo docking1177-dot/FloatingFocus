@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -22,7 +23,7 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 @Composable
-fun TimerPresetsCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled: Boolean, onBusyChange: (Boolean) -> Unit,
+fun TimerPresetsCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled: Boolean, onBusyChange: (Boolean) -> Unit,
                      onPermissionRequired: () -> Unit, onApplied: (Int, TimerMode) -> Unit) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -34,12 +35,14 @@ fun TimerPresetsCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
     var deleting by remember { mutableStateOf<TimerPreset?>(null) }
     var bindingApp by remember { mutableStateOf<TimerPreset?>(null) }
     var managing by rememberSaveable { mutableStateOf(false) }
+    var launchingPreset by remember { mutableStateOf<TimerPreset?>(null) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
 
     val launch: (TimerPreset) -> Unit = { preset ->
         if (enabled && !busy) {
             error = null
+            launchingPreset = preset
             val app = preset.targetApp
             if (!context.isSavedShortcut(app)) bindingApp = preset
             else if (!Settings.canDrawOverlays(context)) onPermissionRequired()
@@ -48,38 +51,44 @@ fun TimerPresetsCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
                 onBusyChange(true)
                 scope.launch {
                     try {
-                        error = launchAppWithTimer(context, lifecycle, app!!, preset.minutes, preset.settings, preset.mode)
-                        if (error == null) onApplied(preset.minutes, preset.mode)
+                        error = launchAppWithTimer(context, lifecycle, app!!, preset.durationSeconds, preset.settings, preset.mode, preset.id)
+                        if (error == null) onApplied(preset.durationSeconds, preset.mode)
                     } finally { busy = false; onBusyChange(false) }
                 }
             }
         }
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    val createPreset: () -> Unit = {
+        saving = TimerPreset(UUID.randomUUID().toString(), if (mode == TimerMode.STOPWATCH) "正计时" else durationLabel(seconds),
+            (seconds / 60).coerceAtLeast(1), ReminderSettingsStore.get(context).settings.value, mode, durationSeconds = seconds)
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("预设方案", style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
-            TextButton(enabled = enabled && !busy, onClick = {
-                saving = TimerPreset(UUID.randomUUID().toString(), if (mode == TimerMode.STOPWATCH) "正计时" else "$minutes 分钟", minutes,
-                    ReminderSettingsStore.get(context).settings.value, mode)
-            }) { Text("保存当前") }
-            if (presets.isNotEmpty()) TextButton(enabled = enabled && !busy, onClick = { managing = true }) { Text("管理") }
+            Text("我的预设", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            TextButton(enabled = enabled && !busy, onClick = createPreset) { Text("保存当前", style = MaterialTheme.typography.labelMedium) }
+            if (presets.isNotEmpty()) TextButton(enabled = enabled && !busy, onClick = { managing = true }) { Text("管理", style = MaterialTheme.typography.labelMedium) }
         }
-        presets.chunked(2).forEach { pair ->
+        (presets + listOf<TimerPreset?>(null)).chunked(2).forEach { pair ->
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 pair.forEach { preset ->
-                    key(preset.id) {
-                        OutlinedButton(enabled = enabled && !busy, onClick = { launch(preset) },
-                            shape = RoundedCornerShape(16.dp), contentPadding = PaddingValues(12.dp),
-                            modifier = Modifier.weight(1f).fillMaxHeight().heightIn(min = 96.dp)
-                                .semantics { contentDescription = "启动预设 ${preset.name}" }) {
-                            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text(preset.name, style = MaterialTheme.typography.titleSmall,
+                    key(preset?.id ?: "new-preset") {
+                        OutlinedButton(enabled = enabled && !busy, onClick = { if (preset == null) createPreset() else launch(preset) },
+                            shape = RoundedCornerShape(14.dp), contentPadding = PaddingValues(12.dp),
+                            modifier = Modifier.weight(1f).fillMaxHeight().heightIn(min = 108.dp)
+                                .semantics { contentDescription = if (preset == null) "新建预设" else "启动预设 ${preset.name}" }) {
+                            if (preset == null) Column(horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("+", style = MaterialTheme.typography.headlineSmall)
+                                Text("新建预设", style = MaterialTheme.typography.bodySmall)
+                            } else Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text(preset.name, style = MaterialTheme.typography.bodySmall,
                                     maxLines = 2, overflow = TextOverflow.Ellipsis)
-                                Text(preset.targetApp?.label ?: "选择 App", style = MaterialTheme.typography.bodySmall,
-                                    maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                Text(if (preset.mode == TimerMode.STOPWATCH) "正计时" else "${preset.minutes} 分钟",
-                                    style = MaterialTheme.typography.labelLarge)
+                                if (preset.targetApp?.label != preset.name) Text(preset.targetApp?.label ?: "选择 App",
+                                    style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Text(if (preset.mode == TimerMode.STOPWATCH) "正计时" else durationLabel(preset.durationSeconds),
+                                    style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                Text("点击启动", style = MaterialTheme.typography.labelSmall)
                             }
                         }
                     }
@@ -90,6 +99,7 @@ fun TimerPresetsCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
         if (busy) Text("正在启动…", style = MaterialTheme.typography.bodySmall)
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
     }
+    error?.takeIf { it.contains("提醒策略") }?.let { message -> StrategyConflictDialog(message, launchingPreset?.durationSeconds ?: seconds, launchingPreset?.id, { error = null }) }
     saving?.let { preset -> PresetSaveDialog(preset, { saving = null }) { saved ->
         store.save(saved); saving = null
     } }
@@ -108,7 +118,7 @@ fun TimerPresetsCard(minutes: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
                 Column {
                     Text(preset.name, style = MaterialTheme.typography.titleSmall)
                     Text(preset.targetApp?.label ?: "未绑定 App", style = MaterialTheme.typography.bodySmall)
-                    Text("${if (preset.mode == TimerMode.STOPWATCH) "正计时" else "${preset.minutes} 分"} · ${preset.settings.shape.label} · ${preset.settings.color.label}", style = MaterialTheme.typography.bodySmall)
+                    Text("${if (preset.mode == TimerMode.STOPWATCH) "正计时" else durationLabel(preset.durationSeconds)} · ${preset.settings.shape.label} · ${preset.settings.color.label}", style = MaterialTheme.typography.bodySmall)
                     Row {
                         TextButton(onClick = { renaming = preset; managing = false },
                             modifier = Modifier.semantics { contentDescription = "重命名 ${preset.name}" }) { Text("重命名") }

@@ -15,6 +15,8 @@ import time
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from source_state import ROOT, sha256, source_state
+from device_settings import settings
+from device_preferences import preferences
 
 PACKAGE = 'app.floatingfocus'
 
@@ -28,6 +30,8 @@ class Device:
     def __init__(self, serial, output):
         self.serial, self.output = serial, output
         self.exe = str(ROOT / '.tools/android-sdk/platform-tools/adb.exe')
+        self.launch_timeouts = 0
+        self.hierarchy_retries = 0
 
     def adb(self, *args, data=None):
         return subprocess.run([self.exe, '-s', self.serial, *map(str, args)], input=data,
@@ -41,10 +45,28 @@ class Device:
 
     def start(self):
         launch = self.shell('am', 'start', '-W', '-n', PACKAGE + '/.MainActivity')
-        assert 'Status: ok' in launch, 'Activity launch failed: ' + launch.strip()
+        with (self.output / 'activity-launch.txt').open('a', encoding='utf-8') as file:
+            file.write(launch + '\n')
+        if 'Status: ok' not in launch:
+            # Some emulator sessions time out in ActivityManager's wait despite
+            # a resumed interactive Activity. Never accept that status alone.
+            assert 'Status: timeout' in launch and PACKAGE + '/.MainActivity' in self.foreground(), 'Activity launch failed: ' + launch.strip()
+            tree = self.dump()
+            assert any(n.get('text') == 'Floating Focus' for n in tree.iter('node')), 'Timed-out launch has no fresh home UI'
+            self.launch_timeouts += 1
+            print('WARN: ActivityManager wait timed out; foreground and fresh home UI verified. Startup latency is not a pass.', flush=True)
 
     def dump(self):
-        self.shell('uiautomator', 'dump', '/sdcard/ff-regression.xml')
+        # A failed UIAutomator dump may leave an old file behind and still exit 0.
+        for attempt in range(3):
+            self.shell('rm', '-f', '/sdcard/ff-regression.xml')
+            status = self.shell('uiautomator', 'dump', '/sdcard/ff-regression.xml')
+            if 'dumped to:' in status:
+                break
+            if attempt < 2:
+                self.hierarchy_retries += 1
+                time.sleep(.5)
+        assert 'dumped to:' in status, 'UIAutomator did not produce a fresh hierarchy: ' + status.strip()
         raw = self.adb('shell', 'cat', '/sdcard/ff-regression.xml')
         (self.output / 'current.xml').write_bytes(raw)
         return ET.fromstring(raw)
@@ -71,7 +93,7 @@ class Device:
 
     def overlay_tap(self, text, xf, yf):
         # Non-focusable TYPE_APPLICATION_OVERLAY is often omitted by UIAutomator.
-        # Fractions are the existing vertical-capsule inline regression fixture.
+        # Fractions refer to the compact inline regression fixture.
         for node in self.dump().iter('node'):
             if text in (node.get('text'), node.get('content-desc')):
                 x, y, r, b = self.bounds(node)
@@ -108,7 +130,11 @@ class Device:
     def write_prefs(self, name, values):
         tree = ET.Element('map')
         for key, value in values.items():
-            if isinstance(value, float):
+            if isinstance(value, bool):
+                ET.SubElement(tree, 'boolean', name=key, value=str(value).lower())
+            elif isinstance(value, int):
+                ET.SubElement(tree, 'int', name=key, value=str(value))
+            elif isinstance(value, float):
                 ET.SubElement(tree, 'float', name=key, value=str(value))
             else:
                 ET.SubElement(tree, 'string', name=key).text = str(value)
@@ -132,6 +158,12 @@ class Device:
             time.sleep(.25)
         assert 'com.android.gallery3d' in self.foreground(), 'Target App did not become foreground'
         assert self.overlay()
+        # addView first exposes an invisible [0, inset] frame, before measured placement.
+        # The unpositioned fixture has no saved anchor; wait for its actual right inset.
+        deadline = time.monotonic() + 8
+        while abs(self.frame()[2] - (self.width - round(16*self.density))) > 2 and time.monotonic() < deadline:
+            time.sleep(.15)
+        assert abs(self.frame()[2] - (self.width - round(16*self.density))) <= 2, 'Initial overlay placement not ready'
 
     def finish(self):
         self.start()
@@ -143,6 +175,95 @@ class Device:
         while self.overlay() is not None and time.monotonic() < deadline:
             time.sleep(.15)
         assert self.overlay() is None, 'Overlay did not stop'
+
+
+def home(d):
+    d.seed()
+    d.finish()
+    targets = [{'package': package, 'label': label} for package, label in [
+        ('com.android.gallery3d', 'Gallery'), ('com.android.documentsui', 'Files'),
+        ('com.android.messaging', 'Messaging')]
+        if 'package:' in d.shell('pm', 'path', package)]
+    assert len(targets) >= 2, 'Need two installed fixture Apps'
+    d.stop()
+    d.write_prefs('quick_launch', {'targets': json.dumps(targets)})
+    fixture = dict(settings=dict(shape='ROUNDED_RECTANGLE', color='BLUE'), minutes=15, mode='COUNTDOWN',
+                   targetPackage='com.android.gallery3d', targetLabel='Gallery')
+    d.write_prefs('timer_presets', {'items': json.dumps([dict(fixture, id='home-'+str(i), name='Home '+str(i)) for i in range(3)])})
+    d.start()
+    texts = [n.get('text', '') for n in d.dump().iter('node')]
+    assert '常规计时' in texts and not any('布局比较' in t for t in texts)
+    d.shot('home-top')
+    d.tap('自定义时长')
+    fields = [n for n in d.dump().iter('node') if n.get('class') == 'android.widget.EditText']
+    assert [n.get('text') for n in fields] == ['01', '00'], 'Custom time must default to one minute'
+    d.tap('取消')
+    d.tap('手动设置')
+    assert any(n.get('text') == '常用时长' for n in d.dump().iter('node'))
+    d.tap('返回')
+    assert any(n.get('text') == '设置' for n in d.dump().iter('node')), 'Deep-link back did not reach settings home'
+    d.shell('input', 'keyevent', 'KEYCODE_BACK')
+    assert any(n.get('text') == 'Floating Focus' for n in d.dump().iter('node')), 'Settings did not return to home'
+    d.tap('新建预设', scroll=True)
+    name = next(n for n in d.dump().iter('node') if n.get('class') == 'android.widget.EditText')
+    x,y,r,b = d.bounds(name)
+    d.tapxy((x+r)//2, (y+b)//2)
+    d.shell('input', 'keyevent', 123)
+    d.shell('input', 'keyevent', *([67]*40))
+    d.shell('input', 'text', 'HomeNew')
+    d.shell('input', 'keyevent', 'KEYCODE_BACK')
+    d.tap('Gallery')
+    d.tap('保存')
+    d.shot('home-preset-grid')
+    d.tap('启动预设 HomeNew', scroll=True)
+    assert d.overlay() and 'com.android.gallery3d' in d.foreground()
+    d.finish()
+    d.tap('添加 App', scroll=True)
+    tree = d.dump()
+    assert any(n.get('text') == '管理常用 App' for n in tree.iter('node'))
+    assert any(n.get('checked') == 'true' for n in tree.iter('node')), 'Existing apps were not retained'
+    candidate = next(n for n in tree.iter('node') if n.get('checkable') == 'true' and n.get('checked') == 'false')
+    x,y,r,b = d.bounds(candidate)
+    d.tapxy((x+r)//2, (y+b)//2)
+    d.tap('保存')
+    raw = ET.fromstring(d.adb('shell', 'run-as', PACKAGE, 'cat', 'shared_prefs/quick_launch.xml'))
+    updated = json.loads(next(n.text for n in raw if n.get('name') == 'targets'))
+    assert len(updated) == len(targets)+1 and {a['package'] for a in targets}.issubset({a['package'] for a in updated})
+    d.shot('home-app-grid')
+    tree = d.dump()
+    icons = [n for n in tree.iter('node') if n.get('content-desc', '').startswith('打开 ') and n.get('content-desc', '').endswith(' 并计时')]
+    # Four targets share a row; long names may increase the next row's height.
+    assert len(icons) >= 3
+    assert len({d.bounds(n)[1] for n in icons[:4]}) == 1, 'App shortcuts are not in the same four-column row'
+    d.tap('打开 Gallery 并计时', scroll=True)
+    assert d.overlay() and 'com.android.gallery3d' in d.foreground()
+    d.start()
+    for _ in range(4):
+        d.shell('input', 'swipe', int(d.width*.1), int(d.height*.25), int(d.width*.1), int(d.height*.9), 500)
+        time.sleep(.4)
+    d.finish()
+    d.tap('使用与提醒说明', scroll=True)
+    d.shell('input', 'swipe', d.width//2, int(d.height*.8), d.width//2, int(d.height*.4), 350)
+    assert any('离开 App 后计时仍继续' in n.get('text', '') for n in d.dump().iter('node'))
+    d.shot('home-help-expanded')
+    d.tap('收起说明')
+    assert not any('离开 App 后计时仍继续' in n.get('text', '') for n in d.dump().iter('node'))
+    try:
+        d.stop()
+        d.shell('appops', 'set', PACKAGE, 'SYSTEM_ALERT_WINDOW', 'deny')
+        d.start()
+        assert any(n.get('text') == '允许显示悬浮窗' for n in d.dump().iter('node'))
+        d.shot('home-permission-needed')
+        d.tap('开始倒计时')
+        assert any(n.get('text') == '前往系统设置' for n in d.dump().iter('node'))
+        assert d.overlay() is None
+    finally:
+        d.stop()
+        d.shell('appops', 'set', PACKAGE, 'SYSTEM_ALERT_WINDOW', 'allow')
+    d.start()
+    assert not any(n.get('text') == '允许显示悬浮窗' for n in d.dump().iter('node'))
+    return dict(fourColumnGrid=True, addAppRetainsSelection=True, newPresetEntry=True, customDefaultOneMinute=True, quickLaunch=True, collapsibleHelp=True,
+                contextualOverlayPermission=True, icons='screenshots require visual review')
 
 
 def smoke(d):
@@ -180,7 +301,13 @@ def edges(d):
                 else:
                     cx, cy = d.center()
                     d.tapxy(cx, cy - 24*d.density*1.5)
+                # Content size and WindowManager position settle on separate frames.
+                # Assert the restored result, not an intermediate resized frame.
+                deadline = time.monotonic() + 3
                 collapsed = d.frame()
+                while max(abs(a-b) for a, b in zip(initial, collapsed)) > 1 and time.monotonic() < deadline:
+                    time.sleep(.1)
+                    collapsed = d.frame()
                 assert max(abs(a-b) for a, b in zip(initial, collapsed)) <= 1, (shape, edge, initial, collapsed)
             results.append(dict(shape=shape, edge=edge, initial=initial, expanded=expanded, collapsed=collapsed))
             d.shot(shape + '-' + edge)
@@ -189,7 +316,7 @@ def edges(d):
 
 
 def inline(d):
-    d.seed('VERTICAL_CAPSULE', 'SIZE', 1)
+    d.seed('ROUNDED_RECTANGLE', 'SIZE', 1)
     initial, wid, front = d.frame(), d.overlay()[0], d.foreground()
     original = d.records()[-1]
     print('Inline: waiting for the real one-minute countdown...', flush=True)
@@ -200,14 +327,25 @@ def inline(d):
         time.sleep(1)
     else:
         raise AssertionError('Countdown did not enter overtime')
-    d.overlay_tap('加时', .27, .62)
-    d.overlay_tap('+5 分', .32, .58)
-    d.overlay_tap('取消', .28, .705)
+    d.shot('inline-expired-compact')
+    d.overlay_tap('加时', .27, .64)
+    time.sleep(1)  # allow embedded native wheels and window measurement to settle
+    d.shot('inline-add-default-two')
+    editor = d.frame()
+    x,y,r,b = editor
+    d.shell('input', 'swipe', int(x+(r-x)*.65), int(y+(b-y)*.68), int(x+(r-x)*.65), int(y+(b-y)*.36), 650)
+    time.sleep(.5)
+    assert d.frame() == editor, 'Wheel gesture moved overlay'
+    d.shot('inline-wheel-scrolled')
+    d.overlay_tap('\u53d6\u6d88', .35, .82)
     assert d.records()[-1]['plannedMillis'] == 60000
-    d.overlay_tap('加时', .27, .62)
-    for _ in range(4):
-        d.overlay_tap('减少一分钟', .23, .455)
-    d.overlay_tap('确认加时', .66, .705)
+    d.overlay_tap('加时', .27, .64)
+    time.sleep(1)
+    x,y,r,b = d.frame()
+    d.shell('input', 'swipe', int(x+(r-x)*.35), int(y+(b-y)*.36), int(x+(r-x)*.35), int(y+(b-y)*.68), 650)
+    time.sleep(.6)
+    d.shot('inline-wheel-one-minute')
+    d.overlay_tap('\u786e\u8ba4\u52a0\u65f6', .65, .82)
     time.sleep(1.2)
     added = d.records()[-1]
     assert added['id'] == original['id'] and added['plannedMillis'] == 120000
@@ -231,7 +369,7 @@ def inline(d):
     assert log.count('Timer extended:') == 1
     d.shot('inline-second-expiry')
     # End in the overlay: the large expired window can cover the Activity's button.
-    d.overlay_tap('结束计时', .68, .62)
+    d.overlay_tap('结束计时', .68, .64)
     d.wait_stopped()
     final = d.records()[-1]
     assert final['id'] == original['id'] and final['status'] == 'MANUAL'
@@ -242,7 +380,7 @@ def inline(d):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--serial', default='emulator-5554')
-    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'all'], default='all')
+    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'settings', 'home', 'preferences', 'all'], default='all')
     p.add_argument('--apk', type=Path, default=ROOT / 'app/build/outputs/apk/debug/app-debug.apk')
     p.add_argument('--allow-test-data-changes', action='store_true')
     args = p.parse_args()
@@ -282,7 +420,7 @@ def main():
         # These grants are test-emulator setup only, not production app permission requests.
         d.shell('appops', 'set', PACKAGE, 'SYSTEM_ALERT_WINDOW', 'allow')
         d.shell('pm', 'grant', PACKAGE, 'android.permission.POST_NOTIFICATIONS')
-        for suite in (['smoke', 'edges', 'inline'] if args.suite == 'all' else [args.suite]):
+        for suite in (['smoke', 'edges', 'inline', 'settings', 'home', 'preferences'] if args.suite == 'all' else [args.suite]):
             d.shell('logcat', '-c')
             result['details'][suite] = globals()[suite](d)
             runtime = d.shell('logcat', '-d', '-s', 'AndroidRuntime:*')
@@ -312,6 +450,8 @@ def main():
                 result['appDataRestored'] = True
             except Exception as error:
                 result['status'], result['restoreError'] = 'failed', str(error)
+        result['activityWaitTimeouts'] = d.launch_timeouts
+        result['hierarchyRetries'] = d.hierarchy_retries
         (out / 'results.json').write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8')
         print('Result: ' + str(out / 'results.json'), flush=True)
     if result['status'] != 'passed':

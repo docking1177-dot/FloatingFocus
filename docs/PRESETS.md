@@ -6,6 +6,8 @@
 
 ## 复用与数据边界
 
+每个预设按稳定 ID 记忆最后拖放的浮窗中心位置，拖动结束即保存，正常结束后及 App 重启后再次点击该预设会恢复。位置以安全显示区域的比例存于原 `timer_presets/items` 的 `positionX/Y`，横竖屏与尺寸变化时适配并防越界；展开、收起、动态变尺寸及加时的临时避让不覆盖位置。未拖动/旧预设缺少位置时沿用默认右上位置。重命名、编辑保留位置，删除方案同时删除位置；不同预设互不覆盖，同 App 的不同预设也分别记忆。普通手动计时/快捷启动与实验室不写入任何预设位置。无需增加权限。
+
 - `TimerPreset` 保存稳定 ID、名称（1—40 字符）、分钟数（1—180）、计时模式、绑定 App 的包名与显示名和整个 `ReminderSettings` 快照。参数范围、默认值和兼容解码沿用 `ReminderSettingsCodec`。
 - `TimerPresetStore` 使用本地 SharedPreferences 的 `timer_presets/items` JSON 数组及进程内 StateFlow；无账号、网络、云同步。记录按 ID 更新，损坏的单条记录跳过，重复 ID 保留首条；整个 JSON 损坏时安全返回空列表。
 - `AppTimerLauncher` 从原快捷启动流程提取，常用 App 与方案共用。正式 `FloatingService`、悬浮权限、计时数据和提醒全部复用，添加快捷 App 时仍使用 `launchableApps()`；预设选择仅使用 `quick_launch` 中的列表，不读取使用情况、不启用自动监测或无障碍服务。

@@ -4,19 +4,25 @@
 
 - Android 原生 Kotlin / Jetpack Compose 悬浮渐进提醒计时器，包名 `app.floatingfocus`。
 - 保持轻量：功能变更以当前需求为界，不顺带扩展权限、依赖或后台保活机制。
-- 首页服务于快速开始计时：优先呈现时长选择、开始按钮和常用 App 快捷启动；不放重复的大型时间展示。运行状态采用紧凑、可操作的表达，时间感知主要交给悬浮窗；删减内容时同步收紧首屏间距。
+- 首页使用「常规计时」「我的预设」「打开 App 并计时」三张卡片分组，配色沿用产品主题；时长档位四格等宽，预设双列、快捷 App 四列图标网格，末尾分别提供新建预设/添加 App，管理入口保留。自定义时长独立记住本页最近选择，首次 1 分钟，不改普通计时默认档位。首页服务于快速开始计时：优先呈现时长选择、开始按钮和常用 App 快捷启动；不放重复的大型时间展示。运行状态采用紧凑、可操作的表达，时间感知主要交给悬浮窗；删减内容时同步收紧首屏间距。
+- 快捷 App 用本机应用图标与名称辨识，共同启动说明放在分组层级，不在每个按钮重复。首页操作区与帮助区明确分隔；操作/提醒规则默认折叠，缺失权限才显示对应提示，阻断启动的权限提示靠近开始操作。图标读取失败使用占位，不新增权限或图像依赖；入口为 `AppIcon.kt` / `QuickLaunchCard.kt`。
 - 界面文案从简：只保留操作、状态、必要说明与错误提示；删除宣传语、情绪性文案、重复提示和非必要的颜色阶段介绍，并收起删除后多余的留白。可保留 Floating Focus 标题，不以精简为由删去权限说明、操作指引或必要的调试信息。
 - 外观设置需要即时可见的反馈：优先复用真实渲染组件，调参时保持预览可见；预览状态不进入真实计时，也不触发服务或震动。保留必要说明，明确预览进度与真实进度的区别。
+- 设置首页使用文字条目进入具体参数页，不为列表样式添加无实际用途的搜索/分类。可组合的提醒效果使用独立开关，变色与变尺寸共享计时进度但互不排斥，旧配置按原行为迁移。
+- 常用时长由 `QuickDurations.kt` 保存首页四个独立秒数值，兼容旧分钟存储，入口为「常用时长」，不与完整计时预设混用。用户选择时长统一复用 `DurationPicker.kt` 的分秒滚轮（包括自定义、常用、预设编辑、浮窗加时和实验室），保留各入口的上下限；纯展示、进度百分比不改成选时器。入口整行可点并带箭头；浮窗滚轮滑动不能带动窗口。
+- 提醒节点在 `ReminderStrategy.kt`，统一供服务、渲染、预览及实验室使用；`TimerPreferencesScreens.kt` 用一条进度轴编辑两级节点，每级仅选进度或剩余时间，按实际总时长计算位置。启动、预设启动和加时前统一校验第二级严格早于第三级，冲突阻止开始并引导修改，不交换节点或改写用户值。旧多条件/无条件节点要求用户明确选择；默认 50%/80%，归零/超时仍走原链路。策略复用现有存储及预设快照。
+- 预设按稳定 ID 保存最后拖放的位置，使用安全显示区域比例适配横竖屏；只持久化用户拖动，不让展开、缩放、加时的临时防越界改写位置。重命名/编辑保留，删除一并移除；普通计时和实验室不写入预设位置。
 - 主动归纳用户反复强调或明确确认的产品取舍，在相关改动中同步更新本指南，无需等待单独要求写文档。记录原则、适用边界与代码入口，不把一次性的实现选择扩大成永久规则，不擅自扩大功能或权限范围。
 - 主界面在 `MainActivity.kt`；会话和前台服务在 `FloatingService.kt`；计时模型在 `Countdown.kt`。
 - 浮窗宿主与边界在 `OverlayWindow.kt`，整个窗口的手势分发在 `OverlayTouchLayout.kt`，手势状态在 `OverlayDragGesture.kt`，内容在 `FocusOverlay.kt`。
 - 提醒策略与渲染数据在 `ReminderPresentation.kt`；阶段色差和提醒动画应清晰可辨，提亮通过背景颜色完成，不降低用户设置的不透明度；文字和图标随背景选择可读的前景色。实验室仅在 `app/src/debug/`，不得把模拟状态写入正式服务。使用与设计按需看 `docs/REMINDER_LAB.md`。
 - 正式外观设置在 `SettingsActivity.kt`，统一由 `ReminderSettingsStore.kt` 持久化并实时共享；实验室只读取外观配置，不新增平行调参入口。颜色/形状、版本边界及震动链路见 `docs/SETTINGS.md`，归零单次触发由 `CompletionReminder.kt` 管理。
 - 浮窗透明度统一作用于背景、文字和图标，不添加独立不透明的文字底色；基础尺寸与动态倍率只应用一次，禁止用自动缩字结果循环决定窗口尺寸。展开、收起及加时面板复用同一个浮窗，临时防越界不能覆盖用户位置锚点；`OverlayPosition.kt` 区分用户拖动与内容缩放。时间区域不使用矩形点击波纹。`OverlayGeometry.kt` 负责几何计算，`OverlayShapePicker.kt` 提供三种图形化选择，保留旧形状配置键兼容。
+- 展开/到时面板优先收紧内容与形状留白，保持与第三级提醒的视觉连续性，不通过覆盖基础大小或动态倍率来缩小。浮窗内加时使用紧凑分秒滚轮、取消和主操作「确认加时」，默认 2 分钟；不跳转页面或创建第二个窗口。
 - 预设方案在 `TimerPreset.kt` / `TimerPresetStore.kt`，保存时长及完整外观快照；入口与管理在 `TimerPresetsCard.kt`；预设按双列网格随页面纵向浏览，显示名称、目标 App 和时长，不依赖横向滑动。与快捷启动分区区分：前者使用保存配置，后者使用当前配置。编辑复用 `SettingsActivity` 的独立草稿，取消不写回；预设绑定的 App 仅通过 `ShortcutAppPicker.kt` 从现有快捷列表选择，点击预设直接启动；旧预设先补绑定。复用 `AppTimerLauncher.kt` 和正式计时服务，禁止新建平行计时系统。行为及存储见 `docs/PRESETS.md`。
 - 倒计时归零后继续显示超时正计时，独立正计时也复用 `Countdown` / `FloatingService`，正计时不得触发归零提醒。到时加时直接在 `FocusOverlay.kt` 内调节并确认，不跳转 Activity、不销毁重建窗口，从确认时开始新一段，保留同一会话、既有累计时长和超时，防止旧页面或重复操作误加时。时长记录在 `TimerRecord.kt` / `TimerRecordStore.kt`，查看及 CSV 导出在 `HistoryActivity.kt`；记录 FF 会话而非 App 前台使用时间。进程异常结束只能保证最后持久化进度，恢复须标注约计，禁止把停机时间累计进去或承诺精确捕获强杀时刻。划掉 FF 时结算并停止，不新增监测权限、保活或自动重启。见 `docs/TIME_RECORDS.md`。
 - App 自动计时已 Deferred：`FeatureFlags.APP_USAGE_AUTO_TIMER=false`，禁止未经新需求重新启用或继续优化监测；保留代码和测试，进度/恢复步骤见 `docs/AUTO_TRIGGER.md`。禁止无障碍路径。
-- 一键打开目标 App + 手动计时在 `QuickLaunchCard.kt`，复用 `FloatingService`；多选迁移在 `QuickLaunchTargets.kt`，App 列表在 `LaunchableApps.kt`。Debug 的 `QuickLaunchLayoutPicker.kt` 提供布局比较，Release 固定列表。不读取使用事件，行为与验收见 `docs/QUICK_LAUNCH.md`。
+- 一键打开目标 App + 手动计时在 `QuickLaunchCard.kt`，复用 `FloatingService`；多选迁移在 `QuickLaunchTargets.kt`，App 列表在 `LaunchableApps.kt`。已确认四列图标网格，Debug/Release 统一，移除布局比较入口。不读取使用事件，行为与验收见 `docs/QUICK_LAUNCH.md`。
 - 上述源码均位于 `app/src/main/java/app/floatingfocus/`；JVM 测试在 `app/src/test/`。
 
 ## 工作与检查
@@ -28,7 +34,7 @@
 - 本机离线复用已有缓存：为以上命令添加 `-Offline`；有本地 Maven init 脚本时自动使用。
 - 完整日志与最新摘要在 `.tools/checks/`，成功时只需阅读摘要，失败再查看相关日志。
 - 检查结果绑定源码 commit/内容指纹、任务范围和 APK SHA256；复用前核对，检查期间源码改变则失败。每次保留独立 JSON，不只保留 latest。脚本回归：`python -m unittest discover -s scripts/tests -v`。
-- 已固化的设备回归用 `scripts/test-device.ps1`（smoke/edges/inline/all）；仅专用模拟器、备份还原数据，详见 `docs/CHECKS.md`。不用 `.tools` 中旧的一次性脚本作正式入口。
+- 已固化的设备回归用 `scripts/test-device.ps1`（smoke/edges/inline/settings/home/preferences/all）；仅专用模拟器、备份还原数据，详见 `docs/CHECKS.md`。不用 `.tools` 中旧的一次性脚本作正式入口。
 - 文档修改不用重建 APK；开发脚本修改验证相应脚本即可。应用改动运行相关检查，已有通过结果可复用，避免无理由重复全量检查。
 - 触摸、权限、服务或窗口边界修改，需要实际模拟器/设备回归。Emulator 模式仅验证安装启动，不自动证明交互通过。
 - 报告区分源码检查、JVM 单测、模拟器和真机结果；未执行的项目不能写成通过。
