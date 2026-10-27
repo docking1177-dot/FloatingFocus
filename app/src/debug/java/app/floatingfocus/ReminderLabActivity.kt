@@ -40,7 +40,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -58,7 +57,7 @@ class ReminderLabActivity : ComponentActivity() {
     @Composable
     private fun LabScreen() {
         val sharedSettings by ReminderSettingsStore.get(this).settings.collectAsStateWithLifecycle()
-        val lab = ReminderLabState.simulation.let { it.copy(settings = sharedSettings.forLabStyle(it.settings.style)) }
+        val lab = ReminderLabState.simulation.copy(settings = sharedSettings)
         var durationInput by rememberSaveable { mutableStateOf("900") }
         var remainingInput by rememberSaveable { mutableStateOf("900") }
         var inputError by rememberSaveable { mutableStateOf<String?>(null) }
@@ -74,7 +73,7 @@ class ReminderLabActivity : ComponentActivity() {
         Scaffold { insets ->
             Column(Modifier.fillMaxSize().padding(insets).verticalScroll(rememberScrollState()).padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("提醒实验室", style = MaterialTheme.typography.headlineSmall)
+                Text("开发者模式", style = MaterialTheme.typography.headlineSmall)
                 Text("Debug · 仅模拟，不修改正式计时。返回退出会关闭实验悬浮窗；按 Home 可跨应用查看。",
                     style = MaterialTheme.typography.bodySmall)
                 Text("实时预览", style = MaterialTheme.typography.titleMedium)
@@ -82,27 +81,18 @@ class ReminderLabActivity : ComponentActivity() {
                     animationRequest = ReminderLabState.animationRequest,
                     onConfirm = { ReminderLabState.simulation = ReminderLabState.simulation.confirm(sharedSettings.strategy) },
                     onStop = { ReminderLabService.hide(this@ReminderLabActivity) })
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(onClick = {
                         if (Settings.canDrawOverlays(this@ReminderLabActivity)) ReminderLabService.show(this@ReminderLabActivity)
                         else ReminderLabState.message = "尚未获得悬浮权限，请点击下方授权，返回后再显示。"
-                    }) { Text(if (ReminderLabState.overlayVisible) "实验悬浮窗已显示" else "显示跨应用悬浮窗") }
-                    OutlinedButton(onClick = { ReminderLabService.hide(this@ReminderLabActivity) }) { Text("关闭实验悬浮窗") }
+                    }, modifier = Modifier.weight(1f)) { Text(if (ReminderLabState.overlayVisible) "已显示" else "显示浮窗", maxLines = 1, softWrap = false) }
+                    OutlinedButton(onClick = { ReminderLabService.hide(this@ReminderLabActivity) }, modifier = Modifier.weight(1f)) { Text("关闭浮窗", maxLines = 1, softWrap = false) }
                 }
                 TextButton(onClick = {
-                    try { startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:$packageName".toUri())) }
-                    catch (_: RuntimeException) { ReminderLabState.message = "无法打开设置，请在系统应用设置中手动授权。" }
+                    if (!OverlayPermission.request(this@ReminderLabActivity)) ReminderLabState.message = "无法打开设置，请在系统应用设置中手动授权。"
                 }) { Text("悬浮权限设置") }
                 ReminderLabState.message?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
                 HorizontalDivider()
-                Text("提醒方案", style = MaterialTheme.typography.titleMedium)
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf(ReminderStyle.COLOR to "变色", ReminderStyle.SIZE to "变尺寸", ReminderStyle.CONFIRM to "交互确认").forEach { (style, title) ->
-                        FilterChip(selected = lab.settings.style == style,
-                            onClick = { ReminderLabState.simulation = lab.copy(settings = lab.settings.forLabStyle(style), acknowledgedStage = null) },
-                            label = { Text(title, maxLines = 1) })
-                    }
-                }
                 Text("模拟时间（秒）", style = MaterialTheme.typography.titleMedium)
                 Text("负数表示超时。播放速度为真实 1×；拖动进度或应用时间会暂停播放。", style = MaterialTheme.typography.bodySmall)
                 DurationEntry("模拟总时长", durationInput.toIntOrNull() ?: 900, { durationInput = it.toString() }, minSeconds = 1)
@@ -142,7 +132,7 @@ class ReminderLabActivity : ComponentActivity() {
                     }
                 }
                 HorizontalDivider()
-                Text("外观参数使用正式设置；本页只切换实验方案。", style = MaterialTheme.typography.bodySmall)
+                Text("外观与提醒策略使用正式设置。", style = MaterialTheme.typography.bodySmall)
                 TextButton(onClick = { startActivity(Intent(this@ReminderLabActivity, SettingsActivity::class.java)) }) { Text("打开设置") }
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = { ReminderLabState.animationRequest++ }) { Text("触发提醒动画") }
@@ -150,9 +140,6 @@ class ReminderLabActivity : ComponentActivity() {
                         ReminderVibration.once(this@ReminderLabActivity, lab.settings.intensity)
                         ReminderLabState.message = ReminderVibration.lastDiagnostic
                     }) { Text("触发一次振动") }
-                    OutlinedButton(onClick = {
-                        ReminderLabState.simulation = lab.copy(acknowledgedStage = null)
-                    }) { Text("重新请求确认") }
                 }
                 Text("模拟跨越零点不会自动振动。动画遵循系统动画开关；手动动画播放两轮。", style = MaterialTheme.typography.bodySmall)
                 Button(onClick = {
@@ -160,7 +147,6 @@ class ReminderLabActivity : ComponentActivity() {
                     ReminderLabState.reset(sharedSettings)
                     durationInput = "900"; remainingInput = "900"; overtime = false; inputError = null
                 }) { Text("重置模拟状态") }
-                TextButton(onClick = { finish() }) { Text("退出实验室") }
                 Spacer(Modifier.height(16.dp))
             }
         }

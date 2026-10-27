@@ -40,6 +40,7 @@ Emulator 模式不会自动授予悬浮权限、点击开始或完成拖动回�
 ./scripts/test-device.ps1 -Suite preferences -AllowTestDataChanges
 ./scripts/test-device.ps1 -Suite c4 -AllowTestDataChanges
 ./scripts/test-device.ps1 -Suite onboarding -AllowTestDataChanges
+./scripts/test-device.ps1 -Suite developer -AllowTestDataChanges
 # 发布前全部执行
 ./scripts/test-device.ps1 -Suite all -AllowTestDataChanges
 ```
@@ -65,5 +66,7 @@ UIAutomator 每次先删除旧快照并确认新文件生成，短暂失败最�
 文档改动无需运行 Gradle；开发脚本检查语法并验证实际变更路径。应用改动按范围选择检查，完整交付使用 Full；涉及交互时再执行相关模拟器或真机回归。已有 GitHub Actions 继续在远端执行构建、单测和 Lint。
 
 `onboarding` 复用同一备份/还原机制检查首次引导、滑动/返回/跳过、真实系统悬浮授权与拒绝、后台进程重建、暂不授权和启动拦截、重看不改功能数据、撤销权限、旧数据迁移、深色和横屏。临时夜间/旋转配置会恢复；仅在专用模拟器清理已备份的 app 私有数据模拟首次启动，不使用 `pm clear` 或卸载。详情见 [ONBOARDING.md](ONBOARDING.md)。
+
+`developer` 检查调试入口只在设置、旧方案/确认/退出按钮移除、浮窗按钮同一行、正式组合效果在实验窗口生效、关闭及返回清理、不写计时记录。`home` 同时检查说明与许可位于设置；两组均备份还原数据。仅 Debug 执行 developer，Release 另检查构建、空 DeveloperEntry 和合并 Manifest 中无实验组件。
 
 2026-10-21 本机验证：Full 与 Emulator 模式通过，9 项单测、Lint 0 错误 / 8 警告 / 1 提示；Emulator 模式实际完成安装及 Activity 启动。另用隔离的无效 JDK 配置确认失败返回 1。原始结果保存在 `.tools/checks/`，不作为源码提交。

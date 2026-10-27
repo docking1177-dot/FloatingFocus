@@ -54,14 +54,14 @@ class ReminderLabService : Service() {
         if (!Settings.canDrawOverlays(this)) { fail("请先授权显示在其他应用上层。"); return START_NOT_STICKY }
         try {
             getSystemService(NotificationManager::class.java).createNotificationChannel(
-                NotificationChannel(CHANNEL, "提醒实验室（Debug）", NotificationManager.IMPORTANCE_LOW).apply {
+                NotificationChannel(CHANNEL, "开发者模式", NotificationManager.IMPORTANCE_LOW).apply {
                     setSound(null, null); enableVibration(false)
                 })
             val open = PendingIntent.getActivity(this, 20, Intent(this, ReminderLabActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
             val stop = PendingIntent.getService(this, 21, Intent(this, ReminderLabService::class.java), PendingIntent.FLAG_IMMUTABLE)
             val notification = NotificationCompat.Builder(this, CHANNEL).setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle("提醒实验室 · 模拟中").setContentText("不影响正式计时；点击返回调参")
-                .setContentIntent(open).addAction(0, "关闭实验悬浮窗", stop).setOngoing(true).setSilent(true)
+                .setContentTitle("开发者模式 · 模拟中").setContentText("不影响正式计时；点击返回调参")
+                .setContentIntent(open).addAction(0, "关闭浮窗", stop).setOngoing(true).setSilent(true)
                 .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE).build()
             if (Build.VERSION.SDK_INT >= 34) startForeground(2, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
             else startForeground(2, notification)
@@ -70,7 +70,7 @@ class ReminderLabService : Service() {
             overlay.show { FocusTheme {
                 val settings by ReminderSettingsStore.get(this).settings.collectAsState()
                 val lab = ReminderLabState.simulation
-                val appearance = ReminderPresenter.present(lab.snapshot, settings.forLabStyle(lab.settings.style), lab.acknowledgedStage)
+                val appearance = ReminderPresenter.present(lab.snapshot, settings, lab.acknowledgedStage)
                 SideEffect { overlay.setGeometry(appearance.shape, appearance.size) }
                 FocusOverlay(appearance, interactive,
                     animationRequest = ReminderLabState.animationRequest,

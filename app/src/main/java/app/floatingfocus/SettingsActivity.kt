@@ -49,7 +49,24 @@ class SettingsActivity : ComponentActivity() {
             BackHandler(enabled = page != "home" && page != "tutorial" && (!editing || page != "appearance"), onBack = back)
             if (!editing && page == "home") {
                 SettingsHome(onBack = { finish() }, onOverlay = { page = "appearance" },
-                    onDurations = { page = "durations" }, onReminders = { page = "reminders" }, onTutorial = { page = "tutorial" })
+                    onDurations = { page = "durations" }, onReminders = { page = "reminders" }, onTutorial = { page = "tutorial" },
+                    onHelp = { page = "help" }, onLicenses = { page = "licenses" })
+                return@FocusTheme
+            }
+            if (!editing && page == "help") {
+                PreferencePage("使用与提醒说明", back) {
+                    Text("预设使用保存的配置；快捷 App 使用首页当前时长与外观。")
+                    Text("离开 App 后计时仍继续。点击悬浮窗展开操作，拖动可调整位置。")
+                    Text("变色、变尺寸可在设置中独立开启。倒计时归零后提醒一次并继续显示超时，可在悬浮窗加时或结束。")
+                }
+                return@FocusTheme
+            }
+            if (!editing && page == "licenses") {
+                val notices = remember {
+                    listOf("THIRD_PARTY_NOTICES.txt", "FloatingCountdownTimer-MIT.txt", "Apache-2.0.txt")
+                        .joinToString("\n\n") { name -> assets.open(name).bufferedReader().use { it.readText() } }
+                }
+                PreferencePage("开源许可", back) { Text(notices, style = MaterialTheme.typography.bodySmall) }
                 return@FocusTheme
             }
             if (!editing && page == "tutorial") {
@@ -152,9 +169,10 @@ class SettingsActivity : ComponentActivity() {
 }
 
 @Composable
-private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onDurations: () -> Unit, onReminders: () -> Unit, onTutorial: () -> Unit) {
+private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onDurations: () -> Unit, onReminders: () -> Unit,
+                         onTutorial: () -> Unit, onHelp: () -> Unit, onLicenses: () -> Unit) {
     Scaffold { insets ->
-        Column(Modifier.fillMaxSize().padding(insets)) {
+        Column(Modifier.fillMaxSize().padding(insets).verticalScroll(rememberScrollState())) {
             Box(Modifier.fillMaxWidth().height(64.dp)) {
                 IconButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart).padding(start = 8.dp)) {
                     Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = "返回", modifier = Modifier.rotate(180f))
@@ -164,18 +182,24 @@ private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onDurations:
             Spacer(Modifier.height(16.dp))
             Surface(color = MaterialTheme.colorScheme.surface) {
                 Column {
-                    listOf("悬浮窗" to onOverlay, "常用时长" to onDurations, "提醒" to onReminders, "使用教程" to onTutorial).forEachIndexed { index, (label, action) ->
+                    listOf("悬浮窗" to onOverlay, "常用时长" to onDurations, "提醒" to onReminders, "使用教程" to onTutorial,
+                        "使用与提醒说明" to onHelp, "开源许可" to onLicenses).forEachIndexed { index, (label, action) ->
                         if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 24.dp))
-                        Row(Modifier.fillMaxWidth().clickable(onClick = action).heightIn(min = 64.dp).padding(horizontal = 24.dp, vertical = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically) {
-                            Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-                            Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
+                        SettingsEntry(label, action)
                     }
+                    DeveloperEntry()
                 }
             }
         }
+    }
+}
+
+@Composable
+internal fun SettingsEntry(label: String, onClick: () -> Unit) {
+    Row(Modifier.fillMaxWidth().clickable(onClick = onClick).heightIn(min = 64.dp).padding(horizontal = 24.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+        Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+        Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

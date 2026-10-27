@@ -7,21 +7,23 @@ class LabSimulationTest {
     @Test fun `confirmation uses shared custom strategy even before a simulation edit`() {
         val shared = ReminderSettings(strategy = ReminderStrategy(warm = ReminderNode(40, 60), urgent = ReminderNode(90, 20)))
         val lab = LabSimulation(100_000, 60_000, ReminderSettings(style = ReminderStyle.CONFIRM))
-        val appearance = shared.forLabStyle(ReminderStyle.CONFIRM)
+        val appearance = shared.copy(style = ReminderStyle.CONFIRM)
         assertTrue(ReminderPresenter.present(lab.snapshot, appearance).confirmationRequired)
         val acknowledged = lab.confirm(shared.strategy)
         assertFalse(ReminderPresenter.present(lab.snapshot, appearance, acknowledged.acknowledgedStage).confirmationRequired)
         assertEquals(ReminderStage.WARM, acknowledged.acknowledgedStage)
         assertEquals(40, shared.strategy.warm.percent)
     }
-    @Test fun `lab strategy overrides are isolated from both production switches`() {
-        val shared = ReminderSettings(colorEnabled = true, sizeEnabled = true)
-        val confirm = shared.forLabStyle(ReminderStyle.CONFIRM)
-        assertFalse(confirm.colorEnabled)
-        assertFalse(confirm.sizeEnabled)
-        assertTrue(shared.colorEnabled && shared.sizeEnabled)
-        assertTrue(shared.forLabStyle(ReminderStyle.SIZE).sizeEnabled)
-        assertFalse(shared.forLabStyle(ReminderStyle.SIZE).colorEnabled)
+    @Test fun `simulation preserves combined production effects through time changes`() {
+        val shared = ReminderSettings(color = OverlayColor.BLUE, colorEnabled = true, sizeEnabled = true, opacity = .6f)
+        val lab = LabSimulation(settings = shared)
+        val initial = lab.appearance
+        val urgent = lab.seek(90_000).play(1000).tick(2000)
+        assertNotEquals(initial.colorArgb, urgent.appearance.colorArgb)
+        assertTrue(urgent.appearance.size > initial.size)
+        assertEquals(.6f, urgent.appearance.opacity, .001f)
+        assertEquals(shared, urgent.settings)
+        assertEquals(900_000, lab.signedRemainingMillis)
     }
     @Test fun `seeking across zero preserves the independent production clock`() {
         val real = Countdown(900_000, 500)

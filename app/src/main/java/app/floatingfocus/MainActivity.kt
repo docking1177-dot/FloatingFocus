@@ -30,7 +30,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Icon
@@ -88,8 +87,6 @@ class MainActivity : ComponentActivity() {
         var notificationAllowed by remember { mutableStateOf(hasNotificationPermission()) }
         var permissionMessage by rememberSaveable { mutableStateOf<String?>(null) }
         var permissionHelp by rememberSaveable { mutableStateOf(false) }
-        var showLicenses by rememberSaveable { mutableStateOf(false) }
-        var showHelp by rememberSaveable { mutableStateOf(false) }
         var quickStarting by remember { mutableStateOf(false) }
         // Result never auto-starts a timer: start must happen while this activity is visible.
         val notificationRequest = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -209,17 +206,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     (session.error ?: permissionMessage)?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(vertical = 12.dp)) }
-                    HorizontalDivider(Modifier.padding(top = 12.dp, bottom = 4.dp))
-                    HomeLink(if (showHelp) "收起说明" else "使用与提醒说明", expanded = showHelp) { showHelp = !showHelp }
-                    if (showHelp) {
-                        Column(Modifier.padding(bottom = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Text("预设使用保存的配置；快捷 App 使用首页当前时长与外观。", style = MaterialTheme.typography.bodySmall)
-                            Text("离开 App 后计时仍继续。点击悬浮窗展开操作，拖动可调整位置。", style = MaterialTheme.typography.bodySmall)
-                            Text("变色、变尺寸可在设置中独立开启。倒计时归零后提醒一次并继续显示超时，可在悬浮窗加时或结束。", style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
-                    HomeLink("开源许可") { showLicenses = true }
-                    DeveloperEntry()
                 }
             }
         }
@@ -236,15 +222,6 @@ class MainActivity : ComponentActivity() {
                     }
                 }) { Text("前往系统设置") } },
                 dismissButton = { TextButton(onClick = { permissionHelp = false }) { Text("稍后") } })
-        }
-        if (showLicenses) {
-            val notices = remember {
-                listOf("THIRD_PARTY_NOTICES.txt", "FloatingCountdownTimer-MIT.txt", "Apache-2.0.txt")
-                    .joinToString("\n\n") { name -> assets.open(name).bufferedReader().use { it.readText() } }
-            }
-            AlertDialog(onDismissRequest = { showLicenses = false }, title = { Text("开源许可") },
-                text = { Text(notices, modifier = Modifier.verticalScroll(rememberScrollState()), style = MaterialTheme.typography.bodySmall) },
-                confirmButton = { TextButton(onClick = { showLicenses = false }) { Text("关闭") } })
         }
     }
 

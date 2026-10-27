@@ -19,6 +19,7 @@ from device_settings import settings
 from device_preferences import preferences
 from device_c4 import c4
 from device_onboarding import onboarding
+from device_developer import developer
 
 PACKAGE = 'app.floatingfocus'
 
@@ -144,6 +145,7 @@ class Device:
 
     def seed(self, shape='ROUNDED_RECTANGLE', style='COLOR', minutes=15):
         self.stop()
+        self.write_prefs('onboarding', {'completed': True})
         settings = dict(shape=shape, style=style, color='BLUE', colorMode='CONTINUOUS',
                         sizeMode='CONTINUOUS', baseSize=1.5, opacity=.6, intensity=1.0)
         preset = dict(id='ff-regression', name='Regression', minutes=minutes, mode='COUNTDOWN',
@@ -244,12 +246,17 @@ def home(d):
         d.shell('input', 'swipe', int(d.width*.1), int(d.height*.25), int(d.width*.1), int(d.height*.9), 500)
         time.sleep(.4)
     d.finish()
+    assert not any(n.get('text') in ('使用与提醒说明', '开源许可', '开发者模式', '提醒实验室 · Debug') for n in d.dump().iter('node'))
+    d.tap('设置')
     d.tap('使用与提醒说明', scroll=True)
-    d.shell('input', 'swipe', d.width//2, int(d.height*.8), d.width//2, int(d.height*.4), 350)
     assert any('离开 App 后计时仍继续' in n.get('text', '') for n in d.dump().iter('node'))
-    d.shot('home-help-expanded')
-    d.tap('收起说明')
-    assert not any('离开 App 后计时仍继续' in n.get('text', '') for n in d.dump().iter('node'))
+    d.shot('settings-help')
+    d.tap('返回')
+    d.tap('开源许可', scroll=True)
+    assert any('FloatingCountdownTimer' in n.get('text', '') for n in d.dump().iter('node'))
+    d.shot('settings-licenses')
+    d.tap('返回')
+    d.shell('input', 'keyevent', 'KEYCODE_BACK')
     try:
         d.stop()
         d.shell('appops', 'set', PACKAGE, 'SYSTEM_ALERT_WINDOW', 'deny')
@@ -264,7 +271,7 @@ def home(d):
         d.shell('appops', 'set', PACKAGE, 'SYSTEM_ALERT_WINDOW', 'allow')
     d.start()
     assert not any(n.get('text') == '允许显示悬浮窗' for n in d.dump().iter('node'))
-    return dict(fourColumnGrid=True, addAppRetainsSelection=True, newPresetEntry=True, customDefaultOneMinute=True, quickLaunch=True, collapsibleHelp=True,
+    return dict(fourColumnGrid=True, addAppRetainsSelection=True, newPresetEntry=True, customDefaultOneMinute=True, quickLaunch=True, helpAndLicensesInSettings=True,
                 contextualOverlayPermission=True, icons='screenshots require visual review')
 
 
@@ -384,7 +391,7 @@ def inline(d):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--serial', default='emulator-5554')
-    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'settings', 'home', 'preferences', 'c4', 'onboarding', 'all'], default='all')
+    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'settings', 'home', 'preferences', 'c4', 'onboarding', 'developer', 'all'], default='all')
     p.add_argument('--apk', type=Path, default=ROOT / 'app/build/outputs/apk/debug/app-debug.apk')
     p.add_argument('--allow-test-data-changes', action='store_true')
     args = p.parse_args()
@@ -424,7 +431,7 @@ def main():
         # These grants are test-emulator setup only, not production app permission requests.
         d.shell('appops', 'set', PACKAGE, 'SYSTEM_ALERT_WINDOW', 'allow')
         d.shell('pm', 'grant', PACKAGE, 'android.permission.POST_NOTIFICATIONS')
-        for suite in (['smoke', 'edges', 'inline', 'settings', 'home', 'preferences', 'c4', 'onboarding'] if args.suite == 'all' else [args.suite]):
+        for suite in (['smoke', 'edges', 'inline', 'settings', 'home', 'preferences', 'c4', 'onboarding', 'developer'] if args.suite == 'all' else [args.suite]):
             d.shell('logcat', '-c')
             result['details'][suite] = globals()[suite](d)
             runtime = d.shell('logcat', '-d', '-s', 'AndroidRuntime:*')
