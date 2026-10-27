@@ -41,6 +41,7 @@ Emulator 模式不会自动授予悬浮权限、点击开始或完成拖动回�
 ./scripts/test-device.ps1 -Suite c4 -AllowTestDataChanges
 ./scripts/test-device.ps1 -Suite onboarding -AllowTestDataChanges
 ./scripts/test-device.ps1 -Suite developer -AllowTestDataChanges
+./scripts/test-device.ps1 -Suite history -AllowTestDataChanges
 # 发布前全部执行
 ./scripts/test-device.ps1 -Suite all -AllowTestDataChanges
 ```
@@ -68,5 +69,7 @@ UIAutomator 每次先删除旧快照并确认新文件生成，短暂失败最�
 `onboarding` 复用同一备份/还原机制检查首次引导、滑动/返回/跳过、真实系统悬浮授权与拒绝、后台进程重建、暂不授权和启动拦截、重看不改功能数据、撤销权限、旧数据迁移、深色和横屏。临时夜间/旋转配置会恢复；仅在专用模拟器清理已备份的 app 私有数据模拟首次启动，不使用 `pm clear` 或卸载。详情见 [ONBOARDING.md](ONBOARDING.md)。
 
 `developer` 检查调试入口只在设置、旧方案/确认/退出按钮移除、浮窗按钮同一行、正式组合效果在实验窗口生效、关闭及返回清理、不写计时记录。`home` 同时检查说明与许可位于设置；两组均备份还原数据。仅 Debug 执行 developer，Release 另检查构建、空 DeveloperEntry 和合并 Manifest 中无实验组件。
+
+`history` 检查今日/周/月、全部/手动/历史 App 筛选、同名包区分、搜索、柱点击/空白取消和时段列表；通过真实系统文件选择器保存后解析 CSV，确认筛选不改变全部导出范围和原记录。还检查读取错误/重试不结算活跃会话、空记录、旋转保持筛选，保存深色/大字体截图供复核。夹具和导出文件只用于专用模拟器，结束由同一 runner 还原原始数据与临时显示设置；`all` 包含本组。
 
 2026-10-21 本机验证：Full 与 Emulator 模式通过，9 项单测、Lint 0 错误 / 8 警告 / 1 提示；Emulator 模式实际完成安装及 Activity 启动。另用隔离的无效 JDK 配置确认失败返回 1。原始结果保存在 `.tools/checks/`，不作为源码提交。

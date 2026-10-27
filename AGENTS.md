@@ -24,6 +24,7 @@
 - 展开/到时面板优先收紧内容与形状留白，保持与第三级提醒的视觉连续性，不通过覆盖基础大小或动态倍率来缩小。浮窗内加时使用紧凑分秒滚轮、取消和主操作「确认加时」，默认 2 分钟；不跳转页面或创建第二个窗口。
 - 预设方案在 `TimerPreset.kt` / `TimerPresetStore.kt`，保存时长及完整外观快照；入口与管理在 `TimerPresetsCard.kt`；预设按双列网格随页面纵向浏览，显示名称、目标 App 和时长，不依赖横向滑动。与快捷启动分区区分：前者使用保存配置，后者使用当前配置。编辑复用 `SettingsActivity` 的独立草稿，取消不写回；预设绑定的 App 仅通过 `ShortcutAppPicker.kt` 从现有快捷列表选择，点击预设直接启动；旧预设先补绑定。复用 `AppTimerLauncher.kt` 和正式计时服务，禁止新建平行计时系统。行为及存储见 `docs/PRESETS.md`。
 - 倒计时归零后继续显示超时正计时，独立正计时也复用 `Countdown` / `FloatingService`，正计时不得触发归零提醒。到时加时直接在 `FocusOverlay.kt` 内调节并确认，不跳转 Activity、不销毁重建窗口，从确认时开始新一段，保留同一会话、既有累计时长和超时，防止旧页面或重复操作误加时。时长记录在 `TimerRecord.kt` / `TimerRecordStore.kt`，查看及 CSV 导出在 `HistoryActivity.kt`；记录 FF 会话而非 App 前台使用时间。进程异常结束只能保证最后持久化进度，恢复须标注约计，禁止把停机时间累计进去或承诺精确捕获强杀时刻。划掉 FF 时结算并停止，不新增监测权限、保活或自动重启。见 `docs/TIME_RECORDS.md`。
+- 时长统计在 `HistoryStatistics.kt`，页面与图表在 `HistoryScreen.kt` / `HistoryChart.kt`：今日按小时、周一开始的自然周及自然月按天；按设备当前时区把已保存会话区间拆分，不重写原记录、不推测暂停或改时轨迹。全部含手动计时，App 按包名从历史筛选，图表/累计/明细共用结果；超时不重复相加，异常记录保留约计。柱子只显示详情，提供大触摸区域的时段列表；CSV 仍导出全部原始记录。加载/读错不得显示成完整零值，重试不能把本进程活跃会话结算为异常。沿用本地数据，不启用使用情况监测；见 `docs/TIME_RECORDS.md`。
 - App 自动计时已 Deferred：`FeatureFlags.APP_USAGE_AUTO_TIMER=false`，禁止未经新需求重新启用或继续优化监测；保留代码和测试，进度/恢复步骤见 `docs/AUTO_TRIGGER.md`。禁止无障碍路径。
 - 一键打开目标 App + 手动计时在 `QuickLaunchCard.kt`，复用 `FloatingService`；多选迁移在 `QuickLaunchTargets.kt`，App 列表在 `LaunchableApps.kt`。已确认四列图标网格，Debug/Release 统一，移除布局比较入口。不读取使用事件，行为与验收见 `docs/QUICK_LAUNCH.md`。
 - 上述源码均位于 `app/src/main/java/app/floatingfocus/`；JVM 测试在 `app/src/test/`。

@@ -19,19 +19,35 @@ class TimerRecordStore private constructor(context: Context) {
     val records = current.asStateFlow()
     private val problem = MutableStateFlow<String?>(null)
     val error = problem.asStateFlow()
+    private val reading = MutableStateFlow(true)
+    val isLoading = reading.asStateFlow()
 
-    init {
+    init { readFiles(recoverInterrupted = true) }
+
+    /** Retry reading without recovering a live session owned by this process. */
+    fun reload() {
+        if (reading.compareAndSet(false, true)) readFiles(recoverInterrupted = false)
+    }
+
+    private fun readFiles(recoverInterrupted: Boolean) {
         io.execute {
-            directory.mkdirs()
-            val restored = directory.listFiles().orEmpty().filter { it.name.endsWith(".json") }.mapNotNull { file ->
-                try {
-                    val row = decode(JSONObject(AtomicFile(file).openRead().bufferedReader().use { it.readText() }))
-                    val recovered = row.recover()
-                    if (recovered != row) write(recovered)
-                    recovered
-                } catch (e: Exception) { report(e); null }
+            problem.value = null
+            try {
+                check(directory.isDirectory || directory.mkdirs())
+                val files = checkNotNull(directory.listFiles())
+                val restored = files.filter { it.name.endsWith(".json") }.mapNotNull { file ->
+                    try {
+                        val row = decode(JSONObject(AtomicFile(file).openRead().bufferedReader().use { it.readText() }))
+                        val recovered = if (recoverInterrupted) row.recover() else row
+                        if (recovered != row) write(recovered)
+                        recovered
+                    } catch (e: Exception) { report(e); null }
+                }
+                current.value = restored.sortedByDescending { it.startedWallMillis }
+            } catch (e: Exception) { report(e) }
+            finally {
+                reading.value = false
             }
-            current.value = restored.sortedByDescending { it.startedWallMillis }
         }
     }
 
