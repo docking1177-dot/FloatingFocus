@@ -38,6 +38,7 @@ Emulator 模式不会自动授予悬浮权限、点击开始或完成拖动回�
 ./scripts/test-device.ps1 -Suite settings -AllowTestDataChanges
 ./scripts/test-device.ps1 -Suite home -AllowTestDataChanges
 ./scripts/test-device.ps1 -Suite preferences -AllowTestDataChanges
+./scripts/test-device.ps1 -Suite c4 -AllowTestDataChanges
 # 发布前全部执行
 ./scripts/test-device.ps1 -Suite all -AllowTestDataChanges
 ```
@@ -55,6 +56,8 @@ smoke 检查预设启动 Gallery、手动结束、记录；edges 检查三种形
 `preferences` 通过真实分秒滚轮验证回显、确认/取消、常用时长与预设的秒精度持久化/实际启动，拖动策略节点并设置不同类型，检查三种启动入口对冲突的阻止。`inline` 等待真实到期，验证默认两分钟、滚轮滑动不移动窗口、取消/确认、同一会话和第二次到期。共用备份还原与源码/APK 身份检查。
 
 UIAutomator 每次先删除旧快照并确认新文件生成，短暂失败最多重试三次，每次均清理旧文件，始终不沿用旧层级；重试次数写入 hierarchyRetries。ActivityManager 的 `am start -W` 若仅返回 timeout，必须同时验证实际前台 MainActivity 和新生成的首页层级才继续交互；完整启动输出保存在 `activity-launch.txt`，次数记为 `activityWaitTimeouts`，不把后续交互通过当作启动耗时合格。
+
+`c4` 验证全局开关默认值及重启保存、预设启动目标 App 后 60/40/30/10 秒自然归零、40 秒切换几何连续、暂停/恢复/取消、关音效、关功能和正计时排除。保存逐节点 LED/音频请求日志；SoundPool 返回成功不等于真机可听或硬件音画零延迟，亦不证明 CS2 精确还原。详见 [C4_COUNTDOWN.md](C4_COUNTDOWN.md)。`all` 包含本组，执行时间增加约三分钟。
 
 文档改动无需运行 Gradle；开发脚本检查语法并验证实际变更路径。应用改动按范围选择检查，完整交付使用 Full；涉及交互时再执行相关模拟器或真机回归。已有 GitHub Actions 继续在远端执行构建、单测和 Lint。
 

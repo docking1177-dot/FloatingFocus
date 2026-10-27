@@ -76,6 +76,7 @@ def preferences(d):
     d.tap('\u786e\u8ba4')
     d.tap('\u4fdd\u5b58')
     assert pref_values(d, 'quick_durations')['seconds'] == '65,120,900,1800'
+    d.tap('\u63d0\u9192')
     d.tap('\u63d0\u9192\u7b56\u7565')
     d.shot('strategy-default')
     # Both labels drag independently; ensure drag is not mistaken for opening a panel.

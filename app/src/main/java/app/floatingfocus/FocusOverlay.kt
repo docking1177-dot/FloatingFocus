@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
@@ -37,6 +38,9 @@ fun FocusOverlay(
     onExtend: ((Int) -> Unit)? = null,
     extensionRequest: Int = 0,
     extensionStrategy: ReminderStrategy = ReminderStrategy(),
+    c4: C4Frame = C4Frame(),
+    paused: Boolean = false,
+    onTogglePause: (() -> Unit)? = null,
     onStop: () -> Unit
 ) {
     val finished = appearance.finished
@@ -67,11 +71,11 @@ fun FocusOverlay(
 
     val vertical = appearance.shape == OverlayShape.VERTICAL_CAPSULE
     val background = ReminderPresenter.highlight(appearance.colorArgb, maxOf(automaticHighlight, manualPulse.value))
-    val foreground = Color(ReminderPresenter.contentColor(background))
+    val foreground = if (c4.active) Color(0xFFDAF293) else Color(ReminderPresenter.contentColor(background))
     val textStyle = TextStyle(color = foreground,
         shadow = if (foreground == Color.White) Shadow(Color.Black, blurRadius = 2f) else null)
     // One alpha layer for the whole window. No glyph backgrounds or independent opaque children.
-    Surface(color = Color(background), shape = CircleShape,
+    Surface(color = if (c4.active) Color(0xFF343A28) else Color(background), shape = CircleShape,
         modifier = Modifier.padding(2.dp).graphicsLayer { this.alpha = appearance.opacity }) {
         Layout(content = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -115,11 +119,17 @@ fun FocusOverlay(
                     }
                 } else if (expanded) {
                     FlowRow(horizontalArrangement = Arrangement.Center) {
+                        if (onTogglePause != null) TextButton(onClick = onTogglePause, enabled = controlsEnabled) {
+                            Text(if (paused) "继续计时" else "暂停计时", style = textStyle)
+                        }
                         TextButton(onClick = onStop, enabled = controlsEnabled) { Text("结束计时", style = textStyle) }
                         TextButton(onClick = { expanded = false }) { Text("收起", style = textStyle) }
                     }
                 }
             }
+        }, modifier = Modifier.drawWithContent {
+            if (c4.active) drawC4Device(appearance.title, c4, showingControls, paused)
+            if (!c4.active || showingControls) drawContent()
         }) { measurables, constraints ->
             // Measure at a stable base size; apply the current reminder scale exactly once.
             val body = measurables.single().measure(Constraints(maxWidth = 240.dp.roundToPx()))

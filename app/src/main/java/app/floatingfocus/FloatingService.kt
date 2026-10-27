@@ -51,6 +51,9 @@ data class SessionState(
 class FloatingService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     private var countdown: Countdown? = null
+    private var manualClock = SessionClock()
+    private var c4Runtime: C4Runtime? = null
+    private var c4Frame by mutableStateOf(C4Frame())
     private val recordStore by lazy { TimerRecordStore.get(this) }
     private var record: TimerRecord? = null
     private var recordStartedAt = 0L
@@ -70,7 +73,7 @@ class FloatingService : Service() {
     private fun checkpointRecord(now: Long) {
         record = record?.checkpoint(recordStartedAt, now)
         countdown?.let { timer -> record = record?.copy(plannedMillis = timer.totalPlannedMillis,
-            savedOvertimeMillis = timer.totalOvertimeAt(now)) }
+            savedOvertimeMillis = timer.totalOvertimeAt(manualClock.at(now))) }
     }
 
     private fun completeRecord(status: RecordStatus, after: (() -> Unit)? = null) {
@@ -113,26 +116,25 @@ class FloatingService : Service() {
                 return
             }
             val timer = countdown ?: return
-            val now = SystemClock.elapsedRealtime()
+            val physicalNow = SystemClock.elapsedRealtime()
+            val now = manualClock.at(physicalNow)
             val remaining = timer.remainingAt(now)
             val progress = timer.progressAt(now)
             val stage = settingsStore.settings.value.strategy.stage(ReminderSnapshot.at(timer, now))
             val previousStage = overlayState.stage
             overlayState = SessionState(true, remaining, progress, stage, mode = timer.mode,
-                elapsedMillis = timer.elapsedAt(now), overtimeMillis = timer.overtimeAt(now), timerStartedAt = timer.startedAt)
-            checkpointRecord(now)
+                elapsedMillis = timer.elapsedAt(now), overtimeMillis = timer.overtimeAt(now), timerStartedAt = timer.startedAt, paused = manualClock.paused)
+            checkpointRecord(physicalNow)
             record?.let { recordStore.save(it, checkpoint = true) }
             mutableSession.value = overlayState
-            if (timer.mode == TimerMode.COUNTDOWN && completionReminder.consume(active = true, paused = false, remainingMillis = remaining)) {
-                Log.d(TAG, "Timer completed: remaining=$remaining")
-                ReminderVibration.once(this@FloatingService, settingsStore.settings.value.intensity)
-            }
+            completeCountdown()
+            c4Runtime?.refresh()
             if (stage != previousStage) {
                 Log.d(TAG, "Reminder stage: $previousStage -> $stage")
                 getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification())
             }
             // elapsedRealtime is authoritative; this callback only refreshes the display.
-            handler.postDelayed(this, 1000L - timer.elapsedAt(now) % 1000L)
+            if (!manualClock.paused) handler.postDelayed(this, 1000L - timer.elapsedAt(now) % 1000L)
         }
     }
 
@@ -143,7 +145,7 @@ class FloatingService : Service() {
             val timer = countdown
             if (timer == null) { if (monitor == null) stopSelf(startId); return START_NOT_STICKY }
             if (!stopping && timer.mode == TimerMode.COUNTDOWN &&
-                timer.startedAt == intent.getLongExtra("timer_start", -1L) && timer.remainingAt(SystemClock.elapsedRealtime()) == 0L) {
+                timer.startedAt == intent.getLongExtra("timer_start", -1L) && timer.remainingAt(manualClock.at(SystemClock.elapsedRealtime())) == 0L) {
                 extensionRequest++
             }
             return START_NOT_STICKY
@@ -178,7 +180,9 @@ class FloatingService : Service() {
         ReminderSettingsStore.get(this).settings.value.strategy.validationError(duration, mode)?.let {
             fail(it); return START_NOT_STICKY
         }
-        countdown = Countdown(duration, SystemClock.elapsedRealtime(), mode)
+        manualClock = SessionClock()
+        c4Frame = C4Frame()
+        countdown = Countdown(duration, manualClock.at(SystemClock.elapsedRealtime()), mode)
         awaitingApp = intent.getStringExtra("app_package")
         activePresetId = intent.getStringExtra("preset_id")?.takeIf { id ->
             TimerPresetStore.get(this).presets.value.any { it.id == id && it.targetApp?.packageName == awaitingApp }
@@ -197,6 +201,8 @@ class FloatingService : Service() {
             if (Build.VERSION.SDK_INT >= 34) {
                 startForeground(NOTIFICATION_ID, notification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
             } else startForeground(NOTIFICATION_ID, notification())
+            c4Runtime = C4Runtime(this, { countdown }, { manualClock.at(SystemClock.elapsedRealtime()) },
+                { manualClock.paused }, { c4Frame = it }, ::completeCountdown)
             showOverlay()
             if (stopping) return START_NOT_STICKY
             ContextCompat.registerReceiver(this, screenReceiver,
@@ -227,21 +233,50 @@ class FloatingService : Service() {
         window = overlay
         overlay.show { FocusTheme {
             val settings by settingsStore.settings.collectAsState()
-            val appearance = ReminderPresenter.present(ReminderSnapshot(overlayState.remainingMillis, overlayState.progress,
+            val c4Settings by C4SettingsStore.get(this).settings.collectAsState()
+            val normal = ReminderPresenter.present(ReminderSnapshot(overlayState.remainingMillis, overlayState.progress,
                 overlayState.overtimeMillis, overlayState.mode, overlayState.elapsedMillis, countdown?.durationMillis ?: 0), settings)
+            val appearance = if (c4Frame.active || manualClock.paused) normal.copy(pulseDepth = 0f, animationStrength = 0f) else normal
             SideEffect { overlay.setGeometry(appearance.shape, appearance.size) }
             val timerStart = overlayState.timerStartedAt
             FocusOverlay(appearance, interactive, extensionRequest = extensionRequest,
-                extensionStrategy = settings.strategy,
+                extensionStrategy = settings.strategy, c4 = c4Frame, paused = overlayState.paused,
+                onTogglePause = if (!overlayState.automatic && overlayState.mode == TimerMode.COUNTDOWN &&
+                    (c4Settings.enabled || overlayState.paused)) ({ togglePause(timerStart) }) else null,
                 onExtend = if (countdown != null) ({ seconds -> extendTimer(timerStart, seconds) }) else null) { finishSession() }
         } }
+    }
+
+    private fun completeCountdown() {
+        val timer = countdown ?: return
+        val now = manualClock.at(SystemClock.elapsedRealtime())
+        if (timer.mode != TimerMode.COUNTDOWN || !completionReminder.consume(true, manualClock.paused, timer.remainingAt(now))) return
+        overlayState = overlayState.copy(remainingMillis = 0, progress = 1f, stage = ReminderStage.FINISHED,
+            elapsedMillis = timer.elapsedAt(now), overtimeMillis = timer.overtimeAt(now))
+        mutableSession.value = overlayState
+        c4Runtime?.completed()
+        Log.d(TAG, "Timer completed: remaining=0")
+        ReminderVibration.once(this, settingsStore.settings.value.intensity)
+    }
+
+    private fun togglePause(expectedStart: Long) {
+        val timer = countdown ?: return
+        val physicalNow = SystemClock.elapsedRealtime()
+        if (stopping || timer.startedAt != expectedStart || timer.mode != TimerMode.COUNTDOWN ||
+            timer.remainingAt(manualClock.at(physicalNow)) == 0L) return
+        if (!C4SettingsStore.get(this).settings.value.enabled && !manualClock.paused) return
+        if (manualClock.paused) manualClock.resume(physicalNow) else manualClock.pause(physicalNow)
+        handler.removeCallbacks(tick)
+        tick.run()
+        Log.d(TAG, "C4 clock paused=${manualClock.paused} remaining=${overlayState.remainingMillis}")
+        getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification())
     }
 
     private fun extendTimer(expectedStart: Long, seconds: Int) {
         val timer = countdown ?: return
         if (stopping || timer.startedAt != expectedStart || seconds !in 60..10800) return
         if (ReminderSettingsStore.get(this).settings.value.strategy.validationError(seconds * 1000L) != null) return
-        val next = timer.extendAt(SystemClock.elapsedRealtime(), seconds * 1000L) ?: return
+        val next = timer.extendAt(manualClock.at(SystemClock.elapsedRealtime()), seconds * 1000L) ?: return
         countdown = next
         completionReminder.reset()
         handler.removeCallbacks(tick)
@@ -311,13 +346,13 @@ class FloatingService : Service() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         val finished = overlayState.stage == ReminderStage.FINISHED
         return NotificationCompat.Builder(this, CHANNEL)
-            .setSmallIcon(R.drawable.ic_notification).setContentTitle(if (automatic) "指定 App 监测 · ${if (mutableMonitor.value.running) "计时中" else "已暂停/等待"}" else if (finished) "Floating Focus · 超时计时" else "Floating Focus · 正在计时")
-            .setContentText(if (automatic) "${mutableMonitor.value.reason} · 点击管理；可随时停止" else if (finished) "正在记录超时时长，可随时结束" else "点击悬浮胶囊可展开操作")
+            .setSmallIcon(R.drawable.ic_notification).setContentTitle(if (automatic) "指定 App 监测 · ${if (mutableMonitor.value.running) "计时中" else "已暂停/等待"}" else if (overlayState.paused) "Floating Focus · 已暂停" else if (finished) "Floating Focus · 超时计时" else "Floating Focus · 正在计时")
+            .setContentText(if (automatic) "${mutableMonitor.value.reason} · 点击管理；可随时停止" else if (overlayState.paused) "${formatRemaining(overlayState.remainingMillis)} · 点击浮窗继续或结束" else if (finished) "正在记录超时时长，可随时结束" else "点击悬浮胶囊可展开操作")
             .setContentIntent(open).addAction(0, if (automatic) "停止监测" else if (finished) "结束计时" else "结束计时", stop)
             .setWhen(if (overlayState.mode == TimerMode.STOPWATCH || finished)
                 System.currentTimeMillis() - (if (finished) overlayState.overtimeMillis else overlayState.elapsedMillis)
                 else System.currentTimeMillis() + overlayState.remainingMillis)
-            .setUsesChronometer(!automatic || mutableMonitor.value.running)
+            .setUsesChronometer((!automatic || mutableMonitor.value.running) && !overlayState.paused)
             .setChronometerCountDown(overlayState.mode == TimerMode.COUNTDOWN && !finished)
             .setOngoing(true).setOnlyAlertOnce(true).setSilent(true)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
@@ -347,6 +382,8 @@ class FloatingService : Service() {
     }
 
     private fun cleanup() {
+        c4Runtime?.close(); c4Runtime = null
+        c4Frame = C4Frame()
         handler.removeCallbacksAndMessages(null)
         monitor?.close()
         monitor = null

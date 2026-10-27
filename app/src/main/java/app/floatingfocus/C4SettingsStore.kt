@@ -1,0 +1,24 @@
+package app.floatingfocus
+
+import android.content.Context
+import androidx.core.content.edit
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+/** Global only: never encoded in ReminderSettings or timer presets. */
+data class C4Settings(val enabled: Boolean = false, val sound: Boolean = true)
+class C4SettingsStore private constructor(context: Context) {
+    private val prefs = context.getSharedPreferences("c4_settings", Context.MODE_PRIVATE)
+    private val current = MutableStateFlow(C4Settings(prefs.getBoolean("enabled", false), prefs.getBoolean("sound", true)))
+    val settings = current.asStateFlow()
+    fun update(value: C4Settings) {
+        prefs.edit { putBoolean("enabled", value.enabled); putBoolean("sound", value.sound) }
+        current.value = value
+    }
+    companion object {
+        @Volatile private var instance: C4SettingsStore? = null
+        fun get(context: Context) = instance ?: synchronized(this) {
+            instance ?: C4SettingsStore(context.applicationContext).also { instance = it }
+        }
+    }
+}

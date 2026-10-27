@@ -6,7 +6,7 @@ data class TimerPreset(val id: String, val name: String, val minutes: Int, val s
         require(id.isNotBlank())
         require(name.isNotBlank() && name.length <= 40)
         require(minutes in 1..180)
-        require(durationSeconds in 60..10800)
+        require(durationSeconds in 1..10800)
     }
 }
 
@@ -29,7 +29,7 @@ object TimerPresetCodec {
             (row["targetPackage"] as? String)?.takeIf { it.isNotBlank() }?.let { pkg ->
                 LaunchableApp(pkg, (row["targetLabel"] as? String)?.takeIf { it.isNotBlank() } ?: pkg)
             }, OverlayAnchor.decode(row["positionX"], row["positionY"]),
-            (row["durationSeconds"] as? Number)?.toDouble()?.takeIf { it.isFinite() && it % 1.0 == 0.0 && it in 60.0..10800.0 }?.toInt() ?: minutes * 60)
+            (row["durationSeconds"] as? Number)?.toDouble()?.takeIf { it.isFinite() && it % 1.0 == 0.0 && it in 1.0..10800.0 }?.toInt() ?: minutes * 60)
     }
 
     fun upsert(items: List<TimerPreset>, preset: TimerPreset): List<TimerPreset> =

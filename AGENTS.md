@@ -27,6 +27,8 @@
 
 ## 工作与检查
 
+- C4 末段特效在 `C4Timeline.kt` / `C4Runtime.kt` / `C4Audio.kt` / `C4Device.kt`；全局开关由 `C4SettingsStore` 保存，不进入预设快照。复用原计时服务和浮窗，单调时钟调度，声光共同消费节点；取消不爆炸，归零单次完成，正计时排除。当前节奏为明确标注的可配置近似值，未经实测不得宣称 CS2 精确还原；不得打包未经授权的游戏素材。音频来源、暂停边界与回归见 `docs/C4_COUNTDOWN.md`。本功能仅在 `feat/c4-countdown` 开发，不自动合并或发布。
+
 - 开始修改前检查 Git 状态，保留用户现有改动；先定位相关代码，不要求每次通读全部文档。
 - Windows 统一检查入口：`./scripts/check.ps1`，默认完整构建、单测和 Lint。
 - 只跑 JVM 单测：`./scripts/check.ps1 -Mode Unit`。
