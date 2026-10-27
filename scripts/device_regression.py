@@ -184,28 +184,64 @@ def home(d):
         ('com.android.gallery3d', 'Gallery'), ('com.android.documentsui', 'Files'),
         ('com.android.messaging', 'Messaging')]
         if 'package:' in d.shell('pm', 'path', package)]
-    assert len(targets) >= 2, 'Need two installed fixture Apps for visual comparison'
-    for layout in ('LIST', 'GRID', 'STRIP'):
-        d.stop()
-        d.write_prefs('quick_launch', {'targets': json.dumps(targets)})
-        d.write_prefs('debug_quick_launch', {'layout': layout})
-        d.start()
-        d.dump()  # wait for the startup transition and icon loading before capture
-        d.shot('home-top-' + layout.lower())
-        d.shell('input', 'swipe', d.width//2, int(d.height*.75), d.width//2, int(d.height*.45), 350)
-        d.dump()
-        d.shot('home-' + layout.lower())
-        # Inspect actual controls and then launch through the unchanged semantics.
-        d.tap('打开 Gallery 并计时', scroll=True)
-        time.sleep(.5)
-        assert d.overlay() and 'com.android.gallery3d' in d.foreground()
-        # Return the Activity to its top before ending: after the screenshot
-        # scroll, the default overlay can cover the displaced stop button.
-        d.start()
-        d.dump()
-        d.shell('input', 'swipe', int(d.width*.2), int(d.height*.3), int(d.width*.2), int(d.height*.85), 350)
-        d.dump()
-        d.finish()
+    assert len(targets) >= 2, 'Need two installed fixture Apps'
+    d.stop()
+    d.write_prefs('quick_launch', {'targets': json.dumps(targets)})
+    fixture = dict(settings=dict(shape='ROUNDED_RECTANGLE', color='BLUE'), minutes=15, mode='COUNTDOWN',
+                   targetPackage='com.android.gallery3d', targetLabel='Gallery')
+    d.write_prefs('timer_presets', {'items': json.dumps([dict(fixture, id='home-'+str(i), name='Home '+str(i)) for i in range(3)])})
+    d.start()
+    texts = [n.get('text', '') for n in d.dump().iter('node')]
+    assert '常规计时' in texts and not any('布局比较' in t for t in texts)
+    d.shot('home-top')
+    d.tap('自定义时长')
+    fields = [n for n in d.dump().iter('node') if n.get('class') == 'android.widget.EditText']
+    assert [n.get('text') for n in fields] == ['01', '00'], 'Custom time must default to one minute'
+    d.tap('取消')
+    d.tap('手动设置')
+    assert any(n.get('text') == '常用时长' for n in d.dump().iter('node'))
+    d.tap('返回')
+    assert any(n.get('text') == '设置' for n in d.dump().iter('node')), 'Deep-link back did not reach settings home'
+    d.shell('input', 'keyevent', 'KEYCODE_BACK')
+    assert any(n.get('text') == 'Floating Focus' for n in d.dump().iter('node')), 'Settings did not return to home'
+    d.tap('新建预设', scroll=True)
+    name = next(n for n in d.dump().iter('node') if n.get('class') == 'android.widget.EditText')
+    x,y,r,b = d.bounds(name)
+    d.tapxy((x+r)//2, (y+b)//2)
+    d.shell('input', 'keyevent', 123)
+    d.shell('input', 'keyevent', *([67]*40))
+    d.shell('input', 'text', 'HomeNew')
+    d.shell('input', 'keyevent', 'KEYCODE_BACK')
+    d.tap('Gallery')
+    d.tap('保存')
+    d.shot('home-preset-grid')
+    d.tap('启动预设 HomeNew', scroll=True)
+    assert d.overlay() and 'com.android.gallery3d' in d.foreground()
+    d.finish()
+    d.tap('添加 App', scroll=True)
+    tree = d.dump()
+    assert any(n.get('text') == '管理常用 App' for n in tree.iter('node'))
+    assert any(n.get('checked') == 'true' for n in tree.iter('node')), 'Existing apps were not retained'
+    candidate = next(n for n in tree.iter('node') if n.get('checkable') == 'true' and n.get('checked') == 'false')
+    x,y,r,b = d.bounds(candidate)
+    d.tapxy((x+r)//2, (y+b)//2)
+    d.tap('保存')
+    raw = ET.fromstring(d.adb('shell', 'run-as', PACKAGE, 'cat', 'shared_prefs/quick_launch.xml'))
+    updated = json.loads(next(n.text for n in raw if n.get('name') == 'targets'))
+    assert len(updated) == len(targets)+1 and {a['package'] for a in targets}.issubset({a['package'] for a in updated})
+    d.shot('home-app-grid')
+    tree = d.dump()
+    icons = [n for n in tree.iter('node') if n.get('content-desc', '').startswith('打开 ') and n.get('content-desc', '').endswith(' 并计时')]
+    # Four targets share a row; long names may increase the next row's height.
+    assert len(icons) >= 3
+    assert len({d.bounds(n)[1] for n in icons[:4]}) == 1, 'App shortcuts are not in the same four-column row'
+    d.tap('打开 Gallery 并计时', scroll=True)
+    assert d.overlay() and 'com.android.gallery3d' in d.foreground()
+    d.start()
+    for _ in range(4):
+        d.shell('input', 'swipe', int(d.width*.1), int(d.height*.25), int(d.width*.1), int(d.height*.9), 500)
+        time.sleep(.4)
+    d.finish()
     d.tap('使用与提醒说明', scroll=True)
     d.shell('input', 'swipe', d.width//2, int(d.height*.8), d.width//2, int(d.height*.4), 350)
     assert any('离开 App 后计时仍继续' in n.get('text', '') for n in d.dump().iter('node'))
@@ -226,7 +262,7 @@ def home(d):
         d.shell('appops', 'set', PACKAGE, 'SYSTEM_ALERT_WINDOW', 'allow')
     d.start()
     assert not any(n.get('text') == '允许显示悬浮窗' for n in d.dump().iter('node'))
-    return dict(layouts=['LIST', 'GRID', 'STRIP'], quickLaunch=True, collapsibleHelp=True,
+    return dict(fourColumnGrid=True, addAppRetainsSelection=True, newPresetEntry=True, customDefaultOneMinute=True, quickLaunch=True, collapsibleHelp=True,
                 contextualOverlayPermission=True, icons='screenshots require visual review')
 
 

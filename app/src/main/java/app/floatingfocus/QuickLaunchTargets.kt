@@ -2,7 +2,6 @@ package app.floatingfocus
 
 data class LaunchableApp(val packageName: String, val label: String)
 
-enum class QuickLaunchLayout { LIST, GRID, STRIP }
 
 object QuickLaunchTargets {
     /** An explicitly saved empty list must not resurrect the legacy single selection. */

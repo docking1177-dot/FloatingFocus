@@ -3,6 +3,11 @@ package app.floatingfocus
 import android.content.Context
 import android.content.SharedPreferences
 import android.provider.Settings
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Surface
+import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,13 +15,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -35,7 +37,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -77,14 +81,14 @@ fun QuickLaunchCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled
     }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("打开 App 并计时", style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+            Text("打开 App 并计时", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
             TextButton(enabled = enabled && !busy, onClick = { choosing = true }) {
-                Text(if (targets.isEmpty()) "添加" else "管理（${targets.size}）")
+                Text("管理（${targets.size}）", style = MaterialTheme.typography.labelMedium)
             }
         }
-        if (targets.isNotEmpty()) Text("使用当前时长与外观", style = MaterialTheme.typography.bodySmall)
-        val layout = quickLaunchLayoutPicker()
-        QuickLaunchButtons(targets, layout, enabled && !busy, launch)
+        Text("当前配置：${mode.label}" + if (mode == TimerMode.COUNTDOWN) " · ${durationLabel(seconds)}" else "",
+            style = MaterialTheme.typography.bodySmall)
+        QuickLaunchButtons(targets, enabled && !busy, launch) { choosing = true }
         if (busy) Text("正在启动…")
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
     }
@@ -136,35 +140,28 @@ fun QuickLaunchCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled
 }
 
 @Composable
-private fun QuickLaunchButtons(targets: List<LaunchableApp>, layout: QuickLaunchLayout, enabled: Boolean, launch: (LaunchableApp) -> Unit) {
-    when (layout) {
-        QuickLaunchLayout.LIST -> targets.forEach { app ->
-            FilledTonalButton(onClick = { launch(app) }, enabled = enabled, modifier = Modifier.fillMaxWidth()
-                .semantics { contentDescription = "打开 ${app.label} 并计时" }) {
-                AppIcon(app.packageName)
-                Spacer(Modifier.width(12.dp))
-                Text(app.label, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
+private fun QuickLaunchButtons(targets: List<LaunchableApp>, enabled: Boolean, launch: (LaunchableApp) -> Unit, onAdd: () -> Unit) {
+    (targets + listOf<LaunchableApp?>(null)).chunked(4).forEach { row ->
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            row.forEach { app ->
+                val label = app?.label ?: "添加 App"
+                Column(Modifier.weight(1f).heightIn(min = 84.dp)
+                    .clickable(enabled = enabled) { if (app == null) onAdd() else launch(app) }
+                    .semantics { contentDescription = if (app == null) "添加 App" else "打开 ${app.label} 并计时" }
+                    .padding(vertical = 4.dp).alpha(if (enabled) 1f else .38f),
+                    horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.secondaryContainer,
+                        modifier = Modifier.size(48.dp)) {
+                        androidx.compose.foundation.layout.Box(contentAlignment = Alignment.Center) {
+                            if (app == null) Text("+", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
+                            else AppIcon(app.packageName, 32.dp)
+                        }
+                    }
+                    Text(label, style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center,
+                        maxLines = 2, overflow = TextOverflow.Ellipsis)
+                }
             }
-        }
-        QuickLaunchLayout.GRID -> targets.chunked(2).forEach { pair ->
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                pair.forEach { app -> QuickLaunchTile(app, enabled, Modifier.weight(1f), launch) }
-                if (pair.size == 1) Spacer(Modifier.weight(1f))
-            }
-        }
-        QuickLaunchLayout.STRIP -> LazyRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(targets, key = { it.packageName }) { app -> QuickLaunchTile(app, enabled, Modifier.width(156.dp), launch) }
-        }
-    }
-}
-
-@Composable
-private fun QuickLaunchTile(app: LaunchableApp, enabled: Boolean, modifier: Modifier, launch: (LaunchableApp) -> Unit) {
-    FilledTonalButton(onClick = { launch(app) }, enabled = enabled, modifier = modifier.heightIn(min = 96.dp)
-        .semantics { contentDescription = "打开 ${app.label} 并计时" }) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            AppIcon(app.packageName)
-            Text(app.label, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            repeat(4 - row.size) { Spacer(Modifier.weight(1f)) }
         }
     }
 }

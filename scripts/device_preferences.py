@@ -51,7 +51,7 @@ def preferences(d):
     d.stop()
     d.write_prefs('quick_durations', {'minutes': '1,2,15,30'}) # exercise legacy read
     d.start()
-    d.tap('1 \u5206\u949f')
+    d.tap('1\u5206')
     d.tap('\u81ea\u5b9a\u4e49\u65f6\u957f')
     assert wheel(d, '\u5206')[1] == 1 and wheel(d, '\u79d2')[1] == 0
     node, _ = wheel(d, '\u79d2')
@@ -100,7 +100,7 @@ def preferences(d):
     d.stop()
     d.start()
     assert pref_values(d) == saved
-    assert any(n.get('text') == '1 \u5206 5 \u79d2' for n in d.dump().iter('node'))
+    assert any(n.get('text') == '1:05' for n in d.dump().iter('node'))
     # Same configuration becomes invalid at a shorter actual duration. Test all three launch paths.
     d.stop()
     settings = dict(saved, warmPercent=80, urgentSeconds=20)
@@ -109,7 +109,7 @@ def preferences(d):
                   targetPackage='com.android.gallery3d', targetLabel='Gallery', settings=settings)
     d.write_prefs('timer_presets', {'items': json.dumps([preset])})
     d.start()
-    d.tap('1 \u5206 5 \u79d2')
+    d.tap('1:05')
     for entry in ('\u5f00\u59cb\u5012\u8ba1\u65f6', '\u542f\u52a8\u9884\u8bbe Conflict', '\u6253\u5f00 Gallery \u5e76\u8ba1\u65f6'):
         d.tap(entry, scroll=True)
         assert d.overlay() is None

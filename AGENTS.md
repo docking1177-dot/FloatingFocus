@@ -4,7 +4,7 @@
 
 - Android 原生 Kotlin / Jetpack Compose 悬浮渐进提醒计时器，包名 `app.floatingfocus`。
 - 保持轻量：功能变更以当前需求为界，不顺带扩展权限、依赖或后台保活机制。
-- 首页服务于快速开始计时：优先呈现时长选择、开始按钮和常用 App 快捷启动；不放重复的大型时间展示。运行状态采用紧凑、可操作的表达，时间感知主要交给悬浮窗；删减内容时同步收紧首屏间距。
+- 首页使用「常规计时」「我的预设」「打开 App 并计时」三张卡片分组，配色沿用产品主题；时长档位四格等宽，预设双列、快捷 App 四列图标网格，末尾分别提供新建预设/添加 App，管理入口保留。自定义时长独立记住本页最近选择，首次 1 分钟，不改普通计时默认档位。首页服务于快速开始计时：优先呈现时长选择、开始按钮和常用 App 快捷启动；不放重复的大型时间展示。运行状态采用紧凑、可操作的表达，时间感知主要交给悬浮窗；删减内容时同步收紧首屏间距。
 - 快捷 App 用本机应用图标与名称辨识，共同启动说明放在分组层级，不在每个按钮重复。首页操作区与帮助区明确分隔；操作/提醒规则默认折叠，缺失权限才显示对应提示，阻断启动的权限提示靠近开始操作。图标读取失败使用占位，不新增权限或图像依赖；入口为 `AppIcon.kt` / `QuickLaunchCard.kt`。
 - 界面文案从简：只保留操作、状态、必要说明与错误提示；删除宣传语、情绪性文案、重复提示和非必要的颜色阶段介绍，并收起删除后多余的留白。可保留 Floating Focus 标题，不以精简为由删去权限说明、操作指引或必要的调试信息。
 - 外观设置需要即时可见的反馈：优先复用真实渲染组件，调参时保持预览可见；预览状态不进入真实计时，也不触发服务或震动。保留必要说明，明确预览进度与真实进度的区别。
@@ -22,7 +22,7 @@
 - 预设方案在 `TimerPreset.kt` / `TimerPresetStore.kt`，保存时长及完整外观快照；入口与管理在 `TimerPresetsCard.kt`；预设按双列网格随页面纵向浏览，显示名称、目标 App 和时长，不依赖横向滑动。与快捷启动分区区分：前者使用保存配置，后者使用当前配置。编辑复用 `SettingsActivity` 的独立草稿，取消不写回；预设绑定的 App 仅通过 `ShortcutAppPicker.kt` 从现有快捷列表选择，点击预设直接启动；旧预设先补绑定。复用 `AppTimerLauncher.kt` 和正式计时服务，禁止新建平行计时系统。行为及存储见 `docs/PRESETS.md`。
 - 倒计时归零后继续显示超时正计时，独立正计时也复用 `Countdown` / `FloatingService`，正计时不得触发归零提醒。到时加时直接在 `FocusOverlay.kt` 内调节并确认，不跳转 Activity、不销毁重建窗口，从确认时开始新一段，保留同一会话、既有累计时长和超时，防止旧页面或重复操作误加时。时长记录在 `TimerRecord.kt` / `TimerRecordStore.kt`，查看及 CSV 导出在 `HistoryActivity.kt`；记录 FF 会话而非 App 前台使用时间。进程异常结束只能保证最后持久化进度，恢复须标注约计，禁止把停机时间累计进去或承诺精确捕获强杀时刻。划掉 FF 时结算并停止，不新增监测权限、保活或自动重启。见 `docs/TIME_RECORDS.md`。
 - App 自动计时已 Deferred：`FeatureFlags.APP_USAGE_AUTO_TIMER=false`，禁止未经新需求重新启用或继续优化监测；保留代码和测试，进度/恢复步骤见 `docs/AUTO_TRIGGER.md`。禁止无障碍路径。
-- 一键打开目标 App + 手动计时在 `QuickLaunchCard.kt`，复用 `FloatingService`；多选迁移在 `QuickLaunchTargets.kt`，App 列表在 `LaunchableApps.kt`。Debug 的 `QuickLaunchLayoutPicker.kt` 提供布局比较，Release 固定列表。不读取使用事件，行为与验收见 `docs/QUICK_LAUNCH.md`。
+- 一键打开目标 App + 手动计时在 `QuickLaunchCard.kt`，复用 `FloatingService`；多选迁移在 `QuickLaunchTargets.kt`，App 列表在 `LaunchableApps.kt`。已确认四列图标网格，Debug/Release 统一，移除布局比较入口。不读取使用事件，行为与验收见 `docs/QUICK_LAUNCH.md`。
 - 上述源码均位于 `app/src/main/java/app/floatingfocus/`；JVM 测试在 `app/src/test/`。
 
 ## 工作与检查

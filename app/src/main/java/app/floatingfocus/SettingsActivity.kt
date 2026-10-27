@@ -44,8 +44,8 @@ class SettingsActivity : ComponentActivity() {
             val presets by presetStore.presets.collectAsStateWithLifecycle()
             val preset = presets.firstOrNull { it.id == presetId }
             val editing = presetId != null
-            var page by rememberSaveable { mutableStateOf(if (intent.getBooleanExtra("open_strategy", false)) "strategy" else if (editing) "appearance" else "home") }
-            val back: () -> Unit = { page = if (intent.getBooleanExtra("open_strategy", false)) "strategy" else if (editing) "appearance" else "home" }
+            var page by rememberSaveable { mutableStateOf(if (intent.getBooleanExtra("open_strategy", false)) "strategy" else if (editing) "appearance" else intent.getStringExtra("settings_page")?.takeIf { it == "durations" } ?: "home") }
+            val back: () -> Unit = { page = if (editing) "appearance" else "home" }
             BackHandler(enabled = page != "home" && (!editing || page != "appearance"), onBack = back)
             if (!editing && page == "home") {
                 SettingsHome(onBack = { finish() }, onOverlay = { page = "appearance" },
