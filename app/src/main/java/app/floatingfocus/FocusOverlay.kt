@@ -74,14 +74,16 @@ fun FocusOverlay(
     val foreground = if (c4.active) Color(0xFFDAF293) else Color(ReminderPresenter.contentColor(background))
     val textStyle = TextStyle(color = foreground,
         shadow = if (foreground == Color.White) Shadow(Color.Black, blurRadius = 2f) else null)
+    // The background padding belongs to the same tap target as the time. Native
+    // hit testing rejects transparent corners; child controls consume their own taps.
+    val toggleControls = Modifier.clickable(enabled = controlsEnabled,
+        interactionSource = remember { MutableInteractionSource() }, indication = null) { expanded = !expanded }
     // One alpha layer for the whole window. No glyph backgrounds or independent opaque children.
     Surface(color = if (c4.active) Color(0xFF343A28) else Color(background), shape = CircleShape,
         modifier = Modifier.padding(2.dp).graphicsLayer { this.alpha = appearance.opacity }) {
         Layout(content = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                // The default bounded ripple draws a rectangular patch behind the time.
-                val header = Modifier.clickable(enabled = controlsEnabled,
-                    interactionSource = remember { MutableInteractionSource() }, indication = null) { expanded = !expanded }
+                val header = toggleControls
                     .semantics { contentDescription = if (controlsEnabled)
                         "${appearance.title}，点击${if (expanded) "收起" else "展开"}操作，可拖动" else appearance.title }
                     .padding(4.dp)
@@ -127,7 +129,7 @@ fun FocusOverlay(
                     }
                 }
             }
-        }, modifier = Modifier.drawWithContent {
+        }, modifier = toggleControls.drawWithContent {
             if (c4.active) drawC4Device(appearance.title, c4, showingControls, paused)
             if (!c4.active || showingControls) drawContent()
         }) { measurables, constraints ->

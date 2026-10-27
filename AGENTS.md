@@ -15,6 +15,7 @@
 - 主动归纳用户反复强调或明确确认的产品取舍，在相关改动中同步更新本指南，无需等待单独要求写文档。记录原则、适用边界与代码入口，不把一次性的实现选择扩大成永久规则，不擅自扩大功能或权限范围。
 - 主界面在 `MainActivity.kt`；会话和前台服务在 `FloatingService.kt`；计时模型在 `Countdown.kt`。
 - 浮窗宿主与边界在 `OverlayWindow.kt`，整个窗口的手势分发在 `OverlayTouchLayout.kt`，手势状态在 `OverlayDragGesture.kt`，内容在 `FocusOverlay.kt`。
+- 浮窗可见背景与时间标题均可点击展开/收起，内部按钮和分秒滚轮保留各自操作，透明角落不响应；展开/收起应一次完成尺寸与位置变化，宿主在测量阶段按新尺寸计算位置，不在布局完成后补移窗口；Android 14+ 通过公开 API 关闭本窗口额外的位移动画，旧系统保留兼容路径，不使用隐藏 API。
 - 提醒策略与渲染数据在 `ReminderPresentation.kt`；阶段色差和提醒动画应清晰可辨，提亮通过背景颜色完成，不降低用户设置的不透明度；文字和图标随背景选择可读的前景色。实验室仅在 `app/src/debug/`，不得把模拟状态写入正式服务。使用与设计按需看 `docs/REMINDER_LAB.md`。
 - 正式外观设置在 `SettingsActivity.kt`，统一由 `ReminderSettingsStore.kt` 持久化并实时共享；实验室只读取外观配置，不新增平行调参入口。颜色/形状、版本边界及震动链路见 `docs/SETTINGS.md`，归零单次触发由 `CompletionReminder.kt` 管理。
 - 浮窗透明度统一作用于背景、文字和图标，不添加独立不透明的文字底色；基础尺寸与动态倍率只应用一次，禁止用自动缩字结果循环决定窗口尺寸。展开、收起及加时面板复用同一个浮窗，临时防越界不能覆盖用户位置锚点；`OverlayPosition.kt` 区分用户拖动与内容缩放。时间区域不使用矩形点击波纹。`OverlayGeometry.kt` 负责几何计算，`OverlayShapePicker.kt` 提供三种图形化选择，保留旧形状配置键兼容。

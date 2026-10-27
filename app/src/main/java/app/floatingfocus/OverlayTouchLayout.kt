@@ -16,7 +16,8 @@ internal class OverlayTouchLayout(
     context: Context,
     private val onDragStart: () -> Unit,
     private val onDrag: (Float, Float) -> Unit,
-    private val onDragEnd: () -> Unit = {}
+    private val onDragEnd: () -> Unit = {},
+    private val onMeasured: (Int, Int) -> Unit = { _, _ -> }
 ) : FrameLayout(context) {
     private val gesture = OverlayDragGesture(ViewConfiguration.get(context).scaledTouchSlop)
     private var geometry = OverlayShape.ROUNDED_RECTANGLE
@@ -24,6 +25,13 @@ internal class OverlayTouchLayout(
     private var acceptingTouch = false
     private var childScrolling = false
     private val touchRegion = Region()
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        // ViewRoot submits the measured size after this returns. Update the anchor
+        // offset in that same traversal, before the new content can be drawn.
+        onMeasured(measuredWidth, measuredHeight)
+    }
 
     fun setGeometry(shape: OverlayShape, size: Float) {
         if (geometry == shape && scale == size && !touchRegion.isEmpty) return

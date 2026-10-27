@@ -289,8 +289,10 @@ def edges(d):
             d.shell('input', 'swipe', cx, cy, x, y, 450)
             time.sleep(.3)
             initial = d.frame()
-            for _ in range(2):
-                d.tapxy(*d.center())
+            for attempt in range(2):
+                # Exercise both the title and visible background away from digits.
+                a, b, r, bottom = d.frame()
+                d.tapxy((a+r)//2, (b+bottom)//2 if attempt == 0 else b+(bottom-b)*.18)
                 expanded = d.frame()
                 assert expanded != initial, (shape, edge, 'did not expand')
                 # Expanded controls are one 48dp row. Fixture scale is 1.5.
@@ -302,8 +304,8 @@ def edges(d):
                 else:
                     cx, cy = d.center()
                     d.tapxy(cx, cy - 24*d.density*1.5)
-                # Content size and WindowManager position settle on separate frames.
-                # Assert the restored result, not an intermediate resized frame.
+                # ADB queries are asynchronous; allow the collapse traversal to run.
+                # Transient frame placement also needs a recorded-frame review.
                 deadline = time.monotonic() + 3
                 collapsed = d.frame()
                 while max(abs(a-b) for a, b in zip(initial, collapsed)) > 1 and time.monotonic() < deadline:

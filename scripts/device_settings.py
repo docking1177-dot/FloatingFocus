@@ -29,10 +29,17 @@ def settings(d):
         d.tap('启动预设 ' + name, scroll=True)
         deadline = time.monotonic() + 8
         while time.monotonic() < deadline:
-            if 'com.android.gallery3d' in d.foreground() and d.overlay():
-                return
+            if 'com.android.gallery3d' in d.foreground():
+                overlay = d.overlay()
+                if overlay:
+                    x, y, r, b = overlay[1]
+                    # addView initially exposes a full-display provisional frame.
+                    # These base-size horizontal fixtures must be measured before
+                    # center() can be used as the start of a real window drag.
+                    if 0 < b-y < r-x < d.width:
+                        return
             time.sleep(.2)
-        raise AssertionError('Preset did not launch target App')
+        raise AssertionError('Preset did not launch target App with a measured overlay')
 
     def drag_to(x, y):
         cx, cy = d.center()
@@ -143,7 +150,9 @@ def settings(d):
     d.tap('开始倒计时')
     time.sleep(.5)
     drag_to(d.width//2, d.height//2)
-    d.finish()
+    # The centered overlay covers the Activity's stop button. This case checks
+    # preset isolation, so clean up the fixture without tapping through a window.
+    d.stop()
     assert presets()[0] == saved_a and presets()[1] == saved_b
     return dict(independentSwitches=True, settingsPersisted=True, settingsBackNavigation=True,
                 distinctPresetPositions=True, restartRestores=True, rotationPreservesAnchor=True,

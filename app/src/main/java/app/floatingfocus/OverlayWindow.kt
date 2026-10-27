@@ -64,7 +64,7 @@ class OverlayWindow(private val context: Context,
     private var dragStartY = 0
     private val view = OverlayTouchLayout(context,
         onDragStart = { dragStartX = params.x; dragStartY = params.y },
-        onDrag = ::dragTo, onDragEnd = ::persistPosition)
+        onDrag = ::dragTo, onDragEnd = ::persistPosition, onMeasured = ::placeMeasured)
     private var attached = false
     private var closed = false
     private var positioned = false
@@ -81,6 +81,11 @@ class OverlayWindow(private val context: Context,
         flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
         format = PixelFormat.TRANSLUCENT
         gravity = Gravity.TOP or Gravity.LEFT
+        if (Build.VERSION.SDK_INT >= 34) {
+            // Resize and its center-preserving offset are one visual change, not
+            // a new-size buffer followed by WindowManager's position animation.
+            setCanPlayMoveAnimation(false)
+        }
         if (Build.VERSION.SDK_INT >= 30) {
             setFitInsetsTypes(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
         }
@@ -95,20 +100,8 @@ class OverlayWindow(private val context: Context,
         view.setViewTreeViewModelStoreOwner(owner)
         composeView.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         composeView.setContent(content)
-        view.alpha = 0f // reveal only after the first measured position is restored
         view.addView(composeView, FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT))
-        view.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-            if (!positioned && view.width > 0) {
-                positioned = true
-                params.x = safeSize().x - view.width - dp(16)
-                params.y = dp(36)
-                position.anchor(params.x, params.y, view.width, view.height)
-                update()
-            }
-            clampPosition()
-            view.alpha = 1f
-        }
         try {
             manager.addView(view, params)
             attached = true
@@ -133,10 +126,18 @@ class OverlayWindow(private val context: Context,
     }
 
     fun clampPosition() {
-        if (!attached || closed || !positioned) return
+        placeMeasured(view.measuredWidth, view.measuredHeight)
+    }
+
+    private fun placeMeasured(width: Int, height: Int) {
+        if (!attached || closed || width <= 0 || height <= 0) return
         val size = safeSize()
+        if (!positioned) {
+            positioned = true
+            position.anchor(size.x - width - dp(16), dp(36), width, height)
+        }
         rememberedAnchor?.let { position.restore(it, size.x, size.y) }
-        val (x, y) = position.place(view.width, view.height, size.x, size.y)
+        val (x, y) = position.place(width, height, size.x, size.y)
         if (params.x == x && params.y == y) return
         params.x = x
         params.y = y
