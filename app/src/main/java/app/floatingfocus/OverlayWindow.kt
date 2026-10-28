@@ -180,5 +180,9 @@ class OverlayWindow(private val context: Context,
 
     private fun dp(value: Int) = (value * context.resources.displayMetrics.density).roundToInt()
 
-    fun setGeometry(shape: OverlayShape, size: Float) { view.setGeometry(shape, size) }
+    fun setGeometry(shape: OverlayShape, size: Float, device: Boolean = false, opacity: Float = 1f) {
+        view.setGeometry(shape, size, device)
+        val windowAlpha = if (device) opacity else 1f
+        if (params.alpha != windowAlpha) { params.alpha = windowAlpha; update() }
+    }
 }

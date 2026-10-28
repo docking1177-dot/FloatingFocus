@@ -1,40 +1,50 @@
-# C4 倒计时（开发分支）
+# C4 装置交互与本机音轨
 
-## 行为与边界
+## 已确认的行为
 
-设置 → 提醒 → 末段特效：C4 默认关闭，音效默认开启（关闭 C4 时隐藏音效项）。两项独立保存在 `c4_settings`，不进入预设快照；修改全局开关即时影响正在进行的倒计时。正式版可用，无新权限、服务、依赖或自动监测。
+本轮在 `feat/c4-countdown` 开发，用户确认快进到 `7f031ec` 保留教程、设置导航和历史统计；不合并 main、不发布、不改版本。C4 仍是原会话、原服务、原 WindowManager 窗口的一种阶段。全局启用开关在会话开始时取快照，只影响下一次会话；音效开关可即时静音。预设结构不变，正计时排除。
 
-只替换倒计时最后 40 秒的视觉和音效；60 秒计时在剩余 40 秒进入，40/30/10 秒从对应剩余时间进入。保留原形状、位置、基础尺寸、动态尺寸及整体透明度；期间暂停原有背景闪烁，避免两套动画叠加。归零恢复原外观，继续原超时计时及单次震动；原来没有结束提示音，因此不存在另一段结束音同时播放。
+倒计时最后 **44.439 秒**自动展开 C4 装置，包含下包，不增加计时时长。此前折叠沿用用户形状和普通展开操作。短计时从 `44.439秒－剩余时间` 进入音轨，不重播完整下包、不延长截止；位置、透明度和拖动沿用原窗口与锚点。阶段内不再收起，键盘始终可达，不显示额外解释卡片或关闭按钮。
 
-启用 C4 后，倒计时展开浮窗提供暂停/继续；暂停冻结倒计时、LED 和声光调度，停止当前短音。恢复不会重播已经消费的滴声，从下一节点继续。关闭 C4 后已暂停的计时仍可继续。提前结束、划掉 FF 或服务销毁会释放播放器，不播放爆炸。加时沿用同会话的新计时段，重置该段的 C4 消费状态。正计时排除。
+音轨位置达到 **4.92 秒**后开放键盘；早先 DOWN 的按键即使 UP 时已开放也不提交。数字一击一位，* 退格、# 清空，第七位自动校验固定口令 `7355608`。错误短暂变色并清空，可立刻重试，不扣时间、不锁定、不添加按键声音或振动。LCD 固定两行显示剩余时间和七位输入槽，不移动倒计时。
 
-`Countdown` 算法保持不变，`SessionClock` 把暂停区间从单调采样时钟扣除。历史记录仍是既有 FF 会话墙钟时长（含暂停停留），不是目标 App 的前台使用时长；不会把暂停功能误当作新增 App 监测。休眠可能延后回调，不保证精确闹钟或系统杀进程后的播放。
+密码成功立即停止声音、计时回调和会话记录，LCD 绿色反馈约 220ms 后关闭同一浮窗。第七位按同一单调采样时刻判断：截止前完成可解除，截止及之后归零优先；成功后其他输入忽略。服务阶段限制同时覆盖首页、通知、旧停止请求、暂停和加时，不能只靠隐藏按钮。尚未成功打开目标 App 的启动失败仍正常取消，不产生目标 App 记录。
 
-## 还原依据及明确偏差
+自然归零执行既有单次振动和完成链路，爆炸段只消费一次；尾音 5.902 秒结束后恢复原超时浮窗及正常操作，会话累计继续。音效关闭或文件不可用也使用同一视觉/输入/尾音时序，不能等待播放器完成才归零。划掉 FF、强停、撤权、服务失败或进程销毁仍正常清理，不补播爆炸，不新增保活、权限、服务或并行计时器。
 
-- [Valve 2023-10-17 官方更新](https://store.steampowered.com/news/posts/?appids=730&enddate=1697746392&feed=steam_community_announcements)确认 CS2 最后 10 秒使用新声音。它没有提供逐次滴声/LED 的精确时间轴。
-- [用户提供的官方更新汇总](https://store.steampowered.com/news/posts/?appids=730&enddate=1699055103&feed=steam_community_announcements)包含上述更新。
-- [CS2 schema 镜像](https://github.com/SteamTracking/GameTracking-CS2/blob/master/DumpSource2/schemas/client/C_PlantedC4.h)可见 NextGlow、NextBeep 和 TenSecWarning 字段，但不包含实现，不能据此推导间隔或证明原版声光完全同步。
-- [2017 旧版参考代码](https://git.botox.bz/BotoX/hl2_src-leak-2017/src/branch/botox/src/game/client/cstrike/c_plantedc4.cpp)不属于当前 CS2。本项目没有复制该文件的实现或素材。
+设置首次开启时说明口令、开放时刻和退出限制，支持取消；运行面板仅保留必要数字反馈。系统级停止始终有效。普通计时、记录的暂停口径和预设位置语义保持。
 
-**当前未获得可核对的当前 CS2 40 秒录制及逐帧/逐音时间轴，因此这是可配置的近似特效，不宣称原版精确还原。** 默认连续加速采用需求给出的旧版参考公式 `max(150, 100 + 0.9 × remainingMillis / 40)`（毫秒），不是三个固定慢/中/快阶段。最后 10 秒切换本项目原创双脉冲高音，同时延长 LED 脉冲至 120ms；这部分音色、频率、脉冲宽度、爆炸音均未与 CS2 实测对齐。示意装置是原创简化矢量图，不是游戏模型/贴图。
+## 素材与时间依据
 
-后续拿到合法可用的录制后，应标注游戏构建/录制条件，提取每次声音及 LED 时间点，与本实现日志比较后替换配置；不能把现有近似值反标为测量结果。
+图片仅参考比例、块体、LCD、绑带、键盘与线材；`C4Device.kt` 为原生原创绘制和真实按键，无截图底板、外部卡片或遮罩。透明度在 C4 窗口层统一应用一次，普通浮窗继续沿用原透明层。
 
-## 配置、音频与职责
+用户提供 `C4_Explosive_SFX.lrc` 共 **136 条事件**，标准化为 `app/src/main/assets/c4_timeline.lrc`，逐条保留原内容和编号：25 次下包声、下包完成、88 滴、过渡、11 次快速连响、10 个爆炸/余震/尾音/结束节点。频率、波形和声音描述均是所给标注，未经本轮重新测量。LED 为依据该音轨标注设计的同步效果，不声称 CS2 原版灯光精确还原。
 
-- `C4SettingsStore.kt`：全局开关持久化；`ReminderEffectsScreen.kt`：提醒设置入口。
-- `C4Timeline.kt`：纯时间轴、每段去重状态、暂停时钟。`assets/c4_profile.json`：间隔/最后阶段/容许迟到参数；`measuredRemainingMillis` 可填严格递减的实测剩余毫秒值，优先替代公式。校验非法配置后记录警告并回退近似值。
-- `C4Runtime.kt`：现有 `FloatingService` 拥有的控制器，按单调时钟算下一事件，一次消费当前事件，不追补积压声音。音频加载未就绪不提前消费当前节点；超过迟到容限则跳过。LED 和 SoundPool 请求在同一次回调开始，LED 持续对应短音时长；不承诺硬件输出延迟为零。
-- `C4Audio.kt`：统一可替换声音表，SoundPool 单声道播放流、预加载、音频焦点与清理。使用媒体音量；静音、振动模式、勿扰、媒体音量为零或焦点丢失时不播放，不写系统音量，不绕过系统限制。参考 [SoundPool](https://developer.android.com/reference/android/media/SoundPool) / [AudioFocusRequest](https://developer.android.com/reference/android/media/AudioFocusRequest)。
-- `C4Device.kt` / `FocusOverlay.kt`：在同一个现有浮窗中绘制，渲染不推进时间轴；折叠/展开仍使用原交互和位置锚点。
+M4A 前段 edit list 为 44439ms，AAC 预留 1024 样本；去除预留后的内容是 1959760/44100 = 44.439002秒。爆炸段为 260272/44100 = 5.901859秒；两段样本数之和与完整 WAV 的 2220032 样本一致。完整轨约 50.340862 秒。LRC 爆炸标注是 44.44秒，仍原样保留；运行截止使用前段 44.439秒，相差约 1ms。长度和样本数相符只证明长度核对，不证明主观衔接连续。
 
-三个 `res/raw/c4_*.wav` 是 `scripts/generate-c4-audio.py` 确定性合成的原创 PCM 短音：80ms 普通音、120ms 最后阶段音、900ms 爆炸示意音，适用项目 MIT 许可。无需下载资源，可用 `python scripts/generate-c4-audio.py` 重建。替换音频须先确认授权，保持短音不超过对应脉冲及最短间隔；不要公开打包未经授权的 Valve 原始素材。
+## 音频只在本机 Debug
 
-## 验证入口
+用户确认公开分发授权未明确：两段 M4A 仅复制到被 Git 忽略的 `.tools/c4-local-assets/c4/pre_explosion.m4a` 与 `explosion.m4a`。Gradle 只为 Debug 添加该资源目录，m4a 不压缩以供 AssetFileDescriptor 播放；Release 与公开仓库不含录音，完整参考音轨不打包。没有本地文件的构建会说明音轨缺失，视觉和输入仍可用。未来分发音频须另核对来源与授权，不能因原文件名含 No Copyright 就认定获得授权。
 
-- `./scripts/check.ps1 -Offline`、Release 对应检查：编译、JVM 时间轴/暂停/去重/短预设兼容及 Lint。
-- `python -m unittest discover -s scripts/tests -v`：含音频格式/时长与时间轴配置一致性。
-- 专用模拟器 `./scripts/test-device.ps1 -Suite c4 -AllowTestDataChanges`：真实设置默认值/持久化，预设启动 Gallery 后台运行，60/40/30/10 秒自然归零，40 秒边界同窗口/同几何，暂停/恢复/取消、静音效、关 C4、正计时；自动备份还原数据，保存日志/截图和源码/APK 身份。
+其他机器可自行把已获准本机使用的前段、爆炸段放到上述目录；不需要下载或修改系统配置。`scripts/source_state.py` 记录两文件哈希作为本地构建输入，APK 校验值绑定实际声音来源，不把私有媒体内容提交。
 
-模拟器日志 `played=true` 只证明 SoundPool 接受请求，不能证明真机扬声器可听、硬件延迟或主观原版还原度。真机需另验音量/静音/勿扰/来电焦点、厂商后台限制及听感。实际执行结果见开发交付报告，不把这些入口存在写成已通过。
+`C4Audio` 使用平台 MediaPlayer，两个预加载长音轨不同时播放：阶段切换先暂停旧段，再启动新段；完整参考轨不与分段混播。不再使用 SoundPool 短音及旧 40 秒近似公式。单调时钟决定播放目标位置，短计时/焦点恢复 seek 到当前进度；跳过错过区间，不集中补播。播放器回调只管理声音，不修改计时或驱动归零。维持媒体音量、静音/振动/勿扰及音频焦点限制，不强制音量；按键从不依赖音频成功。
+
+Android 的 seek 有帧粒度和异步延迟，定位只用于起播/恢复/切段，不按每个 LED 节点反复 seek。过期异步定位最多纠正两次，仍无法及时定位则静音该段并释放焦点，计时和键盘继续；不在卡顿后播放连续的过期短片。两个播放器切换仍需实测扬声器/耳机衔接、切音与同步；本轮未进行听感验收，不以开始播放日志冒充实际可听或无缝衔接。
+
+## 触摸与窗口边界
+
+`C4Geometry` 共享按键/显示屏几何，按键目标至少 44dp，横屏先压缩装饰；极短高度保留键盘内部滚动。键区不拖动窗口，移动超过系统 touch slop 取消点击，双指取消，只有装置实体非键区可拖。图案外不处理装置动作，不用隐藏 API 或无障碍服务。
+
+API33+ 使用 AttachedSurfaceControl.setTouchableRegion 裁剪实体触摸区域，低版本仅拒绝外部事件，不能保证相同的区域穿透。C4 的 LayoutParams.alpha 使用用户透明度，并且 Compose 不再次降低透明度。Android12+ 对跨 UID 触摸还有遮挡不透明度规则；不擅自把用户透明度压到 0.8 以下，不把同 UID 测试冒充跨应用验证。透明显示、无装置响应、下层应用实际收到触摸分别验收；未测平台或高不透明度限制须单独报告。
+
+## 验证与代码入口
+
+- `C4Timeline.kt`：136 事件、阶段、口令、原 SessionClock；`C4Runtime.kt`：本会话快照、单调节点调度、播放/输入/归零去重。
+- `C4Device.kt` / `C4Geometry.kt` / `OverlayTouchLayout.kt`：真实键帽、显示屏、几何与手势；`FloatingService.kt`：同会话接入、所有正常停止入口的阶段守卫、完成与清理。
+- `ReminderEffectsScreen.kt` / `C4SettingsStore.kt`：全局设置和首次说明；不进入预设。
+- `./scripts/check.ps1 -Offline` 与 Release Full；`python -m unittest discover -s scripts/tests -v`；设备 `./scripts/test-device.ps1 -Suite c4 -Serial emulator-5556 -AllowTestDataChanges`。
+
+设备脚本复用统一备份还原与源码/APK 绑定；覆盖折叠/下包/开放/错误/解除/归零尾音，真实键盘与拖动、首页/通知限制、短起点、关音效、旋转、撤权/强停和普通模式。运行证据在 `.tools/checks/` 和 `.tools/device-checks/`。模拟器无扬声器听感证明，真机与音频衔接未执行的项目不能写成通过。
+
+官方约束：[SoundPool 单样本长度限制](https://developer.android.com/reference/android/media/SoundPool)、[MediaPlayer seek](https://developer.android.com/reference/android/media/MediaPlayer#seekTo(long,int))、[音频焦点](https://developer.android.com/media/optimize/audio-focus)、[公开触摸区域 API33](https://developer.android.com/reference/android/view/AttachedSurfaceControl#setTouchableRegion(android.graphics.Region))、[窗口遮挡限制](https://developer.android.com/reference/android/view/WindowManager.LayoutParams#FLAG_NOT_TOUCHABLE)。

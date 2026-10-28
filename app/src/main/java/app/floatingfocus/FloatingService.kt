@@ -45,7 +45,8 @@ data class SessionState(
     val mode: TimerMode = TimerMode.COUNTDOWN,
     val elapsedMillis: Long = 0,
     val overtimeMillis: Long = 0,
-    val timerStartedAt: Long = 0
+    val timerStartedAt: Long = 0,
+    val c4Locked: Boolean = false
 )
 
 class FloatingService : Service() {
@@ -123,7 +124,8 @@ class FloatingService : Service() {
             val stage = settingsStore.settings.value.strategy.stage(ReminderSnapshot.at(timer, now))
             val previousStage = overlayState.stage
             overlayState = SessionState(true, remaining, progress, stage, mode = timer.mode,
-                elapsedMillis = timer.elapsedAt(now), overtimeMillis = timer.overtimeAt(now), timerStartedAt = timer.startedAt, paused = manualClock.paused)
+                elapsedMillis = timer.elapsedAt(now), overtimeMillis = timer.overtimeAt(now), timerStartedAt = timer.startedAt,
+                paused = manualClock.paused, c4Locked = c4Frame.active)
             checkpointRecord(physicalNow)
             record?.let { recordStore.save(it, checkpoint = true) }
             mutableSession.value = overlayState
@@ -142,6 +144,7 @@ class FloatingService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_EXTENSION_EDITOR) {
+            if (c4Runtime?.locked() == true) return START_NOT_STICKY
             val timer = countdown
             if (timer == null) { if (monitor == null) stopSelf(startId); return START_NOT_STICKY }
             if (!stopping && timer.mode == TimerMode.COUNTDOWN &&
@@ -150,7 +153,15 @@ class FloatingService : Service() {
             }
             return START_NOT_STICKY
         }
-        if (intent?.action == ACTION_STOP) { finishSession(); return START_NOT_STICKY }
+        if (intent?.action == ACTION_STOP) {
+            if (c4Runtime?.locked() != true) finishSession()
+            else Log.d(TAG, "C4 normal stop rejected")
+            return START_NOT_STICKY
+        }
+        if (intent?.action == ACTION_LAUNCH_FAILED) {
+            if (awaitingApp != null && record == null) finishSession(status = RecordStatus.ERROR)
+            return START_NOT_STICKY
+        }
         if (intent?.action == ACTION_APP_OPENED) {
             val target = intent.getStringExtra("app_package")
             if (countdown != null && target != null && target == awaitingApp && !stopping) {
@@ -192,7 +203,7 @@ class FloatingService : Service() {
         interactive = getSystemService(PowerManager::class.java).isInteractive
         val nm = getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(NotificationChannel(CHANNEL, "悬浮计时", NotificationManager.IMPORTANCE_LOW).apply {
-            description = "用户主动开启的悬浮倒计时；可随时结束"
+            description = "用户主动开启的悬浮计时"
             setSound(null, null)
             enableVibration(false)
         })
@@ -202,7 +213,7 @@ class FloatingService : Service() {
                 startForeground(NOTIFICATION_ID, notification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
             } else startForeground(NOTIFICATION_ID, notification())
             c4Runtime = C4Runtime(this, { countdown }, { manualClock.at(SystemClock.elapsedRealtime()) },
-                { manualClock.paused }, { c4Frame = it }, ::completeCountdown)
+                { manualClock.paused }, ::publishC4Frame, ::completeCountdown)
             showOverlay()
             if (stopping) return START_NOT_STICKY
             ContextCompat.registerReceiver(this, screenReceiver,
@@ -233,18 +244,30 @@ class FloatingService : Service() {
         window = overlay
         overlay.show { FocusTheme {
             val settings by settingsStore.settings.collectAsState()
-            val c4Settings by C4SettingsStore.get(this).settings.collectAsState()
             val normal = ReminderPresenter.present(ReminderSnapshot(overlayState.remainingMillis, overlayState.progress,
                 overlayState.overtimeMillis, overlayState.mode, overlayState.elapsedMillis, countdown?.durationMillis ?: 0), settings)
             val appearance = if (c4Frame.active || manualClock.paused) normal.copy(pulseDepth = 0f, animationStrength = 0f) else normal
-            SideEffect { overlay.setGeometry(appearance.shape, appearance.size) }
+            SideEffect { overlay.setGeometry(appearance.shape, appearance.size, c4Frame.active, appearance.opacity) }
             val timerStart = overlayState.timerStartedAt
-            FocusOverlay(appearance, interactive, extensionRequest = extensionRequest,
+            FocusOverlay(if (c4Frame.active) appearance.copy(opacity = 1f) else appearance, interactive, extensionRequest = extensionRequest,
                 extensionStrategy = settings.strategy, c4 = c4Frame, paused = overlayState.paused,
+                onC4Key = { key ->
+                    if (!stopping && c4Runtime?.key(key) == C4KeyResult.DEFUSED) finishSession(defusedFeedback = true)
+                },
                 onTogglePause = if (!overlayState.automatic && overlayState.mode == TimerMode.COUNTDOWN &&
-                    (c4Settings.enabled || overlayState.paused)) ({ togglePause(timerStart) }) else null,
-                onExtend = if (countdown != null) ({ seconds -> extendTimer(timerStart, seconds) }) else null) { finishSession() }
+                    (c4Runtime?.enabledForSession == true || overlayState.paused)) ({ togglePause(timerStart) }) else null,
+                onExtend = if (countdown != null) ({ seconds -> extendTimer(timerStart, seconds) }) else null) {
+                if (c4Runtime?.locked() != true) finishSession()
+            }
         } }
+    }
+
+    private fun publishC4Frame(frame: C4Frame) {
+        val changed = frame.active != c4Frame.active
+        c4Frame = frame
+        overlayState = overlayState.copy(c4Locked = frame.active)
+        if (window != null && !stopping) mutableSession.value = overlayState
+        if (changed && !stopping) getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification())
     }
 
     private fun completeCountdown() {
@@ -260,11 +283,12 @@ class FloatingService : Service() {
     }
 
     private fun togglePause(expectedStart: Long) {
+        if (c4Runtime?.locked() == true) return
         val timer = countdown ?: return
         val physicalNow = SystemClock.elapsedRealtime()
         if (stopping || timer.startedAt != expectedStart || timer.mode != TimerMode.COUNTDOWN ||
             timer.remainingAt(manualClock.at(physicalNow)) == 0L) return
-        if (!C4SettingsStore.get(this).settings.value.enabled && !manualClock.paused) return
+        if (c4Runtime?.enabledForSession != true && !manualClock.paused) return
         if (manualClock.paused) manualClock.resume(physicalNow) else manualClock.pause(physicalNow)
         handler.removeCallbacks(tick)
         tick.run()
@@ -273,6 +297,7 @@ class FloatingService : Service() {
     }
 
     private fun extendTimer(expectedStart: Long, seconds: Int) {
+        if (c4Runtime?.locked() == true) return
         val timer = countdown ?: return
         if (stopping || timer.startedAt != expectedStart || seconds !in 60..10800) return
         if (ReminderSettingsStore.get(this).settings.value.strategy.validationError(seconds * 1000L) != null) return
@@ -345,10 +370,11 @@ class FloatingService : Service() {
         val stop = PendingIntent.getService(this, 1, Intent(this, FloatingService::class.java).setAction(ACTION_STOP),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         val finished = overlayState.stage == ReminderStage.FINISHED
+        val c4Locked = c4Runtime?.locked() == true || c4Frame.active
         return NotificationCompat.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_notification).setContentTitle(if (automatic) "指定 App 监测 · ${if (mutableMonitor.value.running) "计时中" else "已暂停/等待"}" else if (overlayState.paused) "Floating Focus · 已暂停" else if (finished) "Floating Focus · 超时计时" else "Floating Focus · 正在计时")
-            .setContentText(if (automatic) "${mutableMonitor.value.reason} · 点击管理；可随时停止" else if (overlayState.paused) "${formatRemaining(overlayState.remainingMillis)} · 点击浮窗继续或结束" else if (finished) "正在记录超时时长，可随时结束" else "点击悬浮胶囊可展开操作")
-            .setContentIntent(open).addAction(0, if (automatic) "停止监测" else if (finished) "结束计时" else "结束计时", stop)
+            .setContentText(if (c4Locked) "C4 · ${formatRemaining(overlayState.remainingMillis)}" else if (automatic) "${mutableMonitor.value.reason} · 点击管理；可随时停止" else if (overlayState.paused) "${formatRemaining(overlayState.remainingMillis)} · 点击浮窗继续或结束" else if (finished) "正在记录超时时长，可随时结束" else "点击悬浮胶囊可展开操作")
+            .setContentIntent(open).apply { if (!c4Locked) addAction(0, if (automatic) "停止监测" else "结束计时", stop) }
             .setWhen(if (overlayState.mode == TimerMode.STOPWATCH || finished)
                 System.currentTimeMillis() - (if (finished) overlayState.overtimeMillis else overlayState.elapsedMillis)
                 else System.currentTimeMillis() + overlayState.remainingMillis)
@@ -367,18 +393,23 @@ class FloatingService : Service() {
         finishSession(preserveError = true, status = RecordStatus.ERROR)
     }
 
-    private fun finishSession(preserveError: Boolean = false, status: RecordStatus = RecordStatus.MANUAL) {
+    private fun finishSession(preserveError: Boolean = false, status: RecordStatus = RecordStatus.MANUAL, defusedFeedback: Boolean = false) {
         if (stopping) return
         stopping = true
         checkpointRecord(SystemClock.elapsedRealtime())
-        cleanup()
+        if (defusedFeedback) {
+            // Stop audio, clock callbacks and record NOW; only the green LCD acknowledgement lasts 220ms.
+            c4Runtime?.close(); c4Runtime = null
+            handler.removeCallbacksAndMessages(null)
+        } else cleanup()
         mutableMonitor.value = AutoMonitorStatus(reason = if (preserveError) mutableSession.value.error ?: "已停止" else "未开启")
         // Keep the service alive until the final atomic record is written.
-        completeRecord(status) { Handler(Looper.getMainLooper()).post {
+        completeRecord(status) { Handler(Looper.getMainLooper()).postDelayed({
+            if (defusedFeedback) cleanup()
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
             if (!preserveError) mutableSession.value = SessionState()
-        } }
+        }, if (defusedFeedback) 220 else 0) }
     }
 
     private fun cleanup() {
@@ -422,6 +453,7 @@ class FloatingService : Service() {
         private const val ACTION_EXTENSION_EDITOR = "app.floatingfocus.EXTENSION_EDITOR"
         private const val ACTION_APP_OPENED = "app.floatingfocus.APP_OPENED"
         private const val ACTION_STOP = "app.floatingfocus.STOP"
+        private const val ACTION_LAUNCH_FAILED = "app.floatingfocus.LAUNCH_FAILED"
         private const val ACTION_MONITOR = "app.floatingfocus.MONITOR"
         private const val EXTRA_DURATION = "duration_millis"
         private val mutableSession = MutableStateFlow(SessionState())
@@ -467,6 +499,9 @@ class FloatingService : Service() {
         }
         fun stop(context: Context) {
             context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_STOP))
+        }
+        fun cancelFailedLaunch(context: Context) {
+            context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_LAUNCH_FAILED))
         }
     }
 }

@@ -1,53 +1,131 @@
 package app.floatingfocus
 
-import android.graphics.Paint
-import android.graphics.Typeface
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.*
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
-/** Original vector illustration: explosive blocks, straps, controller, keypad, wires and LED. */
-internal fun DrawScope.drawC4Device(title: String, frame: C4Frame, expanded: Boolean, paused: Boolean) {
-    val w = size.width; val h = size.height
-    fun block(x: Float, y: Float, width: Float, height: Float, color: Long, radius: Float = .04f) =
-        drawRoundRect(Color(color), Offset(w*x, h*y), Size(w*width, h*height), CornerRadius(h*radius))
-    block(0f, 0f, 1f, 1f, 0xFF343A28)
-    // Expanded controls need a quiet lower area; decoration never sits behind button labels.
-    val blocksHeight = if (expanded) .32f else .80f
-    repeat(3) { i -> block(.045f + i*.07f, .10f, .06f, blocksHeight, 0xFFB59C6D) }
-    block(.035f, .26f, .24f, .10f, 0xFF20241D)
-    block(.035f, if (expanded) .34f else .67f, .24f, if (expanded) .06f else .10f, 0xFF20241D)
-    block(.29f, .10f, .66f, .80f, 0xFF596143)
-    fun wire(y: Float, color: Long) {
-        val path = Path().apply {
-            moveTo(w*.10f, h*y)
-            cubicTo(w*.35f, h*(y-.12f), w*.68f, h*(y+.12f), w*.89f, h*y)
+/** Original native rendition of the supplied proportions; no photo, backing card or modal mask. */
+@Composable
+internal fun C4DevicePanel(frame: C4Frame, opacity: Float, preferredSize: Float, onKey: (Char) -> Unit) {
+    val fontScale = LocalDensity.current.fontScale
+    BoxWithConstraints(Modifier.padding(2.dp)) {
+        val width = minOf(maxWidth, (292 * preferredSize).coerceAtLeast(260f).dp)
+        val height = minOf(maxHeight, width * (360f / 292f))
+        val geometry = C4Geometry(width.value, height.value)
+        Box(Modifier.size(width, height).graphicsLayer { alpha = opacity }) {
+            Canvas(Modifier.fillMaxSize()) {
+                val w = size.width; val h = size.height
+                fun rect(x: Float, y: Float, rw: Float, rh: Float, color: Long, radius: Float = 5f) =
+                    drawRoundRect(Color(color), Offset(x.dp.toPx(), y.dp.toPx()), Size(rw.dp.toPx(), rh.dp.toPx()), CornerRadius(radius.dp.toPx()))
+                val body = geometry.body
+                repeat(3) { i ->
+                    val bw = (body.width - 8) / 3
+                    rect(body.x + i * (bw + 4), body.y, bw, body.height, if (i % 2 == 0) 0xFFA18C65 else 0xFFB39C71, 7f)
+                    repeat(5) { line -> rect(body.x + i * (bw + 4) + 4, body.y + 8 + line * body.height / 6,
+                        bw - 8, 1f, 0x336A593D, 0f) }
+                }
+                rect(width.value * .04f, height.value * .15f, width.value * .14f, height.value * .18f, 0xFF91392E)
+                fun wire(color: Long, inset: Float, bend: Float) {
+                    val path = Path().apply { moveTo(w * .12f, h * .24f)
+                        cubicTo(w * inset, h * -.12f, w * bend, h * .02f, w * .91f, h * .18f)
+                        cubicTo(w * 1.02f, h * .48f, w * .96f, h * .80f, w * .74f, h * .70f) }
+                    drawPath(path, Color(0xFF342E25), style = Stroke(5.dp.toPx()))
+                    drawPath(path, Color(color), style = Stroke(3.dp.toPx()))
+                }
+                wire(0xFFC5483E, .10f, .56f); wire(0xFFD5B347, .55f, .94f)
+                rect(body.x - 3, height.value * .32f, body.width + 6, if (geometry.compact) 14f else 26f, 0xFFB2B4AA, 1f)
+                rect(body.x - 2, height.value * .88f, body.width + 4, 24f, 0xFFC3C4B9, 1f)
+                val screen = geometry.display
+                rect(screen.x - 6, screen.y - 5, screen.width + 12, screen.height + 10, 0xFF355647, 2f)
+                val keyboard = geometry.keypad
+                rect(keyboard.x - 8, keyboard.y - 8, keyboard.width + 16,
+                    minOf(keyboard.height + 16, height.value - keyboard.y + 4), 0xFF222824, 3f)
+                val lamp = Offset(w * .18f, (screen.y + screen.height / 2).dp.toPx())
+                drawCircle(Color(0xFF30372B), 7.dp.toPx(), lamp)
+                drawCircle(when { frame.phase == C4Phase.DEFUSED -> Color(0xFF9DDE6A)
+                    frame.led -> Color(0xFFFF5946); else -> Color(0xFF6A211B) }, 4.5.dp.toPx(), lamp)
+                if (frame.led) drawCircle(Color(0x44FF4934), 9.dp.toPx(), lamp)
+            }
+            val screen = geometry.display
+            val displayColor = when { frame.phase == C4Phase.DEFUSED -> Color(0xFF9ED07A)
+                frame.error -> Color(0xFFD56D57); frame.phase == C4Phase.EXPLODING -> Color(0xFF8E4839)
+                else -> Color(0xFF555B31) }
+            val displayInk = if (frame.phase == C4Phase.DEFUSED || frame.error) Color(0xFF14210E) else Color(0xFFEDF1CD)
+            Column(Modifier.offset(screen.x.dp, screen.y.dp).size(screen.width.dp, screen.height.dp)
+                .background(displayColor, RoundedCornerShape(2.dp)).semantics(mergeDescendants = true) {
+                    contentDescription = "C4 ${frame.phase}，剩余 ${formatRemaining(frame.remainingMillis)}，已输入 ${frame.input.length} 位${if (frame.error) "，输入错误" else ""}"
+                }, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                val compact = screen.height < 30
+                Text(formatRemaining(frame.remainingMillis), color = displayInk, fontFamily = FontFamily.Monospace,
+                    fontSize = ((if (compact) 11f else 21f) / fontScale).sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                Text(frame.input.padEnd(7, '·'), color = displayInk, fontFamily = FontFamily.Monospace,
+                    fontSize = ((if (compact) 10f else 16f) / fontScale).sp, maxLines = 1)
+            }
+            val grid = geometry.keypad
+            Column(Modifier.offset(grid.x.dp, grid.y.dp).width(grid.width.dp)
+                .height((height.value - grid.y - 4).coerceAtLeast(1f).dp).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(geometry.gap.dp)) {
+                repeat(4) { row ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(geometry.gap.dp)) {
+                        repeat(3) { col ->
+                            val char = C4Geometry.keys[row * 3 + col]
+                            C4Key(char, frame.inputEnabled, geometry.keyWidth, geometry.keyHeight, onKey)
+                        }
+                    }
+                }
+            }
         }
-        drawPath(path, Color(color), style = androidx.compose.ui.graphics.drawscope.Stroke((h*.025f).coerceAtLeast(1f)))
     }
-    wire(.12f, 0xFFCB3D32); wire(.87f, 0xFFE3C04C)
-    repeat(3) { row -> repeat(3) { col ->
-        block(.765f+col*.052f, (if (expanded) .37f else .39f)+row*(if (expanded) .065f else .13f),
-            .043f, if (expanded) .045f else .10f, 0xFFBFC0A6, .015f)
-    } }
-    drawCircle(if (frame.led) Color(0xFFFF5344) else Color(0xFF531F19), h*.06f, Offset(w*.86f, h*.25f))
-    if (frame.led) drawCircle(Color(0x55FF3828), h*.10f, Offset(w*.86f, h*.25f))
-    if (!expanded) {
-        block(.32f, .24f, .41f, .53f, 0xFF142018)
-        val text = title.removePrefix("◷").trim()
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = 0xFFDAF293.toInt(); typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
-            textAlign = Paint.Align.CENTER; textSize = minOf(h*.34f, w*.37f / (text.length*.65f).coerceAtLeast(1f))
-        }
-        val baseline = h*.51f - (paint.fontMetrics.ascent + paint.fontMetrics.descent)/2
-        drawContext.canvas.nativeCanvas.drawText(text, w*.525f, baseline, paint)
-        if (paused) {
-            paint.textSize = h*.16f
-            drawContext.canvas.nativeCanvas.drawText("Ⅱ", w*.525f, h*.94f, paint)
-        }
+}
+
+@Composable
+private fun C4Key(key: Char, enabled: Boolean, width: Float, height: Float, onKey: (Char) -> Unit) {
+    var pressed by remember { mutableStateOf(false) }
+    val currentEnabled by rememberUpdatedState(enabled)
+    val send by rememberUpdatedState(onKey)
+    val fontScale = LocalDensity.current.fontScale
+    Box(Modifier.size(width.dp, height.dp).clip(RoundedCornerShape(4.dp))
+        .background(if (pressed) Color(0xFF8D997F) else if (enabled) Color(0xFFC3C5B2) else Color(0xFF777F70))
+        .semantics(mergeDescendants = true) {
+            role = Role.Button
+            contentDescription = when (key) { '*' -> "退格 *"; '#' -> "清空 #"; else -> "数字 $key" }
+            if (!enabled) disabled() else onClick { send(key); true }
+        }.pointerInput(key) {
+            awaitEachGesture {
+                val down = awaitFirstDown()
+                val allowedAtDown = currentEnabled
+                down.consume(); pressed = allowedAtDown
+                val up = waitForUpOrCancellation()
+                pressed = false
+                if (up != null && allowedAtDown && currentEnabled) { up.consume(); send(key) }
+            }
+        }, contentAlignment = Alignment.Center) {
+        Text(key.toString(), fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold,
+            fontSize = (21 / fontScale).sp, color = Color(0xFF252D25))
     }
 }

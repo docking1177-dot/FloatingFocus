@@ -20,7 +20,10 @@ android {
     }
     kotlinOptions { jvmTarget = "17" }
     buildFeatures { compose = true }
+    androidResources { noCompress += "m4a" }
     sourceSets.getByName("main").assets.srcDir(rootProject.file("licenses"))
+    // Unlicensed user-supplied recordings stay local and are never included in Release or Git.
+    sourceSets.getByName("debug").assets.srcDir(rootProject.file(".tools/c4-local-assets"))
     // Optional local-build override; Android Studio retains its standard debug signing.
     providers.gradleProperty("workspaceDebugKeystore").orNull?.let { keyPath ->
         signingConfigs.getByName("debug") { storeFile = rootProject.file(keyPath) }

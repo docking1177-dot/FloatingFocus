@@ -5,80 +5,85 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import kotlinx.coroutines.*
-import org.json.JSONObject
 
-/** Event deadlines come from the monotonic session clock; UI frames never advance this timeline. */
+/** Existing service owns one controller; UI never advances playback, input or deadline consumption. */
 class C4Runtime(private val context: Context, private val timer: () -> Countdown?, private val now: () -> Long,
                 private val paused: () -> Boolean, private val onFrame: (C4Frame) -> Unit,
                 private val onDeadline: () -> Unit) : AutoCloseable {
     private val handler = Handler(Looper.getMainLooper())
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val store = C4SettingsStore.get(context)
-    private val effect = C4EffectState(C4Timeline(readProfile(context)))
-    private var audio: C4Audio? = null
-    private var closed = false
-    private var lastFrame = C4Frame()
+    val enabledForSession = store.settings.value.enabled
+    private val timeline = C4Timeline.parse(context.assets.open("c4_timeline.lrc").bufferedReader().use { it.readText() })
+    private var input = C4Input()
     private var leg: Long? = null
     private var deadlineNotified = false
+    private var explosionConsumed = false
+    private var consumedEvent = -1
+    private var closed = false
+    private var lastFrame = C4Frame()
+    private var audio: C4Audio? = null
     private val callback = Runnable { refresh() }
     init { scope.launch { store.settings.collect { refresh() } } }
-    fun refresh() {
+    private fun remaining(): Long = timer()?.let { val moment = now(); it.remainingAt(moment) - it.overtimeAt(moment) } ?: Long.MAX_VALUE
+    fun locked(): Boolean = !closed && enabledForSession && timer()?.mode == TimerMode.COUNTDOWN &&
+        (input.defused || timeline.phase(remaining()) != C4Phase.OFF)
+
+    private fun playback(): C4Playback? {
+        if (closed || input.defused || !enabledForSession || !store.settings.value.sound || paused() || timer()?.mode != TimerMode.COUNTDOWN) return null
+        val remaining = remaining()
+        return when (timeline.phase(remaining)) {
+            C4Phase.PLANTING, C4Phase.ARMED -> C4Playback("pre_explosion", C4Timeline.WINDOW_MILLIS - remaining)
+            C4Phase.EXPLODING -> C4Playback("explosion", -remaining)
+            else -> null
+        }
+    }
+
+    fun refresh(notifyDeadline: Boolean = true) {
         if (closed) return
         handler.removeCallbacks(callback)
         val timer = timer() ?: return
-        if (leg != timer.startedAt) { leg = timer.startedAt; deadlineNotified = false }
-        val settings = store.settings.value
-        val remaining = timer.remainingAt(now())
-        if (settings.enabled && settings.sound && timer.mode == TimerMode.COUNTDOWN && remaining > 0 && audio == null)
-            audio = C4Audio(context) { refresh() }
-        val sample = effect.update(timer.startedAt, timer.mode, remaining, settings.enabled, paused(),
-            consumeCues = !settings.sound || audio?.ready == true)
-        if (sample.frame != lastFrame) {
-            if (sample.frame.active != lastFrame.active) Log.d("FloatingFocus", "C4 active=${sample.frame.active} remaining=$remaining")
-            lastFrame = sample.frame; onFrame(sample.frame)
+        if (leg != timer.startedAt) {
+            leg = timer.startedAt; input = C4Input(); deadlineNotified = false; explosionConsumed = false; consumedEvent = -1
+            audio?.close()
+            audio = if (enabledForSession && timer.mode == TimerMode.COUNTDOWN && C4Audio.available(context)) C4Audio(context, ::playback) else null
         }
-        if (settings.enabled && settings.sound && timer.mode == TimerMode.COUNTDOWN && !paused() && remaining > 0) {
-            // Preload before the 40s boundary. Acquire focus only while the effect is active.
-            if (sample.frame.active) audio?.prepare()
+        val remaining = remaining()
+        val phase = if (!enabledForSession || timer.mode != TimerMode.COUNTDOWN) C4Phase.OFF
+            else if (input.defused) C4Phase.DEFUSED else timeline.phase(remaining)
+        val frame = C4Frame(phase, timeline.led(remaining) && !input.defused, remaining.coerceAtLeast(0), input.digits, input.error(remaining))
+        if (frame != lastFrame) {
+            if (phase != lastFrame.phase) Log.d(TAG, "C4 phase=$phase remaining=$remaining offset=${C4Timeline.WINDOW_MILLIS - remaining}")
+            lastFrame = frame; onFrame(frame)
         }
-        if (!settings.enabled || !settings.sound || paused()) audio?.silence()
-        sample.cue?.let { cue ->
-            val played = settings.sound && audio?.play(cue.tone) == true
-            Log.d("FloatingFocus", "C4 cue=${cue.index} tone=${cue.tone} remaining=$remaining led=${sample.frame.led} played=$played")
+        if (phase != C4Phase.OFF) {
+            val index = timeline.events.indexOfLast { it.atMillis <= C4Timeline.WINDOW_MILLIS - remaining }
+            if (index > consumedEvent) { consumedEvent = index
+                Log.d(TAG, "C4 event=$index offset=${C4Timeline.WINDOW_MILLIS - remaining} led=${frame.led}") }
         }
-        if (timer.mode == TimerMode.COUNTDOWN && remaining == 0L && !paused() && !deadlineNotified) {
+        if (enabledForSession && timer.mode == TimerMode.COUNTDOWN && remaining <= 0 && !explosionConsumed && !input.defused) {
+            explosionConsumed = true; Log.d(TAG, "C4 explosion consumed sound=${store.settings.value.sound}")
+        }
+        audio?.refresh()
+        if (notifyDeadline && timer.mode == TimerMode.COUNTDOWN && remaining <= 0 && !paused() && !deadlineNotified && !input.defused) {
             deadlineNotified = true; onDeadline()
         }
-        sample.nextDelayMillis?.let { handler.postDelayed(callback, it.coerceAtLeast(1)) }
+        if (!input.defused && enabledForSession && timer.mode == TimerMode.COUNTDOWN && !paused()) {
+            listOfNotNull(timeline.nextDelay(remaining), input.errorDelay(remaining)).minOrNull()
+                ?.let { handler.postDelayed(callback, it.coerceAtLeast(1)) }
+        }
     }
-    fun completed() {
-        val settings = store.settings.value
-        deadlineNotified = true
-        val explosion = effect.complete(settings.enabled && settings.sound)
-        handler.removeCallbacks(callback)
-        if (lastFrame.active) Log.d("FloatingFocus", "C4 active=false remaining=0; restored standard overlay")
-        onFrame(C4Frame()); lastFrame = C4Frame()
-        if (explosion) {
-            audio?.prepare()
-            Log.d("FloatingFocus", "C4 explosion played=${audio?.play(C4Tone.EXPLOSION) == true}")
-        } else audio?.silence()
+    fun completed() { deadlineNotified = true; refresh(notifyDeadline = false) }
+    fun key(key: Char): C4KeyResult {
+        if (!locked()) return C4KeyResult.IGNORED
+        val result = input.key(key, remaining())
+        Log.d(TAG, "C4 key result=$result length=${input.digits.length}")
+        refresh()
+        return result
     }
     override fun close() {
         if (closed) return
-        closed = true; handler.removeCallbacksAndMessages(null); scope.cancel()
-        effect.cancel(); audio?.close(); audio = null
+        closed = true; handler.removeCallbacksAndMessages(null); scope.cancel(); audio?.close(); audio = null
     }
-    companion object {
-        private fun readProfile(context: Context): C4Profile = try {
-            val row = JSONObject(context.assets.open("c4_profile.json").bufferedReader().use { it.readText() })
-            val measured = row.optJSONArray("measuredRemainingMillis")
-            C4Profile(finalMillis = row.getLong("finalMillis"), normalPulseMillis = row.getLong("normalPulseMillis"),
-                finalPulseMillis = row.getLong("finalPulseMillis"), maxLateMillis = row.getLong("maxLateMillis"),
-                baseIntervalMillis = row.getLong("baseIntervalMillis"), minimumIntervalMillis = row.getLong("minimumIntervalMillis"),
-                intervalSlope = row.getDouble("intervalSlope"),
-                measuredRemainingMillis = measured?.let { a -> (0 until a.length()).map { a.getLong(it) } } ?: emptyList())
-        } catch (e: Exception) {
-            Log.w("FloatingFocus", "Invalid C4 profile; using documented approximation", e); C4Profile()
-        }
-    }
+    companion object { private const val TAG = "FloatingFocus" }
 }

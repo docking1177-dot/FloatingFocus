@@ -132,7 +132,7 @@ class MainActivity : ComponentActivity() {
                                 else -> "计时中 · ${formatRemaining(session.remainingMillis)}" },
                                 style = MaterialTheme.typography.bodyMedium, color = Color(0xFF667067))
                             Spacer(Modifier.height(8.dp))
-                            if (session.mode == TimerMode.COUNTDOWN && session.stage == ReminderStage.FINISHED && !session.automatic)
+                            if (session.mode == TimerMode.COUNTDOWN && session.stage == ReminderStage.FINISHED && !session.automatic && !session.c4Locked)
                                 TextButton(onClick = { FloatingService.requestExtension(this@MainActivity, session.timerStartedAt) }) { Text("加时") }
                         }
                         if (monitor.enabled) Text(monitor.reason, style = MaterialTheme.typography.bodySmall, color = Color(0xFF667067))
@@ -158,10 +158,12 @@ class MainActivity : ComponentActivity() {
                         }
                         Spacer(Modifier.height(4.dp))
                         if (session.active || monitor.enabled) {
+                          if (!session.c4Locked) {
                             Button(onClick = { FloatingService.stop(this@MainActivity) }, modifier = Modifier.fillMaxWidth().height(48.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)) {
                                 Text(if (monitor.enabled) "停止 App 监测" else "结束计时")
                             }
+                          }
                         } else {
                             Button(enabled = !quickStarting, onClick = {
                                 if (!OverlayPermission.granted(this@MainActivity)) permissionHelp = true

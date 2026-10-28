@@ -24,6 +24,8 @@ internal class OverlayTouchLayout(
     private var scale = 1f
     private var acceptingTouch = false
     private var childScrolling = false
+    private var c4 = false
+    private var keypadGesture = false
     private val touchRegion = Region()
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -33,10 +35,11 @@ internal class OverlayTouchLayout(
         onMeasured(measuredWidth, measuredHeight)
     }
 
-    fun setGeometry(shape: OverlayShape, size: Float) {
-        if (geometry == shape && scale == size && !touchRegion.isEmpty) return
+    fun setGeometry(shape: OverlayShape, size: Float, device: Boolean = false) {
+        if (geometry == shape && scale == size && c4 == device && !touchRegion.isEmpty) return
         geometry = shape
         scale = size
+        c4 = device
         updateRegion()
     }
 
@@ -56,7 +59,17 @@ internal class OverlayTouchLayout(
         val inset = 2 * density
         val rect = RectF(inset, inset, width - inset, height - inset)
         val path = Path().apply {
-            if (geometry == OverlayShape.CIRCLE) addOval(rect, Path.Direction.CW)
+            if (c4) {
+                val device = C4Geometry((width - inset * 2) / density, (height - inset * 2) / density)
+                val body = device.body
+                addRoundRect(RectF(inset + body.x * density, inset + body.y * density,
+                    inset + (body.x + body.width) * density, inset + (body.y + body.height) * density), 7 * density, 7 * density, Path.Direction.CW)
+                addRect(inset + device.width * .04f * density, inset + device.height * .15f * density,
+                    inset + device.width * .18f * density, inset + device.height * .33f * density, Path.Direction.CW)
+                val keypad = device.keypad
+                addRoundRect(RectF(inset + (keypad.x - 8) * density, inset + (keypad.y - 8) * density,
+                    inset + (keypad.x + keypad.width + 8) * density, height - inset), 3 * density, 3 * density, Path.Direction.CW)
+            } else if (geometry == OverlayShape.CIRCLE) addOval(rect, Path.Direction.CW)
             else {
                 val radius = minOf(rect.width(), rect.height()) / 2
                 addRoundRect(rect, radius, radius, Path.Direction.CW)
@@ -77,16 +90,25 @@ internal class OverlayTouchLayout(
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 childScrolling = false
+                val density = resources.displayMetrics.density
+                val device = C4Geometry(width / density - 4, height / density - 4)
+                keypadGesture = c4 && device.keypad.contains(event.x / density - 2, event.y / density - 2)
+                if (keypadGesture) childScrolling = true
                 acceptingTouch = touchRegion.contains(event.x.toInt(), event.y.toInt())
                 if (!acceptingTouch) return false
                 gesture.start(event.rawX, event.rawY)
                 onDragStart()
             }
-            MotionEvent.ACTION_MOVE -> { if (!acceptingTouch) return false; if (!childScrolling) moveWindow(event) }
+            MotionEvent.ACTION_MOVE -> {
+                if (!acceptingTouch) return false
+                if (keypadGesture && height / resources.displayMetrics.density >= 218) cancelKeyDrag(event)
+                else if (!childScrolling) moveWindow(event)
+            }
             MotionEvent.ACTION_UP -> {
                 if (!acceptingTouch) return false
                 // Account for a final displacement even if MOVE events were coalesced.
-                if (!childScrolling) moveWindow(event)
+                if (keypadGesture && height / resources.displayMetrics.density >= 218) cancelKeyDrag(event)
+                else if (!childScrolling) moveWindow(event)
                 if (!gesture.finish()) super.dispatchTouchEvent(event)
                 onDragEnd()
                 acceptingTouch = false
@@ -112,6 +134,11 @@ internal class OverlayTouchLayout(
         if (!gesture.suppressClick) super.dispatchTouchEvent(event)
         // Keep receiving moves even when DOWN landed on non-clickable text or padding.
         return true
+    }
+
+    private fun cancelKeyDrag(event: MotionEvent) {
+        val move = gesture.move(event.rawX, event.rawY) ?: return
+        if (move.cancelChild) cancelChildTouch(event)
     }
 
     private fun moveWindow(event: MotionEvent) {

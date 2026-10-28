@@ -10,7 +10,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
@@ -39,10 +38,15 @@ fun FocusOverlay(
     extensionRequest: Int = 0,
     extensionStrategy: ReminderStrategy = ReminderStrategy(),
     c4: C4Frame = C4Frame(),
+    onC4Key: (Char) -> Unit = {},
     paused: Boolean = false,
     onTogglePause: (() -> Unit)? = null,
     onStop: () -> Unit
 ) {
+    if (c4.active) {
+        C4DevicePanel(c4, appearance.opacity, appearance.size, onC4Key)
+        return
+    }
     val finished = appearance.finished
     var expanded by remember(finished) { mutableStateOf(false) }
     var addingTime by remember(finished) { mutableStateOf(false) }
@@ -71,7 +75,7 @@ fun FocusOverlay(
 
     val vertical = appearance.shape == OverlayShape.VERTICAL_CAPSULE
     val background = ReminderPresenter.highlight(appearance.colorArgb, maxOf(automaticHighlight, manualPulse.value))
-    val foreground = if (c4.active) Color(0xFFDAF293) else Color(ReminderPresenter.contentColor(background))
+    val foreground = Color(ReminderPresenter.contentColor(background))
     val textStyle = TextStyle(color = foreground,
         shadow = if (foreground == Color.White) Shadow(Color.Black, blurRadius = 2f) else null)
     // The background padding belongs to the same tap target as the time. Native
@@ -79,7 +83,7 @@ fun FocusOverlay(
     val toggleControls = Modifier.clickable(enabled = controlsEnabled,
         interactionSource = remember { MutableInteractionSource() }, indication = null) { expanded = !expanded }
     // One alpha layer for the whole window. No glyph backgrounds or independent opaque children.
-    Surface(color = if (c4.active) Color(0xFF343A28) else Color(background), shape = CircleShape,
+    Surface(color = Color(background), shape = CircleShape,
         modifier = Modifier.padding(2.dp).graphicsLayer { this.alpha = appearance.opacity }) {
         Layout(content = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -129,10 +133,7 @@ fun FocusOverlay(
                     }
                 }
             }
-        }, modifier = toggleControls.drawWithContent {
-            if (c4.active) drawC4Device(appearance.title, c4, showingControls, paused)
-            if (!c4.active || showingControls) drawContent()
-        }) { measurables, constraints ->
+        }, modifier = toggleControls) { measurables, constraints ->
             // Measure at a stable base size; apply the current reminder scale exactly once.
             val body = measurables.single().measure(Constraints(maxWidth = 240.dp.roundToPx()))
             val frame = OverlayGeometry.frame(appearance.shape, body.width / density, body.height / density, size,

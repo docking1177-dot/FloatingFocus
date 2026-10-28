@@ -37,7 +37,8 @@ def source_state(root=ROOT):
 
 def build_inputs(root=ROOT):
     return {name: sha256(root / name) if (root / name).is_file() else None
-            for name in ('local.properties', '.tools/maven-bridge.init.gradle')}
+            for name in ('local.properties', '.tools/maven-bridge.init.gradle',
+                         '.tools/c4-local-assets/c4/pre_explosion.m4a', '.tools/c4-local-assets/c4/explosion.m4a')}
 
 
 if __name__ == '__main__':

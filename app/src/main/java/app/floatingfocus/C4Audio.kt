@@ -5,65 +5,126 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
-import android.media.SoundPool
+import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import kotlin.math.abs
 
-/** One replaceable bank of ORIGINAL clips. No game assets, loops, forced volume, or extra permissions. */
-class C4Audio(context: Context, onReady: () -> Unit) : AutoCloseable {
+data class C4Playback(val clip: String, val offsetMillis: Long)
+
+/** Long local tracks. The monotonic timer remains authoritative; player completion never ends a timer. */
+class C4Audio(context: Context, private val desired: () -> C4Playback?) : AutoCloseable {
     private val manager = context.getSystemService(AudioManager::class.java)
     private val notifications = context.getSystemService(NotificationManager::class.java)
-    private val handler = Handler(Looper.getMainLooper())
     private val attributes = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA)
         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build()
-    private var focused = false
-    private var requested = false
-    private var stream = 0
     private var closed = false
+    private var requested = false
+    private var focused = false
+    private var active: String? = null
+    private val slots = mutableMapOf<String, Slot>()
     private val focus = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
         .setAudioAttributes(attributes).setOnAudioFocusChangeListener({ change ->
             focused = change == AudioManager.AUDIOFOCUS_GAIN
-            if (!focused) stopStream()
-        }, handler).build()
-    private val pool = SoundPool.Builder().setMaxStreams(1).setAudioAttributes(attributes).build()
-    private val loaded = mutableSetOf<Int>()
-    val ready: Boolean get() = loaded.size == 3
-    private val samples: Map<C4Tone, Int>
+            if (!focused) silencePlayers() else refresh()
+        }, Handler(Looper.getMainLooper())).build()
+    private class Slot(val player: MediaPlayer, var ready: Boolean = false, var playing: Boolean = false,
+                       var seeking: Boolean = false, var ended: Boolean = false, var failed: Boolean = false,
+                       var seekCorrections: Int = 0)
+
     init {
-        pool.setOnLoadCompleteListener { _, id, status ->
-            if (!closed && status == 0) { loaded.add(id); if (ready) onReady() }
+        for (name in listOf("pre_explosion", "explosion")) {
+            val player = MediaPlayer()
+            val slot = Slot(player)
+            slots[name] = slot
+            try {
+                player.setAudioAttributes(attributes)
+                context.assets.openFd("c4/$name.m4a").use { player.setDataSource(it.fileDescriptor, it.startOffset, it.length) }
+                player.setVolume(.65f, .65f)
+                player.setOnPreparedListener {
+                    if (!closed) { slot.ready = true; Log.d(TAG, "C4 media ready=$name duration=${it.duration}"); refresh() }
+                }
+                player.setOnSeekCompleteListener {
+                    slot.seeking = false
+                    val next = desired()
+                    if (!closed && !slot.failed && next?.clip == name && focused && permitted()) {
+                        // Bound stale async seeks. Never chase each LED node with a stop/seek/start loop.
+                        if (abs(it.currentPosition - next.offsetMillis) <= 250) start(slot, name, next)
+                        else if (slot.seekCorrections++ < 2) {
+                            slot.seeking = true; it.seekTo(next.offsetMillis, MediaPlayer.SEEK_CLOSEST)
+                        } else {
+                            slot.failed = true; abandon()
+                            Log.w(TAG, "C4 media seek too late=$name; suppressing this clip, timer/input continue")
+                        }
+                    }
+                }
+                player.setOnCompletionListener {
+                    slot.playing = false; slot.ended = true
+                    if (active == name) { active = null; abandon() }
+                    Log.d(TAG, "C4 media completed=$name")
+                }
+                player.setOnErrorListener { _, what, extra ->
+                    slot.failed = true; slot.playing = false; slot.seeking = false
+                    if (desired()?.clip == name) abandon()
+                    Log.w(TAG, "C4 media failed=$name what=$what extra=$extra"); true
+                }
+                player.prepareAsync()
+            } catch (e: Exception) {
+                slot.failed = true
+                Log.w(TAG, "C4 local media unavailable=$name; visual/input timeline continues")
+            }
         }
-        // Replace the files/IDs here after licensing and duration validation.
-        samples = mapOf(C4Tone.NORMAL to pool.load(context, R.raw.c4_beep, 1),
-            C4Tone.FINAL to pool.load(context, R.raw.c4_final, 1),
-            C4Tone.EXPLOSION to pool.load(context, R.raw.c4_explosion, 1))
     }
-    fun prepare() {
-        if (closed || requested) return
-        requested = true
-        focused = manager.requestAudioFocus(focus) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+
+    private fun permitted() = manager.ringerMode == AudioManager.RINGER_MODE_NORMAL &&
+        !manager.isStreamMute(AudioManager.STREAM_MUSIC) && manager.getStreamVolume(AudioManager.STREAM_MUSIC) > 0 &&
+        notifications.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_ALL
+
+    fun refresh() {
+        if (closed) return
+        val next = desired()
+        if (next == null || !permitted()) { silencePlayers(); abandon(); return }
+        val slot = slots[next.clip] ?: return
+        if (slot.failed || slot.ended) return
+        if (!requested) { requested = true; focused = manager.requestAudioFocus(focus) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED }
+        if (!focused || !slot.ready || slot.seeking) return
+        try {
+            if (slot.playing && active == next.clip) return
+            silencePlayers()
+            if (abs(slot.player.currentPosition - next.offsetMillis) < 50) start(slot, next.clip, next)
+            else {
+                slot.seeking = true; slot.seekCorrections = 0
+                slot.player.seekTo(next.offsetMillis, MediaPlayer.SEEK_CLOSEST)
+            }
+        } catch (e: IllegalStateException) { slot.failed = true; abandon(); Log.w(TAG, "C4 media seek failed", e) }
     }
-    fun play(tone: C4Tone): Boolean {
-        if (closed || !focused || manager.ringerMode != AudioManager.RINGER_MODE_NORMAL ||
-            manager.isStreamMute(AudioManager.STREAM_MUSIC) || manager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0 ||
-            notifications.currentInterruptionFilter != NotificationManager.INTERRUPTION_FILTER_ALL) return false
-        val sample = samples.getValue(tone)
-        if (sample !in loaded) { Log.d("FloatingFocus", "C4 audio not ready: $tone"); return false }
-        stopStream()
-        stream = pool.play(sample, .65f, .65f, 1, 0, 1f)
-        if (tone == C4Tone.EXPLOSION) handler.postDelayed({ silence() }, 1100)
-        return stream != 0
+
+    private fun start(slot: Slot, name: String, next: C4Playback) {
+        try {
+            slot.player.start(); slot.playing = true; active = name
+            Log.d(TAG, "C4 media start=$name offset=${slot.player.currentPosition} target=${next.offsetMillis}")
+        } catch (e: IllegalStateException) { slot.failed = true; abandon(); Log.w(TAG, "C4 media start failed", e) }
     }
-    private fun stopStream() { if (stream != 0) pool.stop(stream); stream = 0 }
-    fun silence() {
-        handler.removeCallbacksAndMessages(null)
-        stopStream()
-        if (requested) manager.abandonAudioFocusRequest(focus)
-        requested = false; focused = false
+
+    private fun silencePlayers() {
+        slots.values.forEach { slot -> if (slot.playing) {
+            try { slot.player.pause() } catch (_: IllegalStateException) { slot.failed = true }
+            slot.playing = false
+        } }
+        active = null
     }
+    private fun abandon() { if (requested) manager.abandonAudioFocusRequest(focus); requested = false; focused = false }
     override fun close() {
         if (closed) return
-        silence(); closed = true; loaded.clear(); pool.release()
+        closed = true; silencePlayers(); abandon()
+        slots.values.forEach { it.player.release() }; slots.clear()
+    }
+    companion object {
+        private const val TAG = "FloatingFocus"
+        fun available(context: Context) = try {
+            val files = context.assets.list("c4").orEmpty().toSet()
+            "pre_explosion.m4a" in files && "explosion.m4a" in files
+        } catch (_: Exception) { false }
     }
 }

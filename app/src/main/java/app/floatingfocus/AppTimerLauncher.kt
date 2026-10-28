@@ -44,7 +44,7 @@ suspend fun launchAppWithTimer(context: Context, lifecycle: Lifecycle, app: Laun
         return "无法打开目标 App，计时已取消，请重新选择或重试。"
     } finally {
         if (!opened) {
-            if (ownsTimer) FloatingService.stop(context)
+            if (ownsTimer) FloatingService.cancelFailedLaunch(context)
             // Do not overwrite a later settings edit while a launch was pending.
             if (applied != null && store.settings.value == applied) store.update { previous }
         }

@@ -1,126 +1,108 @@
 package app.floatingfocus
 
+import java.io.File
 import org.junit.Assert.*
 import org.junit.Test
 
 class C4TimelineTest {
-    @Test fun `sixty second timer crosses boundary without resetting the clock`() {
+    private fun timeline() = C4Timeline.parse(listOf(File("src/main/assets/c4_timeline.lrc"),
+        File("app/src/main/assets/c4_timeline.lrc")).first { it.isFile }.readText())
+    @Test fun `all 136 supplied events and numbers are retained without guessing frequencies`() {
+        val events = timeline().events
+        assertEquals(136, events.size)
+        assertEquals((0..135).toList(), events.map { it.index })
+        assertEquals(88, events.count { it.text.contains("滴") })
+        assertEquals(11, events.count { it.text.contains("快速连响") })
+        assertEquals(4920L, events.single { it.text.startsWith("下包完成") }.atMillis)
+        assertEquals(44_440L, events.first { it.text.startsWith("爆炸") }.atMillis)
+        assertEquals(50_340L, events.last().atMillis)
+    }
+    @Test fun `sixty seconds enters at 44439 without adding planting time`() {
         val timer = Countdown(60_000, 1000)
-        val effect = C4EffectState()
-        assertFalse(effect.update(1000, timer.mode, timer.remainingAt(20_999), true, false).frame.active)
-        val first = effect.update(1000, timer.mode, timer.remainingAt(21_000), true, false)
-        assertTrue(first.frame.active); assertTrue(first.frame.led); assertEquals(0, first.cue!!.index)
-        assertEquals(40_000, timer.remainingAt(21_000))
+        val t = timeline()
+        assertEquals(C4Phase.OFF, t.phase(timer.remainingAt(16_560)))
+        assertEquals(C4Phase.PLANTING, t.phase(timer.remainingAt(16_561)))
+        assertEquals(60_000L, timer.durationMillis)
     }
-    @Test fun `forty thirty and ten second starts share one absolute timeline`() {
-        val timeline = C4Timeline()
-        for (remaining in listOf(40_000L, 30_000L, 10_000L)) {
-            val cursor = C4Cursor(timeline)
-            val first = cursor.sample(remaining)
-            assertTrue(first.frame.active)
-            assertEquals(remaining <= 10_000, first.frame.finalPhase)
-            first.cue?.let { assertTrue(it.remainingMillis - remaining <= timeline.profile.maxLateMillis) }
-            if (remaining < 40_000) assertTrue(timeline.indexAt(remaining) > 0)
-            var left = remaining
-            val sounds = mutableListOf<C4Cue>()
-            while (left > 0) {
-                val sample = cursor.sample(left)
-                sample.cue?.let { sounds.add(it); assertTrue(sample.frame.led) }
-                left -= sample.nextDelayMillis ?: break
-            }
-            assertTrue(sounds.map { it.index }.distinct().size == sounds.size)
-            assertTrue(sounds.filter { it.remainingMillis <= 10_000 }.all { it.tone == C4Tone.FINAL })
-            assertFalse(cursor.sample(0).frame.active)
+    @Test fun `short starts map to their current recording offsets`() {
+        val t = timeline()
+        assertEquals(C4Phase.PLANTING, t.phase(44_439))
+        assertEquals(C4Phase.PLANTING, t.phase(40_000))
+        assertEquals(C4Phase.ARMED, t.phase(30_000))
+        assertEquals(C4Phase.ARMED, t.phase(10_000))
+        assertEquals(C4Phase.PLANTING, t.phase(39_520))
+        assertEquals(C4Phase.ARMED, t.phase(39_519))
+    }
+    @Test fun `planting taps are dropped not buffered for opening`() {
+        val input = C4Input()
+        C4Timeline.CODE.forEach { assertEquals(C4KeyResult.IGNORED, input.key(it, 39_520)) }
+        assertEquals("", input.digits)
+        assertEquals(C4KeyResult.CHANGED, input.key('7', 39_519))
+        assertEquals("7", input.digits)
+    }
+    @Test fun `backspace clear and seventh digit validation work without penalty or lockout`() {
+        val input = C4Input()
+        input.key('7', 30_000); input.key('3', 30_000); input.key('*', 30_000)
+        assertEquals("7", input.digits)
+        input.key('#', 30_000); assertEquals("", input.digits)
+        "1111111".forEach { input.key(it, 30_000) }
+        assertTrue(input.error(30_000)); assertEquals("", input.digits)
+        assertFalse(input.error(29_580))
+        C4Timeline.CODE.dropLast(1).forEach { assertEquals(C4KeyResult.CHANGED, input.key(it, 29_000)) }
+        assertEquals(C4KeyResult.DEFUSED, input.key('8', 29_000))
+        assertTrue(input.defused)
+        assertEquals(C4KeyResult.IGNORED, input.key('8', 28_999))
+    }
+    @Test fun `deadline wins at zero while a correct final digit one millisecond before wins once`() {
+        for (remaining in listOf(0L, -1L)) {
+            val input = C4Input()
+            "735560".forEach { input.key(it, 1000) }
+            assertEquals(C4KeyResult.EXPIRED, input.key('8', remaining)); assertFalse(input.defused)
         }
+        val early = C4Input()
+        "735560".forEach { early.key(it, 1000) }
+        assertEquals(C4KeyResult.DEFUSED, early.key('8', 1))
+        assertEquals(C4KeyResult.IGNORED, early.key('8', 0))
     }
-    @Test fun `continuous acceleration is not a three fixed rate approximation`() {
-        val profile = C4Profile()
-        val intervals = (0L..40_000 step 1000L).map(profile::interval)
-        assertTrue(intervals.distinct().size > 30)
-        assertEquals(1000L, profile.interval(40_000))
-        assertEquals(325L, profile.interval(10_000))
-        assertEquals(150L, profile.interval(0))
-        assertTrue(C4Timeline().cues.zipWithNext().all { (a, b) -> a.remainingMillis - b.remainingMillis >= 150 })
+    @Test fun `tail is one continuous phase and restores ordinary overtime at the actual tail boundary`() {
+        val t = timeline()
+        assertEquals(C4Phase.EXPLODING, t.phase(0))
+        assertEquals(C4Phase.EXPLODING, t.phase(-5901))
+        assertEquals(C4Phase.OFF, t.phase(-5902))
+        assertNull(t.nextDelay(-5902))
     }
-    @Test fun `measured replacement timeline supports its own offsets and pulse boundaries`() {
-        val t = C4Timeline(C4Profile(measuredRemainingMillis = listOf(40_000, 30_000, 10_000, 1000)))
-        val c = C4Cursor(t)
-        assertEquals(C4Tone.NORMAL, c.sample(30_000).cue!!.tone)
-        assertTrue(c.sample(29_921).frame.led)
-        assertFalse(c.sample(29_920).frame.led)
-        assertEquals(C4Tone.FINAL, c.sample(10_000).cue!!.tone)
-        assertTrue(c.sample(9881).frame.led)
-        assertFalse(c.sample(9880).frame.led)
+    @Test fun `LED uses supplied cue positions and never catches up a missed flash`() {
+        val t = timeline()
+        assertFalse(t.led(44_439 - 5400))
+        assertTrue(t.led(44_439 - 5440))
+        assertFalse(t.led(44_439 - 5520))
+        assertTrue(t.led(44_439 - 43_470))
+        assertFalse(t.led(44_439 - 43_515))
+        assertFalse(t.led(0))
+        assertTrue(t.nextDelay(44_439 - 40_000)!! > 0)
     }
-    @Test fun `late callbacks skip missed cues and never burst or duplicate`() {
-        val c = C4Cursor()
-        val first = c.sample(40_000).cue!!
-        assertNull(c.sample(40_000).cue)
-        assertNull(c.sample(38_800).cue) // 200ms after the second cue, beyond permitted latency
-        val current = c.sample(10_000)
-        assertTrue(current.cue == null || current.cue.index > first.index)
-        assertNull(c.sample(10_000).cue)
-    }
-    @Test fun `pause freezes countdown and led then resumes phase without replay`() {
+    @Test fun `pre stage pause continues using the existing monotonic countdown`() {
         val clock = SessionClock()
-        val timer = Countdown(40_000, 1000)
-        val cursor = C4Cursor()
-        assertNotNull(cursor.sample(timer.remainingAt(clock.at(1000))).cue)
-        clock.pause(1040)
-        val frozen = timer.remainingAt(clock.at(50_000))
-        assertEquals(39_960, frozen)
-        assertTrue(cursor.sample(frozen, true).frame.led)
-        assertNull(cursor.sample(frozen, true).nextDelayMillis)
-        clock.pause(20_000) // duplicate pause cannot move the anchor
-        clock.resume(51_000)
-        assertEquals(frozen, timer.remainingAt(clock.at(51_000)))
-        assertNull(cursor.sample(frozen).cue)
-        assertFalse(cursor.sample(timer.remainingAt(clock.at(51_040))).frame.led)
-        assertEquals(1000, timer.startedAt)
+        val timer = Countdown(60_000, 1000)
+        clock.pause(1100)
+        assertEquals(59_900, timer.remainingAt(clock.at(20_000)))
+        clock.resume(21_000)
+        assertEquals(59_900, timer.remainingAt(clock.at(21_000)))
+        assertEquals(1000L, timer.startedAt)
     }
-    @Test fun `mute disabling cancel stopwatch and repeated completion never replay explosion`() {
-        val state = C4EffectState()
-        state.update(1, TimerMode.COUNTDOWN, 10_000, true, false)
-        assertFalse(state.complete(false)); assertFalse(state.complete(true))
-        state.update(2, TimerMode.COUNTDOWN, 10_000, true, false)
-        state.cancel(); assertFalse(state.complete(true))
-        state.update(3, TimerMode.STOPWATCH, 0, true, false)
-        assertFalse(state.complete(true))
-        state.update(4, TimerMode.COUNTDOWN, 10_000, true, false)
-        state.update(4, TimerMode.COUNTDOWN, 5000, false, false)
-        assertFalse(state.complete(true))
-        state.update(5, TimerMode.COUNTDOWN, 10_000, true, false)
-        assertTrue(state.complete(true)); assertFalse(state.complete(true))
-        // Re-enabling after completion cannot arm a past window.
-        state.update(5, TimerMode.COUNTDOWN, 0, true, false)
-        assertFalse(state.complete(true))
-    }
-    @Test fun `audio loading may consume only a current cue within allowed latency`() {
-        val c = C4Cursor()
-        assertNull(c.sample(40_000, consumeCues = false).cue)
-        assertNotNull(c.sample(39_980).cue)
-        assertNull(c.sample(39_980).cue)
-        val slow = C4Cursor()
-        slow.sample(40_000, consumeCues = false)
-        assertNull(slow.sample(39_800).cue)
-    }
-    @Test fun `late accepted audio and led start together and remain on for the clip duration`() {
-        val cursor = C4Cursor()
-        val late = cursor.sample(39_950)
-        assertNotNull(late.cue); assertTrue(late.frame.led)
-        assertTrue(cursor.sample(39_871).frame.led)
-        assertFalse(cursor.sample(39_870).frame.led)
-        // At very short intervals, skip a late clip that would overrun the next cue.
-        val t = C4Timeline(C4Profile(measuredRemainingMillis = listOf(300L, 150L)))
-        assertNull(C4Cursor(t).sample(250).cue)
-    }
-    @Test fun `short presets preserve existing storage structure without c4 fields`() {
-        for (seconds in listOf(1, 10, 30, 40, 60)) {
-            val preset = TimerPreset("short", "short", 1, ReminderSettings(), durationSeconds = seconds)
-            val encoded = TimerPresetCodec.encode(preset)
-            assertEquals(preset, TimerPresetCodec.decode(encoded))
-            assertFalse(encoded.keys.any { it.contains("c4", true) })
-            assertFalse(ReminderSettingsCodec.encode(preset.settings).keys.any { it.contains("c4", true) })
+    @Test fun `device keys keep distinct 44dp targets within normal compact and landscape frames`() {
+        for ((width, height) in listOf(292f to 360f, 356f to 438f, 292f to 260f, 240f to 232f, 180f to 218f)) {
+            val g = C4Geometry(width, height)
+            val keys = (0..11).map(g::key)
+            assertTrue(keys.all { it.width >= 44 && it.height >= 44 && it.x >= 0 && it.y >= 0 &&
+                it.x + it.width <= width && it.y + it.height <= height })
+            assertTrue(keys.zipWithNext().all { (a, b) -> a.y != b.y || a.x + a.width < b.x })
         }
+    }
+    @Test fun `presets retain the existing schema and no global C4 field`() {
+        val p = TimerPreset("short", "short", 1, ReminderSettings(), durationSeconds = 10)
+        val encoded = TimerPresetCodec.encode(p)
+        assertEquals(p, TimerPresetCodec.decode(encoded))
+        assertFalse(encoded.keys.any { it.contains("c4", true) })
     }
 }

@@ -147,6 +147,8 @@ class Device:
     def seed(self, shape='ROUNDED_RECTANGLE', style='COLOR', minutes=15):
         self.stop()
         self.write_prefs('onboarding', {'completed': True})
+        # Normal-overlay suites own their fixture; an optional C4 setting must not hijack inline expiry.
+        self.write_prefs('c4_settings', dict(enabled=False, sound=True, noticeAcknowledged=True))
         settings = dict(shape=shape, style=style, color='BLUE', colorMode='CONTINUOUS',
                         sizeMode='CONTINUOUS', baseSize=1.5, opacity=.6, intensity=1.0)
         preset = dict(id='ff-regression', name='Regression', minutes=minutes, mode='COUNTDOWN',

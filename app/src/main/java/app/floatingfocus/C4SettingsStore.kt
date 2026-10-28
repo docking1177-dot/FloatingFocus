@@ -11,6 +11,8 @@ class C4SettingsStore private constructor(context: Context) {
     private val prefs = context.getSharedPreferences("c4_settings", Context.MODE_PRIVATE)
     private val current = MutableStateFlow(C4Settings(prefs.getBoolean("enabled", false), prefs.getBoolean("sound", true)))
     val settings = current.asStateFlow()
+    val noticeAcknowledged: Boolean get() = prefs.getBoolean("noticeAcknowledged", false)
+    fun acknowledgeNotice() { prefs.edit { putBoolean("noticeAcknowledged", true) } }
     fun update(value: C4Settings) {
         prefs.edit { putBoolean("enabled", value.enabled); putBoolean("sound", value.sound) }
         current.value = value

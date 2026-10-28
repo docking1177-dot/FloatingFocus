@@ -1,81 +1,85 @@
 package app.floatingfocus
 
-/** Implementation profile, NOT a measured CS2 timeline. May be replaced by verified cue offsets. */
-data class C4Profile(
-    val windowMillis: Long = 40_000,
-    val finalMillis: Long = 10_000,
-    val normalPulseMillis: Long = 80,
-    val finalPulseMillis: Long = 120,
-    val maxLateMillis: Long = 100,
-    val baseIntervalMillis: Long = 100,
-    val minimumIntervalMillis: Long = 150,
-    val intervalSlope: Double = .9,
-    val measuredRemainingMillis: List<Long> = emptyList()
-) {
-    init {
-        require(windowMillis == 40_000L && finalMillis in 1..windowMillis)
-        require(normalPulseMillis in 1..minimumIntervalMillis && finalPulseMillis in 1..minimumIntervalMillis)
-        require(maxLateMillis in 0..120 && baseIntervalMillis in 1..2000 && minimumIntervalMillis in 120..2000)
-        require(intervalSlope.isFinite() && intervalSlope in 0.0..2.0)
-        require(measuredRemainingMillis.all { it in 1..windowMillis })
-        require(measuredRemainingMillis.zipWithNext().all { (a, b) -> a > b && a-b >= 120 })
-    }
-    fun interval(remaining: Long) = maxOf(minimumIntervalMillis,
-        (baseIntervalMillis + intervalSlope * remaining / 40.0).toLong())
+/** Positions on the supplied recording, not newly measured CS2 sound/light mechanics. */
+data class C4Event(val index: Int, val atMillis: Long, val text: String) {
+    val lightsLed: Boolean get() = text.contains("滴") || text.contains("快速连响") || text.contains("下包完成")
+    val pulseMillis: Long get() = if (text.contains("快速连响")) 45 else 80
+}
+enum class C4Phase { OFF, PLANTING, ARMED, EXPLODING, DEFUSED }
+data class C4Frame(val phase: C4Phase = C4Phase.OFF, val led: Boolean = false,
+                   val remainingMillis: Long = 0, val input: String = "", val error: Boolean = false) {
+    val active: Boolean get() = phase != C4Phase.OFF
+    val inputEnabled: Boolean get() = phase == C4Phase.ARMED
 }
 
-enum class C4Tone { NORMAL, FINAL, EXPLOSION }
-data class C4Cue(val index: Int, val remainingMillis: Long, val pulseMillis: Long, val tone: C4Tone)
-data class C4Frame(val active: Boolean = false, val led: Boolean = false, val finalPhase: Boolean = false)
-data class C4Sample(val frame: C4Frame, val cue: C4Cue?, val nextDelayMillis: Long?)
-
-/** One absolute 40s timeline, aligned to the real timer deadline, including short starts. */
-class C4Timeline(val profile: C4Profile = C4Profile()) {
-    val cues: List<C4Cue> = (profile.measuredRemainingMillis.ifEmpty {
-        buildList {
-            var remaining = profile.windowMillis
-            while (remaining > 0) { add(remaining); remaining -= profile.interval(remaining) }
+class C4Timeline(val events: List<C4Event>) {
+    init { require(events.isNotEmpty() && events.zipWithNext().all { (a, b) -> a.atMillis <= b.atMillis }) }
+    fun phase(signedRemaining: Long): C4Phase = when {
+        signedRemaining > WINDOW_MILLIS || signedRemaining <= -TAIL_MILLIS -> C4Phase.OFF
+        signedRemaining <= 0 -> C4Phase.EXPLODING
+        WINDOW_MILLIS - signedRemaining < INPUT_AT_MILLIS -> C4Phase.PLANTING
+        else -> C4Phase.ARMED
+    }
+    fun led(signedRemaining: Long): Boolean {
+        val offset = WINDOW_MILLIS - signedRemaining
+        val event = events.lastOrNull { it.atMillis <= offset } ?: return false
+        return signedRemaining > 0 && event.lightsLed && offset - event.atMillis < event.pulseMillis
+    }
+    fun nextDelay(signedRemaining: Long): Long? {
+        if (signedRemaining <= -TAIL_MILLIS) return null
+        val offset = WINDOW_MILLIS - signedRemaining
+        val boundaries = events.flatMap { if (it.lightsLed) listOf(it.atMillis, it.atMillis + it.pulseMillis) else listOf(it.atMillis) } +
+            listOf(0L, INPUT_AT_MILLIS, WINDOW_MILLIS, WINDOW_MILLIS + TAIL_MILLIS)
+        return boundaries.filter { it > offset }.minOrNull()?.minus(offset)
+    }
+    companion object {
+        const val WINDOW_MILLIS = 44_439L
+        const val INPUT_AT_MILLIS = 4920L
+        const val TAIL_MILLIS = 5902L
+        const val CODE = "7355608"
+        fun parse(lrc: String): C4Timeline {
+            val pattern = Regex("^\\[(\\d{2}):(\\d{2})\\.(\\d{2})](.+)$")
+            return C4Timeline(lrc.lineSequence().filter { it.isNotBlank() }.mapIndexed { index, line ->
+                val match = requireNotNull(pattern.matchEntire(line.trim()))
+                val (minute, second, hundredth, text) = match.destructured
+                require(second.toInt() < 60)
+                C4Event(index, minute.toLong() * 60_000 + second.toLong() * 1000 + hundredth.toLong() * 10, text)
+            }.toList())
         }
-    }).mapIndexed { i, remaining ->
-        val final = remaining <= profile.finalMillis
-        C4Cue(i, remaining, if (final) profile.finalPulseMillis else profile.normalPulseMillis,
-            if (final) C4Tone.FINAL else C4Tone.NORMAL)
-    }
-    fun indexAt(remaining: Long) = cues.indexOfLast { it.remainingMillis >= remaining }
-    fun frame(remaining: Long): C4Frame {
-        if (remaining !in 1..profile.windowMillis) return C4Frame()
-        val cue = cues.getOrNull(indexAt(remaining))
-        return C4Frame(true, cue != null && cue.remainingMillis - remaining < cue.pulseMillis,
-            remaining <= profile.finalMillis)
     }
 }
 
-/** Cursor consumes at most one current cue; delayed callbacks never replay a catch-up burst. */
-class C4Cursor(private val timeline: C4Timeline = C4Timeline()) {
-    private var consumedIndex = -1
-    private var ledOffAtRemaining = Long.MAX_VALUE
-    fun sample(remaining: Long, paused: Boolean = false, consumeCues: Boolean = true): C4Sample {
-        if (remaining <= 0) return C4Sample(C4Frame(), null, null)
-        if (remaining > timeline.profile.windowMillis)
-            return C4Sample(C4Frame(), null, if (paused) null else remaining - timeline.profile.windowMillis)
-        val index = timeline.indexAt(remaining)
-        val cue = timeline.cues.getOrNull(index)
-        val next = timeline.cues.getOrNull(index + 1)
-        // A late cue must still finish before the next cue/deadline; never overlap clips.
-        val available = cue?.let { it.remainingMillis - (next?.remainingMillis ?: 0) - it.pulseMillis } ?: 0
-        val play = !paused && consumeCues && index > consumedIndex && cue != null &&
-            cue.remainingMillis - remaining <= minOf(timeline.profile.maxLateMillis, available)
-        if (!paused && consumeCues) consumedIndex = maxOf(consumedIndex, index)
-        if (play) ledOffAtRemaining = remaining - cue!!.pulseMillis
-        val frame = C4Frame(true, remaining > ledOffAtRemaining, remaining <= timeline.profile.finalMillis)
-        val nextCue = next?.let { remaining - it.remainingMillis }
-        val off = (remaining - ledOffAtRemaining).takeIf { it > 0 }
-        return C4Sample(frame, if (play) cue else null,
-            if (paused) null else listOfNotNull(nextCue, off, remaining).filter { it > 0 }.minOrNull())
+enum class C4KeyResult { IGNORED, CHANGED, WRONG, DEFUSED, EXPIRED }
+
+/** Main-thread owner. The seventh key samples the same monotonic deadline as natural completion. */
+class C4Input {
+    var digits: String = ""
+        private set
+    var defused = false
+        private set
+    private var errorUntilOffset = -1L
+    fun error(signedRemaining: Long) = C4Timeline.WINDOW_MILLIS - signedRemaining < errorUntilOffset
+    fun errorDelay(signedRemaining: Long) = (errorUntilOffset - (C4Timeline.WINDOW_MILLIS - signedRemaining)).takeIf { it > 0 }
+    fun key(key: Char, signedRemaining: Long): C4KeyResult {
+        if (defused) return C4KeyResult.IGNORED
+        if (signedRemaining <= 0) return C4KeyResult.EXPIRED
+        val offset = C4Timeline.WINDOW_MILLIS - signedRemaining
+        if (offset < C4Timeline.INPUT_AT_MILLIS) return C4KeyResult.IGNORED
+        errorUntilOffset = -1
+        when (key) {
+            '*' -> digits = digits.dropLast(1)
+            '#' -> digits = ""
+            in '0'..'9' -> digits += key
+            else -> return C4KeyResult.IGNORED
+        }
+        if (digits.length < 7) return C4KeyResult.CHANGED
+        if (digits == C4Timeline.CODE) { defused = true; return C4KeyResult.DEFUSED }
+        digits = ""; errorUntilOffset = offset + 420
+        return C4KeyResult.WRONG
     }
 }
 
-/** Pausing changes the sampled clock, not Countdown's duration, identity, or clock algorithm. */
+/** Preserve existing pre-C4 pause behavior; no new clock or parallel timer. */
 class SessionClock {
     private var pausedAt: Long? = null
     private var pausedMillis = 0L
@@ -83,28 +87,4 @@ class SessionClock {
     fun at(elapsedRealtime: Long): Long = (pausedAt ?: elapsedRealtime) - pausedMillis
     fun pause(now: Long) { if (!paused) pausedAt = now }
     fun resume(now: Long) { pausedAt?.let { pausedMillis += (now - it).coerceAtLeast(0); pausedAt = null } }
-}
-
-/** Per-leg arm/consume state, shared by real callbacks and tests. Muting still consumes expiry. */
-class C4EffectState(private val timeline: C4Timeline = C4Timeline()) {
-    private var leg: Long? = null
-    private var cursor = C4Cursor(timeline)
-    private var armed = false
-    private var completed = false
-    fun update(key: Long, mode: TimerMode, remaining: Long, enabled: Boolean, paused: Boolean, consumeCues: Boolean = true): C4Sample {
-        if (leg != key) { leg = key; cursor = C4Cursor(timeline); armed = false; completed = false }
-        if (!enabled || mode != TimerMode.COUNTDOWN) { armed = false; return C4Sample(C4Frame(), null, null) }
-        if (completed) return C4Sample(C4Frame(), null, null)
-        val sample = cursor.sample(remaining, paused, consumeCues)
-        if (sample.frame.active) armed = true
-        return sample
-    }
-    fun complete(sound: Boolean): Boolean {
-        if (completed) return false
-        completed = true
-        val result = armed && sound
-        armed = false
-        return result
-    }
-    fun cancel() { armed = false; completed = true }
 }
