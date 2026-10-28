@@ -46,7 +46,8 @@ data class SessionState(
     val elapsedMillis: Long = 0,
     val overtimeMillis: Long = 0,
     val timerStartedAt: Long = 0,
-    val c4Locked: Boolean = false
+    val c4Locked: Boolean = false,
+    val startRequestId: String? = null
 )
 
 class FloatingService : Service() {
@@ -64,6 +65,7 @@ class FloatingService : Service() {
     private var record: TimerRecord? = null
     private var recordStartedAt = 0L
     private var awaitingApp: String? = null
+    private var activeStartRequestId: String? = null
     private var activePresetId: String? = null
     private var extensionRequest by mutableIntStateOf(0)
 
@@ -130,7 +132,7 @@ class FloatingService : Service() {
             val previousStage = overlayState.stage
             overlayState = SessionState(true, remaining, progress, stage, mode = timer.mode,
                 elapsedMillis = timer.elapsedAt(now), overtimeMillis = timer.overtimeAt(now), timerStartedAt = timer.startedAt,
-                paused = manualClock.paused, c4Locked = c4Frame.active)
+                paused = manualClock.paused, c4Locked = c4Frame.active, startRequestId = activeStartRequestId)
             checkpointRecord(physicalNow)
             record?.let { recordStore.save(it, checkpoint = true) }
             mutableSession.value = overlayState
@@ -164,17 +166,24 @@ class FloatingService : Service() {
             return START_NOT_STICKY
         }
         if (intent?.action == ACTION_LAUNCH_FAILED) {
-            if (awaitingApp != null && record == null) finishSession(status = RecordStatus.ERROR)
+            val requested = intent.getStringExtra(EXTRA_REQUEST_ID)
+            if (requested != null && requested == activeStartRequestId && awaitingApp != null && record == null)
+                finishSession(status = RecordStatus.ERROR)
+            else if (startAdmission.owns(requested)) {
+                startAdmission.complete(requested)
+                if (countdown == null && monitor == null) stopSelf(startId)
+            }
             return START_NOT_STICKY
         }
         if (intent?.action == ACTION_APP_OPENED) {
             val target = intent.getStringExtra("app_package")
-            if (countdown != null && target != null && target == awaitingApp && !stopping) {
+            if (countdown != null && target != null && target == awaitingApp && !stopping &&
+                intent.getStringExtra(EXTRA_REQUEST_ID) == activeStartRequestId) {
                 beginRecord(intent.getStringExtra("app_name") ?: target, target,
                     intent.getLongExtra("opened_wall", System.currentTimeMillis()),
                     intent.getLongExtra("opened_elapsed", SystemClock.elapsedRealtime()))
                 awaitingApp = null
-            } else if (countdown == null) stopSelf(startId)
+            }
             return START_NOT_STICKY
         }
         if (intent?.action == ACTION_MONITOR && !FeatureFlags.APP_USAGE_AUTO_TIMER) {
@@ -184,10 +193,16 @@ class FloatingService : Service() {
         }
         if (countdown != null || monitor != null) return START_NOT_STICKY // modes never replace an active session
         if (intent?.action == ACTION_MONITOR) return startMonitoring()
+        val requested = intent?.getStringExtra(EXTRA_REQUEST_ID)
+        if (intent?.action != ACTION_START || !startAdmission.owns(requested)) {
+            if (countdown == null && monitor == null && !startPending) stopSelf(startId)
+            return START_NOT_STICKY
+        }
+        activeStartRequestId = requested
         val duration = intent?.getLongExtra(EXTRA_DURATION, 0L) ?: 0L
         val mode = TimerMode.entries.firstOrNull { it.name == intent?.getStringExtra("mode") } ?: TimerMode.COUNTDOWN
-        if (intent?.action != ACTION_START || (if (mode == TimerMode.STOPWATCH) duration != 0L else duration !in 1..Countdown.MAX_DURATION_MILLIS)) {
-            finishSession(); return START_NOT_STICKY
+        if (if (mode == TimerMode.STOPWATCH) duration != 0L else duration !in 1..Countdown.MAX_DURATION_MILLIS) {
+            fail("计时时长无效，请重新选择。"); return START_NOT_STICKY
         }
         if (!Settings.canDrawOverlays(this)) {
             fail("请先允许 Floating Focus 显示悬浮窗。")
@@ -207,7 +222,7 @@ class FloatingService : Service() {
             TimerPresetStore.get(this).presets.value.any { it.id == id && it.targetApp?.packageName == awaitingApp }
         }
         completionReminder.reset()
-        overlayState = SessionState(true, duration, mode = mode, timerStartedAt = countdown!!.startedAt)
+        overlayState = SessionState(true, duration, mode = mode, timerStartedAt = countdown!!.startedAt, startRequestId = requested)
         interactive = getSystemService(PowerManager::class.java).isInteractive
         val nm = getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(NotificationChannel(CHANNEL, "悬浮计时", NotificationManager.IMPORTANCE_LOW).apply {
@@ -233,6 +248,7 @@ class FloatingService : Service() {
             if (awaitingApp == null) beginRecord()
             // Publish success only after the foreground service and overlay are ready.
             mutableSession.value = overlayState
+            startAdmission.complete(requested)
             handler.post(tick)
         } catch (e: RuntimeException) {
             fail("系统未允许启动悬浮计时，请返回主界面重试。", e)
@@ -401,7 +417,8 @@ class FloatingService : Service() {
         if (stopping) return
         if (cause != null) Log.w(TAG, message, cause)
         if (monitor != null) AutoTriggerLog.record(this, "MONITOR_ERROR $message")
-        mutableSession.value = SessionState(error = message)
+        startAdmission.complete(activeStartRequestId)
+        mutableSession.value = SessionState(error = message, startRequestId = activeStartRequestId)
         finishSession(preserveError = true, status = RecordStatus.ERROR)
     }
 
@@ -455,7 +472,10 @@ class FloatingService : Service() {
             return
         }
         cleanup()
+        val finishedRequestId = activeStartRequestId
         completeRecord(status) { Handler(Looper.getMainLooper()).post {
+            // A later accepted start owns its own notification/session; an old write callback cannot stop it.
+            if (activeStartRequestId != finishedRequestId || startPending) return@post
             stopForeground(STOP_FOREGROUND_REMOVE); stopSelf()
             if (!preserveError) mutableSession.value = SessionState()
         } }
@@ -480,6 +500,7 @@ class FloatingService : Service() {
     }
 
     override fun onDestroy() {
+        startAdmission.complete(activeStartRequestId)
         cancelSuccessAudio()
         completeRecord(RecordStatus.SERVICE_STOPPED)
         cleanup()
@@ -500,6 +521,9 @@ class FloatingService : Service() {
         private const val CHANNEL = "focus_timer"
         private const val NOTIFICATION_ID = 1
         private const val ACTION_START = "app.floatingfocus.START"
+        private const val EXTRA_REQUEST_ID = "start_request_id"
+        private val startAdmission = TimerStartAdmission()
+        val startPending: Boolean get() = startAdmission.pendingId != null
         private const val ACTION_EXTENSION_EDITOR = "app.floatingfocus.EXTENSION_EDITOR"
         private const val ACTION_APP_OPENED = "app.floatingfocus.APP_OPENED"
         private const val ACTION_STOP = "app.floatingfocus.STOP"
@@ -520,20 +544,23 @@ class FloatingService : Service() {
             }
         }
         fun start(context: Context, durationMillis: Long, mode: TimerMode = TimerMode.COUNTDOWN, targetPackage: String? = null,
-                  presetId: String? = null): Boolean {
-            if (mutableMonitor.value.enabled || mutableSession.value.active) return false
+                  presetId: String? = null, requestId: String = java.util.UUID.randomUUID().toString()): Boolean {
+            if (mutableMonitor.value.enabled || mutableSession.value.active || startPending) return false
             ReminderSettingsStore.get(context).settings.value.strategy.validationError(durationMillis, mode)?.let {
                 mutableSession.value = SessionState(error = it); return false
             }
+            if (!startAdmission.reserve(requestId, mutableMonitor.value.enabled || mutableSession.value.active)) return false
             mutableSession.value = SessionState()
             try {
                 ContextCompat.startForegroundService(context, Intent(context, FloatingService::class.java)
                     .setAction(ACTION_START).putExtra(EXTRA_DURATION, if (mode == TimerMode.STOPWATCH) 0L else durationMillis)
-                    .putExtra("mode", mode.name).putExtra("app_package", targetPackage).putExtra("preset_id", presetId))
+                    .putExtra("mode", mode.name).putExtra("app_package", targetPackage).putExtra("preset_id", presetId)
+                    .putExtra(EXTRA_REQUEST_ID, requestId))
                 return true
             } catch (e: RuntimeException) {
                 Log.w(TAG, "Foreground start rejected", e)
-                mutableSession.value = SessionState(error = "系统暂时无法启动计时，请保持主界面可见后重试。")
+                startAdmission.complete(requestId)
+                mutableSession.value = SessionState(error = "系统暂时无法启动计时，请保持主界面可见后重试。", startRequestId = requestId)
                 return false
             }
         }
@@ -542,16 +569,16 @@ class FloatingService : Service() {
             context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_EXTENSION_EDITOR)
                 .putExtra("timer_start", expectedStart))
         }
-        fun appOpened(context: Context, app: LaunchableApp) {
+        fun appOpened(context: Context, app: LaunchableApp, requestId: String) {
             context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_APP_OPENED)
-                .putExtra("app_package", app.packageName).putExtra("app_name", app.label)
+                .putExtra("app_package", app.packageName).putExtra("app_name", app.label).putExtra(EXTRA_REQUEST_ID, requestId)
                 .putExtra("opened_wall", System.currentTimeMillis()).putExtra("opened_elapsed", SystemClock.elapsedRealtime()))
         }
         fun stop(context: Context) {
             context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_STOP))
         }
-        fun cancelFailedLaunch(context: Context) {
-            context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_LAUNCH_FAILED))
+        fun cancelFailedLaunch(context: Context, requestId: String) {
+            context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_LAUNCH_FAILED).putExtra(EXTRA_REQUEST_ID, requestId))
         }
     }
 }

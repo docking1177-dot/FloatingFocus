@@ -31,6 +31,8 @@ Emulator 模式不会自动授予悬浮权限、点击开始或完成拖动回�
 
 ## 可重复的设备回归
 
+预设桌面入口：`./scripts/test-device.ps1 -Suite preset_shortcuts -AllowTestDataChanges`。实际确认/取消、桌面图标、冷热启动、更新/删除/读错、权限返回和重建有独立断言，记录 App 前台/浮窗/会话。失败还原 FF 数据；固定入口不属于 FF 文件备份，因此所有 suite 都在修改前拒绝已有 FF 固定入口的 AVD，桌面 suite 清理自己的入口。真机启动器与未执行的边界单独报告，见 [PRESET_DESKTOP_SHORTCUTS.md](PRESET_DESKTOP_SHORTCUTS.md)。
+
 ```powershell
 ./scripts/test-device.ps1 -Suite smoke -AllowTestDataChanges
 ./scripts/test-device.ps1 -Suite edges -AllowTestDataChanges

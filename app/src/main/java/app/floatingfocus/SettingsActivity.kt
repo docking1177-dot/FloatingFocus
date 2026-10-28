@@ -1,6 +1,7 @@
 package app.floatingfocus
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -118,9 +119,9 @@ class SettingsActivity : ComponentActivity() {
                             Text(if (editing) "编辑方案" else "悬浮窗", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
                             TextButton(onClick = { if (editing) finish() else back() }) { Text(if (editing) "取消" else "返回") }
                             if (editing) TextButton(enabled = isSavedShortcut(target) && name.isNotBlank() && (mode == TimerMode.STOPWATCH || seconds in 1..10800), onClick = {
-                                presetStore.save(preset!!.copy(name = name.trim(), minutes = (seconds / 60).coerceAtLeast(1), durationSeconds = seconds,
+                                val saved = presetStore.save(preset!!.copy(name = name.trim(), minutes = (seconds / 60).coerceAtLeast(1), durationSeconds = seconds,
                                     settings = draft, mode = mode, targetApp = target))
-                                finish()
+                                if (saved) finish() else Toast.makeText(this@SettingsActivity, "暂时无法读取预设，保存未完成，请重试。", Toast.LENGTH_LONG).show()
                             }) { Text("保存") }
                         }
                         SettingsPreview(settings, previewHeight, seconds * 1000L, if (editing) mode else TimerMode.COUNTDOWN)

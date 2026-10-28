@@ -1,6 +1,8 @@
 package app.floatingfocus
 
+import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -28,8 +30,7 @@ fun AppIcon(packageName: String, size: Dp = 40.dp) {
         value = null
         value = withContext(Dispatchers.IO) {
             try {
-                context.packageManager.getApplicationIcon(packageName)
-                    .toBitmap(pixels, pixels).asImageBitmap()
+                localAppIcon(context, packageName)?.toBitmap(pixels, pixels)?.asImageBitmap()
             } catch (_: PackageManager.NameNotFoundException) { null }
               catch (_: SecurityException) { null }
         }
@@ -38,3 +39,8 @@ fun AppIcon(packageName: String, size: Dp = 40.dp) {
         ?: Icon(painterResource(R.drawable.ic_app_placeholder), contentDescription = null,
             modifier = Modifier.size(size))
 }
+
+/** Same local artwork source for Compose and pinned shortcuts; no image permission. */
+internal fun localAppIcon(context: Context, packageName: String): Drawable? = try {
+    context.packageManager.getApplicationIcon(packageName)
+} catch (_: PackageManager.NameNotFoundException) { null } catch (_: RuntimeException) { null }

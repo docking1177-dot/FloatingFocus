@@ -32,6 +32,8 @@
 
 ## 工程设计原则
 
+- 预设桌面快捷方式为正式能力：`PresetDesktopShortcuts.kt` 固定 `ff.preset.<ID>`，仅 ID 路由到 `PresetShortcutActivity`，每次读最新预设并经共用 `PresetLauncher` / `AppTimerLauncher` 启动。已有会话（含 C4）不替换；缺权限可创建，授权/修复返回须明确继续，重建不重播。系统支持与确认后固定，成功只认私有回调；无拒绝回调不永久忙。名称/绑定更新显示，删除禁用，读错不判删除且不覆盖存储；有限同步不加轮询。入口独立 task 保护原 FF 草稿；图标共用本机 AppIcon 来源与占位，启动器外观/数量不作保证。见 `docs/PRESET_DESKTOP_SHORTCUTS.md`。
+
 开发新功能或修改现有功能时：
 
 1. 不仅考虑正常操作流程，还应主动识别刷新页面、网络中断、重复操作、任务失败等可能影响核心功能的边界情况。
