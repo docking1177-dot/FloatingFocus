@@ -1,5 +1,7 @@
 package app.floatingfocus
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -31,13 +33,14 @@ import androidx.compose.ui.unit.sp
 
 /** Original native rendition of the supplied proportions; no photo, backing card or modal mask. */
 @Composable
-internal fun C4DevicePanel(frame: C4Frame, opacity: Float, preferredSize: Float, onKey: (Char) -> Unit) {
+internal fun C4DevicePanel(frame: C4Frame, opacity: Float, preferredSize: Float, onKey: (Char) -> Unit, onToggle: () -> Unit) {
     val fontScale = LocalDensity.current.fontScale
     BoxWithConstraints(Modifier.padding(2.dp)) {
-        val width = minOf(maxWidth, (292 * preferredSize).coerceAtLeast(260f).dp)
+        val width = minOf(maxWidth, (292 * preferredSize).coerceAtLeast(180f).dp)
         val height = minOf(maxHeight, width * (360f / 292f))
         val geometry = C4Geometry(width.value, height.value)
-        Box(Modifier.size(width, height).graphicsLayer { alpha = opacity }) {
+        Box(Modifier.size(width, height).graphicsLayer { alpha = opacity }
+            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onToggle)) {
             Canvas(Modifier.fillMaxSize()) {
                 val w = size.width; val h = size.height
                 fun rect(x: Float, y: Float, rw: Float, rh: Float, color: Long, radius: Float = 5f) =
@@ -86,9 +89,13 @@ internal fun C4DevicePanel(frame: C4Frame, opacity: Float, preferredSize: Float,
                 Text(frame.input.padEnd(7, '·'), color = displayInk, fontFamily = FontFamily.Monospace,
                     fontSize = ((if (compact) 10f else 16f) / fontScale).sp, maxLines = 1)
             }
+            val panel = geometry.keyboardPanel
+            Box(Modifier.offset(panel.x.dp, panel.y.dp).size(panel.width.dp, panel.height.dp)
+                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {})
             val grid = geometry.keypad
             Column(Modifier.offset(grid.x.dp, grid.y.dp).width(grid.width.dp)
-                .height((height.value - grid.y - 4).coerceAtLeast(1f).dp).verticalScroll(rememberScrollState()),
+                .height((height.value - grid.y - 4).coerceAtLeast(1f).dp)
+                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {}.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(geometry.gap.dp)) {
                 repeat(4) { row ->
                     Row(horizontalArrangement = Arrangement.spacedBy(geometry.gap.dp)) {
@@ -110,7 +117,7 @@ private fun C4Key(key: Char, enabled: Boolean, width: Float, height: Float, onKe
     val send by rememberUpdatedState(onKey)
     val fontScale = LocalDensity.current.fontScale
     Box(Modifier.size(width.dp, height.dp).clip(RoundedCornerShape(4.dp))
-        .background(if (pressed) Color(0xFF8D997F) else if (enabled) Color(0xFFC3C5B2) else Color(0xFF777F70))
+
         .semantics(mergeDescendants = true) {
             role = Role.Button
             contentDescription = when (key) { '*' -> "退格 *"; '#' -> "清空 #"; else -> "数字 $key" }
@@ -125,7 +132,11 @@ private fun C4Key(key: Char, enabled: Boolean, width: Float, height: Float, onKe
                 if (up != null && allowedAtDown && currentEnabled) { up.consume(); send(key) }
             }
         }, contentAlignment = Alignment.Center) {
+        Box(Modifier.fillMaxSize().padding(6.dp).clip(RoundedCornerShape(3.dp))
+            .background(if (pressed) Color(0xFF8D997F) else if (enabled) Color(0xFFC3C5B2) else Color(0xFF777F70)),
+            contentAlignment = Alignment.Center) {
         Text(key.toString(), fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold,
             fontSize = (21 / fontScale).sp, color = Color(0xFF252D25))
+        }
     }
 }

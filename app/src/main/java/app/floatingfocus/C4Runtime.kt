@@ -81,6 +81,13 @@ class C4Runtime(private val context: Context, private val timer: () -> Countdown
         refresh()
         return result
     }
+    fun releaseForDefuse(onFinished: () -> Unit): C4Audio? {
+        if (!input.defused) return null
+        val result = audio
+        audio = null
+        result?.playDefused(onFinished)
+        return result
+    }
     override fun close() {
         if (closed) return
         closed = true; handler.removeCallbacksAndMessages(null); scope.cancel(); audio?.close(); audio = null

@@ -38,16 +38,18 @@ fun FocusOverlay(
     extensionRequest: Int = 0,
     extensionStrategy: ReminderStrategy = ReminderStrategy(),
     c4: C4Frame = C4Frame(),
+    c4Expanded: Boolean = false,
+    onC4Toggle: () -> Unit = {},
     onC4Key: (Char) -> Unit = {},
     paused: Boolean = false,
     onTogglePause: (() -> Unit)? = null,
     onStop: () -> Unit
 ) {
-    if (c4.active) {
-        C4DevicePanel(c4, appearance.opacity, appearance.size, onC4Key)
+    if (c4.active && c4Expanded) {
+        C4DevicePanel(c4, appearance.opacity, appearance.size, onC4Key, onC4Toggle)
         return
     }
-    val finished = appearance.finished
+    val finished = !c4.active && appearance.finished
     var expanded by remember(finished) { mutableStateOf(false) }
     var addingTime by remember(finished) { mutableStateOf(false) }
     var extraSeconds by remember(finished) { mutableIntStateOf(120) }
@@ -55,7 +57,7 @@ fun FocusOverlay(
         if (extensionRequest > 0 && finished && onExtend != null) addingTime = true
     }
     val size = appearance.size
-    val showingControls = expanded || finished || appearance.confirmationRequired
+    val showingControls = !c4.active && (expanded || finished || appearance.confirmationRequired)
     val manualPulse = remember { Animatable(0f) }
     LaunchedEffect(animationRequest, interactive, appearance.animationStrength) {
         manualPulse.snapTo(0f)
@@ -81,14 +83,14 @@ fun FocusOverlay(
     // The background padding belongs to the same tap target as the time. Native
     // hit testing rejects transparent corners; child controls consume their own taps.
     val toggleControls = Modifier.clickable(enabled = controlsEnabled,
-        interactionSource = remember { MutableInteractionSource() }, indication = null) { expanded = !expanded }
+        interactionSource = remember { MutableInteractionSource() }, indication = null) { if (c4.active) onC4Toggle() else expanded = !expanded }
     // One alpha layer for the whole window. No glyph backgrounds or independent opaque children.
     Surface(color = Color(background), shape = CircleShape,
         modifier = Modifier.padding(2.dp).graphicsLayer { this.alpha = appearance.opacity }) {
         Layout(content = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 val header = toggleControls
-                    .semantics { contentDescription = if (controlsEnabled)
+                    .semantics { contentDescription = if (c4.active) "${appearance.title}，点击展开 C4，可拖动" else if (controlsEnabled)
                         "${appearance.title}，点击${if (expanded) "收起" else "展开"}操作，可拖动" else appearance.title }
                     .padding(4.dp)
                 val title: @Composable () -> Unit = {
@@ -102,7 +104,7 @@ fun FocusOverlay(
                     verticalArrangement = Arrangement.spacedBy(8.dp)) { title() }
                 else Row(header, verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)) { title() }
-                if (appearance.confirmationRequired) {
+                if (!c4.active && appearance.confirmationRequired) {
                     Text("确认提醒", style = textStyle)
                     TextButton(onClick = onConfirm, enabled = controlsEnabled) { Text("已看到提醒", style = textStyle) }
                 }
@@ -123,7 +125,7 @@ fun FocusOverlay(
                         if (onExtend != null) TextButton(onClick = { extraSeconds = 120; addingTime = true }, enabled = controlsEnabled) { Text("加时", style = textStyle) }
                         TextButton(onClick = onStop, enabled = controlsEnabled) { Text("结束计时", style = textStyle) }
                     }
-                } else if (expanded) {
+                } else if (expanded && !c4.active) {
                     FlowRow(horizontalArrangement = Arrangement.Center) {
                         if (onTogglePause != null) TextButton(onClick = onTogglePause, enabled = controlsEnabled) {
                             Text(if (paused) "继续计时" else "暂停计时", style = textStyle)

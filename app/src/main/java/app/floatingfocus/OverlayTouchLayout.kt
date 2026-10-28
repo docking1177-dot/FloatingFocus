@@ -2,6 +2,7 @@ package app.floatingfocus
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
@@ -9,6 +10,7 @@ import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.Region
 import android.os.Build
+import android.util.Log
 
 /** Owns dragging for the whole measured window, including Compose buttons and static text. */
 @SuppressLint("ViewConstructor") // Created with callbacks by OverlayWindow, never inflated from XML.
@@ -19,12 +21,14 @@ internal class OverlayTouchLayout(
     private val onDragEnd: () -> Unit = {},
     private val onMeasured: (Int, Int) -> Unit = { _, _ -> }
 ) : FrameLayout(context) {
+    private val debug = context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
     private val gesture = OverlayDragGesture(ViewConfiguration.get(context).scaledTouchSlop)
     private var geometry = OverlayShape.ROUNDED_RECTANGLE
     private var scale = 1f
     private var acceptingTouch = false
     private var childScrolling = false
     private var c4 = false
+    private var c4Active = false
     private var keypadGesture = false
     private val touchRegion = Region()
 
@@ -35,11 +39,12 @@ internal class OverlayTouchLayout(
         onMeasured(measuredWidth, measuredHeight)
     }
 
-    fun setGeometry(shape: OverlayShape, size: Float, device: Boolean = false) {
-        if (geometry == shape && scale == size && c4 == device && !touchRegion.isEmpty) return
+    fun setGeometry(shape: OverlayShape, size: Float, device: Boolean = false, active: Boolean = device) {
+        if (geometry == shape && scale == size && c4 == device && c4Active == active && !touchRegion.isEmpty) return
         geometry = shape
         scale = size
         c4 = device
+        c4Active = active
         updateRegion()
     }
 
@@ -82,7 +87,10 @@ internal class OverlayTouchLayout(
 
     override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
         // Native duration wheels own their gesture until UP; never turn it into a window drag.
-        if (disallowIntercept) childScrolling = true
+        // Compose clickables can request this even for an ordinary body tap. C4
+        // body gestures belong to the host; only the keyboard can own a scroll.
+        if (debug && c4Active) Log.d("FloatingFocus", "C4 touch disallow=$disallowIntercept key=$keypadGesture childScroll=$childScrolling")
+        if (disallowIntercept && (!c4Active || keypadGesture)) childScrolling = true
         super.requestDisallowInterceptTouchEvent(disallowIntercept)
     }
 
@@ -92,22 +100,23 @@ internal class OverlayTouchLayout(
                 childScrolling = false
                 val density = resources.displayMetrics.density
                 val device = C4Geometry(width / density - 4, height / density - 4)
-                keypadGesture = c4 && device.keypad.contains(event.x / density - 2, event.y / density - 2)
+                keypadGesture = c4 && device.keyboardPanel.contains(event.x / density - 2, event.y / density - 2)
                 if (keypadGesture) childScrolling = true
                 acceptingTouch = touchRegion.contains(event.x.toInt(), event.y.toInt())
+                if (debug && c4Active) Log.d("FloatingFocus", "C4 touch DOWN xy=${event.x},${event.y} frame=${width}x$height device=$c4 key=$keypadGesture accepted=$acceptingTouch")
                 if (!acceptingTouch) return false
                 gesture.start(event.rawX, event.rawY)
                 onDragStart()
             }
             MotionEvent.ACTION_MOVE -> {
                 if (!acceptingTouch) return false
-                if (keypadGesture && height / resources.displayMetrics.density >= 218) cancelKeyDrag(event)
+                if (keypadGesture && !keypadOverflows()) cancelKeyDrag(event)
                 else if (!childScrolling) moveWindow(event)
             }
             MotionEvent.ACTION_UP -> {
                 if (!acceptingTouch) return false
                 // Account for a final displacement even if MOVE events were coalesced.
-                if (keypadGesture && height / resources.displayMetrics.density >= 218) cancelKeyDrag(event)
+                if (keypadGesture && !keypadOverflows()) cancelKeyDrag(event)
                 else if (!childScrolling) moveWindow(event)
                 if (!gesture.finish()) super.dispatchTouchEvent(event)
                 onDragEnd()
@@ -136,6 +145,12 @@ internal class OverlayTouchLayout(
         return true
     }
 
+    private fun keypadOverflows(): Boolean {
+        val density = resources.displayMetrics.density
+        val device = C4Geometry(width / density - 4, height / density - 4)
+        return device.keypad.y + device.keypad.height > device.height - 4
+    }
+
     private fun cancelKeyDrag(event: MotionEvent) {
         val move = gesture.move(event.rawX, event.rawY) ?: return
         if (move.cancelChild) cancelChildTouch(event)
@@ -144,6 +159,7 @@ internal class OverlayTouchLayout(
     private fun moveWindow(event: MotionEvent) {
         val movement = gesture.move(event.rawX, event.rawY) ?: return
         if (movement.cancelChild) cancelChildTouch(event)
+        if (debug && c4Active) Log.d("FloatingFocus", "C4 touch MOVE dx=${movement.dx} dy=${movement.dy} childScroll=$childScrolling")
         onDrag(movement.dx, movement.dy)
     }
 

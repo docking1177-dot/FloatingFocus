@@ -91,13 +91,34 @@ class C4TimelineTest {
         assertEquals(1000L, timer.startedAt)
     }
     @Test fun `device keys keep distinct 44dp targets within normal compact and landscape frames`() {
-        for ((width, height) in listOf(292f to 360f, 356f to 438f, 292f to 260f, 240f to 232f, 180f to 218f)) {
+        for ((width, height) in listOf(260f to 320.55f, 292f to 300f, 292f to 360f, 356f to 438f, 292f to 260f, 240f to 232f, 180f to 218f)) {
             val g = C4Geometry(width, height)
             val keys = (0..11).map(g::key)
             assertTrue(keys.all { it.width >= 44 && it.height >= 44 && it.x >= 0 && it.y >= 0 &&
                 it.x + it.width <= width && it.y + it.height <= height })
             assertTrue(keys.zipWithNext().all { (a, b) -> a.y != b.y || a.x + a.width < b.x })
         }
+    }
+    @Test fun `C4 uses base configuration instead of progress effects even at deadline`() {
+        val settings = ReminderSettings(baseSize = 1.2f, opacity = .7f, color = OverlayColor.BLUE,
+            colorEnabled = true, sizeEnabled = true)
+        for (remaining in listOf(44_439L, 20_000L, 1000L, 0L)) {
+            val p = ReminderPresenter.forC4(C4Frame(C4Phase.ARMED, remainingMillis = remaining), settings)
+            assertEquals(1.2f, p.size, .001f)
+            assertEquals(0xFF264B73.toInt(), p.colorArgb)
+            assertEquals(.7f, p.opacity, .001f)
+            assertEquals(0f, p.pulseDepth, .001f)
+            assertFalse(p.finished)
+        }
+        val ordinary = ReminderPresenter.present(ReminderSnapshot(0, 1f, 1000), settings)
+        assertTrue(ordinary.size > 1.2f)
+        assertTrue(ordinary.finished)
+    }
+    @Test fun `keyboard leaves visible gaps without shrinking independent touch targets`() {
+        val g = C4Geometry(292f, 360f)
+        assertTrue(g.gap >= 8f)
+        assertTrue(g.key(0).width >= 44f)
+        assertTrue(g.key(0).x + g.key(0).width < g.key(1).x)
     }
     @Test fun `presets retain the existing schema and no global C4 field`() {
         val p = TimerPreset("short", "short", 1, ReminderSettings(), durationSeconds = 10)

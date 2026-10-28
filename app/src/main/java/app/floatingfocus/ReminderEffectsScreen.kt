@@ -41,8 +41,8 @@ internal fun ReminderEffectsScreen(settings: C4Settings, onChange: (C4Settings) 
             else "C4 开关修改对下一次会话生效。", style = MaterialTheme.typography.bodySmall)
     }
     if (notice) AlertDialog(onDismissRequest = { notice = false }, title = { Text("开启 C4 倒计时") }, text = {
-        Text("C4 阶段自动展开装置，需输入 7355608 结束计时。下包完成（音轨 4.92 秒）后可输入；* 退格，# 清空，第七位自动校验。\n\n" +
-            "阶段内首页与通知也不提供正常结束、暂停或加时。系统强停、划掉 FF 或撤销悬浮权限仍会停止。自然到时播放一次爆炸，尾音后恢复超时计时。\n\n" +
+        Text("C4 阶段点击浮窗展开装置，需输入 7355608 结束计时。下包完成（音轨 4.92 秒）后可输入；* 退格，# 清空，第七位自动校验。\n\n" +
+            "轻触显示屏可收起，键盘区域不切换形态。阶段内首页与通知也不提供正常结束、暂停或加时。系统强停、划掉 FF 或撤销悬浮权限仍会停止。自然到时播放一次爆炸，尾音后恢复超时计时。\n\n" +
             "更改 C4 开关对下一次会话生效，音效开关可即时静音。", modifier = Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState()))
     }, confirmButton = { TextButton(onClick = {
         store.acknowledgeNotice(); onChange(settings.copy(enabled = true)); notice = false

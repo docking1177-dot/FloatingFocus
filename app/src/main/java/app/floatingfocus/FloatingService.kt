@@ -53,7 +53,12 @@ class FloatingService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     private var countdown: Countdown? = null
     private var manualClock = SessionClock()
+    private var successAudio: C4Audio? = null
+    private var successGeneration = 0L
+    private var successPending = false
+    private var successWindowClosed = false
     private var c4Runtime: C4Runtime? = null
+    private var c4Expanded by mutableStateOf(false)
     private var c4Frame by mutableStateOf(C4Frame())
     private val recordStore by lazy { TimerRecordStore.get(this) }
     private var record: TimerRecord? = null
@@ -191,6 +196,9 @@ class FloatingService : Service() {
         ReminderSettingsStore.get(this).settings.value.strategy.validationError(duration, mode)?.let {
             fail(it); return START_NOT_STICKY
         }
+        // A new explicit session takes priority over the old result voice.
+        cancelSuccessAudio()
+        stopping = false
         manualClock = SessionClock()
         c4Frame = C4Frame()
         countdown = Countdown(duration, manualClock.at(SystemClock.elapsedRealtime()), mode)
@@ -246,11 +254,13 @@ class FloatingService : Service() {
             val settings by settingsStore.settings.collectAsState()
             val normal = ReminderPresenter.present(ReminderSnapshot(overlayState.remainingMillis, overlayState.progress,
                 overlayState.overtimeMillis, overlayState.mode, overlayState.elapsedMillis, countdown?.durationMillis ?: 0), settings)
-            val appearance = if (c4Frame.active || manualClock.paused) normal.copy(pulseDepth = 0f, animationStrength = 0f) else normal
-            SideEffect { overlay.setGeometry(appearance.shape, appearance.size, c4Frame.active, appearance.opacity) }
+            val appearance = if (c4Frame.active) ReminderPresenter.forC4(c4Frame, settings)
+                else if (manualClock.paused) normal.copy(pulseDepth = 0f, animationStrength = 0f) else normal
+            SideEffect { overlay.setGeometry(appearance.shape, appearance.size, c4Frame.active && c4Expanded, appearance.opacity, c4Frame.active) }
             val timerStart = overlayState.timerStartedAt
             FocusOverlay(if (c4Frame.active) appearance.copy(opacity = 1f) else appearance, interactive, extensionRequest = extensionRequest,
-                extensionStrategy = settings.strategy, c4 = c4Frame, paused = overlayState.paused,
+                extensionStrategy = settings.strategy, c4 = c4Frame, c4Expanded = c4Expanded,
+                onC4Toggle = { if (!stopping) c4Expanded = !c4Expanded }, paused = overlayState.paused,
                 onC4Key = { key ->
                     if (!stopping && c4Runtime?.key(key) == C4KeyResult.DEFUSED) finishSession(defusedFeedback = true)
                 },
@@ -264,6 +274,7 @@ class FloatingService : Service() {
 
     private fun publishC4Frame(frame: C4Frame) {
         val changed = frame.active != c4Frame.active
+        if (changed) c4Expanded = false
         c4Frame = frame
         overlayState = overlayState.copy(c4Locked = frame.active)
         if (window != null && !stopping) mutableSession.value = overlayState
@@ -386,6 +397,7 @@ class FloatingService : Service() {
     }
 
     private fun fail(message: String, cause: RuntimeException? = null) {
+        if (successPending) { cancelSuccessAndStop(); return }
         if (stopping) return
         if (cause != null) Log.w(TAG, message, cause)
         if (monitor != null) AutoTriggerLog.record(this, "MONITOR_ERROR $message")
@@ -393,23 +405,60 @@ class FloatingService : Service() {
         finishSession(preserveError = true, status = RecordStatus.ERROR)
     }
 
+    private fun cancelSuccessAudio() {
+        successGeneration++
+        successAudio?.close(); successAudio = null
+        successPending = false
+    }
+
+    private fun cancelSuccessAndStop() {
+        cancelSuccessAudio()
+        cleanup()
+        mutableSession.value = SessionState()
+        stopForeground(STOP_FOREGROUND_REMOVE); stopSelf()
+    }
+
+    private fun finishSuccessIfReady(generation: Long) {
+        if (generation != successGeneration || !successPending || !successWindowClosed || successAudio != null) return
+        successPending = false
+        cleanup()
+        stopForeground(STOP_FOREGROUND_REMOVE); stopSelf()
+    }
+
     private fun finishSession(preserveError: Boolean = false, status: RecordStatus = RecordStatus.MANUAL, defusedFeedback: Boolean = false) {
+        if (successPending && !defusedFeedback) { cancelSuccessAndStop(); return }
         if (stopping) return
         stopping = true
         checkpointRecord(SystemClock.elapsedRealtime())
+        mutableMonitor.value = AutoMonitorStatus(reason = if (preserveError) mutableSession.value.error ?: "已停止" else "未开启")
         if (defusedFeedback) {
-            // Stop audio, clock callbacks and record NOW; only the green LCD acknowledgement lasts 220ms.
+            successPending = true; successWindowClosed = false
+            val generation = ++successGeneration
+            successAudio = c4Runtime?.releaseForDefuse {
+                if (generation == successGeneration) {
+                    successAudio = null
+                    finishSuccessIfReady(generation)
+                }
+            }
             c4Runtime?.close(); c4Runtime = null
             handler.removeCallbacksAndMessages(null)
-        } else cleanup()
-        mutableMonitor.value = AutoMonitorStatus(reason = if (preserveError) mutableSession.value.error ?: "已停止" else "未开启")
-        // Keep the service alive until the final atomic record is written.
-        completeRecord(status) { Handler(Looper.getMainLooper()).postDelayed({
-            if (defusedFeedback) cleanup()
-            stopForeground(STOP_FOREGROUND_REMOVE)
-            stopSelf()
+            // Freeze and persist NOW. Audio ownership outlives the visible timer only.
+            completeRecord(status) { Handler(Looper.getMainLooper()).postDelayed({
+                if (generation != successGeneration) return@postDelayed
+                window?.close(); window = null; countdown = null; c4Frame = C4Frame()
+                Log.d(TAG, "C4 success window closed")
+                successWindowClosed = true
+                mutableSession.value = SessionState()
+                stopping = false
+                finishSuccessIfReady(generation)
+            }, 220) }
+            return
+        }
+        cleanup()
+        completeRecord(status) { Handler(Looper.getMainLooper()).post {
+            stopForeground(STOP_FOREGROUND_REMOVE); stopSelf()
             if (!preserveError) mutableSession.value = SessionState()
-        }, if (defusedFeedback) 220 else 0) }
+        } }
     }
 
     private fun cleanup() {
@@ -431,6 +480,7 @@ class FloatingService : Service() {
     }
 
     override fun onDestroy() {
+        cancelSuccessAudio()
         completeRecord(RecordStatus.SERVICE_STOPPED)
         cleanup()
         if (mutableMonitor.value.enabled) mutableMonitor.value = AutoMonitorStatus(reason = "监测已停止，请手动重新开启")

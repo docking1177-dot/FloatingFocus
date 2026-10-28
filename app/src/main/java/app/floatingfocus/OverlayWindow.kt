@@ -7,10 +7,12 @@ package app.floatingfocus
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.Rect
 import android.os.Build
+import android.util.Log
 import android.view.Gravity
 import android.view.WindowInsets
 import android.view.WindowManager
@@ -166,6 +168,7 @@ class OverlayWindow(private val context: Context,
         val size = safeSize()
         params.x = (dragStartX + dx).roundToInt().coerceIn(0, (size.x - view.width).coerceAtLeast(0))
         params.y = (dragStartY + dy).roundToInt().coerceIn(0, (size.y - view.height).coerceAtLeast(0))
+        if (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0) Log.d("FloatingFocus", "Overlay drag from=$dragStartX,$dragStartY delta=$dx,$dy placed=${params.x},${params.y} view=${view.width}x${view.height} safe=${size.x}x${size.y}")
         position.anchor(params.x, params.y, view.width, view.height)
         rememberedAnchor = position.snapshot(size.x, size.y)
         positionChanged = true
@@ -180,9 +183,9 @@ class OverlayWindow(private val context: Context,
 
     private fun dp(value: Int) = (value * context.resources.displayMetrics.density).roundToInt()
 
-    fun setGeometry(shape: OverlayShape, size: Float, device: Boolean = false, opacity: Float = 1f) {
-        view.setGeometry(shape, size, device)
-        val windowAlpha = if (device) opacity else 1f
+    fun setGeometry(shape: OverlayShape, size: Float, device: Boolean = false, opacity: Float = 1f, c4Active: Boolean = device) {
+        view.setGeometry(shape, size, device, c4Active)
+        val windowAlpha = if (c4Active) opacity else 1f
         if (params.alpha != windowAlpha) { params.alpha = windowAlpha; update() }
     }
 }

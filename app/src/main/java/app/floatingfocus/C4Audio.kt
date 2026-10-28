@@ -7,6 +7,7 @@ import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Handler
+import android.os.SystemClock
 import android.os.Looper
 import android.util.Log
 import kotlin.math.abs
@@ -19,6 +20,44 @@ class C4Audio(context: Context, private val desired: () -> C4Playback?) : AutoCl
     private val notifications = context.getSystemService(NotificationManager::class.java)
     private val attributes = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA)
         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build()
+    private val handler = Handler(Looper.getMainLooper())
+    private val settings = C4SettingsStore.get(context)
+    private var successAt: Long? = null
+    private var successPlaybackStartedAt: Long? = null
+    private var successFinished: (() -> Unit)? = null
+    private val successCheck = object : Runnable {
+        override fun run() {
+            val moment = SystemClock.elapsedRealtime()
+            val slot = slots["defused"]
+            val started = successPlaybackStartedAt
+            val stalled = if (started == null) moment - (successAt ?: moment) > 3000
+                else moment - started > (runCatching { slot?.player?.duration?.toLong() ?: 0L }.getOrDefault(0L) + 2000)
+            if (successAt != null && (stalled || slot?.failed != false || !permitted())) finishSuccess() else {
+                refresh(); handler.postDelayed(this, 150)
+            }
+        }
+    }
+    private fun playback(): C4Playback? {
+        if (successAt == null) return desired()
+        // A result voice is a one-shot, not another clock-synchronized countdown clip.
+        // Start at its beginning and resume from the player, never skip words to catch up.
+        val slot = slots["defused"]
+        val position = if (slot?.ready == true && !slot.failed)
+            runCatching { slot.player.currentPosition.toLong() }.getOrDefault(0L) else 0L
+        return C4Playback("defused", position)
+    }
+    private fun finishSuccess() {
+        val callback = successFinished ?: return
+        successFinished = null
+        close()
+        Log.d(TAG, "C4 success audio finished")
+        callback()
+    }
+    fun playDefused(onFinished: () -> Unit) {
+        silencePlayers(); abandon()
+        successAt = SystemClock.elapsedRealtime(); successFinished = onFinished
+        handler.post { if (!closed) { refresh(); successCheck.run() } }
+    }
     private var closed = false
     private var requested = false
     private var focused = false
@@ -27,14 +66,14 @@ class C4Audio(context: Context, private val desired: () -> C4Playback?) : AutoCl
     private val focus = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
         .setAudioAttributes(attributes).setOnAudioFocusChangeListener({ change ->
             focused = change == AudioManager.AUDIOFOCUS_GAIN
-            if (!focused) silencePlayers() else refresh()
+            if (!focused) { silencePlayers(); if (successAt != null) handler.post { finishSuccess() } } else refresh()
         }, Handler(Looper.getMainLooper())).build()
     private class Slot(val player: MediaPlayer, var ready: Boolean = false, var playing: Boolean = false,
                        var seeking: Boolean = false, var ended: Boolean = false, var failed: Boolean = false,
                        var seekCorrections: Int = 0)
 
     init {
-        for (name in listOf("pre_explosion", "explosion")) {
+        for (name in listOf("pre_explosion", "explosion", "defused")) {
             val player = MediaPlayer()
             val slot = Slot(player)
             slots[name] = slot
@@ -47,7 +86,7 @@ class C4Audio(context: Context, private val desired: () -> C4Playback?) : AutoCl
                 }
                 player.setOnSeekCompleteListener {
                     slot.seeking = false
-                    val next = desired()
+                    val next = playback()
                     if (!closed && !slot.failed && next?.clip == name && focused && permitted()) {
                         // Bound stale async seeks. Never chase each LED node with a stop/seek/start loop.
                         if (abs(it.currentPosition - next.offsetMillis) <= 250) start(slot, name, next)
@@ -63,10 +102,11 @@ class C4Audio(context: Context, private val desired: () -> C4Playback?) : AutoCl
                     slot.playing = false; slot.ended = true
                     if (active == name) { active = null; abandon() }
                     Log.d(TAG, "C4 media completed=$name")
+                    if (name == "defused") handler.post { finishSuccess() }
                 }
                 player.setOnErrorListener { _, what, extra ->
                     slot.failed = true; slot.playing = false; slot.seeking = false
-                    if (desired()?.clip == name) abandon()
+                    if (playback()?.clip == name) abandon()
                     Log.w(TAG, "C4 media failed=$name what=$what extra=$extra"); true
                 }
                 player.prepareAsync()
@@ -77,13 +117,13 @@ class C4Audio(context: Context, private val desired: () -> C4Playback?) : AutoCl
         }
     }
 
-    private fun permitted() = manager.ringerMode == AudioManager.RINGER_MODE_NORMAL &&
+    private fun permitted() = settings.settings.value.sound && manager.ringerMode == AudioManager.RINGER_MODE_NORMAL &&
         !manager.isStreamMute(AudioManager.STREAM_MUSIC) && manager.getStreamVolume(AudioManager.STREAM_MUSIC) > 0 &&
         notifications.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_ALL
 
     fun refresh() {
         if (closed) return
-        val next = desired()
+        val next = playback()
         if (next == null || !permitted()) { silencePlayers(); abandon(); return }
         val slot = slots[next.clip] ?: return
         if (slot.failed || slot.ended) return
@@ -103,6 +143,7 @@ class C4Audio(context: Context, private val desired: () -> C4Playback?) : AutoCl
     private fun start(slot: Slot, name: String, next: C4Playback) {
         try {
             slot.player.start(); slot.playing = true; active = name
+            if (name == "defused" && successPlaybackStartedAt == null) successPlaybackStartedAt = SystemClock.elapsedRealtime()
             Log.d(TAG, "C4 media start=$name offset=${slot.player.currentPosition} target=${next.offsetMillis}")
         } catch (e: IllegalStateException) { slot.failed = true; abandon(); Log.w(TAG, "C4 media start failed", e) }
     }
@@ -117,7 +158,8 @@ class C4Audio(context: Context, private val desired: () -> C4Playback?) : AutoCl
     private fun abandon() { if (requested) manager.abandonAudioFocusRequest(focus); requested = false; focused = false }
     override fun close() {
         if (closed) return
-        closed = true; silencePlayers(); abandon()
+        if (successFinished != null) Log.d(TAG, "C4 success audio cancelled")
+        closed = true; handler.removeCallbacksAndMessages(null); successFinished = null; silencePlayers(); abandon()
         slots.values.forEach { it.player.release() }; slots.clear()
     }
     companion object {

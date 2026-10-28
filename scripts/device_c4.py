@@ -1,4 +1,5 @@
 """Same-window C4 device, real keys, supplied local tracks and single natural completion."""
+import datetime
 import json
 import re
 import time
@@ -6,7 +7,9 @@ import time
 PACKAGE = 'app.floatingfocus'
 
 
-def c4(d):
+def c4(d, focus=None):
+    row_centers = {}
+    snapshot_seconds = []
     def logs():
         return d.shell('logcat', '-d', '-s', 'FloatingFocus:*')
 
@@ -15,13 +18,30 @@ def c4(d):
             d.shell('input', 'swipe', int(d.width*.03), int(d.height*.25), int(d.width*.03), int(d.height*.85), 200)
 
     def texts():
-        return [n.get('text', '') for n in d.dump().iter('node')]
+        began = time.monotonic()
+        tree = d.dump()
+        snapshot_seconds.append(time.monotonic()-began)
+        for n in tree.iter('node'):
+            if n.get('text') in ('提醒', 'C4 倒计时'):
+                _,y,_,b=d.bounds(n)
+                row_centers[n.get('text')]=(y+b)/2
+        return [n.get('text', '') for n in tree.iter('node')]
+
+    def open_settings():
+        d.tap('设置')
+        # Cold emulator startup can defer the first navigation traversal. Retry only
+        # against a fresh home hierarchy; never treat an unrelated page as settings.
+        for attempt in range(3):
+            if '提醒' in texts(): return
+            assert 'MainActivity' in d.foreground(), 'Unexpected destination while opening settings'
+            d.tap('设置')
+        raise AssertionError('Settings did not open')
 
     def right_entry(label):
-        node = next(n for n in d.dump().iter('node') if n.get('text') == label)
-        _,y,_,b = d.bounds(node)
-        # The draggable device is now on the left; use the same row's exposed right end.
-        d.tapxy(d.width-30*d.density, (y+b)/2)
+        # Coordinates come from a successful fresh idle-page snapshot above.
+        # Repeated dumps while the real LED/time is changing can consume its whole deadline.
+        assert label in row_centers
+        d.tapxy(d.width-30*d.density, row_centers[label])
 
     def viewport():
         bounds = [d.bounds(n) for n in d.dump().iter('node') if n.get('bounds')]
@@ -35,11 +55,17 @@ def c4(d):
             time.sleep(.08)
         raise AssertionError('C4 wait timed out; '+logs()[-1400:])
 
-    def start(seconds, enabled=True, sound=True, mode='COUNTDOWN', shape='ROUNDED_RECTANGLE'):
+    last_sound = False
+    home_start_point = None
+    gear_point = None
+
+    def start(seconds, enabled=True, sound=True, mode='COUNTDOWN', shape='ROUNDED_RECTANGLE', base_size=1.0):
+        nonlocal last_sound, home_start_point, gear_point
+        last_sound = sound
         d.stop()
         d.write_prefs('onboarding', dict(completed=True))
-        appearance = dict(shape=shape, color='BLUE', style='COLOR', baseSize=1.0, opacity=.7,
-                          intensity=1.0, colorEnabled=True, sizeEnabled=False)
+        appearance = dict(shape=shape, color='BLUE', style='COLOR', baseSize=base_size, opacity=.7,
+                          intensity=1.0, colorEnabled=True, sizeEnabled=True)
         preset = dict(id='c4-test', name='C4 '+str(seconds), minutes=max(1, seconds//60), durationSeconds=seconds,
                       settings=appearance, mode=mode, targetPackage='com.android.gallery3d', targetLabel='Gallery')
         d.write_prefs('c4_settings', dict(enabled=enabled, sound=sound, noticeAcknowledged=True))
@@ -47,19 +73,42 @@ def c4(d):
         d.write_prefs('timer_presets', {'items': json.dumps([preset])})
         d.write_prefs('quick_launch', {'targets': json.dumps([dict(package='com.android.gallery3d', label='Gallery')])})
         d.start(); d.shell('logcat', '-c')
+        home_tree = d.dump()
+        gear = next(n for n in home_tree.iter('node') if n.get('content-desc')=='设置')
+        gx,gy,gr,gb=d.bounds(gear); gear_point=((gx+gr)/2,(gy+gb)/2)
+        primary = next((n for n in home_tree.iter('node') if n.get('text') in ('开始倒计时', '开始正计时')), None)
+        # In landscape the start button is legitimately below the first viewport.
+        # Only the portrait handoff case uses this cached action.
+        home_start_point = None if primary is None else tuple((a+b)/2 for a,b in zip(d.bounds(primary)[:2],d.bounds(primary)[2:]))
         d.tap('启动预设 C4 '+str(seconds), scroll=True)
         wait_for(lambda: d.overlay() and 'com.android.gallery3d' in d.foreground() and d.frame()[2]-d.frame()[0] < d.width, 8)
         time.sleep(.3)
         return d.overlay()[0], d.frame()
 
+    def expand():
+        old = d.frame()
+        d.tapxy(*d.center())
+        until = time.monotonic()+4
+        previous = None
+        stable = 0
+        while time.monotonic() < until:
+            current = d.frame()
+            if current != old and current == previous:
+                stable += 1
+                if stable >= 2: return
+            else: stable = 0
+            previous = current
+            time.sleep(.1)
+        raise AssertionError(('C4 expansion not stable', old, previous))
+
     def key_point(char):
         x,y,r,b = d.frame()
         w,h = (r-x)/d.density-4, (b-y)/d.density-4
-        gap = 2 if h < 240 else 4
+        gap = 2 if h < 240 else 8 if h < 340 else 10
         kw = max(44, (w*.64-gap*2)/3)
-        kh = 44 if h < 300 else 46
-        dy = 4 if h < 300 else 48
-        dh = 24 if h < 240 else 40 if h < 300 else 58
+        kh = 44 if h < 340 else 46
+        dy = 4 if h < 340 else 48
+        dh = 24 if h < 240 else 40 if h < 340 else 58
         left = max(0, (w-kw*3-gap*2)/2+6)
         top_y = max(h-kh*4-gap*3-12, dy+dh+6)
         i = '123456789*0#'.index(char)
@@ -72,31 +121,128 @@ def c4(d):
         d.shell('input', 'tap', int(px), int(py))
 
     def code(success_shot=False):
-        for char in '7355608':
-            key(char)
+        points = [key_point(c) for c in '7355608']
+        for index, (char, (px,py)) in enumerate(zip('7355608', points)):
+            d.shell('input', 'tap', int(px), int(py))
+            expected = 'C4 key result=DEFUSED' if index == 6 else f'C4 key result=CHANGED length={index+1}'
+            try:
+                wait_for(lambda: expected in logs(), 1.5)
+            except AssertionError:
+                (d.output/'c4-key-target-failure.txt').write_text(
+                    repr(dict(index=index, digit=char, target=(px,py), frame=d.frame(), window=d.overlay()))+'\n'+d.shell('dumpsys','window','windows'), encoding='utf-8')
+                raise
         if success_shot:
             d.shot('c4-defused-feedback')
         wait_for(lambda: d.overlay() is None, 5)
         assert logs().count('C4 key result=DEFUSED') == 1
         assert 'C4 explosion consumed' not in logs()
+        ended = d.records()[-1]
+        if last_sound:
+            assert logs().count('C4 media start=defused') == 1
+            assert 'C4 success window closed' in logs()
+            wait_for(lambda: 'C4 success audio finished' in logs(), 4)
+            assert d.records()[-1]['elapsedMillis'] == ended['elapsedMillis'], 'Voice was added to record'
+            trace = logs()
+            assert 'C4 media completed=defused' in trace, 'Success voice was truncated before natural completion'
+            assert int(re.search(r'C4 media start=defused offset=\d+ target=(\d+)', trace)[1])==0, 'Success voice skipped its beginning'
+            assert trace.index('C4 success window closed') < trace.index('C4 success audio finished')
+            stamp = re.search(r'(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}).*C4 key result=DEFUSED', trace)[1]
+            year = datetime.datetime.fromtimestamp(ended['startedWallMillis']/1000, datetime.timezone.utc).year
+            success_wall = datetime.datetime.strptime(str(year)+'-'+stamp, '%Y-%m-%d %H:%M:%S.%f').replace(tzinfo=datetime.timezone.utc).timestamp()*1000
+            assert abs(ended['startedWallMillis']+ended['elapsedMillis']-success_wall) < 500, 'Record included success voice'
+        else:
+            assert 'C4 media start=defused' not in logs()
+
+    def handoff():
+        print('C4: new timer preempts success voice and old callbacks cannot stop it...', flush=True)
+        start(30)
+        expand()
+        d.start(); top()
+        for char in '735560': key(char)
+        kx,ky = key_point('8')
+        assert home_start_point is not None, 'Handoff start action is not visible'
+        hx,hy = home_start_point
+        d.shell('sh', '-c', f"'input tap {int(kx)} {int(ky)}; sleep 0.6; input tap {int(hx)} {int(hy)}'")
+        wait_for(lambda: d.overlay() is not None and 'C4 success window closed' in logs(), 4)
+        time.sleep(2.3)
+        assert d.overlay() is not None, 'Old success callback stopped the new session'
+        assert 'C4 success audio cancelled' in logs(), 'New session did not preempt old voice'
+        (d.output/'c4-new-session-handoff.log').write_text(logs(), encoding='utf-8')
+        d.shot('c4-handoff-new-session')
+        # Preset launch intentionally applies its 30s duration to the main page too;
+        # the newly started timer is therefore also C4 and must use its normal code exit.
+        d.shell('logcat','-c')
+        expand(); code()
+
+
+    def transparent():
+        print('C4: transparent corner reaches a DIFFERENT-UID Gallery menu...', flush=True)
+        start(30, sound=False)
+        expand()
+        # Settings hides overlays on this image. Its missing window cannot prove
+        # pass-through. Gallery keeps the device visible and has a different UID.
+        packages = d.shell('pm', 'list', 'packages', '-U')
+        uid = lambda package: re.search(r'package:'+re.escape(package)+r' uid:(\d+)', packages)[1]
+        assert uid(PACKAGE) != uid('com.android.gallery3d')
+        tree = d.dump()
+        menu = next(n for n in tree.iter('node') if n.get('content-desc') == 'More options')
+        sx,sy,sr,sb = d.bounds(menu)
+        target = ((sx+sr)/2, (sy+sb)/2)
+        x,y,r,b = d.frame()
+        # Align the real transparent right edge with the external control; base-size
+        # isolation deliberately changes the old fixed fixture's expansion width.
+        dx = target[0] + (r-x)*.02 - r
+        if abs(dx) > 3*d.density:
+            px,py=x+(r-x)*.5,y+(b-y)*.34
+            d.shell('input','swipe',int(px),int(py),int(px+dx),int(py),350)
+            moved=d.frame()
+            assert abs(moved[0]-(x+dx)) <= 3, ('Small body drag was swallowed', (x,y,r,b), moved, dx)
+            x,y,r,b=moved
+        # The external menu control is in
+        # the device's transparent top-right corner, INSIDE its rectangular frame.
+        assert x < target[0] < r and y < target[1] < b, (target, d.frame())
+        assert target[0] > x+(r-x)*.95 and target[1] < y+(b-y)*.2, (target, d.frame())
+        before_downs = logs().count('C4 touch DOWN')
+        d.shot('c4-transparent-before-tap')
+        d.tapxy(*target)
+        popup = d.dump()
+        assert any(n.get('text') == 'Select album' for n in popup.iter('node')), 'Gallery menu did not receive transparent-corner tap'
+        assert logs().count('C4 touch DOWN') == before_downs, 'Transparent corner reached the device'
+        assert d.overlay() is not None
+        d.shot('c4-transparent-cross-uid')
+        d.shell('input', 'keyevent', 'KEYCODE_BACK')
+        code()
+
 
     rotation = d.shell('settings', 'get', 'system', 'user_rotation').strip()
     auto_rotate = d.shell('settings', 'get', 'system', 'accelerometer_rotation').strip()
     try:
+        if focus == 'handoff':
+            handoff()
+            return dict(scope='handoff-only diagnostic', newSessionPreemptsVoice=True)
+        if focus == 'touch':
+            transparent()
+            return dict(scope='transparency-touch-only diagnostic')
+        if focus == 'success':
+            start(30); expand(); code()
+            return dict(scope='success-voice-only diagnostic')
+        assert focus is None
         print('C4: first-enable disclosure and defaults...', flush=True)
         d.stop(); d.write_prefs('onboarding', dict(completed=True)); d.write_prefs('c4_settings', {})
-        d.start(); d.tap('设置'); d.tap('提醒')
+        d.start(); open_settings(); d.tap('提醒')
         assert '音效' not in texts()
         d.tap('C4 倒计时'); assert '开启 C4 倒计时' in texts()
         d.tap('取消'); assert '音效' not in texts()
         d.tap('C4 倒计时'); d.tap('开启'); assert '音效' in texts()
-        d.tap('音效'); d.stop(); d.start(); d.tap('设置'); d.tap('提醒')
+        d.tap('音效'); d.stop(); d.start(); open_settings(); d.tap('提醒')
         d.shot('c4-settings-disclosure')
 
         print('C4: 60s boundary, planting input drop, real keyboard and drag...', flush=True)
         wid, folded = start(60)
         d.shot('c4-folded')
         wait_for(lambda: 'C4 phase=PLANTING' in logs(), 22)
+        assert d.frame()[2]-d.frame()[0] <= folded[2]-folded[0]+2, 'C4 inherited progress scale or auto-expanded'
+        expand()
         key('7')  # Probe immediately; screenshot/dumpsys latency must not move a later tap past 4.92s.
         assert 'C4 key result=CHANGED' not in logs(), 'A planting key was accepted'
         device = d.frame()
@@ -107,34 +253,70 @@ def c4(d):
         for char in '1111111': key(char)
         assert 'C4 key result=WRONG' in logs()
         d.shot('c4-input-error')
-        key('7'); key('3'); key('*'); key('#')
+        key('7'); key('3')
+        before_collapse = d.frame()
+        x,y,r,b = before_collapse
+        d.tapxy(x+(r-x)*.6, y+(b-y)*.2)
+        compact = d.frame()
+        assert compact[3]-compact[1] < before_collapse[3]-before_collapse[1]
+        time.sleep(.6)
+        assert d.frame()==compact, 'C4 compact size changed with progress'
+        expand()
+        assert d.frame()[2]-d.frame()[0] == before_collapse[2]-before_collapse[0]
+        key('5')
+        assert 'C4 key result=CHANGED length=3' in logs(), 'Collapse lost partial input'
+        key('*'); key('#')
         assert 'C4 key result=CHANGED length=0' in logs()
         old = d.frame(); before = logs().count('C4 key result=')
+        ax,ay=key_point('1'); bx,by=key_point('2')
+        d.tapxy((ax+bx)/2, ay)
+        assert d.frame()==old and logs().count('C4 key result=')==before, 'Key gap toggled, dragged, or typed'
         kx,ky = key_point('7')
         d.shell('input', 'swipe', int(kx), int(ky), int(kx+35*d.density), int(ky), 400)
         assert d.frame() == old and logs().count('C4 key result=') == before, 'Key drag moved window or typed'
         x,y,r,b = old
         d.shell('input', 'swipe', int(x+(r-x)*.5), int(y+(b-y)*.34), int(d.width*.38), int(d.height*.52), 400)
         assert d.overlay()[0] == wid and d.frame() != old
+        code()
+        wid,_ = start(40)
+        expand()
+        x,y,r,b = d.frame()
+        d.shell('input', 'swipe', int(x+(r-x)*.5), int(y+(b-y)*.34), int(d.width*.38), int(d.height*.52), 400)
         audio_starts = logs().count('C4 media start=pre_explosion')
         d.start(); top()
-        assert '结束计时' not in texts() and '加时' not in texts()
+        home_texts=texts()
+        assert '结束计时' not in home_texts and '加时' not in home_texts
         notifications = d.shell('dumpsys', 'notification', '--noredact')
         records = re.split(r'(?=NotificationRecord\()', notifications)
         current = next(p for p in records if 'pkg=app.floatingfocus' in p and 'id=1 ' in p)
         assert '结束计时' not in current, 'C4 notification retained a normal stop action'
         (d.output/'c4-active-notification.txt').write_text(current, encoding='utf-8')
-        d.tap('设置'); right_entry('提醒'); right_entry('C4 倒计时')
+        d.tapxy(*gear_point)
+        wait_for(lambda: 'SettingsActivity' in d.foreground(), 5)
+        right_entry('提醒'); right_entry('C4 倒计时')
         assert '本次 C4 仍在继续；开关修改对下一次会话生效。' in texts()
         assert d.overlay()[0] == wid, 'Global switch ended the current session'
         assert logs().count('C4 media start=pre_explosion') == audio_starts, 'Navigation replayed audio'
         code(success_shot=True)
-        assert d.records()[-1]['status'] == 'MANUAL' and d.records()[-1]['plannedMillis'] == 60_000
+        assert d.records()[-1]['status'] == 'MANUAL' and d.records()[-1]['plannedMillis'] == 40_000
+        assert logs().count('C4 media start=defused') == 1, 'Success voice missing or repeated'
         (d.output/'c4-defuse.log').write_text(logs(), encoding='utf-8')
+
+        handoff()
+
+        print('C4: revoke during success voice stops service resources...', flush=True)
+        start(30)
+        expand()
+        for char in '735560': key(char)
+        kx,ky=key_point('8')
+        d.shell('sh', '-c', f"'input tap {int(kx)} {int(ky)}; sleep 0.6; appops set {PACKAGE} SYSTEM_ALERT_WINDOW deny'")
+        wait_for(lambda: 'ServiceRecord{' not in d.shell('dumpsys', 'activity', 'services', PACKAGE), 3)
+        assert 'C4 success audio cancelled' in logs()
+        d.shell('appops', 'set', PACKAGE, 'SYSTEM_ALERT_WINDOW', 'allow')
 
         def expiry(seconds, sound):
             print(f'C4: real {seconds}s expiry, sound={sound}...', flush=True)
-            wid,_ = start(seconds, sound=sound)
+            wid,initial_compact = start(seconds, sound=sound)
             assert 'C4 phase=ARMED' in logs()
             d.shot(f'c4-armed-{seconds}-{sound}')
             if sound:
@@ -143,6 +325,17 @@ def c4(d):
                 d.shell('input', 'keyevent', 'KEYCODE_WAKEUP'); d.shell('wm', 'dismiss-keyguard')
                 after_lock = re.findall(r'C4 media start=pre_explosion offset=(\d+)', logs())
                 assert all(int(offset) >= 44_439-seconds*1000-100 for offset in after_lock[len(before_lock):]), 'Lock/unlock replayed an earlier section'
+            if not sound:
+                wait_for(lambda: any(int(v)>=38439 for v in re.findall(r'C4 event=\d+ offset=(\d+)', logs())), seconds+3)
+                full_sizes=[]
+                for _ in range(2):
+                    expand()
+                    x,y,r,b=d.frame(); full_sizes.append((r-x,b-y))
+                    d.tapxy(x+(r-x)*.6, y+(b-y)*.2)
+                    x,y,r,b=d.frame()
+                    assert (r-x,b-y)==(initial_compact[2]-initial_compact[0], initial_compact[3]-initial_compact[1])
+                assert full_sizes[0]==full_sizes[1], 'Last20 C4 grew while toggling'
+                d.shot('c4-last20-compact')
             wait_for(lambda: 'Timer completed:' in logs(), seconds+8)
             d.shot(f'c4-explosion-{seconds}-{sound}')
             assert logs().count('Timer completed:') == 1 and logs().count('C4 explosion consumed') == 1
@@ -162,27 +355,7 @@ def c4(d):
         expiry(10, True)
         expiry(30, False)
 
-        print('C4: transparent corner reaches a DIFFERENT-UID Settings search control...', flush=True)
-        start(30, sound=False)
-        d.shell('am', 'force-stop', 'com.android.settings')
-        # Repeated runs must pop the previous Search activity rather than bring that task back on top.
-        d.shell('am', 'start', '-W', '-a', 'android.settings.SETTINGS', '-f', '0x14000000')
-        tree = d.dump()
-        search = next(n for n in tree.iter('node') if n.get('resource-id') == 'com.android.settings:id/search_action_bar')
-        sx,sy,sr,sb = d.bounds(search)
-        target = (sr-8*d.density, (sy+sb)/2)
-        x,y,r,b = d.frame()
-        # Default right/top placement should put the search row's far-right end in
-        # the device's transparent top-right corner, INSIDE its rectangular frame.
-        assert x < target[0] < r and y < target[1] < b, (target, d.frame())
-        assert target[0] > x+(r-x)*.95 and target[1] < y+(b-y)*.08, (target, d.frame())
-        previous = d.foreground()
-        d.tapxy(*target)
-        assert d.foreground() != previous and ('Search' in d.foreground() or 'search' in d.foreground()), d.foreground()
-        assert d.overlay() is not None
-        d.shot('c4-transparent-cross-uid')
-        code()
-        d.shell('input', 'keyevent', 'KEYCODE_BACK')
+        transparent()
 
         print('C4: compact landscape keyboard and same-window rotation...', flush=True)
         d.shell('settings', 'put', 'system', 'accelerometer_rotation', 0)
@@ -190,12 +363,19 @@ def c4(d):
         time.sleep(.5)
         viewport()
         wid,_ = start(30, sound=False)
+        expand()
         for char in '*#': key(char)
         d.shot('c4-landscape-keypad')
         d.shell('settings', 'put', 'system', 'user_rotation', 0); time.sleep(.6)
         viewport()
         assert d.overlay()[0] == wid
         d.shot('c4-portrait-after-rotation')
+        code()
+
+        print('C4: minimum base size keeps last keypad row reachable...', flush=True)
+        start(30, sound=False, base_size=.75)
+        expand()
+        d.shot('c4-minimum-base-keypad')
         code()
 
         print('C4: stop/permission/normal-mode boundaries...', flush=True)
@@ -218,10 +398,13 @@ def c4(d):
                     homeAndNotificationStopRemoved=True, switchNextSession=True, defuseStopsWithoutExplosion=True,
                     naturalExpirySingleExplosion=True, tailRestoresOvertime=True, shortStartsSeekToCurrentOffset=True, lockUnlockNoReplay=True,
                     mutedVisualAndInput=True, landscapeKeysAndRotation=True, forceStopAndRevocation=True,
+                    keyGapNoAction=True, last20StableAcrossForms=True, minimumBaseKeypad=True, partialInputSurvivesToggle=True, defaultCompact=True, successVoiceSingleAndRecordFrozen=True,
+                    newSessionPreemptsVoice=True, revokeDuringSuccessCleansService=True,
                     foldedShapes=True, stopwatchExcluded=True, audioEvidence='MediaPlayer request/position logs only; no listening assertion',
-                    transparentPassThrough=dict(api=36, windowOpacity=.7, crossUid='Android Settings search',
+                    transparentPassThrough=dict(api=36, windowOpacity=.7, crossUid='Gallery menu, UIDs checked',
                                                 pointInsideBoundingFrame=True, higherOpacityAndOlderApis='not tested'))
     finally:
+        (d.output/'c4-snapshot-seconds.json').write_text(json.dumps(snapshot_seconds), encoding='utf-8')
         d.shell('appops', 'set', PACKAGE, 'SYSTEM_ALERT_WINDOW', 'allow')
         d.shell('settings', 'put', 'system', 'user_rotation', rotation)
         d.shell('settings', 'put', 'system', 'accelerometer_rotation', auto_rotate)
