@@ -42,6 +42,7 @@ Emulator 模式不会自动授予悬浮权限、点击开始或完成拖动回�
 ./scripts/test-device.ps1 -Suite onboarding -AllowTestDataChanges
 ./scripts/test-device.ps1 -Suite developer -AllowTestDataChanges
 ./scripts/test-device.ps1 -Suite history -AllowTestDataChanges
+./scripts/test-device.ps1 -Suite preset_styles -AllowTestDataChanges
 # 发布前全部执行
 ./scripts/test-device.ps1 -Suite all -AllowTestDataChanges
 ```
@@ -73,3 +74,5 @@ UIAutomator 每次先删除旧快照并确认新文件生成，短暂失败最�
 `history` 检查今日/周/月、全部/手动/历史 App 筛选、同名包区分、搜索、柱点击/空白取消和时段列表；通过真实系统文件选择器保存后解析 CSV，确认筛选不改变全部导出范围和原记录。还检查读取错误/重试不结算活跃会话、空记录、旋转保持筛选，保存深色/大字体截图供复核。夹具和导出文件只用于专用模拟器，结束由同一 runner 还原原始数据与临时显示设置；`all` 包含本组。
 
 2026-10-21 本机验证：Full 与 Emulator 模式通过，9 项单测、Lint 0 错误 / 8 警告 / 1 提示；Emulator 模式实际完成安装及 Activity 启动。另用隔离的无效 JDK 配置确认失败返回 1。原始结果保存在 `.tools/checks/`，不作为源码提交。
+
+`preset_styles` 仅 Debug：通过设置里的开发者模式切换三候选并返回真实首页，检查独立偏好持久化、同数据/顺序、不可操作预览及无副作用、四列快捷App、空/单/奇数/较多预设、小屏2倍字号、真实权限/启动失败/双击/活跃会话禁用。保留同一批数据三种截图，大字体截图另列；临时显示设置与应用数据均还原。Release构建后检查DEX无PresetStyleStore/PresetStylePicker/候选渲染，不把仅隐藏入口当隔离。

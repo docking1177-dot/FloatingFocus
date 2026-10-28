@@ -147,6 +147,8 @@ class ReminderLabActivity : ComponentActivity() {
                     ReminderLabState.reset(sharedSettings)
                     durationInput = "900"; remainingInput = "900"; overtime = false; inputError = null
                 }) { Text("重置模拟状态") }
+                HorizontalDivider()
+                PresetStylePicker()
                 Spacer(Modifier.height(16.dp))
             }
         }

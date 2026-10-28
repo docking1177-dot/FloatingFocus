@@ -37,3 +37,14 @@ Debug 67 项、Release 61 项 JVM 测试全部通过，两种构建及 Lint 通�
 ## 双列预设与提亮提醒验收（2026-10-24—25）
 
 Debug 75 项、Release 69 项 JVM 测试及两种构建通过；Lint 无错误，Debug 保留 1 项既有 Gradle 版本警告。Android 16 后台模拟器实际验证双列长名称、奇数末项、一键打开目标 App 与停止计时，以及 50%／80% 色阶、手动动画两次提亮后恢复、系统动画关闭时不播放。详见[结构化记录](validation/color-grid/results.json)。未进行 REDMI K80 真机效果验收。
+
+
+## Debug 预设卡片样式比较
+
+设置 → 开发者模式 → 预设卡片样式。单选立即应用真实首页「我的预设」，默认图标方案卡。也可选择双列图标启动块、单列紧凑快捷行；候选未确定为正式产品样式。共用名称、目标App、时长/正计时、原顺序与稳定ID；不合并同App方案，不改变启动、绑定、管理和运行中禁用。快捷App仍为四列并显示当前配置摘要，预设分组说明使用保存配置。
+
+偏好只存本机 Debug 的 SharedPreferences `debug_preset_style/style`，经StateFlow通知首页；不在预设快照、提醒外观或C4状态中。开发者模式预览复用同一候选渲染，全部禁用且传入空操作，不启动服务或写数据。最多展示前三个真实预设；没有预设时使用内存示例，不写入用户列表。切换和重启不重排预设。
+
+`TimerPresetsCard.kt` 保留全部业务和页头；`app/src/debug/.../PresetItems.kt`、`PresetStyleStore.kt`、`PresetStylePicker.kt` 仅负责实验显示/选择。Release同名`PresetItems`逐项保留原有正式网格，不依赖Debug存储或候选。名称自然换行、适应内容高度，整项点击；列表时长右对齐、无详情箭头。候选去掉每项重复的点击启动提示，仅Debug生效。
+
+回归入口：`./scripts/test-device.ps1 -Suite preset_styles -Serial emulator-5556 -AllowTestDataChanges`。复用专用模拟器备份还原、源码指纹和APK绑定，覆盖三样式同数据截图、重启、数据数量、预览无副作用、独立偏好、四列快捷App、权限/失败/启动/禁用与小屏大字体。截图需要人工视觉复核，不替代交互断言。Debug/Release Full和Release DEX隔离另行核对。
