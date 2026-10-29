@@ -35,10 +35,10 @@ class PresetShortcutActivity : ComponentActivity() {
         setContent { FocusTheme {
             val allowed by rememberOverlayPermission()
             Scaffold { insets ->
-                Column(Modifier.fillMaxSize().padding(insets).safeDrawingPadding().padding(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Column(Modifier.fillMaxSize().padding(insets).safeDrawingPadding().padding(FocusSpacing.page),
+                    verticalArrangement = Arrangement.spacedBy(FocusSpacing.section)) {
                     Text("预设启动", style = MaterialTheme.typography.headlineSmall)
-                    Text(message)
+                    Text(message, color = if (issue != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
                     if (launching) LinearProgressIndicator(Modifier.fillMaxWidth())
                     else {
                         if (issue == PresetLaunchIssue.PERMISSION && !allowed) Button(onClick = {

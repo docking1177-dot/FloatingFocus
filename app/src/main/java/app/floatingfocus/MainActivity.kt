@@ -117,7 +117,7 @@ class MainActivity : ComponentActivity() {
                         Surface(modifier = Modifier.size(40.dp), color = MaterialTheme.colorScheme.primary, shape = CircleShape) {
                             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 Icon(painterResource(R.drawable.ic_notification), contentDescription = null,
-                                    tint = Color.White, modifier = Modifier.size(24.dp))
+                                    tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
                             }
                         }
                         Text("Floating Focus", modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
@@ -138,12 +138,12 @@ class MainActivity : ComponentActivity() {
                                 session.mode == TimerMode.STOPWATCH -> "正计时 · ${formatElapsed(session.elapsedMillis)}"
                                 session.stage == ReminderStage.FINISHED -> "超时 +${formatElapsed(session.overtimeMillis)}"
                                 else -> "计时中 · ${formatRemaining(session.remainingMillis)}" },
-                                style = MaterialTheme.typography.bodyMedium, color = Color(0xFF667067))
+                                style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Spacer(Modifier.height(8.dp))
                             if (session.mode == TimerMode.COUNTDOWN && session.stage == ReminderStage.FINISHED && !session.automatic && !session.c4Locked)
                                 TextButton(onClick = { FloatingService.requestExtension(this@MainActivity, session.timerStartedAt) }) { Text("加时") }
                         }
-                        if (monitor.enabled) Text(monitor.reason, style = MaterialTheme.typography.bodySmall, color = Color(0xFF667067))
+                        if (monitor.enabled) Text(monitor.reason, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             TimerMode.entries.forEach { option ->
                                 FilterChip(mode == option, { selection = selection.copy(mode = option) }, label = { Text(option.label) },
@@ -251,7 +251,7 @@ private fun PermissionCard(title: String, description: String, action: String, o
         color = MaterialTheme.colorScheme.secondaryContainer) {
         Column(Modifier.padding(12.dp)) {
             Text(title, fontWeight = FontWeight.Medium)
-            Text(description, style = MaterialTheme.typography.bodySmall, color = Color(0xFF667067))
+            Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             OutlinedButton(onClick = onClick) { Text(action) }
         }
     }

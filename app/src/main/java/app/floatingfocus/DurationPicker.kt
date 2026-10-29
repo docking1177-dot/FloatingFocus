@@ -72,7 +72,7 @@ fun DurationDialog(title: String, initialSeconds: Int, onDismiss: () -> Unit, on
     AlertDialog(onDismissRequest = onDismiss, title = { Text(title) }, text = {
         Column {
             DurationWheels(draft, { draft = it }, minSeconds, maxSeconds)
-            Text("${durationLabel(minSeconds)}—${durationLabel(maxSeconds)}", style = MaterialTheme.typography.bodySmall)
+            Text("${durationLabel(minSeconds)}—${durationLabel(maxSeconds)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }, confirmButton = { TextButton(onClick = { onConfirm(draft) }) { Text("确认") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } })
@@ -82,11 +82,14 @@ fun DurationDialog(title: String, initialSeconds: Int, onDismiss: () -> Unit, on
 fun DurationEntry(label: String, seconds: Int, onChange: (Int) -> Unit, enabled: Boolean = true,
                   minSeconds: Int = 60, maxSeconds: Int = 10800) {
     var choosing by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(enabled) { if (!enabled) choosing = false }
     Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(enabled) { choosing = true }.padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically) {
-        Text(label, modifier = Modifier.weight(1f))
-        Text(durationLabel(seconds), color = MaterialTheme.colorScheme.primary)
-        Text("  >", color = MaterialTheme.colorScheme.primary)
+        val content = MaterialTheme.colorScheme.onSurface.let { if (enabled) it else it.copy(alpha = .38f) }
+        val action = if (enabled) MaterialTheme.colorScheme.primary else content
+        Text(label, modifier = Modifier.weight(1f), color = content)
+        Text(durationLabel(seconds), color = action)
+        Text("  >", color = action)
     }
-    if (choosing) DurationDialog(label, seconds, { choosing = false }, { onChange(it); choosing = false }, minSeconds, maxSeconds)
+    if (choosing && enabled) DurationDialog(label, seconds, { choosing = false }, { onChange(it); choosing = false }, minSeconds, maxSeconds)
 }

@@ -34,7 +34,7 @@ internal fun QuickDurationsScreen(values: List<Int>, defaults: TimerStartupDefau
         if (!QuickDurations.validSeconds(draft)) Text("请设置四个不同的时长。", color = MaterialTheme.colorScheme.error)
         HorizontalDivider()
         Text("启动默认配置", style = MaterialTheme.typography.titleMedium)
-        Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(FocusSpacing.small)) {
             TimerMode.entries.forEach { option ->
                 Row(Modifier.weight(1f).selectable(selected = startupMode == option, role = Role.RadioButton,
                     onClick = { startupMode = option }).heightIn(min = 48.dp),
@@ -68,18 +68,18 @@ internal fun StrategyScreen(value: ReminderStrategy, durationSeconds: Int, onSav
     val error = draft.validationError(duration)
     PreferencePage("提醒策略", onBack) {
         Text("本次时长 · ${durationLabel(durationSeconds)}")
-        Text("拖动节点调整；点击节点设置触发条件。", style = MaterialTheme.typography.bodySmall)
+        Text("拖动节点调整；点击节点设置触发条件。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         if (error == null) StrategyTimeline(draft, duration, { draft = it }, { selected = it })
         else {
             // Invalid legacy/shortened-duration configurations have no honest ordered timeline.
             // Keep identities editable instead of sorting or moving the user's nodes.
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(FocusSpacing.small)) {
                 OutlinedButton(onClick = { selected = 0 }) { Text("修改第二级") }
                 OutlinedButton(onClick = { selected = 1 }) { Text("修改第三级") }
             }
         }
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-        Text("归零和超时提醒保持不变。", style = MaterialTheme.typography.bodySmall)
+        Text("归零和超时提醒保持不变。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Row {
             TextButton(onClick = { draft = ReminderStrategy() }) { Text("恢复默认") }
             Button(enabled = error == null, onClick = { onSave(draft); onBack() }) { Text("保存") }
@@ -126,7 +126,7 @@ private fun StrategyTimeline(strategy: ReminderStrategy, duration: Long, onChang
                     }) {
                 Column(Modifier.padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(if (index == 0) "第二级" else "第三级", style = MaterialTheme.typography.labelLarge)
-                    Text(caption, style = MaterialTheme.typography.bodySmall)
+                    Text(caption, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -150,7 +150,7 @@ private fun NodeDialog(index: Int, strategy: ReminderStrategy, duration: Long, o
     val error = next.validationError(duration)
     AlertDialog(onDismissRequest = onDismiss, title = { Text(if (index == 0) "第二级提醒" else "第三级提醒") }, text = {
         Column {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(FocusSpacing.small)) {
                 FilterChip(progress, { progress = true }, label = { Text("进度百分比") })
                 FilterChip(!progress, { progress = false }, label = { Text("剩余时间") })
             }
@@ -169,12 +169,12 @@ private fun NodeDialog(index: Int, strategy: ReminderStrategy, duration: Long, o
 internal fun PreferencePage(title: String, onBack: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
     Scaffold { insets ->
         Column(Modifier.fillMaxSize().padding(insets)) {
-            Row(Modifier.fillMaxWidth().padding(horizontal = 24.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth().padding(horizontal = FocusSpacing.page), verticalAlignment = Alignment.CenterVertically) {
                 Text(title, style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
                 TextButton(onClick = onBack) { Text("返回") }
             }
-            Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
+            Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).padding(FocusSpacing.page),
+                verticalArrangement = Arrangement.spacedBy(FocusSpacing.medium), content = content)
         }
     }
 }

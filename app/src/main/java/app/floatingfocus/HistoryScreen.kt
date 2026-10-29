@@ -62,11 +62,11 @@ internal fun HistoryScreen(records: List<TimerRecord>, loading: Boolean, storage
                     Icon(painterResource(R.drawable.ic_export), contentDescription = if (exporting) "正在导出…" else "导出全部记录")
                 }
             }
-            LazyColumn(state = scroll, modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            LazyColumn(state = scroll, modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(FocusSpacing.page),
+                verticalArrangement = Arrangement.spacedBy(FocusSpacing.section)) {
                 item(key = "filters") {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(FocusSpacing.medium)) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(FocusSpacing.small)) {
                             HistoryRange.entries.forEach { option ->
                                 FilterChip(selected = range == option, onClick = { rangeName = option.name }, label = { Text(option.label) },
                                     modifier = Modifier.weight(1f))
@@ -74,8 +74,8 @@ internal fun HistoryScreen(records: List<TimerRecord>, loading: Boolean, storage
                         }
                         OutlinedCard(Modifier.fillMaxWidth().clickable { showApps = true }
                             .semantics(mergeDescendants = true) { contentDescription = "筛选 App：$appLabel" }) {
-                            Row(Modifier.padding(12.dp).heightIn(min = 32.dp), verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Row(Modifier.padding(FocusSpacing.medium).heightIn(min = 32.dp), verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(FocusSpacing.medium)) {
                                 appPackage?.let { AppIcon(it, 28.dp) }
                                 Text(appLabel, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
                                 Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, modifier = Modifier.size(20.dp))
@@ -85,7 +85,7 @@ internal fun HistoryScreen(records: List<TimerRecord>, loading: Boolean, storage
                 }
                 if (storageError != null) item(key = "storage-error") {
                     Surface(color = MaterialTheme.colorScheme.errorContainer, shape = MaterialTheme.shapes.medium) {
-                        Column(Modifier.fillMaxWidth().padding(12.dp)) {
+                        Column(Modifier.fillMaxWidth().padding(FocusSpacing.medium)) {
                             Text(storageError, color = MaterialTheme.colorScheme.onErrorContainer)
                             if (records.isNotEmpty()) Text("统计仅含成功读取的记录。", style = MaterialTheme.typography.bodySmall)
                             TextButton(onClick = onRetry, enabled = !loading) { Text("重试") }
@@ -93,13 +93,15 @@ internal fun HistoryScreen(records: List<TimerRecord>, loading: Boolean, storage
                     }
                 }
                 if (message != null) item(key = "export-message") {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(message, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(FocusSpacing.small)) {
+                        Text(message, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
                         TextButton(onClick = onDismissMessage) { Text("关闭") }
                     }
                 }
                 if (loading && records.isEmpty() || current == null) item(key = "loading") {
-                    Row(Modifier.fillMaxWidth().padding(24.dp), horizontalArrangement = Arrangement.Center,
+                    Row(Modifier.fillMaxWidth().padding(FocusSpacing.page), horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically) {
                         CircularProgressIndicator(Modifier.size(24.dp))
                         Text("正在读取记录…", modifier = Modifier.padding(start = 12.dp))
@@ -107,7 +109,7 @@ internal fun HistoryScreen(records: List<TimerRecord>, loading: Boolean, storage
                 } else if (storageError == null || records.isNotEmpty()) {
                     item(key = "chart") {
                         Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
-                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Column(Modifier.padding(FocusSpacing.section), verticalArrangement = Arrangement.spacedBy(FocusSpacing.small)) {
                                 Text(period.caption, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text("$appLabel · ${range.label}累计", style = MaterialTheme.typography.titleSmall)
                                 Text(historyDurationLabel(current.totalMillis), style = MaterialTheme.typography.headlineMedium,
@@ -150,8 +152,8 @@ internal fun HistoryScreen(records: List<TimerRecord>, loading: Boolean, storage
 private fun HistoryRecordCard(entry: HistoryEntry, rangeLabel: String, timeFormat: DateTimeFormatter) {
     val record = entry.record
     OutlinedCard(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.padding(FocusSpacing.section), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(FocusSpacing.medium)) {
                 AppIcon(record.packageName, 32.dp)
                 Text(if (record.packageName.isEmpty()) "手动计时" else record.appName, style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f))
@@ -171,14 +173,14 @@ private fun HistoryAppPicker(apps: List<HistoryApp>, selected: String?, onDismis
     var query by rememberSaveable { mutableStateOf("") }
     val duplicates = apps.groupingBy { it.label }.eachCount()
     AlertDialog(onDismissRequest = onDismiss, title = { Text("选择 App") }, text = {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(FocusSpacing.small)) {
             if (apps.size > 5) OutlinedTextField(query, { query = it }, label = { Text("搜索历史 App") }, singleLine = true)
             LazyColumn(Modifier.fillMaxWidth().heightIn(max = 320.dp)) {
                 item {
                     HistoryAppOption("全部（含手动计时）", null, selected == null, { onSelect(null) })
                 }
                 val matching = apps.filter { it.label.contains(query, ignoreCase = true) }
-                if (matching.isEmpty()) item { Text("没有匹配的 App", modifier = Modifier.padding(12.dp)) }
+                if (matching.isEmpty()) item { Text("没有匹配的 App", modifier = Modifier.padding(FocusSpacing.medium)) }
                 items(matching, key = { it.packageName }) { app ->
                     HistoryAppOption(app.label, app.packageName, selected == app.packageName, { onSelect(app.packageName) },
                         app.packageName.takeIf { (duplicates[app.label] ?: 0) > 1 })
@@ -191,7 +193,7 @@ private fun HistoryAppPicker(apps: List<HistoryApp>, selected: String?, onDismis
 @Composable
 private fun HistoryAppOption(label: String, pkg: String?, selected: Boolean, onSelect: () -> Unit, distinction: String? = null) {
     Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).selectable(selected, onClick = onSelect, role = Role.RadioButton)
-        .padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        .padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(FocusSpacing.medium)) {
         RadioButton(selected, onClick = null)
         pkg?.let { AppIcon(it, 28.dp) }
         Column(Modifier.weight(1f)) {

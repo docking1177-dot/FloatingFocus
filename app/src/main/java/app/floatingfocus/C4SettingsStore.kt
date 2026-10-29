@@ -6,7 +6,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /** Global only: never encoded in ReminderSettings or timer presets. */
-data class C4Settings(val enabled: Boolean = false, val sound: Boolean = true)
+data class C4Settings(val enabled: Boolean = false, val sound: Boolean = true) {
+    fun appliesTo(mode: TimerMode): Boolean = enabled && mode == TimerMode.COUNTDOWN
+}
 class C4SettingsStore private constructor(context: Context) {
     private val prefs = context.getSharedPreferences("c4_settings", Context.MODE_PRIVATE)
     private val current = MutableStateFlow(C4Settings(prefs.getBoolean("enabled", false), prefs.getBoolean("sound", true)))

@@ -103,7 +103,7 @@ internal fun HistoryChart(report: HistoryReport, nowMillis: Long, selected: Int?
       if (selected != null && selected in report.totals.indices) {
         Surface(color = colors.secondaryContainer, shape = MaterialTheme.shapes.small,
             tonalElevation = 2.dp, modifier = Modifier.align(Alignment.TopEnd).padding(8.dp).widthIn(max = 210.dp)) {
-            Column(Modifier.padding(12.dp)) {
+            Column(Modifier.padding(FocusSpacing.medium)) {
                 Text(report.period.buckets[selected].detail, style = MaterialTheme.typography.labelLarge)
                 Text(if (report.period.buckets[selected].start > nowMillis) "尚未发生" else historyDurationLabel(report.totals[selected]),
                     style = MaterialTheme.typography.titleMedium)

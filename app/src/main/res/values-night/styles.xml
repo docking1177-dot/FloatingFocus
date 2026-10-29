@@ -1,0 +1,10 @@
+<resources>
+    <style name="Theme.FloatingFocus" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="android:colorAccent">#A8CEB4</item>
+        <item name="android:windowBackground">#141B17</item>
+    </style>
+</resources>

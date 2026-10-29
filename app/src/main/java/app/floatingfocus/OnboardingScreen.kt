@@ -3,7 +3,6 @@ package app.floatingfocus
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -55,7 +54,7 @@ internal fun OnboardingScreen(onComplete: () -> Unit, onExit: () -> Unit, onRequ
     BackHandler {
         if (pager.currentPage > 0) go(pager.currentPage - 1) else onExit()
     }
-    FocusTheme(darkTheme = isSystemInDarkTheme()) {
+    FocusTheme {
         Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
           Box(Modifier.fillMaxSize().safeDrawingPadding(), contentAlignment = Alignment.TopCenter) {
             Column(Modifier.widthIn(max = 840.dp).fillMaxWidth().fillMaxHeight().padding(horizontal = 24.dp)) {

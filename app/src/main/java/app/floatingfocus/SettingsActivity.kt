@@ -92,7 +92,7 @@ class SettingsActivity : ComponentActivity() {
                 return@FocusTheme
             }
             if (editing && preset == null) {
-                Column(Modifier.safeDrawingPadding().padding(24.dp)) {
+                Column(Modifier.safeDrawingPadding().padding(FocusSpacing.page)) {
                     Text("方案不存在或已删除。")
                     TextButton(onClick = { finish() }) { Text("返回") }
                 }
@@ -120,7 +120,7 @@ class SettingsActivity : ComponentActivity() {
                 BoxWithConstraints(Modifier.fillMaxSize().padding(insets)) {
                     val previewHeight = minOf(184.dp, maxHeight * 0.3f)
                     Column(Modifier.fillMaxSize()) {
-                        Row(Modifier.fillMaxWidth().padding(horizontal = 24.dp), verticalAlignment = Alignment.CenterVertically,
+                        Row(Modifier.fillMaxWidth().padding(horizontal = FocusSpacing.page), verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween) {
                             Text(if (editing) "编辑方案" else "悬浮窗", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
                             TextButton(onClick = { if (editing) finish() else back() }) { Text(if (editing) "取消" else "返回") }
@@ -132,11 +132,11 @@ class SettingsActivity : ComponentActivity() {
                         }
                         SettingsPreview(settings, previewHeight, seconds * 1000L, if (editing) mode else TimerMode.COUNTDOWN)
                         HorizontalDivider()
-                        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 12.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = FocusSpacing.page, vertical = FocusSpacing.medium),
+                            verticalArrangement = Arrangement.spacedBy(FocusSpacing.small)) {
                             if (editing) {
                                 ShortcutAppPicker(target) { targetPackage = it.packageName; targetLabel = it.label }
-                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Row(horizontalArrangement = Arrangement.spacedBy(FocusSpacing.small)) {
                                     TimerMode.entries.forEach { option ->
                                         FilterChip(mode == option, { mode = option }, label = { Text(option.label) })
                                     }
@@ -148,7 +148,7 @@ class SettingsActivity : ComponentActivity() {
                             Text("悬浮窗形状", style = MaterialTheme.typography.titleMedium)
                             OverlayShapePicker(settings.shape) { shape -> updateSettings { it.copy(shape = shape) } }
                             Text("基础颜色", style = MaterialTheme.typography.titleMedium)
-                            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            FlowRow(horizontalArrangement = Arrangement.spacedBy(FocusSpacing.small)) {
                                 OverlayColor.entries.forEach { color ->
                                     FilterChip(settings.color == color, { updateSettings { it.copy(color = color) } },
                                         label = { Text(color.label) }, leadingIcon = {
@@ -191,7 +191,7 @@ private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onReminders:
                 Column {
                     listOf("悬浮窗" to onOverlay, "提醒" to onReminders, "使用教程" to onTutorial,
                         "使用与提醒说明" to onHelp, "开源许可" to onLicenses).forEachIndexed { index, (label, action) ->
-                        if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 24.dp))
+                        if (index > 0) HorizontalDivider(Modifier.padding(horizontal = FocusSpacing.page))
                         SettingsEntry(label, action)
                     }
                     DeveloperEntry()
@@ -203,7 +203,7 @@ private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onReminders:
 
 @Composable
 internal fun SettingsEntry(label: String, onClick: () -> Unit) {
-    Row(Modifier.fillMaxWidth().clickable(onClick = onClick).heightIn(min = 64.dp).padding(horizontal = 24.dp, vertical = 16.dp),
+    Row(Modifier.fillMaxWidth().clickable(onClick = onClick).heightIn(min = 64.dp).padding(horizontal = FocusSpacing.page, vertical = FocusSpacing.section),
         verticalAlignment = Alignment.CenterVertically) {
         Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
         Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -225,7 +225,7 @@ private fun SettingsPreview(settings: ReminderSettings, height: Dp, durationMill
     var progress by rememberSaveable { mutableFloatStateOf(0f) }
     val snapshot = if (mode == TimerMode.STOPWATCH) ReminderSnapshot(0, 0f, mode = mode, elapsedMillis = (progress * durationMillis).toLong())
         else ReminderSnapshot(((1f - progress) * durationMillis).toLong(), progress, durationMillis = durationMillis)
-    Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp)) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = FocusSpacing.page)) {
         // Measure at natural height before fitting: a short landscape preview must not
         // squeeze the real overlay's text measurement into a tiny circle.
         Layout(modifier = Modifier.fillMaxWidth().height(height), content = {
@@ -251,7 +251,7 @@ private fun SettingsPreview(settings: ReminderSettings, height: Dp, durationMill
 @Composable
 private fun EffectModePicker(label: String, current: ChangeMode, onChange: (ChangeMode) -> Unit) {
     Text(label)
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(FocusSpacing.small)) {
         listOf(ChangeMode.CONTINUOUS to "连续变化", ChangeMode.STEPS to "节点突变").forEach { (mode, title) ->
             FilterChip(current == mode, { onChange(mode) }, label = { Text(title) },
                 modifier = Modifier.semantics { contentDescription = "$label：$title" })

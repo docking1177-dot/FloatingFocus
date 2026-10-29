@@ -32,13 +32,13 @@ internal fun ReminderEffectsScreen(settings: C4Settings, onChange: (C4Settings) 
         }
         if (settings.enabled) {
             C4Switch("音效", settings.sound) { onChange(settings.copy(sound = it)) }
-            Text("使用媒体音量；静音、振动模式或勿扰时不播放。", style = MaterialTheme.typography.bodySmall)
-            Text("最后 44.439 秒生效，含下包过程；下包完成后输入 7355608 结束计时。", style = MaterialTheme.typography.bodySmall)
-            Text("C4 阶段不提供暂停或加时；C4 开关对下一次会话生效。", style = MaterialTheme.typography.bodySmall)
-            if (!mediaAvailable) Text("本构建未包含 C4 音轨，视觉与键盘仍可使用。", style = MaterialTheme.typography.bodySmall)
+            Text("使用媒体音量；静音、振动模式或勿扰时不播放。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("仅倒计时最后 44.439 秒生效，正计时不触发；含下包过程，下包完成后输入 7355608 结束计时。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("C4 阶段不提供暂停或加时；C4 开关对下一次会话生效。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (!mediaAvailable) Text("本构建未包含 C4 音轨，视觉与键盘仍可使用。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         if (session.active) Text(if (session.c4Locked) "本次 C4 仍在继续；开关修改对下一次会话生效。"
-            else "C4 开关修改对下一次会话生效。", style = MaterialTheme.typography.bodySmall)
+            else "C4 开关修改对下一次会话生效。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
     if (notice) AlertDialog(onDismissRequest = { notice = false }, title = { Text("开启 C4 倒计时") }, text = {
         Text("C4 阶段点击浮窗展开装置，需输入 7355608 结束计时。下包完成（音轨 4.92 秒）后可输入；* 退格，# 清空，第七位自动校验。\n\n" +

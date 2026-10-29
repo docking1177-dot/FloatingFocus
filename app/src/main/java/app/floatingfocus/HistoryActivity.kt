@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.*
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -25,7 +24,7 @@ class HistoryActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val store = TimerRecordStore.get(this)
-        setContent { FocusTheme(darkTheme = isSystemInDarkTheme()) {
+        setContent { FocusTheme {
             val records by store.records.collectAsStateWithLifecycle()
             val loading by store.isLoading.collectAsStateWithLifecycle()
             val storageError by store.error.collectAsStateWithLifecycle()

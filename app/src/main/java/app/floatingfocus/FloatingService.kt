@@ -238,8 +238,10 @@ class FloatingService : Service() {
             if (Build.VERSION.SDK_INT >= 34) {
                 startForeground(NOTIFICATION_ID, notification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
             } else startForeground(NOTIFICATION_ID, notification())
-            c4Runtime = C4Runtime(this, { countdown }, { manualClock.at(SystemClock.elapsedRealtime()) },
-                { manualClock.paused }, ::publishC4Frame, ::completeCountdown)
+            c4Runtime = if (C4SettingsStore.get(this).settings.value.appliesTo(mode))
+                C4Runtime(this, { countdown }, { manualClock.at(SystemClock.elapsedRealtime()) },
+                    { manualClock.paused }, ::publishC4Frame, ::completeCountdown)
+            else null
             showOverlay()
             if (stopping) return START_NOT_STICKY
             ContextCompat.registerReceiver(this, screenReceiver,

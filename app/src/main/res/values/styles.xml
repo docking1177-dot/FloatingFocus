@@ -2,6 +2,8 @@
     <style name="Theme.FloatingFocus" parent="android:style/Theme.Material.Light.NoActionBar">
         <item name="android:fontFamily">sans</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:forceDarkAllowed">false</item>
         <item name="android:colorAccent">#426956</item>
         <item name="android:windowBackground">#F5F4EF</item>
     </style>
