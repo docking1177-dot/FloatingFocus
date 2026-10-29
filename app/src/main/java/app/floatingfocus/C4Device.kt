@@ -65,9 +65,8 @@ internal fun C4DevicePanel(frame: C4Frame, opacity: Float, preferredSize: Float,
                 rect(body.x - 2, height.value * .88f, body.width + 4, 24f, 0xFFC3C4B9, 1f)
                 val screen = geometry.display
                 rect(screen.x - 6, screen.y - 5, screen.width + 12, screen.height + 10, 0xFF355647, 2f)
-                val keyboard = geometry.keypad
-                rect(keyboard.x - 8, keyboard.y - 8, keyboard.width + 16,
-                    minOf(keyboard.height + 16, height.value - keyboard.y + 4), 0xFF222824, 3f)
+                val keyboard = geometry.keyboardPanel
+                rect(keyboard.x, keyboard.y, keyboard.width, keyboard.height, 0xFF222824, 3f)
                 val lamp = Offset(w * .18f, (screen.y + screen.height / 2).dp.toPx())
                 drawCircle(Color(0xFF30372B), 7.dp.toPx(), lamp)
                 drawCircle(when { frame.phase == C4Phase.DEFUSED -> Color(0xFF9DDE6A)
@@ -94,9 +93,9 @@ internal fun C4DevicePanel(frame: C4Frame, opacity: Float, preferredSize: Float,
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {})
             val grid = geometry.keypad
             Column(Modifier.offset(grid.x.dp, grid.y.dp).width(grid.width.dp)
-                .height((height.value - grid.y - 4).coerceAtLeast(1f).dp)
+                .height(geometry.keypadViewportHeight.dp)
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {}.verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(geometry.gap.dp)) {
+                verticalArrangement = Arrangement.spacedBy(geometry.rowGap.dp)) {
                 repeat(4) { row ->
                     Row(horizontalArrangement = Arrangement.spacedBy(geometry.gap.dp)) {
                         repeat(3) { col ->

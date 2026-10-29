@@ -101,18 +101,24 @@ def c4(d, focus=None):
             time.sleep(.1)
         raise AssertionError(('C4 expansion not stable', old, previous))
 
-    def key_point(char):
+    def key_rect(char):
         x,y,r,b = d.frame()
         w,h = (r-x)/d.density-4, (b-y)/d.density-4
-        gap = 2 if h < 240 else 8 if h < 340 else 10
-        kw = max(44, (w*.64-gap*2)/3)
-        kh = 44 if h < 340 else 46
+        gap = 2 if h < 240 else 6 if h < 340 else 8
+        row_gap = 2 if h < 340 else 6
+        kw = max(44, (w*.60-gap*2)/3)
+        kh = 44
         dy = 4 if h < 340 else 48
         dh = 24 if h < 240 else 40 if h < 340 else 58
         left = max(0, (w-kw*3-gap*2)/2+6)
-        top_y = max(h-kh*4-gap*3-12, dy+dh+6)
+        top_y = max(h-(212 if h<340 else 226), dy+dh+6)
         i = '123456789*0#'.index(char)
-        px,py = x+(2+left+(i%3)*(kw+gap)+kw/2)*d.density, y+(2+top_y+(i//3)*(kh+gap)+kh/2)*d.density
+        return x+(2+left+(i%3)*(kw+gap))*d.density, y+(2+top_y+(i//3)*(kh+row_gap))*d.density, kw*d.density, kh*d.density
+
+    def key_point(char):
+        x,y,r,b = d.frame()
+        kx,ky,kw,kh = key_rect(char)
+        px,py = kx+kw/2, ky+kh/2
         assert x <= px < r and y <= py < b, ('Key outside frame', char, (px,py), (x,y,r,b))
         return px,py
 
@@ -213,10 +219,49 @@ def c4(d, focus=None):
         d.shell('input', 'keyevent', 'KEYCODE_BACK')
         code()
 
+    def keypad_layout():
+        cases=[]
+        for base in (.9, 1.0, .75):
+            wid,_=start(30, sound=False, base_size=base)
+            expand()
+            original=d.frame()
+            d.shot('c4-keypad-'+str(base))
+            rects={char:key_rect(char) for char in '123456789*0#'}
+            for x,y,w,h in rects.values():
+                assert w>=44*d.density-.1 and h>=44*d.density-.1
+            # Actual edge taps remain in their own slots, not neighbouring caps.
+            x,y,w,h=rects['1']; d.tapxy(x+1*d.density,y+h/2)
+            assert 'C4 key result=CHANGED length=1' in logs()
+            key('#')
+            for char in '1234567890':
+                key(char); assert logs().split('C4 key result=')[-1].startswith('CHANGED length=1')
+                key('#'); assert logs().split('C4 key result=')[-1].startswith('CHANGED length=0')
+            key('1'); key('2'); key('*')
+            before=logs().count('C4 key result=')
+            a=rects['1']; b=rects['2']
+            d.tapxy((a[0]+a[2]+b[0])/2,a[1]+a[3]/2)
+            assert logs().count('C4 key result=')==before and d.frame()==original
+            x,y,r,b=d.frame(); dh=(b-y)/d.density-4
+            sy=4 if dh<340 else 48
+            sh=24 if dh<240 else 40 if dh<340 else 58
+            d.tapxy((x+r)/2,y+(2+sy+sh/2)*d.density)
+            assert d.frame()!=original
+            expand(); assert d.overlay()[0]==wid
+            key('2'); assert logs().split('C4 key result=')[-1].startswith('CHANGED length=2')
+            key('#')
+            kx,ky=key_point('7'); before=logs().count('C4 key result='); old=d.frame()
+            d.shell('input','swipe',int(kx),int(ky),int(kx+30*d.density),int(ky),300)
+            assert d.frame()==old and logs().count('C4 key result=')==before
+            code()
+            cases.append(dict(baseSize=base,opacity=.7,frame=original,realTwelveKeys=True,gapInert=True,
+                              edgeTap=True,keyDragCancelled=True,foldRetainsInput=True))
+        return dict(scope='keypad layout and interaction',cases=cases,audio='muted; timing/audio code unchanged')
+
 
     rotation = d.shell('settings', 'get', 'system', 'user_rotation').strip()
     auto_rotate = d.shell('settings', 'get', 'system', 'accelerometer_rotation').strip()
     try:
+        if focus == 'keypad': return keypad_layout()
         if focus == 'handoff':
             handoff()
             return dict(scope='handoff-only diagnostic', newSessionPreemptsVoice=True)
@@ -408,3 +453,7 @@ def c4(d, focus=None):
         d.shell('appops', 'set', PACKAGE, 'SYSTEM_ALERT_WINDOW', 'allow')
         d.shell('settings', 'put', 'system', 'user_rotation', rotation)
         d.shell('settings', 'put', 'system', 'accelerometer_rotation', auto_rotate)
+
+
+def c4_keypad(d):
+    return c4(d, focus='keypad')

@@ -71,9 +71,9 @@ internal class OverlayTouchLayout(
                     inset + (body.x + body.width) * density, inset + (body.y + body.height) * density), 7 * density, 7 * density, Path.Direction.CW)
                 addRect(inset + device.width * .04f * density, inset + device.height * .15f * density,
                     inset + device.width * .18f * density, inset + device.height * .33f * density, Path.Direction.CW)
-                val keypad = device.keypad
-                addRoundRect(RectF(inset + (keypad.x - 8) * density, inset + (keypad.y - 8) * density,
-                    inset + (keypad.x + keypad.width + 8) * density, height - inset), 3 * density, 3 * density, Path.Direction.CW)
+                val panel = device.keyboardPanel
+                addRoundRect(RectF(inset + panel.x * density, inset + panel.y * density,
+                    inset + (panel.x + panel.width) * density, inset + (panel.y + panel.height) * density), 3 * density, 3 * density, Path.Direction.CW)
             } else if (geometry == OverlayShape.CIRCLE) addOval(rect, Path.Direction.CW)
             else {
                 val radius = minOf(rect.width(), rect.height()) / 2
@@ -148,7 +148,7 @@ internal class OverlayTouchLayout(
     private fun keypadOverflows(): Boolean {
         val density = resources.displayMetrics.density
         val device = C4Geometry(width / density - 4, height / density - 4)
-        return device.keypad.y + device.keypad.height > device.height - 4
+        return device.keypad.height > device.keypadViewportHeight
     }
 
     private fun cancelKeyDrag(event: MotionEvent) {
