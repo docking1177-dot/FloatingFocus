@@ -69,13 +69,14 @@ def preferences(d):
     time.sleep(1)
     assert d.records()[-1]['plannedMillis'] == 65000
     d.finish()
-    d.tap('\u8bbe\u7f6e')
-    d.tap('\u5e38\u7528\u65f6\u957f')
+    d.tap('\u624b\u52a8\u8bbe\u7f6e')
     d.tap('\u7b2c 1 \u4e2a\u65f6\u957f')
     set_wheel(d, '\u79d2', 5)
     d.tap('\u786e\u8ba4')
     d.tap('\u4fdd\u5b58')
     assert pref_values(d, 'quick_durations')['seconds'] == '65,120,900,1800'
+    assert any(n.get('text') == 'Floating Focus' for n in d.dump().iter('node'))
+    d.tap('\u8bbe\u7f6e')
     d.tap('\u63d0\u9192')
     d.tap('\u63d0\u9192\u7b56\u7565')
     d.shot('strategy-default')

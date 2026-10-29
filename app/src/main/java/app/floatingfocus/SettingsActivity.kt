@@ -45,12 +45,16 @@ class SettingsActivity : ComponentActivity() {
             val presets by presetStore.presets.collectAsStateWithLifecycle()
             val preset = presets.firstOrNull { it.id == presetId }
             val editing = presetId != null
+            val durationsEntry = !editing && intent.getStringExtra("settings_page") == "durations"
             var page by rememberSaveable { mutableStateOf(if (intent.getBooleanExtra("open_strategy", false)) "strategy" else if (editing) "appearance" else intent.getStringExtra("settings_page")?.takeIf { it == "durations" } ?: "home") }
-            val back: () -> Unit = { page = if (editing) "appearance" else if (page == "strategy") "reminders" else "home" }
+            val back: () -> Unit = {
+                if (durationsEntry && page == "durations") finish()
+                else page = if (editing) "appearance" else if (page == "strategy") "reminders" else "home"
+            }
             BackHandler(enabled = page != "home" && page != "tutorial" && (!editing || page != "appearance"), onBack = back)
             if (!editing && page == "home") {
                 SettingsHome(onBack = { finish() }, onOverlay = { page = "appearance" },
-                    onDurations = { page = "durations" }, onReminders = { page = "reminders" }, onTutorial = { page = "tutorial" },
+                    onReminders = { page = "reminders" }, onTutorial = { page = "tutorial" },
                     onHelp = { page = "help" }, onLicenses = { page = "licenses" })
                 return@FocusTheme
             }
@@ -170,7 +174,7 @@ class SettingsActivity : ComponentActivity() {
 }
 
 @Composable
-private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onDurations: () -> Unit, onReminders: () -> Unit,
+private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onReminders: () -> Unit,
                          onTutorial: () -> Unit, onHelp: () -> Unit, onLicenses: () -> Unit) {
     Scaffold { insets ->
         Column(Modifier.fillMaxSize().padding(insets).verticalScroll(rememberScrollState())) {
@@ -183,7 +187,7 @@ private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onDurations:
             Spacer(Modifier.height(16.dp))
             Surface(color = MaterialTheme.colorScheme.surface) {
                 Column {
-                    listOf("悬浮窗" to onOverlay, "常用时长" to onDurations, "提醒" to onReminders, "使用教程" to onTutorial,
+                    listOf("悬浮窗" to onOverlay, "提醒" to onReminders, "使用教程" to onTutorial,
                         "使用与提醒说明" to onHelp, "开源许可" to onLicenses).forEachIndexed { index, (label, action) ->
                         if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 24.dp))
                         SettingsEntry(label, action)

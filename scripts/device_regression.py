@@ -210,7 +210,14 @@ def home(d):
     d.tap('手动设置')
     assert any(n.get('text') == '常用时长' for n in d.dump().iter('node'))
     d.tap('返回')
-    assert any(n.get('text') == '设置' for n in d.dump().iter('node')), 'Deep-link back did not reach settings home'
+    assert any(n.get('text') == 'Floating Focus' for n in d.dump().iter('node')), 'Duration editor did not return to home'
+    d.tap('手动设置')
+    d.shell('input', 'keyevent', 'KEYCODE_BACK')
+    assert any(n.get('text') == 'Floating Focus' for n in d.dump().iter('node')), 'Duration editor system back did not return to home'
+    d.tap('设置')
+    settings_texts = [n.get('text', '') for n in d.dump().iter('node')]
+    assert '悬浮窗' in settings_texts and '常用时长' not in settings_texts, 'Duplicate duration entry remains in settings'
+    d.shot('settings-home')
     d.shell('input', 'keyevent', 'KEYCODE_BACK')
     assert any(n.get('text') == 'Floating Focus' for n in d.dump().iter('node')), 'Settings did not return to home'
     d.tap('新建预设', scroll=True)
