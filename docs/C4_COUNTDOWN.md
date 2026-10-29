@@ -2,7 +2,7 @@
 
 ## 已确认的行为
 
-C4 仍是原会话、原服务、原 WindowManager 窗口的一种阶段。后续修复在独立功能分支开发，不自动合并 main、发布或改版本。全局启用开关在会话开始时取快照，只影响下一次会话；音效开关可即时静音。预设结构不变，正计时排除。
+C4 仍是原会话、原服务、原 WindowManager 窗口的一种阶段。后续修复在独立功能分支开发，不自动合并 main、发布或改版本。会话开始时确定启用状态：普通计时/快捷App取当前配置，预设取保存的c4Enabled（旧数据缺失为关闭）；本次及加时保持不变，音效仍为全局即时静音，独立正计时排除。
 
 倒计时最后 **44.439 秒**进入常态 C4，轻触展开装置，包含下包，不增加计时时长。进入该阶段前仍沿用普通外观；进入后两种形态使用独立 C4 主题。短计时从 `44.439秒－剩余时间` 进入音轨，不重播完整下包、不延长截止；位置和拖动沿用原窗口与锚点。显示屏及实体非键区轻触可收起，键盘及缝隙只处理输入；收起保留输入与时间轴，不显示额外解释卡片或关闭按钮。
 
@@ -19,6 +19,8 @@ C4 仍是原会话、原服务、原 WindowManager 窗口的一种阶段。后�
 图片仅参考比例、块体、LCD、绑带、键盘与线材；`C4Device.kt` 为原生原创绘制和真实按键，无截图底板、外部卡片或遮罩。透明度在 C4 窗口层统一应用一次，普通浮窗继续沿用原透明层。
 
 ## v1 结构与独立主题
+
+启用配置归属及旧数据规则见 [预设说明](PRESETS.md)。`C4Runtime` 接收开始时确定的 `enabledForSession`，不再从全局启用开关初始化；同一运行时在加时换段时保留该值。只把全局声音作为实时播放条件，原时间轴、外形、口令与归零/尾音行为不变。
 
 C4仅作用于倒计时。`C4Settings.appliesTo` 统一判断启用与模式，服务对独立正计时不创建C4运行时，因而不初始化C4播放器或安排事件。倒计时归零后的爆炸/尾音仍属于该倒计时会话，不等同于用户选择的独立正计时。页面系统深浅主题不改变C4装置固定配色。
 
@@ -58,7 +60,7 @@ API33+ 使用 AttachedSurfaceControl.setTouchableRegion 裁剪实体触摸区域
 
 - `C4Timeline.kt`：136 事件、阶段、口令、原 SessionClock；`C4Runtime.kt`：本会话快照、单调节点调度、播放/输入/归零去重。
 - `C4Device.kt` / `C4Geometry.kt` / `OverlayTouchLayout.kt`：真实键帽、显示屏、几何与手势；`FloatingService.kt`：同会话接入、所有正常停止入口的阶段守卫、完成与清理。
-- `ReminderEffectsScreen.kt` / `C4SettingsStore.kt`：全局设置和首次说明；不进入预设。
+- `ReminderEffectsScreen.kt` / `C4SettingsStore.kt`：当前配置、全局音效与复用的预设C4草稿组件；首次说明沿用。
 - `./scripts/check.ps1 -Offline` 与 Release Full；`python -m unittest discover -s scripts/tests -v`；设备 `./scripts/test-device.ps1 -Suite c4 -Serial emulator-5556 -AllowTestDataChanges`。
 
 设备脚本复用统一备份还原与源码/APK 绑定；覆盖折叠/下包/开放/错误/解除/归零尾音，真实键盘与拖动、首页/通知限制、短起点、关音效、旋转、撤权/强停和普通模式。运行证据在 `.tools/checks/` 和 `.tools/device-checks/`。模拟器无扬声器听感证明，真机与音频衔接未执行的项目不能写成通过。

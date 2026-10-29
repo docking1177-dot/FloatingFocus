@@ -5,9 +5,11 @@ import androidx.core.content.edit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/** Global only: never encoded in ReminderSettings or timer presets. */
+/** Current enable preference plus a live global sound switch; presets snapshot only enable. */
 data class C4Settings(val enabled: Boolean = false, val sound: Boolean = true) {
-    fun appliesTo(mode: TimerMode): Boolean = enabled && mode == TimerMode.COUNTDOWN
+    /** Null is used only by current-config launches; persisted presets always have an explicit Boolean. */
+    fun appliesTo(mode: TimerMode, presetEnabled: Boolean? = null): Boolean =
+        (presetEnabled ?: enabled) && mode == TimerMode.COUNTDOWN
 }
 class C4SettingsStore private constructor(context: Context) {
     private val prefs = context.getSharedPreferences("c4_settings", Context.MODE_PRIVATE)

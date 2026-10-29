@@ -9,11 +9,10 @@ import kotlinx.coroutines.*
 /** Existing service owns one controller; UI never advances playback, input or deadline consumption. */
 class C4Runtime(private val context: Context, private val timer: () -> Countdown?, private val now: () -> Long,
                 private val paused: () -> Boolean, private val onFrame: (C4Frame) -> Unit,
-                private val onDeadline: () -> Unit) : AutoCloseable {
+                private val onDeadline: () -> Unit, val enabledForSession: Boolean) : AutoCloseable {
     private val handler = Handler(Looper.getMainLooper())
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val store = C4SettingsStore.get(context)
-    val enabledForSession = store.settings.value.appliesTo(timer()?.mode ?: TimerMode.STOPWATCH)
     private val timeline = C4Timeline.parse(context.assets.open("c4_timeline.lrc").bufferedReader().use { it.readText() })
     private var input = C4Input()
     private var leg: Long? = null

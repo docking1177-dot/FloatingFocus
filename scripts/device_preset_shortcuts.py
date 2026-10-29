@@ -183,7 +183,7 @@ def preset_shortcuts(d):
         entry(one['id']); wait(lambda: '已有计时正在运行，请先结束。' in texts(),'Overtime was replaced')
         assert d.records()[-1]['id']==overtime['id']; d.tap('取消'); d.finish()
         d.stop(); d.write_prefs('c4_settings',dict(enabled=True,sound=False,noticeAcknowledged=True))
-        seed([items[0],dict(two,durationSeconds=40)])
+        seed([items[0],dict(two,durationSeconds=40,c4Enabled=True)])
         entry(two['id']); c4=started(planned=40000)
         entry(one['id']); wait(lambda: '已有计时正在运行，请先结束。' in texts(),'C4 shortcut bypass')
         assert d.overlay() and d.records()[-1]['id']==c4['id']

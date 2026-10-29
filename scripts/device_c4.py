@@ -73,7 +73,7 @@ def c4(d, focus=None):
         appearance = dict(shape=shape, color=color, style='COLOR', baseSize=base_size, opacity=opacity,
                           intensity=1.0, colorEnabled=True, sizeEnabled=True)
         preset = dict(id='c4-test', name='C4 '+str(seconds), minutes=max(1, seconds//60), durationSeconds=seconds,
-                      settings=appearance, mode=mode, targetPackage='com.android.gallery3d', targetLabel='Gallery')
+                      settings=appearance, mode=mode, c4Enabled=enabled, targetPackage='com.android.gallery3d', targetLabel='Gallery')
         d.write_prefs('c4_settings', dict(enabled=enabled, sound=sound, noticeAcknowledged=True))
         d.write_prefs('reminder_settings', appearance)
         d.write_prefs('timer_presets', {'items': json.dumps([preset])})
@@ -398,7 +398,7 @@ def c4(d, focus=None):
         d.tapxy(*gear_point)
         wait_for(lambda: 'SettingsActivity' in d.foreground(), 5)
         right_entry('提醒'); right_entry('C4 倒计时')
-        assert '本次 C4 仍在继续；开关修改对下一次会话生效。' in texts()
+        assert '本次会话不受启用状态修改影响。' in texts()
         assert d.overlay()[0] == wid, 'Global switch ended the current session'
         assert logs().count('C4 media start=pre_explosion') == audio_starts, 'Navigation replayed audio'
         code(success_shot=True)

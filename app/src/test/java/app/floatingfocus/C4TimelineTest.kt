@@ -121,10 +121,10 @@ class C4TimelineTest {
         assertTrue(g.key(0).width >= 44f)
         assertTrue(g.key(0).x + g.key(0).width < g.key(1).x)
     }
-    @Test fun `presets retain the existing schema and no global C4 field`() {
+    @Test fun `presets snapshot C4 enable without adding sound to appearance`() {
         val p = TimerPreset("short", "short", 1, ReminderSettings(), durationSeconds = 10)
         val encoded = TimerPresetCodec.encode(p)
         assertEquals(p, TimerPresetCodec.decode(encoded))
-        assertFalse(encoded.keys.any { it.contains("c4", true) })
+        assertEquals(false, encoded["c4Enabled"])
     }
 }

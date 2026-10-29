@@ -203,6 +203,7 @@ class FloatingService : Service() {
         activeStartRequestId = requested
         val duration = intent?.getLongExtra(EXTRA_DURATION, 0L) ?: 0L
         val mode = TimerMode.entries.firstOrNull { it.name == intent?.getStringExtra("mode") } ?: TimerMode.COUNTDOWN
+        val sessionC4Enabled = intent.getBooleanExtra(EXTRA_C4_ENABLED, false) && mode == TimerMode.COUNTDOWN
         if (if (mode == TimerMode.STOPWATCH) duration != 0L else duration !in 1..Countdown.MAX_DURATION_MILLIS) {
             fail("计时时长无效，请重新选择。"); return START_NOT_STICKY
         }
@@ -238,9 +239,10 @@ class FloatingService : Service() {
             if (Build.VERSION.SDK_INT >= 34) {
                 startForeground(NOTIFICATION_ID, notification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
             } else startForeground(NOTIFICATION_ID, notification())
-            c4Runtime = if (C4SettingsStore.get(this).settings.value.appliesTo(mode))
+            Log.d(TAG, "C4 session enabled=$sessionC4Enabled mode=$mode preset=${activePresetId ?: "current"}")
+            c4Runtime = if (sessionC4Enabled)
                 C4Runtime(this, { countdown }, { manualClock.at(SystemClock.elapsedRealtime()) },
-                    { manualClock.paused }, ::publishC4Frame, ::completeCountdown)
+                    { manualClock.paused }, ::publishC4Frame, ::completeCountdown, enabledForSession = sessionC4Enabled)
             else null
             showOverlay()
             if (stopping) return START_NOT_STICKY
@@ -535,6 +537,7 @@ class FloatingService : Service() {
         private const val ACTION_LAUNCH_FAILED = "app.floatingfocus.LAUNCH_FAILED"
         private const val ACTION_MONITOR = "app.floatingfocus.MONITOR"
         private const val EXTRA_DURATION = "duration_millis"
+        private const val EXTRA_C4_ENABLED = "c4_enabled_for_session"
         private val mutableSession = MutableStateFlow(SessionState())
         val session = mutableSession.asStateFlow()
         private val mutableMonitor = MutableStateFlow(AutoMonitorStatus())
@@ -549,7 +552,8 @@ class FloatingService : Service() {
             }
         }
         fun start(context: Context, durationMillis: Long, mode: TimerMode = TimerMode.COUNTDOWN, targetPackage: String? = null,
-                  presetId: String? = null, requestId: String = java.util.UUID.randomUUID().toString()): Boolean {
+                  presetId: String? = null, requestId: String = java.util.UUID.randomUUID().toString(),
+                  c4Enabled: Boolean? = null): Boolean {
             if (mutableMonitor.value.enabled || mutableSession.value.active || startPending) return false
             ReminderSettingsStore.get(context).settings.value.strategy.validationError(durationMillis, mode)?.let {
                 mutableSession.value = SessionState(error = it); return false
@@ -557,10 +561,11 @@ class FloatingService : Service() {
             if (!startAdmission.reserve(requestId, mutableMonitor.value.enabled || mutableSession.value.active)) return false
             mutableSession.value = SessionState()
             try {
+                val sessionC4Enabled = C4SettingsStore.get(context).settings.value.appliesTo(mode, c4Enabled)
                 ContextCompat.startForegroundService(context, Intent(context, FloatingService::class.java)
                     .setAction(ACTION_START).putExtra(EXTRA_DURATION, if (mode == TimerMode.STOPWATCH) 0L else durationMillis)
                     .putExtra("mode", mode.name).putExtra("app_package", targetPackage).putExtra("preset_id", presetId)
-                    .putExtra(EXTRA_REQUEST_ID, requestId))
+                    .putExtra(EXTRA_REQUEST_ID, requestId).putExtra(EXTRA_C4_ENABLED, sessionC4Enabled))
                 return true
             } catch (e: RuntimeException) {
                 Log.w(TAG, "Foreground start rejected", e)

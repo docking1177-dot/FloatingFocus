@@ -14,5 +14,6 @@ internal suspend fun launchPresetWithTimer(context: Context, lifecycle: Lifecycl
     val check = checkPresetLaunch(context, id)
     if (check.issue != null) return check.message
     val preset = check.preset!!
-    return launchAppWithTimer(context, lifecycle, preset.targetApp!!, preset.durationSeconds, preset.settings, preset.mode, preset.id)
+    return launchAppWithTimer(context, lifecycle, preset.targetApp!!, preset.durationSeconds, preset.settings, preset.mode, preset.id,
+        c4Enabled = preset.c4Enabled)
 }

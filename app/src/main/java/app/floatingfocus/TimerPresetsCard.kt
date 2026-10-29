@@ -88,7 +88,8 @@ fun TimerPresetsCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
 
     val createPreset: () -> Unit = {
         saving = TimerPreset(UUID.randomUUID().toString(), if (mode == TimerMode.STOPWATCH) "正计时" else durationLabel(seconds),
-            (seconds / 60).coerceAtLeast(1), ReminderSettingsStore.get(context).settings.value, mode, durationSeconds = seconds)
+            (seconds / 60).coerceAtLeast(1), ReminderSettingsStore.get(context).settings.value, mode, durationSeconds = seconds,
+            c4Enabled = C4SettingsStore.get(context).settings.value.enabled)
     }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

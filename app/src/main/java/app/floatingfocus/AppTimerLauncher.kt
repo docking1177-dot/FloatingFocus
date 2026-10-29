@@ -12,7 +12,7 @@ internal val appTimerLaunchGate = AppTimerLaunchGate()
 /** Shared by saved presets and the existing quick launcher. Called from a visible UI on Main. */
 suspend fun launchAppWithTimer(context: Context, lifecycle: Lifecycle, app: LaunchableApp,
                               seconds: Int, settings: ReminderSettings? = null, mode: TimerMode = TimerMode.COUNTDOWN,
-                              presetId: String? = null): String? {
+                              presetId: String? = null, c4Enabled: Boolean? = null): String? {
     if (FloatingService.session.value.active || FloatingService.monitoring.value.enabled || FloatingService.startPending || appTimerLaunchGate.busy)
         return "已有计时正在运行，请先结束。"
     (settings ?: ReminderSettingsStore.get(context).settings.value).strategy.validationError(seconds * 1000L, mode)?.let { return it }
@@ -31,7 +31,8 @@ suspend fun launchAppWithTimer(context: Context, lifecycle: Lifecycle, app: Laun
             store.update { settings }
             applied = store.settings.value
         }
-        ownsTimer = FloatingService.start(context, seconds * 1000L, mode, app.packageName, presetId, requestId)
+        ownsTimer = FloatingService.start(context, seconds * 1000L, mode, app.packageName, presetId, requestId,
+            c4Enabled = c4Enabled)
         if (!ownsTimer) return FloatingService.session.value.error ?: "已有计时正在运行，请先结束。"
         val result = withTimeout(5000) { FloatingService.session.first { it.startRequestId == requestId && (it.active || it.error != null) } }
         if (result.error != null) return result.error

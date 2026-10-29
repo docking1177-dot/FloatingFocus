@@ -107,6 +107,7 @@ class SettingsActivity : ComponentActivity() {
             var targetLabel by rememberSaveable(presetId) { mutableStateOf(preset?.targetApp?.label.orEmpty()) }
             val target = targetPackage.takeIf { it.isNotBlank() }?.let { LaunchableApp(it, targetLabel) }
             var mode by rememberSaveable(presetId) { mutableStateOf(preset?.mode ?: TimerMode.COUNTDOWN) }
+            var c4Enabled by rememberSaveable(presetId) { mutableStateOf(preset?.c4Enabled ?: false) }
             var seconds by rememberSaveable(presetId) { mutableIntStateOf(preset?.durationSeconds ?: intent.getIntExtra("duration_seconds", 900)) }
             val settings = if (editing) draft else sharedSettings
             val updateSettings: ((ReminderSettings) -> ReminderSettings) -> Unit = { change ->
@@ -126,8 +127,11 @@ class SettingsActivity : ComponentActivity() {
                             TextButton(onClick = { if (editing) finish() else back() }) { Text(if (editing) "取消" else "返回") }
                             if (editing) TextButton(enabled = isSavedShortcut(target) && name.isNotBlank() && (mode == TimerMode.STOPWATCH || seconds in 1..10800), onClick = {
                                 val saved = presetStore.save(preset!!.copy(name = name.trim(), minutes = (seconds / 60).coerceAtLeast(1), durationSeconds = seconds,
-                                    settings = draft, mode = mode, targetApp = target))
-                                if (saved) finish() else Toast.makeText(this@SettingsActivity, "暂时无法读取预设，保存未完成，请重试。", Toast.LENGTH_LONG).show()
+                                    settings = draft, mode = mode, targetApp = target, c4Enabled = c4Enabled))
+                                if (saved) {
+                                    if (c4Enabled) C4SettingsStore.get(this@SettingsActivity).acknowledgeNotice()
+                                    finish()
+                                } else Toast.makeText(this@SettingsActivity, "暂时无法读取预设，保存未完成，请重试。", Toast.LENGTH_LONG).show()
                             }) { Text("保存") }
                         }
                         SettingsPreview(settings, previewHeight, seconds * 1000L, if (editing) mode else TimerMode.COUNTDOWN)
@@ -143,6 +147,9 @@ class SettingsActivity : ComponentActivity() {
                                 }
                                 OutlinedTextField(name, { name = it.take(40) }, label = { Text("方案名称") }, singleLine = true)
                                 if (mode == TimerMode.COUNTDOWN) DurationEntry("计时时长", seconds, { seconds = it }, minSeconds = 1)
+                                C4EnabledSetting(c4Enabled) { c4Enabled = it }
+                                Text("仅修改此预设；音效由当前设置控制。", style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 TextButton(onClick = { page = "strategy" }) { Text("提醒策略") }
                             }
                             Text("悬浮窗形状", style = MaterialTheme.typography.titleMedium)

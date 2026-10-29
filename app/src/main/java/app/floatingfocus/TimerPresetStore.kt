@@ -52,7 +52,7 @@ class TimerPresetStore private constructor(private val context: Application) {
                 TimerPresetCodec.decode(mapOf("id" to row.opt("id"), "name" to row.opt("name"),
                     "targetPackage" to row.opt("targetPackage"), "targetLabel" to row.opt("targetLabel"),
                     "minutes" to row.opt("minutes"), "durationSeconds" to row.opt("durationSeconds"), "mode" to row.opt("mode"), "settings" to values,
-                    "positionX" to row.opt("positionX"), "positionY" to row.opt("positionY"))) ?: return null
+                    "positionX" to row.opt("positionX"), "positionY" to row.opt("positionY"), "c4Enabled" to row.opt("c4Enabled"))) ?: return null
         }
         decoded.takeIf { it.distinctBy(TimerPreset::id).size == it.size }
     } catch (_: RuntimeException) { null } catch (_: org.json.JSONException) { null }
