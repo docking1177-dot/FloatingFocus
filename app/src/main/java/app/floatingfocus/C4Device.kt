@@ -22,7 +22,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.*
@@ -33,13 +32,13 @@ import androidx.compose.ui.unit.sp
 
 /** Original native rendition of the supplied proportions; no photo, backing card or modal mask. */
 @Composable
-internal fun C4DevicePanel(frame: C4Frame, opacity: Float, preferredSize: Float, onKey: (Char) -> Unit, onToggle: () -> Unit) {
+internal fun C4DevicePanel(frame: C4Frame, onKey: (Char) -> Unit, onToggle: () -> Unit) {
     val fontScale = LocalDensity.current.fontScale
     BoxWithConstraints(Modifier.padding(2.dp)) {
-        val width = minOf(maxWidth, (292 * preferredSize).coerceAtLeast(180f).dp)
-        val height = minOf(maxHeight, width * (360f / 292f))
+        val width = minOf(maxWidth, C4Theme.WIDTH.dp)
+        val height = minOf(maxHeight, C4Theme.HEIGHT.dp)
         val geometry = C4Geometry(width.value, height.value)
-        Box(Modifier.size(width, height).graphicsLayer { alpha = opacity }
+        Box(Modifier.size(width, height)
             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onToggle)) {
             Canvas(Modifier.fillMaxSize()) {
                 val w = size.width; val h = size.height
@@ -63,10 +62,11 @@ internal fun C4DevicePanel(frame: C4Frame, opacity: Float, preferredSize: Float,
                 wire(0xFFC5483E, .10f, .56f); wire(0xFFD5B347, .55f, .94f)
                 rect(body.x - 3, height.value * .32f, body.width + 6, if (geometry.compact) 14f else 26f, 0xFFB2B4AA, 1f)
                 rect(body.x - 2, height.value * .88f, body.width + 4, 24f, 0xFFC3C4B9, 1f)
-                val screen = geometry.display
-                rect(screen.x - 6, screen.y - 5, screen.width + 12, screen.height + 10, 0xFF355647, 2f)
+                val screenFrame = geometry.displayFrame
+                rect(screenFrame.x, screenFrame.y, screenFrame.width, screenFrame.height, 0xFF355647, 2f)
                 val keyboard = geometry.keyboardPanel
                 rect(keyboard.x, keyboard.y, keyboard.width, keyboard.height, 0xFF222824, 3f)
+                val screen = geometry.display
                 val lamp = Offset(w * .18f, (screen.y + screen.height / 2).dp.toPx())
                 drawCircle(Color(0xFF30372B), 7.dp.toPx(), lamp)
                 drawCircle(when { frame.phase == C4Phase.DEFUSED -> Color(0xFF9DDE6A)
@@ -81,12 +81,16 @@ internal fun C4DevicePanel(frame: C4Frame, opacity: Float, preferredSize: Float,
             Column(Modifier.offset(screen.x.dp, screen.y.dp).size(screen.width.dp, screen.height.dp)
                 .background(displayColor, RoundedCornerShape(2.dp)).semantics(mergeDescendants = true) {
                     contentDescription = "C4 ${frame.phase}，剩余 ${formatRemaining(frame.remainingMillis)}，已输入 ${frame.input.length} 位${if (frame.error) "，输入错误" else ""}"
-                }, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                val compact = screen.height < 30
+                }, horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(C4Theme.DISPLAY_LINE_GAP.dp, Alignment.CenterVertically)) {
                 Text(formatRemaining(frame.remainingMillis), color = displayInk, fontFamily = FontFamily.Monospace,
-                    fontSize = ((if (compact) 11f else 21f) / fontScale).sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                    fontSize = (21f / fontScale).sp, lineHeight = (C4Theme.TIME_LINE_HEIGHT / fontScale).sp,
+                    fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false,
+                    onTextLayout = c4TextLayoutProbe("time", frame.input.length))
                 Text(frame.input.padEnd(7, '·'), color = displayInk, fontFamily = FontFamily.Monospace,
-                    fontSize = ((if (compact) 10f else 16f) / fontScale).sp, maxLines = 1)
+                    fontSize = (16f / fontScale).sp, lineHeight = (C4Theme.INPUT_LINE_HEIGHT / fontScale).sp,
+                    maxLines = 1, softWrap = false,
+                    onTextLayout = c4TextLayoutProbe("input", frame.input.length))
             }
             val panel = geometry.keyboardPanel
             Box(Modifier.offset(panel.x.dp, panel.y.dp).size(panel.width.dp, panel.height.dp)
@@ -132,10 +136,12 @@ private fun C4Key(key: Char, enabled: Boolean, width: Float, height: Float, onKe
             }
         }, contentAlignment = Alignment.Center) {
         Box(Modifier.fillMaxSize().padding(6.dp).clip(RoundedCornerShape(3.dp))
-            .background(if (pressed) Color(0xFF8D997F) else if (enabled) Color(0xFFC3C5B2) else Color(0xFF777F70)),
+            .background(Color(if (pressed) C4Theme.KEY_PRESSED_COLOR else C4Theme.KEY_COLOR)),
             contentAlignment = Alignment.Center) {
         Text(key.toString(), fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold,
-            fontSize = (21 / fontScale).sp, color = Color(0xFF252D25))
+            fontSize = (21 / fontScale).sp, lineHeight = (24 / fontScale).sp, maxLines = 1, softWrap = false,
+            color = Color(C4Theme.KEY_INK), onTextLayout = c4TextLayoutProbe("key-$key", 0))
         }
     }
 }
+

@@ -46,7 +46,7 @@ fun FocusOverlay(
     onStop: () -> Unit
 ) {
     if (c4.active && c4Expanded) {
-        C4DevicePanel(c4, appearance.opacity, appearance.size, onC4Key, onC4Toggle)
+        C4DevicePanel(c4, onC4Key, onC4Toggle)
         return
     }
     val finished = !c4.active && appearance.finished

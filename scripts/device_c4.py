@@ -7,6 +7,12 @@ import time
 PACKAGE = 'app.floatingfocus'
 
 
+def has_timer_service(dump):
+    # dumpsys includes an unstarred global "Last ANR service" even with a package
+    # filter. Only current service entries for this component count as running.
+    return bool(re.search(r'(?m)^\s*\*\s+ServiceRecord\{[^\n]*\bapp\.floatingfocus/(?:\.|app\.floatingfocus\.)FloatingService(?:\s|\})', dump))
+
+
 def c4(d, focus=None):
     row_centers = {}
     snapshot_seconds = []
@@ -59,12 +65,12 @@ def c4(d, focus=None):
     home_start_point = None
     gear_point = None
 
-    def start(seconds, enabled=True, sound=True, mode='COUNTDOWN', shape='ROUNDED_RECTANGLE', base_size=1.0):
+    def start(seconds, enabled=True, sound=True, mode='COUNTDOWN', shape='ROUNDED_RECTANGLE', base_size=1.0, opacity=.7, color='BLUE'):
         nonlocal last_sound, home_start_point, gear_point
         last_sound = sound
         d.stop()
         d.write_prefs('onboarding', dict(completed=True))
-        appearance = dict(shape=shape, color='BLUE', style='COLOR', baseSize=base_size, opacity=.7,
+        appearance = dict(shape=shape, color=color, style='COLOR', baseSize=base_size, opacity=opacity,
                           intensity=1.0, colorEnabled=True, sizeEnabled=True)
         preset = dict(id='c4-test', name='C4 '+str(seconds), minutes=max(1, seconds//60), durationSeconds=seconds,
                       settings=appearance, mode=mode, targetPackage='com.android.gallery3d', targetLabel='Gallery')
@@ -101,19 +107,25 @@ def c4(d, focus=None):
             time.sleep(.1)
         raise AssertionError(('C4 expansion not stable', old, previous))
 
-    def key_rect(char):
+    def device_geometry():
         x,y,r,b = d.frame()
         w,h = (r-x)/d.density-4, (b-y)/d.density-4
-        gap = 2 if h < 240 else 6 if h < 340 else 8
-        row_gap = 2 if h < 340 else 6
-        kw = max(44, (w*.60-gap*2)/3)
-        kh = 44
-        dy = 4 if h < 340 else 48
-        dh = 24 if h < 240 else 40 if h < 340 else 58
-        left = max(0, (w-kw*3-gap*2)/2+6)
-        top_y = max(h-(212 if h<340 else 226), dy+dh+6)
+        bw=min(w,max(w*.8,164)); bx=w*.14 if w*.8>=164 else (w-bw)/2
+        tight=h-18<286 or bw<210
+        gap=4 if tight else 6; padding=5 if tight else 6
+        pw=min(188,bw-12); ph=44*4+gap*3+padding*2
+        sh=50 if tight else 64; fh=sh+10
+        bottom=h-8; edge=min(8,max(0,(h-18-fh-gap-ph)/2))
+        sy=max(10+edge,min(43,bottom-edge-ph-gap-fh))+5
+        px=min(max(bx+6,bx+bw-pw-6),max(bx+6,(w-pw)/2+6))
+        py=max(sy+sh+5+gap,min(126,bottom-edge-ph))
+        return dict(x=x,y=y,w=w,h=h,gap=gap,kw=(pw-padding*2-gap*2)/3,kh=44,
+                    left=px+padding,top=py+padding,screenY=sy,screenHeight=sh)
+
+    def key_rect(char):
+        g=device_geometry(); gap=g['gap']; kw=g['kw']; kh=g['kh']
         i = '123456789*0#'.index(char)
-        return x+(2+left+(i%3)*(kw+gap))*d.density, y+(2+top_y+(i//3)*(kh+row_gap))*d.density, kw*d.density, kh*d.density
+        return g['x']+(2+g['left']+(i%3)*(kw+gap))*d.density, g['y']+(2+g['top']+(i//3)*(kh+gap))*d.density, kw*d.density, kh*d.density
 
     def key_point(char):
         x,y,r,b = d.frame()
@@ -221,11 +233,29 @@ def c4(d, focus=None):
 
     def keypad_layout():
         cases=[]
-        for base in (.9, 1.0, .75):
-            wid,_=start(30, sound=False, base_size=base)
+        full_size=None; compact_size=None
+        profiles=[('.75',.75,.3,'BLUE','CIRCLE',1.0),('1.0',1.0,.7,'BROWN','VERTICAL_CAPSULE',1.0),
+                  ('1.5',1.5,1.0,'PURPLE','ROUNDED_RECTANGLE',1.0),('large-font',1.0,.45,'GREEN','CIRCLE',1.5)]
+        for label,base,opacity,color,shape,font in profiles:
+            d.shell('settings','put','system','font_scale',font)
+            wid,folded=start(30, sound=False, base_size=base, opacity=opacity, color=color, shape=shape)
+            dims=lambda frame:(frame[2]-frame[0],frame[3]-frame[1])
+            if font==1.0:
+                if compact_size is None: compact_size=dims(folded)
+                assert dims(folded)==compact_size, 'Ordinary style leaked into compact C4'
             expand()
             original=d.frame()
-            d.shot('c4-keypad-'+str(base))
+            if full_size is None: full_size=dims(original)
+            assert dims(original)==full_size, 'Ordinary style or font scale changed C4 model dimensions'
+            raw=d.shell('dumpsys','window','windows')
+            block=raw.split('Window{'+wid+' u0 '+PACKAGE+'}:',1)[1].split('\n  Window #',1)[0]
+            assert re.search(r'alpha=0\.7(?:\s|\})',block), 'C4 window inherited ordinary opacity'
+            d.shot('c4-keypad-'+label)
+            for length,char in enumerate('735560',1):
+                key(char)
+                wait_for(lambda: f'C4 text field=input length={length} fits=true' in logs(), 1)
+                d.shot('c4-lcd-'+label+'-'+str(length))
+            key('#')
             rects={char:key_rect(char) for char in '123456789*0#'}
             for x,y,w,h in rects.values():
                 assert w>=44*d.density-.1 and h>=44*d.density-.1
@@ -241,10 +271,8 @@ def c4(d, focus=None):
             a=rects['1']; b=rects['2']
             d.tapxy((a[0]+a[2]+b[0])/2,a[1]+a[3]/2)
             assert logs().count('C4 key result=')==before and d.frame()==original
-            x,y,r,b=d.frame(); dh=(b-y)/d.density-4
-            sy=4 if dh<340 else 48
-            sh=24 if dh<240 else 40 if dh<340 else 58
-            d.tapxy((x+r)/2,y+(2+sy+sh/2)*d.density)
+            g=device_geometry()
+            d.tapxy((original[0]+original[2])/2,g['y']+(2+g['screenY']+g['screenHeight']/2)*d.density)
             assert d.frame()!=original
             expand(); assert d.overlay()[0]==wid
             key('2'); assert logs().split('C4 key result=')[-1].startswith('CHANGED length=2')
@@ -253,13 +281,20 @@ def c4(d, focus=None):
             d.shell('input','swipe',int(kx),int(ky),int(kx+30*d.density),int(ky),300)
             assert d.frame()==old and logs().count('C4 key result=')==before
             code()
-            cases.append(dict(baseSize=base,opacity=.7,frame=original,realTwelveKeys=True,gapInert=True,
+            trace=logs()
+            assert 'fits=false' not in trace, 'Actual Compose glyph layout overflowed'
+            assert all(f'C4 text field=input length={n} fits=true' in trace for n in range(8)), 'Missing 0..7 digit layout evidence'
+            assert all('C4 text field=key-'+k+' length=0 fits=true' in trace for k in '123456789*0#')
+            (d.output/('c4-layout-'+label+'.log')).write_text(trace,encoding='utf-8')
+            cases.append(dict(baseSize=base,ordinaryOpacity=opacity,color=color,shape=shape,fontScale=font,
+                              c4Opacity=.7,frame=original,allInputLengthsFit=True,realTwelveKeys=True,gapInert=True,
                               edgeTap=True,keyDragCancelled=True,foldRetainsInput=True))
-        return dict(scope='keypad layout and interaction',cases=cases,audio='muted; timing/audio code unchanged')
+        return dict(scope='independent C4 layout and interaction',cases=cases,audio='muted; timing/audio code unchanged')
 
 
     rotation = d.shell('settings', 'get', 'system', 'user_rotation').strip()
     auto_rotate = d.shell('settings', 'get', 'system', 'accelerometer_rotation').strip()
+    font_scale = d.shell('settings','get','system','font_scale').strip()
     try:
         if focus == 'keypad': return keypad_layout()
         if focus == 'handoff':
@@ -355,7 +390,7 @@ def c4(d, focus=None):
         for char in '735560': key(char)
         kx,ky=key_point('8')
         d.shell('sh', '-c', f"'input tap {int(kx)} {int(ky)}; sleep 0.6; appops set {PACKAGE} SYSTEM_ALERT_WINDOW deny'")
-        wait_for(lambda: 'ServiceRecord{' not in d.shell('dumpsys', 'activity', 'services', PACKAGE), 3)
+        wait_for(lambda: not has_timer_service(d.shell('dumpsys', 'activity', 'services', PACKAGE)), 3)
         assert 'C4 success audio cancelled' in logs()
         d.shell('appops', 'set', PACKAGE, 'SYSTEM_ALERT_WINDOW', 'allow')
 
@@ -453,6 +488,8 @@ def c4(d, focus=None):
         d.shell('appops', 'set', PACKAGE, 'SYSTEM_ALERT_WINDOW', 'allow')
         d.shell('settings', 'put', 'system', 'user_rotation', rotation)
         d.shell('settings', 'put', 'system', 'accelerometer_rotation', auto_rotate)
+        if font_scale=='null': d.shell('settings','delete','system','font_scale')
+        else: d.shell('settings','put','system','font_scale',font_scale)
 
 
 def c4_keypad(d):

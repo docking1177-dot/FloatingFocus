@@ -7,9 +7,18 @@ from unittest.mock import MagicMock, Mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from device_regression import Device
+from device_c4 import has_timer_service
 
 
 class DeviceEvidenceTests(unittest.TestCase):
+    def test_timer_service_check_ignores_global_historical_anr(self):
+        for component in ('app.floatingfocus/.FloatingService', 'app.floatingfocus/app.floatingfocus.FloatingService'):
+            with self.subTest(component=component):
+                self.assertTrue(has_timer_service('User 0 active services:\n  * ServiceRecord{a u0 '+component+' c:app.floatingfocus}'))
+                self.assertFalse(has_timer_service('Last ANR service:\nServiceRecord{a u0 '+component+' c:app.floatingfocus}\n(nothing)'))
+        self.assertFalse(has_timer_service('Last ANR service:\nServiceRecord{a u0 com.android.systemui/.SystemUIService c:android}\n(nothing)'))
+        self.assertFalse(has_timer_service('  * ServiceRecord{a u0 com.example/.FloatingService}\n'))
+
     def test_failed_dump_never_reads_stale_hierarchy(self):
         device = Device('emulator-5554', MagicMock())
         device.shell = Mock(side_effect=['', 'ERROR: could not get idle state'] * 3)

@@ -31,7 +31,9 @@ Emulator 模式不会自动授予悬浮权限、点击开始或完成拖动回�
 
 ## 可重复的设备回归
 
-C4 键盘局部回归：`./scripts/test-device.ps1 -Suite c4_keypad -AllowTestDataChanges`。同一屏幕与不透明度 0.7 下测试基础大小 0.9、1.0、0.75，保存完整装置截图；点击十二键、边缘与缝隙，验证按键拖动取消、收起保留输入及口令解除。它是局部回归，不代替完整 `c4` 声音/时间轴检查。
+C4 布局局部回归：`./scripts/test-device.ps1 -Suite c4_keypad -AllowTestDataChanges`。组合普通基础大小0.75/1.0/1.5、不同颜色/透明度/形状，验证C4两种形态尺寸不随之变化，窗口透明度固定0.7；增加系统大字体，记录0—7位输入的实际 Compose 字形溢出结果与截图。点击十二键、边缘与缝隙，验证按键拖动取消、收起保留输入及口令解除，最后还原字体设置。它不代替完整 `c4` 声音/时间轴检查。
+
+服务清理检查按包名/组件匹配当前 `* ServiceRecord` 条目。`dumpsys activity services` 即使带包名筛选，也可能附带系统全局的历史 `Last ANR service`；这类诊断不能判成FF仍在运行，脚本单测覆盖两者区别。
 
 预设桌面入口：`./scripts/test-device.ps1 -Suite preset_shortcuts -AllowTestDataChanges`。实际确认/取消、桌面图标、冷热启动、更新/删除/读错、权限返回和重建有独立断言，记录 App 前台/浮窗/会话。失败还原 FF 数据；固定入口不属于 FF 文件备份，因此所有 suite 都在修改前拒绝已有 FF 固定入口的 AVD，桌面 suite 清理自己的入口。真机启动器与未执行的边界单独报告，见 [PRESET_DESKTOP_SHORTCUTS.md](PRESET_DESKTOP_SHORTCUTS.md)。
 

@@ -117,11 +117,11 @@ object ReminderPresenter {
         )
     }
 
-    /** C4 owns its status effects; never inherit ordinary progress-derived paint or scale. */
-    fun forC4(frame: C4Frame, settings: ReminderSettings) = ReminderPresentation(
+    /** C4 has its own theme; no ordinary settings or progress-derived paint enter it. */
+    fun forC4(frame: C4Frame) = ReminderPresentation(
         title = "◷  ${formatRemaining(frame.remainingMillis)}", finished = false,
-        colorArgb = settings.color.argb, size = settings.baseSize, opacity = settings.opacity,
-        pulseDepth = 0f, confirmationRequired = false, shape = settings.shape, animationStrength = 0f)
+        colorArgb = C4Theme.COMPACT_COLOR, size = 1f, opacity = C4Theme.OPACITY,
+        pulseDepth = 0f, confirmationRequired = false, shape = C4Theme.COMPACT_SHAPE, animationStrength = 0f)
 
     /** Brighten the actual shape paint, never fade the window or add a rectangular layer. */
     fun highlight(color: Int, amount: Float): Int = mix(color, 0xFFFFFFFF.toInt(), amount)
