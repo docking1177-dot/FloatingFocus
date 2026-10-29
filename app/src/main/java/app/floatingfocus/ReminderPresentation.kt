@@ -117,11 +117,11 @@ object ReminderPresenter {
         )
     }
 
-    /** C4 has its own theme; no ordinary settings or progress-derived paint enter it. */
-    fun forC4(frame: C4Frame) = ReminderPresentation(
+    /** Only the compact contour follows ordinary settings; C4 paint and scale stay independent. */
+    fun forC4(frame: C4Frame, shape: OverlayShape = C4Theme.COMPACT_SHAPE) = ReminderPresentation(
         title = "◷  ${formatRemaining(frame.remainingMillis)}", finished = false,
         colorArgb = C4Theme.COMPACT_COLOR, size = 1f, opacity = C4Theme.OPACITY,
-        pulseDepth = 0f, confirmationRequired = false, shape = C4Theme.COMPACT_SHAPE, animationStrength = 0f)
+        pulseDepth = 0f, confirmationRequired = false, shape = shape, animationStrength = 0f)
 
     /** Brighten the actual shape paint, never fade the window or add a rectangular layer. */
     fun highlight(color: Int, amount: Float): Int = mix(color, 0xFFFFFFFF.toInt(), amount)

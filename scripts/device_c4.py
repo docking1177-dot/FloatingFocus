@@ -233,16 +233,15 @@ def c4(d, focus=None):
 
     def keypad_layout():
         cases=[]
-        full_size=None; compact_size=None
+        full_size=None
         profiles=[('.75',.75,.3,'BLUE','CIRCLE',1.0),('1.0',1.0,.7,'BROWN','VERTICAL_CAPSULE',1.0),
                   ('1.5',1.5,1.0,'PURPLE','ROUNDED_RECTANGLE',1.0),('large-font',1.0,.45,'GREEN','CIRCLE',1.5)]
         for label,base,opacity,color,shape,font in profiles:
             d.shell('settings','put','system','font_scale',font)
             wid,folded=start(30, sound=False, base_size=base, opacity=opacity, color=color, shape=shape)
             dims=lambda frame:(frame[2]-frame[0],frame[3]-frame[1])
-            if font==1.0:
-                if compact_size is None: compact_size=dims(folded)
-                assert dims(folded)==compact_size, 'Ordinary style leaked into compact C4'
+            fw,fh=dims(folded)
+            assert (abs(fw-fh)<=2 if shape=='CIRCLE' else fh>fw if shape=='VERTICAL_CAPSULE' else fw>fh), 'Wrong compact C4 contour'
             expand()
             original=d.frame()
             if full_size is None: full_size=dims(original)
@@ -297,29 +296,51 @@ def c4(d, focus=None):
     font_scale = d.shell('settings','get','system','font_scale').strip()
     try:
         if focus == 'compact':
-            wid, folded = start(30, sound=False)
-            d.shot('c4-compact')
-            expand()
-            full = d.frame()
-            d.shot('c4-full-unchanged')
-            g=device_geometry()
-            d.tapxy((full[0]+full[2])/2,g['y']+(2+g['screenY']+g['screenHeight']/2)*d.density)
-            before=d.frame()
-            assert before[2]-before[0]==folded[2]-folded[0] and before[3]-before[1]==folded[3]-folded[1]
-            x,y=d.center()
-            d.shell('input','swipe',x,y,x-35*d.density,y+40*d.density,350)
-            moved=d.frame()
-            assert moved!=before and d.overlay()[0]==wid
-            assert (moved[2]-moved[0],moved[3]-moved[1])==(before[2]-before[0],before[3]-before[1])
-            d.shot('c4-compact-dragged')
-            expand(); key('7'); key('3')
-            g=device_geometry(); old=d.frame()
-            d.tapxy((old[0]+old[2])/2,g['y']+(2+g['screenY']+g['screenHeight']/2)*d.density)
-            expand(); key('5')
-            assert 'C4 key result=CHANGED length=3' in logs()
-            key('#'); code()
-            return dict(scope='compact pattern and unchanged full model',foldedFrame=folded,fullFrame=full,
-                        measuredSizeUnchanged=True,drag=True,expand=True,inputSurvives=True,audio='muted')
+            cases=[]; full_size=None; compact_sizes={}
+            profiles=[('ROUNDED_RECTANGLE',1.0,1.0,.7,'BLUE'),('VERTICAL_CAPSULE',1.0,1.0,.7,'BLUE'),
+                      ('CIRCLE',1.0,1.0,.7,'BLUE'),('CIRCLE',1.5,1.0,.7,'BLUE'),
+                      ('ROUNDED_RECTANGLE',1.0,1.5,.3,'PURPLE')]
+            for shape,font,base,opacity,color in profiles:
+                d.shell('settings','put','system','font_scale',font)
+                wid, folded = start(30, sound=False, shape=shape,base_size=base,opacity=opacity,color=color)
+                name=shape+('-large-font' if font>1 else '-ordinary-style' if base!=1 else '')
+                d.shot('c4-compact-'+name)
+                width,height=folded[2]-folded[0],folded[3]-folded[1]
+                assert (abs(width-height)<=2 if shape=='CIRCLE' else height>width if shape=='VERTICAL_CAPSULE' else width>height)
+                key_shape=(shape,font)
+                if key_shape in compact_sizes:
+                    assert (width,height)==compact_sizes[key_shape], 'Ordinary size leaked into compact C4'
+                else: compact_sizes[key_shape]=(width,height)
+                # A transparent contour corner cannot expand the device.
+                d.tapxy(folded[0]+4*d.density,folded[1]+4*d.density)
+                assert d.frame()==folded
+                expand()
+                full = d.frame()
+                dims=(full[2]-full[0],full[3]-full[1])
+                if full_size is None: full_size=dims
+                assert dims==full_size, 'Compact contour leaked into full device geometry'
+                d.shot('c4-full-'+name)
+                g=device_geometry()
+                d.tapxy((full[0]+full[2])/2,g['y']+(2+g['screenY']+g['screenHeight']/2)*d.density)
+                before=d.frame()
+                assert (before[2]-before[0],before[3]-before[1])==(width,height)
+                x,y=d.center()
+                d.shell('input','swipe',x,y,x-35*d.density,y+40*d.density,350)
+                moved=d.frame()
+                assert moved!=before and d.overlay()[0]==wid
+                assert (moved[2]-moved[0],moved[3]-moved[1])==(width,height)
+                d.shot('c4-compact-dragged-'+name)
+                expand(); key('7'); key('3')
+                g=device_geometry(); old=d.frame()
+                d.tapxy((old[0]+old[2])/2,g['y']+(2+g['screenY']+g['screenHeight']/2)*d.density)
+                expand(); key('5')
+                assert 'C4 key result=CHANGED length=3' in logs()
+                assert logs().count('C4 phase=ARMED')==1, 'Switching shape replayed C4 timeline'
+                key('#'); code()
+                cases.append(dict(shape=shape,fontScale=font,ordinaryBaseSize=base,ordinaryOpacity=opacity,ordinaryColor=color,
+                                  foldedFrame=folded,fullFrame=full,
+                                  compactStable=True,transparentCornerInert=True,drag=True,expand=True,inputSurvives=True))
+            return dict(scope='capsule and circular C4 art; unchanged full model',cases=cases,audio='muted')
         if focus == 'keypad': return keypad_layout()
         if focus == 'handoff':
             handoff()

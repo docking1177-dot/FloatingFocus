@@ -99,15 +99,15 @@ class C4TimelineTest {
             assertTrue(keys.zipWithNext().all { (a, b) -> a.y != b.y || a.x + a.width < b.x })
         }
     }
-    @Test fun `C4 theme is independent of ordinary appearance even at deadline`() {
+    @Test fun `compact C4 follows only ordinary shape while its theme stays fixed at deadline`() {
         val settings = ReminderSettings(baseSize = 1.2f, opacity = .3f, color = OverlayColor.BLUE,
             colorEnabled = true, sizeEnabled = true)
-        for (remaining in listOf(44_439L, 20_000L, 1000L, 0L)) {
-            val p = ReminderPresenter.forC4(C4Frame(C4Phase.ARMED, remainingMillis = remaining))
+        for (shape in OverlayShape.entries) for (remaining in listOf(44_439L, 20_000L, 1000L, 0L)) {
+            val p = ReminderPresenter.forC4(C4Frame(C4Phase.ARMED, remainingMillis = remaining), shape)
             assertEquals(1f, p.size, .001f)
             assertEquals(0xFF555B31.toInt(), p.colorArgb)
             assertEquals(.7f, p.opacity, .001f)
-            assertEquals(OverlayShape.ROUNDED_RECTANGLE, p.shape)
+            assertEquals(shape, p.shape)
             assertEquals(0f, p.pulseDepth, .001f)
             assertFalse(p.finished)
         }

@@ -277,7 +277,7 @@ class FloatingService : Service() {
             val settings by settingsStore.settings.collectAsState()
             val normal = ReminderPresenter.present(ReminderSnapshot(overlayState.remainingMillis, overlayState.progress,
                 overlayState.overtimeMillis, overlayState.mode, overlayState.elapsedMillis, countdown?.durationMillis ?: 0), settings)
-            val appearance = if (c4Frame.active) ReminderPresenter.forC4(c4Frame)
+            val appearance = if (c4Frame.active) ReminderPresenter.forC4(c4Frame, settings.shape)
                 else if (manualClock.paused) normal.copy(pulseDepth = 0f, animationStrength = 0f) else normal
             SideEffect { overlay.setGeometry(appearance.shape, appearance.size, c4Frame.active && c4Expanded, appearance.opacity, c4Frame.active) }
             val timerStart = overlayState.timerStartedAt

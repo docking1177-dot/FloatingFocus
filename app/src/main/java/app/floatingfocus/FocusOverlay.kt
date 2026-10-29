@@ -136,7 +136,7 @@ fun FocusOverlay(
                 }
             }
         }, modifier = if (c4.active && !c4Expanded) {
-            toggleControls.c4CompactArt(led = c4.led, defused = c4.phase == C4Phase.DEFUSED)
+            toggleControls.c4CompactArt(appearance.shape, led = c4.led, defused = c4.phase == C4Phase.DEFUSED)
         } else toggleControls) { measurables, constraints ->
             // Measure at a stable base size; apply the current reminder scale exactly once.
             val body = measurables.single().measure(Constraints(maxWidth = 240.dp.roundToPx()))
