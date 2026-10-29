@@ -46,6 +46,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -80,8 +81,14 @@ class MainActivity : ComponentActivity() {
         val session by FloatingService.session.collectAsStateWithLifecycle()
         val monitor by FloatingService.monitoring.collectAsStateWithLifecycle()
         val quickDurations by QuickDurationsStore.get(this).durations.collectAsStateWithLifecycle()
-        var mode by rememberSaveable { mutableStateOf(TimerMode.COUNTDOWN) }
-        var seconds by rememberSaveable { mutableIntStateOf(900) }
+        var selection by rememberSaveable(stateSaver = Saver<TimerStartupDefaults, Any>(
+            save = { listOf(it.mode.name, it.durationSeconds) },
+            restore = { TimerStartupDefaults.restoreSelection(it) })) {
+            mutableStateOf(TimerStartupDefaults.initialHomeSelection(
+                QuickDurationsStore.get(this).startupDefaults.value, session))
+        }
+        val mode = selection.mode
+        val seconds = selection.durationSeconds
         var customSeconds by rememberSaveable { mutableIntStateOf(60) }
         var strategyError by rememberSaveable { mutableStateOf<String?>(null) }
         val overlayAllowed by rememberOverlayPermission()
@@ -139,7 +146,7 @@ class MainActivity : ComponentActivity() {
                         if (monitor.enabled) Text(monitor.reason, style = MaterialTheme.typography.bodySmall, color = Color(0xFF667067))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             TimerMode.entries.forEach { option ->
-                                FilterChip(mode == option, { mode = option }, label = { Text(option.label) },
+                                FilterChip(mode == option, { selection = selection.copy(mode = option) }, label = { Text(option.label) },
                                     enabled = !session.active && !monitor.enabled && !quickStarting)
                             }
                         }
@@ -147,14 +154,16 @@ class MainActivity : ComponentActivity() {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             quickDurations.forEach { value ->
                                 FilterChip(selected = seconds == value, enabled = !session.active && !monitor.enabled && !quickStarting,
-                                    onClick = { seconds = value }, modifier = Modifier.weight(1f),
+                                    onClick = { selection = selection.copy(durationSeconds = value) }, modifier = Modifier.weight(1f),
                                     label = { Text(if (value % 60 == 0) "${value / 60}分" else "%d:%02d".format(java.util.Locale.ROOT, value / 60, value % 60),
                                         modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center,
                                         style = MaterialTheme.typography.labelMedium, maxLines = 1, softWrap = false) })
                             }
                         }
-                        DurationEntry("自定义时长", customSeconds, { customSeconds = it; seconds = it },
+                        DurationEntry("自定义时长", customSeconds, { customSeconds = it; selection = selection.copy(durationSeconds = it) },
                             enabled = !session.active && !monitor.enabled && !quickStarting, minSeconds = 1)
+                        if (seconds !in quickDurations) Text("已选时长 · ${durationLabel(seconds)}",
+                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
                         }
                         Spacer(Modifier.height(4.dp))
@@ -183,7 +192,7 @@ class MainActivity : ComponentActivity() {
                         TimerPresetsCard(seconds, mode = mode, enabled = !session.active && !monitor.enabled && !quickStarting,
                         onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true },
                         onApplied = { selectedSeconds, selectedMode ->
-                            seconds = selectedSeconds; mode = selectedMode
+                            selection = TimerStartupDefaults(selectedMode, selectedSeconds)
                             if (selectedSeconds !in quickDurations) customSeconds = selectedSeconds
                         })
                     }

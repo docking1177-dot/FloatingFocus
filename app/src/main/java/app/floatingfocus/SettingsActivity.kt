@@ -85,8 +85,10 @@ class SettingsActivity : ComponentActivity() {
                 return@FocusTheme
             }
             if (!editing && page == "durations") {
-                val durations by QuickDurationsStore.get(this).durations.collectAsStateWithLifecycle()
-                QuickDurationsScreen(durations, { QuickDurationsStore.get(this).save(it) }, back)
+                val durationsStore = QuickDurationsStore.get(this)
+                val durations by durationsStore.durations.collectAsStateWithLifecycle()
+                val defaults by durationsStore.startupDefaults.collectAsStateWithLifecycle()
+                QuickDurationsScreen(durations, defaults, { values, startup -> durationsStore.save(values, startup) }, back)
                 return@FocusTheme
             }
             if (editing && preset == null) {

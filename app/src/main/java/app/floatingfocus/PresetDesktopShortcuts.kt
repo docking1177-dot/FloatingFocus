@@ -15,6 +15,7 @@ import android.graphics.drawable.LayerDrawable
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.edit
@@ -25,6 +26,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -39,6 +44,22 @@ class PresetDesktopShortcuts private constructor(private val context: Applicatio
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val mutex = Mutex()
     private val throttle = PresetPinThrottle()
+    private val currentFeedback = MutableStateFlow<PresetPinFeedback?>(null)
+    val feedback = currentFeedback.asStateFlow()
+    @Volatile private var requestGeneration = 0L
+    private val xiaomi = PresetPinHelp.isXiaomi(Build.MANUFACTURER, Build.BRAND)
+
+    private fun result(id: String, phase: PresetPinPhase, message: String, binding: TimerPreset? = null,
+                       help: Boolean = false): PresetPinResult {
+        currentFeedback.value = PresetPinFeedback(id, phase, message, help)
+        return PresetPinResult(message, binding)
+    }
+
+    fun confirmed(id: String, message: String) {
+        currentFeedback.update { old -> if (old?.presetId == id)
+            PresetPinFeedback(id, PresetPinPhase.CONFIRMED, message) else old }
+        Log.i("FloatingFocus", "PIN confirmed id=$id")
+    }
 
     fun scheduleSync() { scope.launch { sync() } }
 
@@ -46,12 +67,18 @@ class PresetDesktopShortcuts private constructor(private val context: Applicatio
         mutex.withLock {
             try {
                 val supported = manager?.isRequestPinShortcutSupported == true
+                val home = context.packageManager.resolveActivity(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0)
+                Log.i("FloatingFocus", "PIN check id=$id supported=$supported launcher=${home?.activityInfo?.packageName}")
                 val check = PresetLaunchPolicy.forPin(id, if (supported) TimerPresetStore.get(context).snapshot() else null,
                     supported, context::isSavedShortcut, { context.packageManager.getLaunchIntentForPackage(it.packageName) != null })
-                if (check.issue != null) return@withLock PresetPinResult(check.message!!,
-                    check.preset.takeIf { check.issue in listOf(PresetLaunchIssue.BINDING, PresetLaunchIssue.UNAVAILABLE) })
+                if (check.issue != null) return@withLock result(id,
+                    if (check.issue == PresetLaunchIssue.UNSUPPORTED) PresetPinPhase.UNSUPPORTED else PresetPinPhase.NOT_SENT,
+                    check.message!!, check.preset.takeIf { check.issue in listOf(PresetLaunchIssue.BINDING, PresetLaunchIssue.UNAVAILABLE) })
                 val preset = check.preset!!
-                if (!throttle.acquire(SystemClock.elapsedRealtime())) return@withLock PresetPinResult("请在系统提示中确认添加。")
+                if (!throttle.acquire(SystemClock.elapsedRealtime())) {
+                    return@withLock PresetPinResult("重复操作已合并，请先完成当前系统确认。")
+                }
+                result(id, PresetPinPhase.CHECKING, "正在检查桌面…")
                 val info = info(preset)
                 val existing = manager!!.pinnedShortcuts.firstOrNull { it.id == info.id }
                 if (existing != null) {
@@ -61,12 +88,31 @@ class PresetDesktopShortcuts private constructor(private val context: Applicatio
                 val callback = Intent(context, PresetPinnedReceiver::class.java).setAction(ACTION_PINNED)
                     .setData(("floatingfocus://pinned/" + android.net.Uri.encode(id)).toUri())
                 val sender = PendingIntent.getBroadcast(context, 0, callback, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT).intentSender
-                if (manager.requestPinShortcut(info, sender)) PresetPinResult("请在系统提示中确认添加。")
-                else { throttle.reset(); PresetPinResult("当前桌面不支持添加快捷方式。") }
+                val accepted = manager.requestPinShortcut(info, sender)
+                Log.i("FloatingFocus", "PIN requested id=$id accepted=$accepted existing=${existing != null}")
+                if (accepted) {
+                    val generation = ++requestGeneration
+                    val sent = result(id, PresetPinPhase.WAITING, "已请求桌面确认。" + PresetPinHelp.instructions(xiaomi), help = true)
+                    scope.launch {
+                        delay(6000)
+                        currentFeedback.update { old ->
+                            if (requestGeneration == generation && old?.presetId == id) old.afterWaiting(xiaomi) else old
+                        }
+                    }
+                    sent
+                } else {
+                    throttle.reset()
+                    result(id, PresetPinPhase.NOT_SENT, "系统未接受添加请求，当前桌面可能不支持或限制创建快捷方式。" +
+                        PresetPinHelp.instructions(xiaomi), help = true)
+                }
             } catch (e: RuntimeException) {
                 throttle.reset()
                 Log.w("FloatingFocus", "Shortcut pin request failed", e)
-                PresetPinResult("暂时无法请求添加，请返回 FF 后重试。")
+                result(id, PresetPinPhase.NOT_SENT, when (e) {
+                    is SecurityException -> "系统限制了添加快捷方式。" + PresetPinHelp.instructions(xiaomi)
+                    is IllegalStateException -> "请求未发出，请回到 FF 前台后重试。"
+                    else -> "请求未发出，请返回 FF 后重试。" + PresetPinHelp.instructions(xiaomi)
+                }, help = true)
             }
         }
     }
@@ -152,6 +198,7 @@ class PresetPinnedReceiver : BroadcastReceiver() {
                 val message = if (items == null) "已添加到桌面，预设暂时无法读取。"
                     else if (items.none { it.id == intent.data?.lastPathSegment }) "预设已删除，桌面入口已停用。"
                     else "已添加到桌面"
+                PresetDesktopShortcuts.get(context).confirmed(intent.data!!.lastPathSegment!!, message)
                 Handler(Looper.getMainLooper()).post { Toast.makeText(context, message, Toast.LENGTH_SHORT).show() }
             } finally { pending.finish() }
         }

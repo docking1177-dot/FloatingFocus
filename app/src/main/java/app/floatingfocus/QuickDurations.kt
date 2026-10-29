@@ -21,11 +21,19 @@ class QuickDurationsStore private constructor(context: Context) {
     private val prefs = context.getSharedPreferences("quick_durations", Context.MODE_PRIVATE)
     private val current = MutableStateFlow(QuickDurations.decodeSeconds(prefs.getString("seconds", null), prefs.getString("minutes", null)))
     val durations = current.asStateFlow()
-    fun save(values: List<Int>) {
+    private val currentStartupDefaults = MutableStateFlow(TimerStartupDefaults.decode(
+        prefs.all["startup_mode"] as? String, prefs.all["startup_seconds"] as? Int))
+    val startupDefaults = currentStartupDefaults.asStateFlow()
+    fun save(values: List<Int>, defaults: TimerStartupDefaults = currentStartupDefaults.value) {
         require(QuickDurations.validSeconds(values))
         val copy = values.toList()
-        prefs.edit { putString("seconds", copy.joinToString(",")) }
+        prefs.edit {
+            putString("seconds", copy.joinToString(","))
+            putString("startup_mode", defaults.mode.name)
+            putInt("startup_seconds", defaults.durationSeconds)
+        }
         current.value = copy
+        currentStartupDefaults.value = defaults
     }
     companion object {
         @Volatile private var instance: QuickDurationsStore? = null

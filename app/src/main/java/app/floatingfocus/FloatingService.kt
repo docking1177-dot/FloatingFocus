@@ -47,7 +47,8 @@ data class SessionState(
     val overtimeMillis: Long = 0,
     val timerStartedAt: Long = 0,
     val c4Locked: Boolean = false,
-    val startRequestId: String? = null
+    val startRequestId: String? = null,
+    val durationMillis: Long = 0
 )
 
 class FloatingService : Service() {
@@ -132,7 +133,8 @@ class FloatingService : Service() {
             val previousStage = overlayState.stage
             overlayState = SessionState(true, remaining, progress, stage, mode = timer.mode,
                 elapsedMillis = timer.elapsedAt(now), overtimeMillis = timer.overtimeAt(now), timerStartedAt = timer.startedAt,
-                paused = manualClock.paused, c4Locked = c4Frame.active, startRequestId = activeStartRequestId)
+                paused = manualClock.paused, c4Locked = c4Frame.active, startRequestId = activeStartRequestId,
+                durationMillis = timer.durationMillis)
             checkpointRecord(physicalNow)
             record?.let { recordStore.save(it, checkpoint = true) }
             mutableSession.value = overlayState
@@ -222,7 +224,8 @@ class FloatingService : Service() {
             TimerPresetStore.get(this).presets.value.any { it.id == id && it.targetApp?.packageName == awaitingApp }
         }
         completionReminder.reset()
-        overlayState = SessionState(true, duration, mode = mode, timerStartedAt = countdown!!.startedAt, startRequestId = requested)
+        overlayState = SessionState(true, duration, mode = mode, timerStartedAt = countdown!!.startedAt, startRequestId = requested,
+            durationMillis = countdown!!.durationMillis)
         interactive = getSystemService(PowerManager::class.java).isInteractive
         val nm = getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(NotificationChannel(CHANNEL, "悬浮计时", NotificationManager.IMPORTANCE_LOW).apply {

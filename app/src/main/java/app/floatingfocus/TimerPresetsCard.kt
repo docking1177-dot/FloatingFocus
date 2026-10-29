@@ -1,6 +1,9 @@
 package app.floatingfocus
 
 import android.content.Intent
+import android.provider.Settings
+import android.widget.Toast
+import androidx.core.net.toUri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -36,6 +39,7 @@ fun TimerPresetsCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var pinMessage by remember { mutableStateOf<String?>(null) }
+    val pinFeedback by remember { PresetDesktopShortcuts.get(context) }.feedback.collectAsStateWithLifecycle()
     var pinBusy by remember { mutableStateOf(false) }
     var pinAfterBinding by remember { mutableStateOf<String?>(null) }
     var renameError by remember { mutableStateOf<String?>(null) }
@@ -51,6 +55,14 @@ fun TimerPresetsCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
                 } finally { pinBusy = false }
             }
         }
+    }
+    val pinNotice: @Composable () -> Unit = {
+        (if (pinBusy) "正在检查桌面…" else pinFeedback?.message ?: pinMessage)?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+        if (pinFeedback?.canOpenSettings == true) TextButton(onClick = {
+            try {
+                context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, ("package:" + context.packageName).toUri()))
+            } catch (_: RuntimeException) { Toast.makeText(context, "请在系统设置中打开 FF 应用信息，检查快捷方式权限。", Toast.LENGTH_LONG).show() }
+        }) { Text("查看应用权限设置") }
     }
 
     val launch: (TimerPreset) -> Unit = { preset ->
@@ -87,7 +99,7 @@ fun TimerPresetsCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
         PresetItems(presets, enabled && !busy, createPreset, launch)
         if (busy) Text("正在启动…", style = MaterialTheme.typography.bodySmall)
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-        pinMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+        pinNotice()
     }
     error?.takeIf { it.contains("提醒策略") }?.let { message -> StrategyConflictDialog(message, launchingPreset?.durationSeconds ?: seconds, launchingPreset?.id, { error = null }) }
     saving?.let { preset -> PresetSaveDialog(preset, { saving = null }) { saved ->
@@ -129,7 +141,7 @@ fun TimerPresetsCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
                 }
             }
         }
-        pinMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+        pinNotice()
         }
     }, confirmButton = { TextButton(onClick = { managing = false }) { Text("完成") } })
     bindingApp?.let { preset ->

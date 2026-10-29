@@ -3,6 +3,7 @@ import json
 import re
 import time
 import xml.etree.ElementTree as ET
+from device_c4 import has_timer_service
 
 PACKAGE = 'app.floatingfocus'
 ACTION = PACKAGE + '.action.LAUNCH_PRESET'
@@ -29,7 +30,7 @@ def preset_shortcuts(d):
         d.shell(*args)
     def idle():
         assert d.overlay() is None
-        assert 'ServiceRecord{' not in d.shell('dumpsys','activity','services',PACKAGE)
+        assert not has_timer_service(d.shell('dumpsys','activity','services',PACKAGE))
     def home(): d.shell('input','keyevent','KEYCODE_HOME'); time.sleep(.5)
     def tap_any(labels):
         tree=d.dump(); parents={c:p for p in tree.iter('node') for c in p}
@@ -42,14 +43,21 @@ def preset_shortcuts(d):
                     x,y,r,b=d.bounds(control)
                     if b>y and r>x: d.tapxy((x+r)/2,(y+b)/2); return
         raise AssertionError('No action '+repr(labels)+' in '+repr(texts()))
-    def pin(name, accept=True):
+    def pin(name, accept=True, allow_existing=False):
         d.start()
         if '管理预设方案' not in texts(): d.tap('管理',scroll=True)
+        confirmations=d.shell('logcat','-d','-s','FloatingFocus:*').count('PIN confirmed id=')
         d.tap('添加到桌面 '+name,scroll=True)
-        wait(lambda: '.launcher3' in d.foreground(), 'No system pin confirmation')
-        d.shot('shortcut-confirm-'+('accept' if accept else 'cancel'))
-        tap_any(['Add automatically','Add to Home screen','Add to home screen','ADD','Add','添加','添加到主屏幕'] if accept else ['Cancel','CANCEL','取消'])
-        wait(lambda: '.launcher3' not in d.foreground() or 'Add to Home screen' not in texts(), 'Pin dialog did not finish')
+        wait(lambda: '.launcher3' in d.foreground() or (allow_existing and
+             d.shell('logcat','-d','-s','FloatingFocus:*').count('PIN confirmed id=')>confirmations), 'No system pin confirmation')
+        if '.launcher3' in d.foreground():
+            d.shot('shortcut-confirm-'+('accept' if accept else 'cancel'))
+            tap_any(['Add automatically','Add to Home screen','Add to home screen','ADD','Add','添加','添加到主屏幕'] if accept else ['Cancel','CANCEL','取消'])
+            wait(lambda: '.launcher3' not in d.foreground() or 'Add to Home screen' not in texts(), 'Pin dialog did not finish')
+        if not accept:
+            wait(lambda: any('尚未收到桌面确认' in text for text in texts()), 'Cancelled request remained busy')
+            assert '查看应用权限设置' in texts()
+            d.shot('shortcut-unconfirmed-help')
         d.start()
         if '管理预设方案' in texts(): d.tap('完成')
     def click_icon(name):
@@ -113,6 +121,8 @@ def preset_shortcuts(d):
         d.shell('appops','set',PACKAGE,'SYSTEM_ALERT_WINDOW','deny')
         pin(one['name']); wait(lambda: 'ff.preset.desktop-test-one' in pinned(),'Shortcut not pinned')
         idle(); assert len(d.records())==base
+        pin(one['name'],allow_existing=True)
+        assert set(re.findall(r'id=(ff\.preset\.[^,\s}]+)',pinned()))=={'ff.preset.desktop-test-one'}
         pin(two['name']); wait(lambda: 'ff.preset.desktop-test-two' in pinned(),'Second shortcut not pinned')
         d.shell('appops','set',PACKAGE,'SYSTEM_ALERT_WINDOW','allow')
         d.stop(); click_icon(one['name']); original=started(planned=90000)
@@ -196,7 +206,7 @@ def preset_shortcuts(d):
         d.shot('shortcut-draft-task-preserved')
         (d.output/'shortcuts-after.txt').write_text(pinned(),encoding='utf-8')
         d.shot('shortcut-deleted')
-        return dict(systemConfirmation=True,cancelDoesNotLaunch=True,twoDesktopIcons=True,coldAndHotLaunch=True,
+        return dict(systemConfirmation=True,cancelDoesNotLaunch=True,unconfirmedHelp=True,repeatedIdReused=True,twoDesktopIcons=True,coldAndHotLaunch=True,
                     activeConflictPreserved=True,latestSnapshot=True,renamedLabel=True,sameNameDistinctId=True,
                     injectedExtrasIgnored=True,readFailureDistinct=True,permissionReturnExplicit=True,
                     recreationDoesNotReplay=True,unavailableRepair=True,deletedIdDisabled=True,

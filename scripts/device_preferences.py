@@ -73,7 +73,7 @@ def preferences(d):
     d.tap('\u7b2c 1 \u4e2a\u65f6\u957f')
     set_wheel(d, '\u79d2', 5)
     d.tap('\u786e\u8ba4')
-    d.tap('\u4fdd\u5b58')
+    d.tap('\u4fdd\u5b58', scroll=True)
     assert pref_values(d, 'quick_durations')['seconds'] == '65,120,900,1800'
     assert any(n.get('text') == 'Floating Focus' for n in d.dump().iter('node'))
     d.tap('\u8bbe\u7f6e')

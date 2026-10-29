@@ -8,6 +8,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -15,20 +17,43 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun QuickDurationsScreen(values: List<Int>, onSave: (List<Int>) -> Unit, onBack: () -> Unit) {
+internal fun QuickDurationsScreen(values: List<Int>, defaults: TimerStartupDefaults,
+                                 onSave: (List<Int>, TimerStartupDefaults) -> Unit, onBack: () -> Unit) {
     var draft by rememberSaveable { mutableStateOf(values) }
+    var startupMode by rememberSaveable { mutableStateOf(defaults.mode) }
+    var startupSeconds by rememberSaveable { mutableIntStateOf(defaults.durationSeconds) }
     PreferencePage("常用时长", onBack) {
         draft.forEachIndexed { i, seconds ->
             DurationEntry("第 ${i + 1} 个时长", seconds, { next -> draft = draft.toMutableList().also { it[i] = next } })
         }
         if (!QuickDurations.validSeconds(draft)) Text("请设置四个不同的时长。", color = MaterialTheme.colorScheme.error)
+        HorizontalDivider()
+        Text("启动默认配置", style = MaterialTheme.typography.titleMedium)
+        Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TimerMode.entries.forEach { option ->
+                Row(Modifier.weight(1f).selectable(selected = startupMode == option, role = Role.RadioButton,
+                    onClick = { startupMode = option }).heightIn(min = 48.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(selected = startupMode == option, onClick = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(option.label)
+                }
+            }
+        }
+        if (startupMode == TimerMode.COUNTDOWN)
+            DurationEntry("默认倒计时时长", startupSeconds, { startupSeconds = it }, minSeconds = 1)
+        Text("打开首页时采用；返回或恢复页面、计时中保留当前选择，不自动开始。",
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Row {
             TextButton(onClick = { draft = QuickDurations.defaultSeconds }) { Text("恢复默认") }
-            Button(enabled = QuickDurations.validSeconds(draft), onClick = { onSave(draft); onBack() }) { Text("保存") }
+            Button(enabled = QuickDurations.validSeconds(draft), onClick = {
+                onSave(draft, TimerStartupDefaults(startupMode, startupSeconds)); onBack()
+            }) { Text("保存") }
         }
     }
 }

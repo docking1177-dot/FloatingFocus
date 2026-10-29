@@ -296,6 +296,30 @@ def c4(d, focus=None):
     auto_rotate = d.shell('settings', 'get', 'system', 'accelerometer_rotation').strip()
     font_scale = d.shell('settings','get','system','font_scale').strip()
     try:
+        if focus == 'compact':
+            wid, folded = start(30, sound=False)
+            d.shot('c4-compact')
+            expand()
+            full = d.frame()
+            d.shot('c4-full-unchanged')
+            g=device_geometry()
+            d.tapxy((full[0]+full[2])/2,g['y']+(2+g['screenY']+g['screenHeight']/2)*d.density)
+            before=d.frame()
+            assert before[2]-before[0]==folded[2]-folded[0] and before[3]-before[1]==folded[3]-folded[1]
+            x,y=d.center()
+            d.shell('input','swipe',x,y,x-35*d.density,y+40*d.density,350)
+            moved=d.frame()
+            assert moved!=before and d.overlay()[0]==wid
+            assert (moved[2]-moved[0],moved[3]-moved[1])==(before[2]-before[0],before[3]-before[1])
+            d.shot('c4-compact-dragged')
+            expand(); key('7'); key('3')
+            g=device_geometry(); old=d.frame()
+            d.tapxy((old[0]+old[2])/2,g['y']+(2+g['screenY']+g['screenHeight']/2)*d.density)
+            expand(); key('5')
+            assert 'C4 key result=CHANGED length=3' in logs()
+            key('#'); code()
+            return dict(scope='compact pattern and unchanged full model',foldedFrame=folded,fullFrame=full,
+                        measuredSizeUnchanged=True,drag=True,expand=True,inputSurvives=True,audio='muted')
         if focus == 'keypad': return keypad_layout()
         if focus == 'handoff':
             handoff()
@@ -494,3 +518,7 @@ def c4(d, focus=None):
 
 def c4_keypad(d):
     return c4(d, focus='keypad')
+
+
+def c4_compact(d):
+    return c4(d, focus='compact')
