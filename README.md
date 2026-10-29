@@ -6,9 +6,9 @@ Android 原生悬浮计时器，支持倒计时、超时正计时和独立正计
 
 本项目迁移并改造 [FloatingCountdownTimer](https://github.com/tberghuis/FloatingCountdownTimer) 的悬浮窗生命周期、拖动和服务模式，使用独立品牌、图标及 applicationId。详见 [开源调研](docs/OPEN_SOURCE_REVIEW.md)、[复用记录](docs/REUSE_REPORT.md)、[第三方声明](docs/THIRD_PARTY_NOTICES.md)。
 
-当前公开测试版：**0.2.0 / versionCode 3**。从 [GitHub Release](https://github.com/docking1177-dot/FloatingFocus/releases/tag/v0.2.0) 下载 `FloatingFocus-0.2.0-debug.apk`、校验值及发布说明。APK 使用此前本机固定 Debug 签名，包含提醒实验室；同签名旧测试包可覆盖安装。更新前结束计时，需要保留的记录可先导出 CSV。GitHub 自动提供对应标签的源码包，私钥／SDK／缓存不在源码中。
+当前公开测试版：**0.3.0 / versionCode 4**。从 [GitHub Release](https://github.com/docking1177-dot/FloatingFocus/releases/tag/v0.3.0) 下载 `FloatingFocus-0.3.0-debug.apk`、校验值及发布说明。沿用本机固定 Debug 签名，可覆盖同签名测试包；含开发者模式，不是商店正式签名包。公开包不含未获分发授权的 C4 录音，C4 视觉与键盘仍可使用。更新前结束计时，需要保留的记录可先导出 CSV。
 
-[更新记录](CHANGELOG.md) · [0.2.0 发布检查](docs/TEST_RESULTS_0.2.0.md)。已完成 Android 16 模拟器回归；REDMI K80 最新完整真机验收待补充。模拟器操作见 [EMULATOR.md](docs/EMULATOR.md)。
+[更新记录](CHANGELOG.md) · [0.3.0 发布说明](docs/releases/0.3.0.md)。已完成 Android 16 模拟器核心回归，REDMI K80 最新完整真机验收仍待补充。
 
 公开仓库：[docking1177-dot/FloatingFocus](https://github.com/docking1177-dot/FloatingFocus)。后续开发、Git 同步、版本发布、签名与 AI/设备验证方式见 [维护指南](docs/DEVELOPMENT_WORKFLOW.md)。参与开发见 [CONTRIBUTING.md](CONTRIBUTING.md)，版本变化见 [CHANGELOG.md](CHANGELOG.md)。[GitHub Actions](https://github.com/docking1177-dot/FloatingFocus/actions/workflows/android.yml) 运行云端构建、单测和 Lint；其临时签名 APK 用于独立测试，正式下载以 Release 附件为准。
 
@@ -23,7 +23,7 @@ Android 原生悬浮计时器，支持倒计时、超时正计时和独立正计
 - 常用 App 快捷启动；预设绑定已添加的 App，保存完整计时配置，双列网格一键启动。
 - 横向胶囊、纵向胶囊、圆形；整个浮窗可拖动，展开／收起保持位置锚点。
 - 正式设置实时预览颜色、尺寸、透明度及提醒强度；支持连续变化或节点突变，提亮时保持透明度。
-- 开发分支可选 [C4 末段特效](docs/C4_COUNTDOWN.md)：最后 44.439 秒进入稳定常态，点击展开原创装置与真实键盘，下包后输入固定口令结束并播放本机成功语音；自然归零单次爆炸，尾音后恢复超时。136 个事件沿用用户 LRC 标注，未经原版灯光校准；录音授权未明，仅本机 Debug 可包含，不进入仓库/Release，尚未进入 0.2.0 发布包。
+- 可选 [C4 末段特效](docs/C4_COUNTDOWN.md)：最后 44.439 秒进入稳定常态，点击展开原创装置与真实键盘，下包后输入固定口令结束并播放本机成功语音；自然归零单次爆炸，尾音后恢复超时。136 个事件沿用用户 LRC 标注，未经原版灯光校准；录音授权未明，仅本机 Debug 可包含，不进入仓库/Release，0.3.0 公开包提供无录音的视觉与键盘功能。
 - 本地 FF 会话记录与 CSV 导出；记录累计时长及超时，异常中断仅恢复最后检查点并标记约计。
 - 时长记录按今日小时、本周/本月每日展示条形图与累计；可筛选历史 App，跨日分配且保留会话明细，CSV 仍导出全部原始记录。统计沿用 FF 会话口径，含手动计时，见 [统计规则与边界](docs/TIME_RECORDS.md)。
 - 基于 `SystemClock.elapsedRealtime()` 计时；熄屏、离开目标 App 后继续，手动结束后清理服务资源。
