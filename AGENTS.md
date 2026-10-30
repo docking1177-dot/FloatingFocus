@@ -47,6 +47,8 @@
 
 ## 工作与检查
 
+- 统一测试库在 `docs/testing/cases.json`，只追加执行批次为 `runs.jsonl` / `manual_runs.jsonl`；`scripts/test_catalog.py refresh` 只整理原check/results/JUnit，不调用Gradle或ADB。目标APK固定在 `target.json`，资料改动不冒充新构建；构建/Lint/单测/套件/结构化细项/真机观察分粒度，身份缺失保持未核验，旧结果不覆盖。Excel两表/CSV/STATUS/真机清单为导出视图，不双份手工维护。缺陷复测追加并关联原记录，按影响选范围，不把播放/振动请求或截图生成视为真机通过。维护见 `docs/testing/README.md`。
+
 - 预设 `TimerPreset.c4Enabled` 明确保存启用状态，旧数据/非法值按关闭处理，不隐式跟随全局；保存当前时一起采样，编辑页复用 `C4EnabledSetting` 的独立草稿，取消不写回。`PresetLauncher` 为首页/桌面共用传值入口，服务启动时统一解析并通过私有Intent传入不可变运行时；不临时改全局，不在加时重读。音效不入预设且保持即时全局控制，当前启用关闭时仍可调音效；首次说明的确认只随当前设置或预设保存提交。
 
 - 页面统一通过 `FocusTheme` 跟随系统深浅模式，不另存主题偏好；`values-night/styles.xml` 同步原生窗口、滚轮和系统栏。文字、提示、分隔线及禁用态使用 Material 语义色，设置/历史页复用 `FocusSpacing`；不把页面主题传入用户浮窗颜色或固定 C4 配色。修改配色需验证两主题文字/图表对比度及实际系统切换、对话框和大字体。

@@ -1,0 +1,28 @@
+{
+  "id": "MANUAL-YYYYMMDD-REDMI-01",
+  "time": null,
+  "time_note": "填写实际执行时间及所在时区；未知保留null",
+  "source_type": "manual",
+  "source": {
+    "commit": null,
+    "fingerprint": null
+  },
+  "variant": "Debug",
+  "apk_sha256": null,
+  "environment": "真机",
+  "method": "人工",
+  "actor": "用户",
+  "device": "REDMI K80",
+  "android": "16（填写实际系统版本）",
+  "launcher": null,
+  "evidence": "填写截图/视频路径或用户反馈位置",
+  "executions": [
+    {
+      "case_id": "FF-PHONE-01",
+      "status": "未测",
+      "scope": "单例",
+      "actual": "计划执行；未执行不填写通过",
+      "retest_of": []
+    }
+  ]
+}

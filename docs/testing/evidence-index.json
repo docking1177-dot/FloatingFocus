@@ -1,0 +1,2832 @@
+[
+  {
+    "id": ".tools/checks/c4-delivery-20261028.json@1ec4f0dec6d809a685b2b728f86913dedbda31145f872ec1d8b70e5f2f57dacc",
+    "location": ".tools/checks/c4-delivery-20261028.json",
+    "sha256": "1ec4f0dec6d809a685b2b728f86913dedbda31145f872ec1d8b70e5f2f57dacc",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": null,
+    "source_fields": {
+      "source": {
+        "commit": "94b025c956e86ae60a35037e7cbbd0ba2aa63308",
+        "fingerprint": "e5a5c271110f01470148b0978f38fd51df26abc609b3f1c273ec5044bb6dae0e",
+        "dirty": false,
+        "untrackedSource": [],
+        "excludedUntrackedAssetCount": 2
+      }
+    },
+    "declared_scope": []
+  },
+  {
+    "id": ".tools/checks/c4-delivery-e3f3f83.json@942e0e2e3ee3a1098b935d3ec197570a697a529972e6b3e9f305d5ac18f68ee4",
+    "location": ".tools/checks/c4-delivery-e3f3f83.json",
+    "sha256": "942e0e2e3ee3a1098b935d3ec197570a697a529972e6b3e9f305d5ac18f68ee4",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": null,
+    "source_fields": {
+      "source": {
+        "commit": "e3f3f83da3a85422ad20fc8b01e6b61c1e05ccb7",
+        "fingerprint": "07b936eadee51d2053fb2c108a9a5568999812b23de235a394d5dfc441c6e280",
+        "dirty": false,
+        "untrackedSource": [],
+        "excludedUntrackedAssetCount": 2
+      }
+    },
+    "declared_scope": []
+  },
+  {
+    "id": ".tools/checks/c4-independent-layout-delivery-20261029.json@cca2a28f6fa3841132e96e41338cf4f09276a11b1ab9f742ff302ef4255a37f7",
+    "location": ".tools/checks/c4-independent-layout-delivery-20261029.json",
+    "sha256": "cca2a28f6fa3841132e96e41338cf4f09276a11b1ab9f742ff302ef4255a37f7",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": "2026-10-29T12:31:01.923917+08:00",
+    "source_fields": {
+      "source": {
+        "commit": "ff97dc5694eb08a73420393bd14507c1449f9c81",
+        "fingerprint": "b2b9c408564ca6b3bd9a5d3cffa204d698caf6f1dd44fab9e4b082f5d69ea330",
+        "dirty": false,
+        "untrackedSource": [],
+        "excludedUntrackedAssetCount": 6
+      }
+    },
+    "declared_scope": []
+  },
+  {
+    "id": ".tools/checks/c4-interaction-delivery-20261028.json@8ba5a5f82385c4ec013faf7872a303f66f469817c57522f8b9446419321c7e30",
+    "location": ".tools/checks/c4-interaction-delivery-20261028.json",
+    "sha256": "8ba5a5f82385c4ec013faf7872a303f66f469817c57522f8b9446419321c7e30",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": null,
+    "source_fields": {
+      "source": {
+        "commit": "4787cc008894bb5bf3b51e732cc5a5a45c7135b2",
+        "fingerprint": "882f724ec70916a2d5222da92f197ece84fef21a375b6bcc09662e9514c57362",
+        "dirty": false,
+        "untrackedSource": [],
+        "excludedUntrackedAssetCount": 2
+      }
+    },
+    "declared_scope": []
+  },
+  {
+    "id": ".tools/checks/c4-keypad-delivery-20261029.json@a4b2c8b833bd6c9db9d3fff377abb1a0a3f71bc39cc4f973fb1feb2d7abc4b7a",
+    "location": ".tools/checks/c4-keypad-delivery-20261029.json",
+    "sha256": "a4b2c8b833bd6c9db9d3fff377abb1a0a3f71bc39cc4f973fb1feb2d7abc4b7a",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": "2026-10-29T08:40:01.230709+08:00",
+    "source_fields": {
+      "source": {
+        "commit": "a098f5717cf7f2fcf0f598dacd5e30d17924c475",
+        "fingerprint": "8faffa4ed160ffa7039b8b19d40caef98620d34579280f9a0f99d941cd3b444a",
+        "dirty": false,
+        "untrackedSource": [],
+        "excludedUntrackedAssetCount": 5
+      }
+    },
+    "declared_scope": []
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261025-122311-391.json@519331ef0fbec19502ff0211e8bbf23223938630c91518ad40390e85de62de71",
+    "location": ".tools/checks/check-full-debug-20261025-122311-391.json",
+    "sha256": "519331ef0fbec19502ff0211e8bbf23223938630c91518ad40390e85de62de71",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261025-122311-391-519331ef0fbe"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261025-122403-965.json@37f1b3d617ce85c3588cd2f1fe09e5ba73a2bdf46bbf24a66217e3758e6f5c2e",
+    "location": ".tools/checks/check-full-debug-20261025-122403-965.json",
+    "sha256": "37f1b3d617ce85c3588cd2f1fe09e5ba73a2bdf46bbf24a66217e3758e6f5c2e",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261025-122403-965-37f1b3d617ce"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261025-151049-862.json@729ec1d5ff2def37e0e673903ef2ecea087087505e8aaea41243a95e3ac142fb",
+    "location": ".tools/checks/check-full-debug-20261025-151049-862.json",
+    "sha256": "729ec1d5ff2def37e0e673903ef2ecea087087505e8aaea41243a95e3ac142fb",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261025-151049-862-729ec1d5ff2d"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261025-193914-506.json@1a48cce2859bbde84b2dc320a758f921e3354882ca03c0d54a2842d5876aa619",
+    "location": ".tools/checks/check-full-debug-20261025-193914-506.json",
+    "sha256": "1a48cce2859bbde84b2dc320a758f921e3354882ca03c0d54a2842d5876aa619",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261025-193914-506-1a48cce2859b"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261025-203452-468.json@9c89aa959e1b9563a429d9686cba898583c47e4797538b179c469840171c02f9",
+    "location": ".tools/checks/check-full-debug-20261025-203452-468.json",
+    "sha256": "9c89aa959e1b9563a429d9686cba898583c47e4797538b179c469840171c02f9",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261025-203452-468-9c89aa959e1b"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261026-103621-166.json@5698a46bc74f5a3a32cd5a64d0d0e7a4e960862f353c3b2c8c4a87d8e7f4a027",
+    "location": ".tools/checks/check-full-debug-20261026-103621-166.json",
+    "sha256": "5698a46bc74f5a3a32cd5a64d0d0e7a4e960862f353c3b2c8c4a87d8e7f4a027",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261026-103621-166-5698a46bc74f"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261026-104237-339.json@be18ca0a07d2ea6abf738ff57b15bc9126eaace7badd3134a92a88a507530612",
+    "location": ".tools/checks/check-full-debug-20261026-104237-339.json",
+    "sha256": "be18ca0a07d2ea6abf738ff57b15bc9126eaace7badd3134a92a88a507530612",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261026-104237-339-be18ca0a07d2"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261026-104622-612.json@1cffa6c6c14788cb909788c2ac8518669b7595634e7637ec61c4d6cf8fb77d35",
+    "location": ".tools/checks/check-full-debug-20261026-104622-612.json",
+    "sha256": "1cffa6c6c14788cb909788c2ac8518669b7595634e7637ec61c4d6cf8fb77d35",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261026-104622-612-1cffa6c6c147"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261026-105039-589.json@60c191bf6a921dcfbd0c8aae4dffae3c18a5c45653f7b8742ca4e745e3ac49a1",
+    "location": ".tools/checks/check-full-debug-20261026-105039-589.json",
+    "sha256": "60c191bf6a921dcfbd0c8aae4dffae3c18a5c45653f7b8742ca4e745e3ac49a1",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261026-105039-589-60c191bf6a92"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261026-124225-655.json@326c2a7a934f1f619a36f1d7e5910e0a7c9884985602c3df970f2737d8c47793",
+    "location": ".tools/checks/check-full-debug-20261026-124225-655.json",
+    "sha256": "326c2a7a934f1f619a36f1d7e5910e0a7c9884985602c3df970f2737d8c47793",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261026-124225-655-326c2a7a934f"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261026-124513-242.json@21d86c51b6c5ea364bb5d7e56d75a51c600d7392853e3437e8ff10fcd9f5ed33",
+    "location": ".tools/checks/check-full-debug-20261026-124513-242.json",
+    "sha256": "21d86c51b6c5ea364bb5d7e56d75a51c600d7392853e3437e8ff10fcd9f5ed33",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261026-124513-242-21d86c51b6c5"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261026-142810-532.json@aa9717c9bce08301b6e2adcdfc0023ce6e68560a7a8768f8a120ef3b7dfc6bda",
+    "location": ".tools/checks/check-full-debug-20261026-142810-532.json",
+    "sha256": "aa9717c9bce08301b6e2adcdfc0023ce6e68560a7a8768f8a120ef3b7dfc6bda",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261026-142810-532-aa9717c9bce0"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261026-144302-755.json@07add4ce86f631c341583f24610e76661035c29368513e972433df71f6fd95cc",
+    "location": ".tools/checks/check-full-debug-20261026-144302-755.json",
+    "sha256": "07add4ce86f631c341583f24610e76661035c29368513e972433df71f6fd95cc",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261026-144302-755-07add4ce86f6"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261026-193319-849.json@ee292ceef03969a27e15ff353dcbf48ce8051787cdd1d164488382dbdf4c231a",
+    "location": ".tools/checks/check-full-debug-20261026-193319-849.json",
+    "sha256": "ee292ceef03969a27e15ff353dcbf48ce8051787cdd1d164488382dbdf4c231a",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261026-193319-849-ee292ceef039"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261026-194034-597.json@b72b3b16bd698cd02073f9b3228940f995912798cc2a6bf225311848b57ca634",
+    "location": ".tools/checks/check-full-debug-20261026-194034-597.json",
+    "sha256": "b72b3b16bd698cd02073f9b3228940f995912798cc2a6bf225311848b57ca634",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261026-194034-597-b72b3b16bd69"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-095622-773.json@fae21e7ef2c27a90ad4327dc8946a7e841d38faaac63243415745de82be87083",
+    "location": ".tools/checks/check-full-debug-20261027-095622-773.json",
+    "sha256": "fae21e7ef2c27a90ad4327dc8946a7e841d38faaac63243415745de82be87083",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-095622-773-fae21e7ef2c2"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-095906-914.json@6b4ef2edd1c9581a919bb1ab4e875f2570765a05767683d5f64ace6695c4a128",
+    "location": ".tools/checks/check-full-debug-20261027-095906-914.json",
+    "sha256": "6b4ef2edd1c9581a919bb1ab4e875f2570765a05767683d5f64ace6695c4a128",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-095906-914-6b4ef2edd1c9"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-100839-701.json@97f16c874d142c3b30ea32af169c166e4cd6bc70ca016d0a41f5f2a066412019",
+    "location": ".tools/checks/check-full-debug-20261027-100839-701.json",
+    "sha256": "97f16c874d142c3b30ea32af169c166e4cd6bc70ca016d0a41f5f2a066412019",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-100839-701-97f16c874d14"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-101315-147.json@a72ea49a469a120752b4c2b650b10275ee1a35af31bb849211a93a1bc6d6d7cd",
+    "location": ".tools/checks/check-full-debug-20261027-101315-147.json",
+    "sha256": "a72ea49a469a120752b4c2b650b10275ee1a35af31bb849211a93a1bc6d6d7cd",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-101315-147-a72ea49a469a"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-111821-459.json@a50f16c92c6632376e32b2861fe2835ad6ab2c7f25af0be8cc35205e283ad938",
+    "location": ".tools/checks/check-full-debug-20261027-111821-459.json",
+    "sha256": "a50f16c92c6632376e32b2861fe2835ad6ab2c7f25af0be8cc35205e283ad938",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-111821-459-a50f16c92c66"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-113137-858.json@9cf58abb4010b00113fbc70734defd133cc1591fe284cf92edfe822dc8b9c8d5",
+    "location": ".tools/checks/check-full-debug-20261027-113137-858.json",
+    "sha256": "9cf58abb4010b00113fbc70734defd133cc1591fe284cf92edfe822dc8b9c8d5",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-113137-858-9cf58abb4010"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-113757-780.json@dc1921fc203f118c9127d3c8b6fead5fb63ae8f24d6781fb5a40aa568217a381",
+    "location": ".tools/checks/check-full-debug-20261027-113757-780.json",
+    "sha256": "dc1921fc203f118c9127d3c8b6fead5fb63ae8f24d6781fb5a40aa568217a381",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-113757-780-dc1921fc203f"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-115546-766.json@3eca781fb826fb794a001eda10b262f75155829773dbf61febd604f0606ddce9",
+    "location": ".tools/checks/check-full-debug-20261027-115546-766.json",
+    "sha256": "3eca781fb826fb794a001eda10b262f75155829773dbf61febd604f0606ddce9",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-115546-766-3eca781fb826"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-135903-357.json@24cb7d03c96ef2fd233c7b54a5ce8f89a6f425692a31bbbb198a1ae92eef322b",
+    "location": ".tools/checks/check-full-debug-20261027-135903-357.json",
+    "sha256": "24cb7d03c96ef2fd233c7b54a5ce8f89a6f425692a31bbbb198a1ae92eef322b",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-135903-357-24cb7d03c96e"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-140032-668.json@383e0cf9e6643467769af754a39c7f3392d1c29e521b8c6dc548ac40f61e8d09",
+    "location": ".tools/checks/check-full-debug-20261027-140032-668.json",
+    "sha256": "383e0cf9e6643467769af754a39c7f3392d1c29e521b8c6dc548ac40f61e8d09",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-140032-668-383e0cf9e664"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-140347-581.json@08d24e012554c222cf0e932960002bbb702d6ec9bb82e7bc8c700a6ff9ac0669",
+    "location": ".tools/checks/check-full-debug-20261027-140347-581.json",
+    "sha256": "08d24e012554c222cf0e932960002bbb702d6ec9bb82e7bc8c700a6ff9ac0669",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-140347-581-08d24e012554"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-141727-569.json@e78ebe8f4f2eb28707e9a50006b5daffa9a3ba5a54aeafe0731d89ead2ac02a3",
+    "location": ".tools/checks/check-full-debug-20261027-141727-569.json",
+    "sha256": "e78ebe8f4f2eb28707e9a50006b5daffa9a3ba5a54aeafe0731d89ead2ac02a3",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-141727-569-e78ebe8f4f2e"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-142120-532.json@ef979c1889bbc4a0bfe3545b04303fc9dca6856572b5d874957ff566f84e59f4",
+    "location": ".tools/checks/check-full-debug-20261027-142120-532.json",
+    "sha256": "ef979c1889bbc4a0bfe3545b04303fc9dca6856572b5d874957ff566f84e59f4",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-142120-532-ef979c1889bb"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-162829-733.json@78f22e378e4e161223dd742bc258618916f3b2db1a831d07e75aa50ab1e2b27e",
+    "location": ".tools/checks/check-full-debug-20261027-162829-733.json",
+    "sha256": "78f22e378e4e161223dd742bc258618916f3b2db1a831d07e75aa50ab1e2b27e",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-162829-733-78f22e378e4e"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-163435-452.json@927597a77d7997190f52c3e212074c7af5c7e3b986854c2f10937b2ed7609c4b",
+    "location": ".tools/checks/check-full-debug-20261027-163435-452.json",
+    "sha256": "927597a77d7997190f52c3e212074c7af5c7e3b986854c2f10937b2ed7609c4b",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-163435-452-927597a77d79"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-164120-111.json@1cb6457a7fee12a4e5a71e3003d74c2e961a274a8d9a60b56ed05b5e2c54e688",
+    "location": ".tools/checks/check-full-debug-20261027-164120-111.json",
+    "sha256": "1cb6457a7fee12a4e5a71e3003d74c2e961a274a8d9a60b56ed05b5e2c54e688",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-164120-111-1cb6457a7fee"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-173708-767.json@cde625bf3ec326d3af50bdff4afdcf9b24af9a82ac5c04f0998e44f7d3e6858c",
+    "location": ".tools/checks/check-full-debug-20261027-173708-767.json",
+    "sha256": "cde625bf3ec326d3af50bdff4afdcf9b24af9a82ac5c04f0998e44f7d3e6858c",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-173708-767-cde625bf3ec3"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-174343-558.json@09c7c6747c930a2c2ccbd8bdf9eeca61366bd93c2c6795b484f913a8e9dbdb62",
+    "location": ".tools/checks/check-full-debug-20261027-174343-558.json",
+    "sha256": "09c7c6747c930a2c2ccbd8bdf9eeca61366bd93c2c6795b484f913a8e9dbdb62",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-174343-558-09c7c6747c93"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-191012-166.json@bca5a01ede5cc1d3bbe1bd5bbf5da923a5e5bc1615e9e8364ceb613f4eda331a",
+    "location": ".tools/checks/check-full-debug-20261027-191012-166.json",
+    "sha256": "bca5a01ede5cc1d3bbe1bd5bbf5da923a5e5bc1615e9e8364ceb613f4eda331a",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-191012-166-bca5a01ede5c"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-191842-180.json@20d36b528af76bcf895c7a0b8ca18fd1714dc2d67fda86db8a582e4e1e77f63d",
+    "location": ".tools/checks/check-full-debug-20261027-191842-180.json",
+    "sha256": "20d36b528af76bcf895c7a0b8ca18fd1714dc2d67fda86db8a582e4e1e77f63d",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-191842-180-20d36b528af7"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-204820-802.json@6c85888e1956c3526673ab144d45f7fe0e0311099d469a89312a4cd083df18e3",
+    "location": ".tools/checks/check-full-debug-20261027-204820-802.json",
+    "sha256": "6c85888e1956c3526673ab144d45f7fe0e0311099d469a89312a4cd083df18e3",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-204820-802-6c85888e1956"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-205220-802.json@59b6507c75fffbff25583a429ace7665a549724ce846c878c91f201f84cb11c9",
+    "location": ".tools/checks/check-full-debug-20261027-205220-802.json",
+    "sha256": "59b6507c75fffbff25583a429ace7665a549724ce846c878c91f201f84cb11c9",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-205220-802-59b6507c75ff"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-205849-688.json@63f0f3216f1bb90f32adbfb0090da0eccef35b5839c440328b9fc5f38961c285",
+    "location": ".tools/checks/check-full-debug-20261027-205849-688.json",
+    "sha256": "63f0f3216f1bb90f32adbfb0090da0eccef35b5839c440328b9fc5f38961c285",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-205849-688-63f0f3216f1b"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-210756-296.json@e556b33c74fa144458e6f5eeea4bc4ae9592002da29c76be0dfe35f76cfbc878",
+    "location": ".tools/checks/check-full-debug-20261027-210756-296.json",
+    "sha256": "e556b33c74fa144458e6f5eeea4bc4ae9592002da29c76be0dfe35f76cfbc878",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-210756-296-e556b33c74fa"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-223942-332.json@22faf6586fce983835ea5cca38560e93acd9784413cef8f63150214195588a28",
+    "location": ".tools/checks/check-full-debug-20261027-223942-332.json",
+    "sha256": "22faf6586fce983835ea5cca38560e93acd9784413cef8f63150214195588a28",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-223942-332-22faf6586fce"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-224628-370.json@a9a8a13bee9601891feee3f4b39627e9ec79e235df105980dade669f952a6665",
+    "location": ".tools/checks/check-full-debug-20261027-224628-370.json",
+    "sha256": "a9a8a13bee9601891feee3f4b39627e9ec79e235df105980dade669f952a6665",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-224628-370-a9a8a13bee96"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-225800-950.json@0749282a1ee6f1e262c8490018e80419784a7fb1dc7cf1f2ae061b523e519cd0",
+    "location": ".tools/checks/check-full-debug-20261027-225800-950.json",
+    "sha256": "0749282a1ee6f1e262c8490018e80419784a7fb1dc7cf1f2ae061b523e519cd0",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-225800-950-0749282a1ee6"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-230107-389.json@4f31bcef56324b966c39b678584845ec02e9f24ec919da98e5e94b5995e71daf",
+    "location": ".tools/checks/check-full-debug-20261027-230107-389.json",
+    "sha256": "4f31bcef56324b966c39b678584845ec02e9f24ec919da98e5e94b5995e71daf",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-230107-389-4f31bcef5632"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-230509-185.json@5355c009ad6012d29f7cb3cb8c7134c35f692446e8e71037ace0f7d5b39e8257",
+    "location": ".tools/checks/check-full-debug-20261027-230509-185.json",
+    "sha256": "5355c009ad6012d29f7cb3cb8c7134c35f692446e8e71037ace0f7d5b39e8257",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-230509-185-5355c009ad60"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261027-232317-430.json@59c4e85f5432f07add4365f22d440e8e9599671bde456ac192695d5ca87a935b",
+    "location": ".tools/checks/check-full-debug-20261027-232317-430.json",
+    "sha256": "59c4e85f5432f07add4365f22d440e8e9599671bde456ac192695d5ca87a935b",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261027-232317-430-59c4e85f5432"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261028-100246-603.json@2d6607d1de76e29a56492ba0f4d29b498e2600d7864fefb08d3eaf2d946c7c33",
+    "location": ".tools/checks/check-full-debug-20261028-100246-603.json",
+    "sha256": "2d6607d1de76e29a56492ba0f4d29b498e2600d7864fefb08d3eaf2d946c7c33",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261028-100246-603-2d6607d1de76"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261028-115554-314.json@b0f8b77d2bfbf9d3f7fb0c433aee2e577154901653f1a0a800cfae98d8705ec6",
+    "location": ".tools/checks/check-full-debug-20261028-115554-314.json",
+    "sha256": "b0f8b77d2bfbf9d3f7fb0c433aee2e577154901653f1a0a800cfae98d8705ec6",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261028-115554-314-b0f8b77d2bfb"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261028-115913-798.json@07b0031dff28cb75791eeb0fbf19cfa3616b154eb651c19b75bae7eda0624169",
+    "location": ".tools/checks/check-full-debug-20261028-115913-798.json",
+    "sha256": "07b0031dff28cb75791eeb0fbf19cfa3616b154eb651c19b75bae7eda0624169",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261028-115913-798-07b0031dff28"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261028-121154-915.json@8491123e5336a4473201dab0f96491e7b857f6fa3d23edb10457430e4e3ece5f",
+    "location": ".tools/checks/check-full-debug-20261028-121154-915.json",
+    "sha256": "8491123e5336a4473201dab0f96491e7b857f6fa3d23edb10457430e4e3ece5f",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261028-121154-915-8491123e5336"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261028-123220-171.json@08d0544a2f51c6423e3647728527a40f0ffa08f0db8e611e2b45f02050707686",
+    "location": ".tools/checks/check-full-debug-20261028-123220-171.json",
+    "sha256": "08d0544a2f51c6423e3647728527a40f0ffa08f0db8e611e2b45f02050707686",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261028-123220-171-08d0544a2f51"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261028-130134-846.json@baa1ff7935e3fe002de9134dfb5b15558fd731a222d5b74aee36ea060862dd34",
+    "location": ".tools/checks/check-full-debug-20261028-130134-846.json",
+    "sha256": "baa1ff7935e3fe002de9134dfb5b15558fd731a222d5b74aee36ea060862dd34",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261028-130134-846-baa1ff7935e3"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261028-132754-866.json@eced67bf2818c3387ccbdba35ee3359f8a9b40a9e860db0d13dab136a615321b",
+    "location": ".tools/checks/check-full-debug-20261028-132754-866.json",
+    "sha256": "eced67bf2818c3387ccbdba35ee3359f8a9b40a9e860db0d13dab136a615321b",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261028-132754-866-eced67bf2818"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261028-144907-196.json@eabe798963015605fe6fc4f4147ab238917b438a10775e57753b39c6eddbb07a",
+    "location": ".tools/checks/check-full-debug-20261028-144907-196.json",
+    "sha256": "eabe798963015605fe6fc4f4147ab238917b438a10775e57753b39c6eddbb07a",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261028-144907-196-eabe79896301"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261028-152659-909.json@b78fa265b4748e9f7bea31f2569a105c0afaf8f49112b0b0d7656a4b36034d48",
+    "location": ".tools/checks/check-full-debug-20261028-152659-909.json",
+    "sha256": "b78fa265b4748e9f7bea31f2569a105c0afaf8f49112b0b0d7656a4b36034d48",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261028-152659-909-b78fa265b474"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261028-165154-018.json@7471c132ed4a9036f43fe0f875a7a0bf7abd7f0ab6b5b23b40e6bc6d19c332b2",
+    "location": ".tools/checks/check-full-debug-20261028-165154-018.json",
+    "sha256": "7471c132ed4a9036f43fe0f875a7a0bf7abd7f0ab6b5b23b40e6bc6d19c332b2",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261028-165154-018-7471c132ed4a"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261028-172946-727.json@0fad2c57fcf8895b638cd2f13b628b2fc1c0bcfe828694d3f7d62a065adb5f84",
+    "location": ".tools/checks/check-full-debug-20261028-172946-727.json",
+    "sha256": "0fad2c57fcf8895b638cd2f13b628b2fc1c0bcfe828694d3f7d62a065adb5f84",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261028-172946-727-0fad2c57fcf8"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261028-191753-135.json@47ec001ebe21740107e55caa27b1317c70c3027fbc31e02a9aa07c14a5fc66d4",
+    "location": ".tools/checks/check-full-debug-20261028-191753-135.json",
+    "sha256": "47ec001ebe21740107e55caa27b1317c70c3027fbc31e02a9aa07c14a5fc66d4",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261028-191753-135-47ec001ebe21"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261028-205130-064.json@b877910716f281a961702f4b652b80ce039ffe497001da68ba3d028c1a2ccec8",
+    "location": ".tools/checks/check-full-debug-20261028-205130-064.json",
+    "sha256": "b877910716f281a961702f4b652b80ce039ffe497001da68ba3d028c1a2ccec8",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261028-205130-064-b877910716f2"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261028-205521-367.json@5aca85deb91818d5bf4d0325706004ac1a4f0e79d4602338d4b75cadba9765d7",
+    "location": ".tools/checks/check-full-debug-20261028-205521-367.json",
+    "sha256": "5aca85deb91818d5bf4d0325706004ac1a4f0e79d4602338d4b75cadba9765d7",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261028-205521-367-5aca85deb918"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261028-210930-213.json@7e64353002a5f6108c9201ece493627386c9b1ead2ea55c2cb04532c91b3eb90",
+    "location": ".tools/checks/check-full-debug-20261028-210930-213.json",
+    "sha256": "7e64353002a5f6108c9201ece493627386c9b1ead2ea55c2cb04532c91b3eb90",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261028-210930-213-7e64353002a5"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261028-212948-688.json@62e4a7e090f64f813e42cffdd0419e799b496e70aae94a84f0dead48b0dcc0fc",
+    "location": ".tools/checks/check-full-debug-20261028-212948-688.json",
+    "sha256": "62e4a7e090f64f813e42cffdd0419e799b496e70aae94a84f0dead48b0dcc0fc",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261028-212948-688-62e4a7e090f6"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261028-220014-195.json@2557f8f1e6b7d52f0018872bd489a2226ab099ab9f9b94a33f229feef498472b",
+    "location": ".tools/checks/check-full-debug-20261028-220014-195.json",
+    "sha256": "2557f8f1e6b7d52f0018872bd489a2226ab099ab9f9b94a33f229feef498472b",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261028-220014-195-2557f8f1e6b7"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261028-230403-780.json@3c14d0da040db6830890228249674bc66a1ea8eb13bc6af65f4c42759a347943",
+    "location": ".tools/checks/check-full-debug-20261028-230403-780.json",
+    "sha256": "3c14d0da040db6830890228249674bc66a1ea8eb13bc6af65f4c42759a347943",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261028-230403-780-3c14d0da040d"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-103625-249.json@82cd0c42e986541056c4d872ecab1a800a620484e5aaa49dafc55d084dbba0a1",
+    "location": ".tools/checks/check-full-debug-20261029-103625-249.json",
+    "sha256": "82cd0c42e986541056c4d872ecab1a800a620484e5aaa49dafc55d084dbba0a1",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-103625-249-82cd0c42e986"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-112604-175.json@9e681fd16ed922b4c7d6ebc8c68400ca6d62cd2b9dc3c9c80a8ddb842cde9778",
+    "location": ".tools/checks/check-full-debug-20261029-112604-175.json",
+    "sha256": "9e681fd16ed922b4c7d6ebc8c68400ca6d62cd2b9dc3c9c80a8ddb842cde9778",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-112604-175-9e681fd16ed9"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-112931-449.json@8614f3a8bdefa47542386c46b66d80718033303c08c523fa40a287f13d3ab9b1",
+    "location": ".tools/checks/check-full-debug-20261029-112931-449.json",
+    "sha256": "8614f3a8bdefa47542386c46b66d80718033303c08c523fa40a287f13d3ab9b1",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-112931-449-8614f3a8bdef"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-113458-122.json@cd518a34f1ef67236bb4e758e50f5a839770b9d98b909157f755563c9f571d68",
+    "location": ".tools/checks/check-full-debug-20261029-113458-122.json",
+    "sha256": "cd518a34f1ef67236bb4e758e50f5a839770b9d98b909157f755563c9f571d68",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-113458-122-cd518a34f1ef"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-115455-263.json@9b85b58a0136e072a6cbe16e5eccd51acfe07b95c570357b7a5cfa8c3e1c6117",
+    "location": ".tools/checks/check-full-debug-20261029-115455-263.json",
+    "sha256": "9b85b58a0136e072a6cbe16e5eccd51acfe07b95c570357b7a5cfa8c3e1c6117",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-115455-263-9b85b58a0136"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-121907-220.json@67ee16eff84be9c0b911edd71d54ffe5259831e9d5db64f3f0d4420166c39580",
+    "location": ".tools/checks/check-full-debug-20261029-121907-220.json",
+    "sha256": "67ee16eff84be9c0b911edd71d54ffe5259831e9d5db64f3f0d4420166c39580",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-121907-220-67ee16eff84b"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-122428-626.json@bd91529579ad936c40eeedffca3298c625f5bd69ee8d4d4f9e30b913c1caa40d",
+    "location": ".tools/checks/check-full-debug-20261029-122428-626.json",
+    "sha256": "bd91529579ad936c40eeedffca3298c625f5bd69ee8d4d4f9e30b913c1caa40d",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-122428-626-bd91529579ad"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-143630-586.json@4b207c4ecf96a7ee819f3cb107ced8bfacdd8cef47c03e90fe623435c1719ab6",
+    "location": ".tools/checks/check-full-debug-20261029-143630-586.json",
+    "sha256": "4b207c4ecf96a7ee819f3cb107ced8bfacdd8cef47c03e90fe623435c1719ab6",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-143630-586-4b207c4ecf96"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-150444-833.json@8b02a3cc407601b13a4d555082518b76dd6b4c830d567db3816cfeea5d50e30b",
+    "location": ".tools/checks/check-full-debug-20261029-150444-833.json",
+    "sha256": "8b02a3cc407601b13a4d555082518b76dd6b4c830d567db3816cfeea5d50e30b",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-150444-833-8b02a3cc4076"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-161017-692.json@4d0b357d6b33a8e4bd58dabcb02b71537d0d9aeb6ddc1025dff71f407c370a1d",
+    "location": ".tools/checks/check-full-debug-20261029-161017-692.json",
+    "sha256": "4d0b357d6b33a8e4bd58dabcb02b71537d0d9aeb6ddc1025dff71f407c370a1d",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-161017-692-4d0b357d6b33"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-170507-831.json@835c9aa3e6794e48de35522c7067a5372192752aaad8f3974af6c7318dcb6afc",
+    "location": ".tools/checks/check-full-debug-20261029-170507-831.json",
+    "sha256": "835c9aa3e6794e48de35522c7067a5372192752aaad8f3974af6c7318dcb6afc",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-170507-831-835c9aa3e679"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-170853-520.json@a558459594f5a822ed1f20dddd3008ad812d05abc7e425d98f5ef58bb88e3a62",
+    "location": ".tools/checks/check-full-debug-20261029-170853-520.json",
+    "sha256": "a558459594f5a822ed1f20dddd3008ad812d05abc7e425d98f5ef58bb88e3a62",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-170853-520-a558459594f5"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-180252-097.json@78007cf8b7e580ebbbe052618b62ba1e4e74a19919e4bdb326645de48f559f59",
+    "location": ".tools/checks/check-full-debug-20261029-180252-097.json",
+    "sha256": "78007cf8b7e580ebbbe052618b62ba1e4e74a19919e4bdb326645de48f559f59",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-180252-097-78007cf8b7e5"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-180519-653.json@afc5fc4459006eb91a335731bb8f86c9055e6cc53ab7ebcfb931deddcadb51ca",
+    "location": ".tools/checks/check-full-debug-20261029-180519-653.json",
+    "sha256": "afc5fc4459006eb91a335731bb8f86c9055e6cc53ab7ebcfb931deddcadb51ca",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-180519-653-afc5fc445900"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-194743-326.json@20f6d4dbdc02ee3ef1497216b4d5ba57dfde230e546625e3c203a9201f377af7",
+    "location": ".tools/checks/check-full-debug-20261029-194743-326.json",
+    "sha256": "20f6d4dbdc02ee3ef1497216b4d5ba57dfde230e546625e3c203a9201f377af7",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-194743-326-20f6d4dbdc02"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-201403-450.json@f5a4fd4acd9d5239863cca8fc59f8f26fc37cd7703c597c9b8a60e08b4116106",
+    "location": ".tools/checks/check-full-debug-20261029-201403-450.json",
+    "sha256": "f5a4fd4acd9d5239863cca8fc59f8f26fc37cd7703c597c9b8a60e08b4116106",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-201403-450-f5a4fd4acd9d"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-202746-327.json@ea86d2f4a0c776fa0eb399cd048c3d79093fa0c36c40148af13877acb6ec8fd7",
+    "location": ".tools/checks/check-full-debug-20261029-202746-327.json",
+    "sha256": "ea86d2f4a0c776fa0eb399cd048c3d79093fa0c36c40148af13877acb6ec8fd7",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-202746-327-ea86d2f4a0c7"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-212003-112.json@a9196e3947d877d58f8e4235b22158e25bbec9f105876fb2d8240ce2c1471afd",
+    "location": ".tools/checks/check-full-debug-20261029-212003-112.json",
+    "sha256": "a9196e3947d877d58f8e4235b22158e25bbec9f105876fb2d8240ce2c1471afd",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-212003-112-a9196e3947d8"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-212615-743.json@a46a9390fc5275e5ed3da9cdf7ccfa1fb046bb2e6b7d2a9042ab601f11055671",
+    "location": ".tools/checks/check-full-debug-20261029-212615-743.json",
+    "sha256": "a46a9390fc5275e5ed3da9cdf7ccfa1fb046bb2e6b7d2a9042ab601f11055671",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-212615-743-a46a9390fc52"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-213138-406.json@5ad9120abf4a14522bdea19e6369a3eb190474b773bb985728b8b2c49ba42323",
+    "location": ".tools/checks/check-full-debug-20261029-213138-406.json",
+    "sha256": "5ad9120abf4a14522bdea19e6369a3eb190474b773bb985728b8b2c49ba42323",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-213138-406-5ad9120abf4a"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-215942-818.json@d476e8a67838f1a322fc7deb8f069b86849282471c768ec9ca20639cd3ea63de",
+    "location": ".tools/checks/check-full-debug-20261029-215942-818.json",
+    "sha256": "d476e8a67838f1a322fc7deb8f069b86849282471c768ec9ca20639cd3ea63de",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-215942-818-d476e8a67838"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261029-222619-338.json@c2205d8f03a6ffdca1f2d4d2a1fd2a50eb275d4a8957c199d88e8bd806415bd7",
+    "location": ".tools/checks/check-full-debug-20261029-222619-338.json",
+    "sha256": "c2205d8f03a6ffdca1f2d4d2a1fd2a50eb275d4a8957c199d88e8bd806415bd7",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261029-222619-338-c2205d8f03a6"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261030-111850-775.json@bbbb686f0eadef65247f4e525ab0d2b6e61653328b2e2debd4750dcd10052d45",
+    "location": ".tools/checks/check-full-debug-20261030-111850-775.json",
+    "sha256": "bbbb686f0eadef65247f4e525ab0d2b6e61653328b2e2debd4750dcd10052d45",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261030-111850-775-bbbb686f0ead"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261025-122449-733.json@b1ef8b0bc22494d60f0d0def01e1fc7edc4f157f6f903afaa6bc5e47e2c353c0",
+    "location": ".tools/checks/check-full-release-20261025-122449-733.json",
+    "sha256": "b1ef8b0bc22494d60f0d0def01e1fc7edc4f157f6f903afaa6bc5e47e2c353c0",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261025-122449-733-b1ef8b0bc224"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261025-193440-462.json@e6a8572fab9a4dcc4123deac077a8cc0d5866927c5cb10764f4dc368e4b3a2d9",
+    "location": ".tools/checks/check-full-release-20261025-193440-462.json",
+    "sha256": "e6a8572fab9a4dcc4123deac077a8cc0d5866927c5cb10764f4dc368e4b3a2d9",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261025-193440-462-e6a8572fab9a"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261026-105256-002.json@2f2e2e732274652d407411d1c908cd626ab89639ff89cef6bb1ec4fcef6f2c11",
+    "location": ".tools/checks/check-full-release-20261026-105256-002.json",
+    "sha256": "2f2e2e732274652d407411d1c908cd626ab89639ff89cef6bb1ec4fcef6f2c11",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261026-105256-002-2f2e2e732274"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261026-143435-353.json@fd76670ea5d3e59a650abdfc229e829b5f9575687395cfa91303d723236ac899",
+    "location": ".tools/checks/check-full-release-20261026-143435-353.json",
+    "sha256": "fd76670ea5d3e59a650abdfc229e829b5f9575687395cfa91303d723236ac899",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261026-143435-353-fd76670ea5d3"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261026-144807-113.json@5ed9e0fa239d7017b7b0cf1bd46c5c4eb0fc4033b42311e3e2c4e4633904c548",
+    "location": ".tools/checks/check-full-release-20261026-144807-113.json",
+    "sha256": "5ed9e0fa239d7017b7b0cf1bd46c5c4eb0fc4033b42311e3e2c4e4633904c548",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261026-144807-113-5ed9e0fa239d"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261026-194251-594.json@bc312b2a70b51143d2b319f52a1a4f4a84e605367bd54d58c927ec7ede1df1d9",
+    "location": ".tools/checks/check-full-release-20261026-194251-594.json",
+    "sha256": "bc312b2a70b51143d2b319f52a1a4f4a84e605367bd54d58c927ec7ede1df1d9",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261026-194251-594-bc312b2a70b5"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261027-100349-916.json@6e0d327e607eb23fb1afd09e807795d989c8a850529c3ee17eb4c257529ecdd8",
+    "location": ".tools/checks/check-full-release-20261027-100349-916.json",
+    "sha256": "6e0d327e607eb23fb1afd09e807795d989c8a850529c3ee17eb4c257529ecdd8",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261027-100349-916-6e0d327e607e"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261027-101528-848.json@e346d56dad6c62f429289ed9b5f2baef86825e16d10f3adf04cbd23ad99d90db",
+    "location": ".tools/checks/check-full-release-20261027-101528-848.json",
+    "sha256": "e346d56dad6c62f429289ed9b5f2baef86825e16d10f3adf04cbd23ad99d90db",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261027-101528-848-e346d56dad6c"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261027-113252-507.json@50a42df326cf5487359dfe47e728b4d3e4a15ae13560b9e45ac19ca3379c2677",
+    "location": ".tools/checks/check-full-release-20261027-113252-507.json",
+    "sha256": "50a42df326cf5487359dfe47e728b4d3e4a15ae13560b9e45ac19ca3379c2677",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261027-113252-507-50a42df326cf"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261027-113905-980.json@0c0874dddf029171b552a1119314f10c8e070de3738289dde12b78920ca3db4f",
+    "location": ".tools/checks/check-full-release-20261027-113905-980.json",
+    "sha256": "0c0874dddf029171b552a1119314f10c8e070de3738289dde12b78920ca3db4f",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261027-113905-980-0c0874dddf02"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261027-115557-321.json@9fa90c568ce6efeab76690c020eb3fa06734bf9620952a8cca8a2f6b5961d185",
+    "location": ".tools/checks/check-full-release-20261027-115557-321.json",
+    "sha256": "9fa90c568ce6efeab76690c020eb3fa06734bf9620952a8cca8a2f6b5961d185",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261027-115557-321-9fa90c568ce6"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261027-191603-562.json@4a26243c47c1c345d432a0dc2525774d7ee343bad3124ead2d680de6b19148e0",
+    "location": ".tools/checks/check-full-release-20261027-191603-562.json",
+    "sha256": "4a26243c47c1c345d432a0dc2525774d7ee343bad3124ead2d680de6b19148e0",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261027-191603-562-4a26243c47c1"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261027-191851-377.json@37cc3c3ff34750d5b6fa01bbf96f170b36e7f63761e1d79d57c142b82c5215fc",
+    "location": ".tools/checks/check-full-release-20261027-191851-377.json",
+    "sha256": "37cc3c3ff34750d5b6fa01bbf96f170b36e7f63761e1d79d57c142b82c5215fc",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261027-191851-377-37cc3c3ff347"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261027-204958-834.json@016b4a32805e7deaceb8b7b310dc2cc10bb9897fd9012d693722f4fed2d6cb11",
+    "location": ".tools/checks/check-full-release-20261027-204958-834.json",
+    "sha256": "016b4a32805e7deaceb8b7b310dc2cc10bb9897fd9012d693722f4fed2d6cb11",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261027-204958-834-016b4a32805e"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261027-210756-301.json@1fe8ff468f07c77910bbf3d112b0b9d40c6223f38ea321fbd8d35abea2d9b023",
+    "location": ".tools/checks/check-full-release-20261027-210756-301.json",
+    "sha256": "1fe8ff468f07c77910bbf3d112b0b9d40c6223f38ea321fbd8d35abea2d9b023",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261027-210756-301-1fe8ff468f07"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261027-224749-261.json@0c97fb56284ce9af78b6df7be609d86bb683a176fe92c03d221649ce6bab5395",
+    "location": ".tools/checks/check-full-release-20261027-224749-261.json",
+    "sha256": "0c97fb56284ce9af78b6df7be609d86bb683a176fe92c03d221649ce6bab5395",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261027-224749-261-0c97fb56284c"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261028-100359-145.json@3e2e50c2b053ac77a6b87d4e0250a5d1ce453a0468cf05e9cb3d4346ffaee8f4",
+    "location": ".tools/checks/check-full-release-20261028-100359-145.json",
+    "sha256": "3e2e50c2b053ac77a6b87d4e0250a5d1ce453a0468cf05e9cb3d4346ffaee8f4",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261028-100359-145-3e2e50c2b053"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261028-150342-983.json@eb60306dce02de56b4a22dfbe631c42b6b1e0208417ab200d59bf030eb530364",
+    "location": ".tools/checks/check-full-release-20261028-150342-983.json",
+    "sha256": "eb60306dce02de56b4a22dfbe631c42b6b1e0208417ab200d59bf030eb530364",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261028-150342-983-eb60306dce02"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261028-165627-243.json@5757486f792516800357a6ab09c978a1a4456d16471ffb800bafad30fa58a4ad",
+    "location": ".tools/checks/check-full-release-20261028-165627-243.json",
+    "sha256": "5757486f792516800357a6ab09c978a1a4456d16471ffb800bafad30fa58a4ad",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261028-165627-243-5757486f7925"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261028-173332-290.json@5277fd86cf1145cc6afb5724cff78ef4fdcccd88901a9b9a2361a666eb95dc6d",
+    "location": ".tools/checks/check-full-release-20261028-173332-290.json",
+    "sha256": "5277fd86cf1145cc6afb5724cff78ef4fdcccd88901a9b9a2361a666eb95dc6d",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261028-173332-290-5277fd86cf11"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261028-205653-070.json@e4738450c806a27e73b0e3d7c12ca045e64635cf76975ee0fdce1f1d18104af6",
+    "location": ".tools/checks/check-full-release-20261028-205653-070.json",
+    "sha256": "e4738450c806a27e73b0e3d7c12ca045e64635cf76975ee0fdce1f1d18104af6",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261028-205653-070-e4738450c806"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261028-211132-161.json@e93e477673b62f1ea6ff9afd9953044eccc54517e80f7653a3574cc646f95fc7",
+    "location": ".tools/checks/check-full-release-20261028-211132-161.json",
+    "sha256": "e93e477673b62f1ea6ff9afd9953044eccc54517e80f7653a3574cc646f95fc7",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261028-211132-161-e93e477673b6"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261028-213205-339.json@171d5a55eb1f4c66f7917143f204880f18f1d1db95691fda58e26cc5c3f379f2",
+    "location": ".tools/checks/check-full-release-20261028-213205-339.json",
+    "sha256": "171d5a55eb1f4c66f7917143f204880f18f1d1db95691fda58e26cc5c3f379f2",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261028-213205-339-171d5a55eb1f"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261028-220025-949.json@64bc9cd0a20cb4a235e28d0cfb193ea5e02386d4ce72f7c43f45998b3eafe099",
+    "location": ".tools/checks/check-full-release-20261028-220025-949.json",
+    "sha256": "64bc9cd0a20cb4a235e28d0cfb193ea5e02386d4ce72f7c43f45998b3eafe099",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261028-220025-949-64bc9cd0a20c"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261029-083330-723.json@286bdfb9a8959853a8f3324a77eeb5b2517974772981bf754c01eda37ca49d63",
+    "location": ".tools/checks/check-full-release-20261029-083330-723.json",
+    "sha256": "286bdfb9a8959853a8f3324a77eeb5b2517974772981bf754c01eda37ca49d63",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261029-083330-723-286bdfb9a895"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261029-113743-195.json@d95871e3745277d10a89c472062eac8fd022fd0de981ffaab9ff90996b2967f7",
+    "location": ".tools/checks/check-full-release-20261029-113743-195.json",
+    "sha256": "d95871e3745277d10a89c472062eac8fd022fd0de981ffaab9ff90996b2967f7",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261029-113743-195-d95871e37452"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261029-115930-477.json@b76fc168aeb8b82634a8f0c709bf6881e66459b216d934a5ec0c1d4bf9dd04dc",
+    "location": ".tools/checks/check-full-release-20261029-115930-477.json",
+    "sha256": "b76fc168aeb8b82634a8f0c709bf6881e66459b216d934a5ec0c1d4bf9dd04dc",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261029-115930-477-b76fc168aeb8"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261029-143834-790.json@f0ec4f2fcbae763ec7d4396e66ed070f93e6fcb16e9feb0e072b99a10a963e6d",
+    "location": ".tools/checks/check-full-release-20261029-143834-790.json",
+    "sha256": "f0ec4f2fcbae763ec7d4396e66ed070f93e6fcb16e9feb0e072b99a10a963e6d",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261029-143834-790-f0ec4f2fcbae"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261029-150620-230.json@84ba29a6f3362af279c29e0500a892c75859162cba6837cb3e54fb8c2ad62e98",
+    "location": ".tools/checks/check-full-release-20261029-150620-230.json",
+    "sha256": "84ba29a6f3362af279c29e0500a892c75859162cba6837cb3e54fb8c2ad62e98",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261029-150620-230-84ba29a6f336"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261029-161456-446.json@842c7065fdadc03c943c1536a91a6f39c44212989dfb8a07ebdd3b1441ce3a2e",
+    "location": ".tools/checks/check-full-release-20261029-161456-446.json",
+    "sha256": "842c7065fdadc03c943c1536a91a6f39c44212989dfb8a07ebdd3b1441ce3a2e",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261029-161456-446-842c7065fdad"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261029-171105-526.json@61e51b66e2b7be80cb2e8d41fd8d6b740a7bf5a93d89fd9b18e156f5d349d087",
+    "location": ".tools/checks/check-full-release-20261029-171105-526.json",
+    "sha256": "61e51b66e2b7be80cb2e8d41fd8d6b740a7bf5a93d89fd9b18e156f5d349d087",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261029-171105-526-61e51b66e2b7"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261029-180713-703.json@e0df388a5404d0d247bfa7839a7b76db5c9d52acb08ebad2d91bed03657a8602",
+    "location": ".tools/checks/check-full-release-20261029-180713-703.json",
+    "sha256": "e0df388a5404d0d247bfa7839a7b76db5c9d52acb08ebad2d91bed03657a8602",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261029-180713-703-e0df388a5404"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261029-194907-279.json@36e060ca4c6be9e28694e74d64f645573b7d73fab294327512e94c8ff4cbcf26",
+    "location": ".tools/checks/check-full-release-20261029-194907-279.json",
+    "sha256": "36e060ca4c6be9e28694e74d64f645573b7d73fab294327512e94c8ff4cbcf26",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261029-194907-279-36e060ca4c6b"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261029-202811-821.json@b6842ae37fda6ef983ec9f99de02f09429b0ebf510fa79515e53bf8d836943ee",
+    "location": ".tools/checks/check-full-release-20261029-202811-821.json",
+    "sha256": "b6842ae37fda6ef983ec9f99de02f09429b0ebf510fa79515e53bf8d836943ee",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261029-202811-821-b6842ae37fda"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261030-112024-277.json@aad56da8d26e1d8afedd46a8a070402a19c27f0a4893ceca1b1c3eb621ea64ac",
+    "location": ".tools/checks/check-full-release-20261030-112024-277.json",
+    "sha256": "aad56da8d26e1d8afedd46a8a070402a19c27f0a4893ceca1b1c3eb621ea64ac",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261030-112024-277-aad56da8d26e"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261025-121749-060.json@3fb5cd83852cdcc30a2399f701de206b49e749d4fb9e7f7c11493ff16e62dc70",
+    "location": ".tools/checks/check-unit-debug-20261025-121749-060.json",
+    "sha256": "3fb5cd83852cdcc30a2399f701de206b49e749d4fb9e7f7c11493ff16e62dc70",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261025-121749-060-3fb5cd83852c"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261025-142347-367.json@5ca42af85374968c4cb597856e7dd114933eb3bcf0992ac62a8559b64f90bb3f",
+    "location": ".tools/checks/check-unit-debug-20261025-142347-367.json",
+    "sha256": "5ca42af85374968c4cb597856e7dd114933eb3bcf0992ac62a8559b64f90bb3f",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261025-142347-367-5ca42af85374"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261027-204111-023.json@b745f0a104fa17e27fa3e7b6f93b3264c558870062e65e92c8a3323e9692760d",
+    "location": ".tools/checks/check-unit-debug-20261027-204111-023.json",
+    "sha256": "b745f0a104fa17e27fa3e7b6f93b3264c558870062e65e92c8a3323e9692760d",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261027-204111-023-b745f0a104fa"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261027-222719-733.json@c4a29b13e7f43cf4c27dd215dbeb5d2aa0974cc363b7a0a15ecd230dbe7a53aa",
+    "location": ".tools/checks/check-unit-debug-20261027-222719-733.json",
+    "sha256": "c4a29b13e7f43cf4c27dd215dbeb5d2aa0974cc363b7a0a15ecd230dbe7a53aa",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261027-222719-733-c4a29b13e7f4"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261027-222946-283.json@efe24efe13954252ad2be76725f802d1012cba030a10ca6aa312afc7a954cf8d",
+    "location": ".tools/checks/check-unit-debug-20261027-222946-283.json",
+    "sha256": "efe24efe13954252ad2be76725f802d1012cba030a10ca6aa312afc7a954cf8d",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261027-222946-283-efe24efe1395"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261028-113547-036.json@9d952393a2288052b6715fd8204f597bbc3e300658bd3afaea93642a19b9ff6f",
+    "location": ".tools/checks/check-unit-debug-20261028-113547-036.json",
+    "sha256": "9d952393a2288052b6715fd8204f597bbc3e300658bd3afaea93642a19b9ff6f",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261028-113547-036-9d952393a228"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261028-113737-987.json@a086f0b1ee7fd0745db178b5a22097bf472ecf32cb3c5bbbd6a8de67d0555973",
+    "location": ".tools/checks/check-unit-debug-20261028-113737-987.json",
+    "sha256": "a086f0b1ee7fd0745db178b5a22097bf472ecf32cb3c5bbbd6a8de67d0555973",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261028-113737-987-a086f0b1ee7f"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261028-113814-019.json@143a59f24c24591145880f4f73804a07ca8274687512d16414d64ba00f92e24e",
+    "location": ".tools/checks/check-unit-debug-20261028-113814-019.json",
+    "sha256": "143a59f24c24591145880f4f73804a07ca8274687512d16414d64ba00f92e24e",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261028-113814-019-143a59f24c24"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261028-114959-386.json@343db3e320cea7b2f4968e81bee8281453983bc0868df71112feb2a8fc2a8988",
+    "location": ".tools/checks/check-unit-debug-20261028-114959-386.json",
+    "sha256": "343db3e320cea7b2f4968e81bee8281453983bc0868df71112feb2a8fc2a8988",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261028-114959-386-343db3e320ce"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261028-120952-521.json@02a75f5f2496f7adbb234efdad0acad7a682c9b1197a4506dc7619c9611d00ca",
+    "location": ".tools/checks/check-unit-debug-20261028-120952-521.json",
+    "sha256": "02a75f5f2496f7adbb234efdad0acad7a682c9b1197a4506dc7619c9611d00ca",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261028-120952-521-02a75f5f2496"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261028-203034-023.json@ca9273bfd464fb02f7ac0dd1d3705a00b7168b276d4fa695234d511431dee973",
+    "location": ".tools/checks/check-unit-debug-20261028-203034-023.json",
+    "sha256": "ca9273bfd464fb02f7ac0dd1d3705a00b7168b276d4fa695234d511431dee973",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261028-203034-023-ca9273bfd464"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261028-203139-201.json@864211105e5ba741bd66882301fb3eb627d4eebc94892501f59cccfe61e707c3",
+    "location": ".tools/checks/check-unit-debug-20261028-203139-201.json",
+    "sha256": "864211105e5ba741bd66882301fb3eb627d4eebc94892501f59cccfe61e707c3",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261028-203139-201-864211105e5b"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261028-224440-029.json@4aaeceb42aada77c8d352426c97204e34de9b2f181960972616a0a05a1456277",
+    "location": ".tools/checks/check-unit-debug-20261028-224440-029.json",
+    "sha256": "4aaeceb42aada77c8d352426c97204e34de9b2f181960972616a0a05a1456277",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261028-224440-029-4aaeceb42aad"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261029-111435-215.json@b81d319008e5c11179ee370a49c56f3ca943fd05d5157e6a1e28ee1d6853a107",
+    "location": ".tools/checks/check-unit-debug-20261029-111435-215.json",
+    "sha256": "b81d319008e5c11179ee370a49c56f3ca943fd05d5157e6a1e28ee1d6853a107",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261029-111435-215-b81d319008e5"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261029-165517-524.json@4a8e4e71e31b3c8f0f5cfc1780b53f3b011d9a3485628db7a0f0850db9d7e4f2",
+    "location": ".tools/checks/check-unit-debug-20261029-165517-524.json",
+    "sha256": "4a8e4e71e31b3c8f0f5cfc1780b53f3b011d9a3485628db7a0f0850db9d7e4f2",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261029-165517-524-4a8e4e71e31b"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261029-174450-797.json@4f26b63c7156709547f9c502f95f34d319c2d82d75e50ba8f270a7a3aa131deb",
+    "location": ".tools/checks/check-unit-debug-20261029-174450-797.json",
+    "sha256": "4f26b63c7156709547f9c502f95f34d319c2d82d75e50ba8f270a7a3aa131deb",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261029-174450-797-4f26b63c7156"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261029-201041-268.json@d9d9d3e9fff15d8cff76788798b355872bfd325524f185db39c8cbf5aafcfb39",
+    "location": ".tools/checks/check-unit-debug-20261029-201041-268.json",
+    "sha256": "d9d9d3e9fff15d8cff76788798b355872bfd325524f185db39c8cbf5aafcfb39",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261029-201041-268-d9d9d3e9fff1"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261029-211313-978.json@25b0e4a16cefadb6e3ad07bee08450ac9c0c8d6469e07a91ac2b30c7c7074be7",
+    "location": ".tools/checks/check-unit-debug-20261029-211313-978.json",
+    "sha256": "25b0e4a16cefadb6e3ad07bee08450ac9c0c8d6469e07a91ac2b30c7c7074be7",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261029-211313-978-25b0e4a16cef"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261029-211451-111.json@d655e5efc792b4d6f517d69a40b5a5ec309277dfa2d9a44d482ad89c5afb7839",
+    "location": ".tools/checks/check-unit-debug-20261029-211451-111.json",
+    "sha256": "d655e5efc792b4d6f517d69a40b5a5ec309277dfa2d9a44d482ad89c5afb7839",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261029-211451-111-d655e5efc792"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261029-214616-454.json@f816f425a841de181b6cbd52d61c7b53e5899a509d2cd123c9f3ff99d16ad5e3",
+    "location": ".tools/checks/check-unit-debug-20261029-214616-454.json",
+    "sha256": "f816f425a841de181b6cbd52d61c7b53e5899a509d2cd123c9f3ff99d16ad5e3",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261029-214616-454-f816f425a841"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261029-222509-237.json@f56f3d182ab3cb54d5d2a9c8f2254d51121970a69f84ed7dbc9646abdc4a32cc",
+    "location": ".tools/checks/check-unit-debug-20261029-222509-237.json",
+    "sha256": "f56f3d182ab3cb54d5d2a9c8f2254d51121970a69f84ed7dbc9646abdc4a32cc",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261029-222509-237-f56f3d182ab3"
+  },
+  {
+    "id": ".tools/checks/expected-failure.json@703c79933dd2da0cabfff7c89152c68fb6c5c427193ea44de6ffbb089ad9b229",
+    "location": ".tools/checks/expected-failure.json",
+    "sha256": "703c79933dd2da0cabfff7c89152c68fb6c5c427193ea44de6ffbb089ad9b229",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": null,
+    "source_fields": {},
+    "declared_scope": []
+  },
+  {
+    "id": ".tools/checks/history-delivery-7f031ec.json@2523e1fb082309be49cca3caec305120d256247c8bca415ad6e281f0c725a070",
+    "location": ".tools/checks/history-delivery-7f031ec.json",
+    "sha256": "2523e1fb082309be49cca3caec305120d256247c8bca415ad6e281f0c725a070",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": null,
+    "source_fields": {
+      "debugApkSha256": "923ad409ecdf6af722fc4063fe78c76f2e0f78b57d1397a9786cc179d366bbfb",
+      "source": {
+        "commit": "7f031ecebe4589cb5e8ad2098ba1f9849986f4cc",
+        "fingerprint": "d0b0cf44d6dcab525978b816bf5fcb9e66dca43f33cd74a0fd80ff2ecd656c3b",
+        "dirty": false,
+        "untrackedSource": [],
+        "excludedUntrackedAssetCount": 2
+      }
+    },
+    "declared_scope": []
+  },
+  {
+    "id": ".tools/checks/latest.json@aad56da8d26e1d8afedd46a8a070402a19c27f0a4893ceca1b1c3eb621ea64ac",
+    "location": ".tools/checks/latest.json",
+    "sha256": "aad56da8d26e1d8afedd46a8a070402a19c27f0a4893ceca1b1c3eb621ea64ac",
+    "note": "latest指针，不重复导入"
+  },
+  {
+    "id": ".tools/checks/onboarding-delivery-c555b3c.json@e9fdd162b6fd49a7ed901eff2219559bf69781e71592af3452223fd5b8a8dc90",
+    "location": ".tools/checks/onboarding-delivery-c555b3c.json",
+    "sha256": "e9fdd162b6fd49a7ed901eff2219559bf69781e71592af3452223fd5b8a8dc90",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": null,
+    "source_fields": {
+      "source": {
+        "commit": "c555b3c8ba794173b66bd9997f0e73ab38d56b45",
+        "fingerprint": "bd19168d360e75330df207e8939749ce159e5200c98cf4ade5403ced7b8aac67",
+        "dirty": false,
+        "untrackedSource": [],
+        "excludedUntrackedAssetCount": 2
+      }
+    },
+    "declared_scope": []
+  },
+  {
+    "id": ".tools/checks/overlay-delivery-3530c97.json@f3b69cdc83f598005a402deb55e38b76d28aa46142cf5d9fd9733a2feb6466ad",
+    "location": ".tools/checks/overlay-delivery-3530c97.json",
+    "sha256": "f3b69cdc83f598005a402deb55e38b76d28aa46142cf5d9fd9733a2feb6466ad",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": null,
+    "source_fields": {
+      "apk": {
+        "path": "E:\\Countdown\\app\\build\\outputs\\apk\\debug\\app-debug.apk",
+        "sha256": "2cdd7c5c02822c815d5801d1477dc5c5f0896be8a4d70d6661df6196105f3b5d"
+      },
+      "source": {
+        "commit": "3530c97d2fc993869eb4a99cc067680861583fae",
+        "fingerprint": "8aa3e9803af9e45381eed7672c596fff8327e66a45c2295420cf239fd80fd021",
+        "dirty": false,
+        "untrackedSource": [],
+        "excludedUntrackedAssetCount": 2
+      }
+    },
+    "declared_scope": []
+  },
+  {
+    "id": ".tools/checks/preset-shortcuts-delivery-20261028.json@d419e9b6a6a3f8da8628d5f0a2e4f325a1858c020f1d840c32cf75ee55b5088f",
+    "location": ".tools/checks/preset-shortcuts-delivery-20261028.json",
+    "sha256": "d419e9b6a6a3f8da8628d5f0a2e4f325a1858c020f1d840c32cf75ee55b5088f",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": null,
+    "source_fields": {
+      "commit": "8387e5500a3a365f82edc69a07721f55fb62e8f8"
+    },
+    "declared_scope": []
+  },
+  {
+    "id": ".tools/checks/preset-styles-delivery-20261028.json@219799ae202f502a84c44230e1f50ddfa8df4d3c12615f8d9b694ec17e9a3d4e",
+    "location": ".tools/checks/preset-styles-delivery-20261028.json",
+    "sha256": "219799ae202f502a84c44230e1f50ddfa8df4d3c12615f8d9b694ec17e9a3d4e",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": null,
+    "source_fields": {
+      "commit": "fa0255e47e1ef8f1dfd9d8c1eff383504d048705"
+    },
+    "declared_scope": []
+  },
+  {
+    "id": ".tools/checks/quick-duration-entry-delivery-20261029.json@6ba5662a40fc38ae55a2abb0d4a8b2016a3aadd845500c9d4ee3ee2607a01ff3",
+    "location": ".tools/checks/quick-duration-entry-delivery-20261029.json",
+    "sha256": "6ba5662a40fc38ae55a2abb0d4a8b2016a3aadd845500c9d4ee3ee2607a01ff3",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": null,
+    "source_fields": {
+      "apk": {
+        "path": "E:\\Countdown\\app\\build\\outputs\\apk\\debug\\app-debug.apk",
+        "sha256": "93c82840bbd339daaa4ad507c8badf0510dec9dcf08d2dd260c85838f0cda599"
+      },
+      "source": {
+        "commit": "865a7dd5c70fc424a7133fcf40694530854cf2e9",
+        "fingerprint": "27b3fbb8c351fb92f0ca539e20ead32883b506971853ec5adc0face33bd660f4",
+        "dirty": false,
+        "untrackedSource": [],
+        "excludedUntrackedAssetCount": 6
+      }
+    },
+    "declared_scope": []
+  },
+  {
+    "id": ".tools/checks/settings-delivery-e814d7c.json@f55da0b7c727113d67e847cf865da587eaacf006f9e025506ab730596a289de0",
+    "location": ".tools/checks/settings-delivery-e814d7c.json",
+    "sha256": "f55da0b7c727113d67e847cf865da587eaacf006f9e025506ab730596a289de0",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": null,
+    "source_fields": {
+      "debugApkSha256": "b69c38df7493e151701e25f96123681244d89aeef62b12e3227e1536ef2da450",
+      "source": {
+        "commit": "e814d7cc63b40783dfd52910e02656e798ac5828",
+        "fingerprint": "d4e26cedf7d4065556ee5a345bdef3f792aff8d6b8842ee2a5a3f231ea646b6d",
+        "dirty": false,
+        "untrackedSource": [],
+        "excludedUntrackedAssetCount": 2
+      }
+    },
+    "declared_scope": []
+  },
+  {
+    "id": ".tools/device-checks/20261025-121814/results.json@54d5faf0b12063971682efe67c7804aedf8774fba87a2ed90b9709b0852fae0f",
+    "location": ".tools/device-checks/20261025-121814/results.json",
+    "sha256": "54d5faf0b12063971682efe67c7804aedf8774fba87a2ed90b9709b0852fae0f",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261025-121814-results-54d5faf0b120"
+  },
+  {
+    "id": ".tools/device-checks/20261025-121823/results.json@a7a10d5cd080b30af0bd5d28d92595deea66717f4e2d1fc7b09ea4b631d94cc4",
+    "location": ".tools/device-checks/20261025-121823/results.json",
+    "sha256": "a7a10d5cd080b30af0bd5d28d92595deea66717f4e2d1fc7b09ea4b631d94cc4",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261025-121823-results-a7a10d5cd080"
+  },
+  {
+    "id": ".tools/device-checks/20261025-121902/results.json@159fd4107514fcff70d319ce44ed7cdb5e90cd6844eea0e5989ed366eefdeb1f",
+    "location": ".tools/device-checks/20261025-121902/results.json",
+    "sha256": "159fd4107514fcff70d319ce44ed7cdb5e90cd6844eea0e5989ed366eefdeb1f",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261025-121902-results-159fd4107514"
+  },
+  {
+    "id": ".tools/device-checks/20261025-122301/results.json@1b922a2c1057fbe3e224b299028f29b1f940215347843ca2721bde334ade2852",
+    "location": ".tools/device-checks/20261025-122301/results.json",
+    "sha256": "1b922a2c1057fbe3e224b299028f29b1f940215347843ca2721bde334ade2852",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261025-122301-results-1b922a2c1057"
+  },
+  {
+    "id": ".tools/device-checks/20261025-141626/results.json@875ac9743ee1951def8363353236c3340b0cc5fb9fe2c59e0306500492b1a6ea",
+    "location": ".tools/device-checks/20261025-141626/results.json",
+    "sha256": "875ac9743ee1951def8363353236c3340b0cc5fb9fe2c59e0306500492b1a6ea",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261025-141626-results-875ac9743ee1"
+  },
+  {
+    "id": ".tools/device-checks/20261025-141940/results.json@78c44a6f398a71758ae33e3fb6e2a02f5e5940b969071195d080096bf1025361",
+    "location": ".tools/device-checks/20261025-141940/results.json",
+    "sha256": "78c44a6f398a71758ae33e3fb6e2a02f5e5940b969071195d080096bf1025361",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261025-141940-results-78c44a6f398a"
+  },
+  {
+    "id": ".tools/device-checks/20261025-151320/results.json@e08f10ab52caf11d6ab436ff6b97f524566c4b1c84e2168c5402181a33e3b715",
+    "location": ".tools/device-checks/20261025-151320/results.json",
+    "sha256": "e08f10ab52caf11d6ab436ff6b97f524566c4b1c84e2168c5402181a33e3b715",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261025-151320-results-e08f10ab52ca"
+  },
+  {
+    "id": ".tools/device-checks/20261025-193355/results.json@a2c4f0a4da35b1db0301fa76cbfc05ce6eb8efa754f229164380c9b582211620",
+    "location": ".tools/device-checks/20261025-193355/results.json",
+    "sha256": "a2c4f0a4da35b1db0301fa76cbfc05ce6eb8efa754f229164380c9b582211620",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261025-193355-results-a2c4f0a4da35"
+  },
+  {
+    "id": ".tools/device-checks/20261025-193459/results.json@620884b63f1144c8503ac2859c1523fa5aa133ea65aa8b9e6e02b2aef4f89e18",
+    "location": ".tools/device-checks/20261025-193459/results.json",
+    "sha256": "620884b63f1144c8503ac2859c1523fa5aa133ea65aa8b9e6e02b2aef4f89e18",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261025-193459-results-620884b63f11"
+  },
+  {
+    "id": ".tools/device-checks/20261025-193658/results.json@4a9cb5da2ad1ca9885cb13a266f175a70eab85393d786214a25ad104fa5bb778",
+    "location": ".tools/device-checks/20261025-193658/results.json",
+    "sha256": "4a9cb5da2ad1ca9885cb13a266f175a70eab85393d786214a25ad104fa5bb778",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261025-193658-results-4a9cb5da2ad1"
+  },
+  {
+    "id": ".tools/device-checks/20261025-194029/results.json@30ef84d34224b9250bbe707874556f75c5db45f10e71980a898c6c59022edcff",
+    "location": ".tools/device-checks/20261025-194029/results.json",
+    "sha256": "30ef84d34224b9250bbe707874556f75c5db45f10e71980a898c6c59022edcff",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261025-194029-results-30ef84d34224"
+  },
+  {
+    "id": ".tools/device-checks/20261025-203556/results.json@90f2cb407497cb7e8a874e334097413075f0d79afa4f9806d0b289019534d7b6",
+    "location": ".tools/device-checks/20261025-203556/results.json",
+    "sha256": "90f2cb407497cb7e8a874e334097413075f0d79afa4f9806d0b289019534d7b6",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261025-203556-results-90f2cb407497"
+  },
+  {
+    "id": ".tools/device-checks/20261025-203710/results.json@9a5bfa29f5c88cb07b69cdc00380d492df426d0c5179766b0c9250d0120462c5",
+    "location": ".tools/device-checks/20261025-203710/results.json",
+    "sha256": "9a5bfa29f5c88cb07b69cdc00380d492df426d0c5179766b0c9250d0120462c5",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261025-203710-results-9a5bfa29f5c8"
+  },
+  {
+    "id": ".tools/device-checks/20261025-203819/results.json@80f5b508c1c719ea2a39043ac4a3425ea5ed4c82a2cef70ae6b64c41a79a389f",
+    "location": ".tools/device-checks/20261025-203819/results.json",
+    "sha256": "80f5b508c1c719ea2a39043ac4a3425ea5ed4c82a2cef70ae6b64c41a79a389f",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261025-203819-results-80f5b508c1c7"
+  },
+  {
+    "id": ".tools/device-checks/20261026-104430/results.json@e9e272092c44c5efc574aa18e97ed0b7d3ef3b03024366c0f410fb2152b4cbab",
+    "location": ".tools/device-checks/20261026-104430/results.json",
+    "sha256": "e9e272092c44c5efc574aa18e97ed0b7d3ef3b03024366c0f410fb2152b4cbab",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261026-104430-results-e9e272092c44"
+  },
+  {
+    "id": ".tools/device-checks/20261026-104739/results.json@94cb796cd576526c364959a2e63bddd446125456d58eae0a5bd49774311adef6",
+    "location": ".tools/device-checks/20261026-104739/results.json",
+    "sha256": "94cb796cd576526c364959a2e63bddd446125456d58eae0a5bd49774311adef6",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261026-104739-results-94cb796cd576"
+  },
+  {
+    "id": ".tools/device-checks/20261026-105241/results.json@7a33ce8a05ef0d3673a69432fd9c6ce310adafd192f985cb4fe34ea11bc169b4",
+    "location": ".tools/device-checks/20261026-105241/results.json",
+    "sha256": "7a33ce8a05ef0d3673a69432fd9c6ce310adafd192f985cb4fe34ea11bc169b4",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261026-105241-results-7a33ce8a05ef"
+  },
+  {
+    "id": ".tools/device-checks/20261026-105627/results.json@e51337ec20ec364e8f31bc3de885d60c2f336211cbc6cb563e3a8e6b1f7d6630",
+    "location": ".tools/device-checks/20261026-105627/results.json",
+    "sha256": "e51337ec20ec364e8f31bc3de885d60c2f336211cbc6cb563e3a8e6b1f7d6630",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261026-105627-results-e51337ec20ec"
+  },
+  {
+    "id": ".tools/device-checks/20261026-110135/results.json@8725ec3b21f78dcdb4d641c22af5328e366a2e224f206e21c910fc16660bdd70",
+    "location": ".tools/device-checks/20261026-110135/results.json",
+    "sha256": "8725ec3b21f78dcdb4d641c22af5328e366a2e224f206e21c910fc16660bdd70",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261026-110135-results-8725ec3b21f7"
+  },
+  {
+    "id": ".tools/device-checks/20261026-110808/results.json@0fd4cb72a6a0e76abc0056b3dd1e7d6a45f8f7b68b2f9849bfeb084cc116d601",
+    "location": ".tools/device-checks/20261026-110808/results.json",
+    "sha256": "0fd4cb72a6a0e76abc0056b3dd1e7d6a45f8f7b68b2f9849bfeb084cc116d601",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261026-110808-results-0fd4cb72a6a0"
+  },
+  {
+    "id": ".tools/device-checks/20261026-111353/results.json@59eebdb7c42ab35c8feaae243dc34fed2dc0b5c89115c258a04b35f1ebd701ef",
+    "location": ".tools/device-checks/20261026-111353/results.json",
+    "sha256": "59eebdb7c42ab35c8feaae243dc34fed2dc0b5c89115c258a04b35f1ebd701ef",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261026-111353-results-59eebdb7c42a"
+  },
+  {
+    "id": ".tools/device-checks/20261026-111756/results.json@f23a9a9e77b42b14a34ec35e060f0f0e9b9f010ff2dc6aeb13497c74c765699b",
+    "location": ".tools/device-checks/20261026-111756/results.json",
+    "sha256": "f23a9a9e77b42b14a34ec35e060f0f0e9b9f010ff2dc6aeb13497c74c765699b",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261026-111756-results-f23a9a9e77b4"
+  },
+  {
+    "id": ".tools/device-checks/20261026-112215/results.json@0fa2934dd0193ea58addc8f5f053638a6fcaad98cbb38a84733eb80b97f40d69",
+    "location": ".tools/device-checks/20261026-112215/results.json",
+    "sha256": "0fa2934dd0193ea58addc8f5f053638a6fcaad98cbb38a84733eb80b97f40d69",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261026-112215-results-0fa2934dd019"
+  },
+  {
+    "id": ".tools/device-checks/20261026-143402/results.json@2be402c9c864857eff4d378d2f17066636f23de0362f0eb82f19554b9cad3a45",
+    "location": ".tools/device-checks/20261026-143402/results.json",
+    "sha256": "2be402c9c864857eff4d378d2f17066636f23de0362f0eb82f19554b9cad3a45",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261026-143402-results-2be402c9c864"
+  },
+  {
+    "id": ".tools/device-checks/20261026-144739/results.json@8b59b28eedd87a9fb0c766cd1bacc324c77b395c1a992157af2a09f4d8d378b0",
+    "location": ".tools/device-checks/20261026-144739/results.json",
+    "sha256": "8b59b28eedd87a9fb0c766cd1bacc324c77b395c1a992157af2a09f4d8d378b0",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261026-144739-results-8b59b28eedd8"
+  },
+  {
+    "id": ".tools/device-checks/20261026-145500/results.json@af89a068a8cdfc37f81d8a44efd08b81eedc21589881bc82029f34e2c340bcb1",
+    "location": ".tools/device-checks/20261026-145500/results.json",
+    "sha256": "af89a068a8cdfc37f81d8a44efd08b81eedc21589881bc82029f34e2c340bcb1",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261026-145500-results-af89a068a8cd"
+  },
+  {
+    "id": ".tools/device-checks/20261026-151311/results.json@25586dfb0da10c5a5917cfb6b997263f50e4d8f58bc036d68b91bf7a9309be02",
+    "location": ".tools/device-checks/20261026-151311/results.json",
+    "sha256": "25586dfb0da10c5a5917cfb6b997263f50e4d8f58bc036d68b91bf7a9309be02",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261026-151311-results-25586dfb0da1"
+  },
+  {
+    "id": ".tools/device-checks/20261026-151940/results.json@97daf4574e1a1d135a5540f97f97637fc453d39af6a35b8e5194b9ada8cf3ef7",
+    "location": ".tools/device-checks/20261026-151940/results.json",
+    "sha256": "97daf4574e1a1d135a5540f97f97637fc453d39af6a35b8e5194b9ada8cf3ef7",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261026-151940-results-97daf4574e1a"
+  },
+  {
+    "id": ".tools/device-checks/20261026-192845/results.json@38f353c8e8bd84035f441ab2c31aaafadc002993fba69459995cde0c694fba09",
+    "location": ".tools/device-checks/20261026-192845/results.json",
+    "sha256": "38f353c8e8bd84035f441ab2c31aaafadc002993fba69459995cde0c694fba09",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261026-192845-results-38f353c8e8bd"
+  },
+  {
+    "id": ".tools/device-checks/20261026-193520/results.json@dda789601e1ed44c9943c03ca14ea95dbeeb5fa0cc31190054148f2fe426e31a",
+    "location": ".tools/device-checks/20261026-193520/results.json",
+    "sha256": "dda789601e1ed44c9943c03ca14ea95dbeeb5fa0cc31190054148f2fe426e31a",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261026-193520-results-dda789601e1e"
+  },
+  {
+    "id": ".tools/device-checks/20261026-194315/results.json@ec38a3cd3ed0d12fe02417d91bc1af174cf4218bfa7ce1d8cd0db0002e2c1210",
+    "location": ".tools/device-checks/20261026-194315/results.json",
+    "sha256": "ec38a3cd3ed0d12fe02417d91bc1af174cf4218bfa7ce1d8cd0db0002e2c1210",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261026-194315-results-ec38a3cd3ed0"
+  },
+  {
+    "id": ".tools/device-checks/20261027-100221/results.json@e5ed1c3ea2fc4ae136cf247f914dc9a566b57c1a446301534420bef834db94d5",
+    "location": ".tools/device-checks/20261027-100221/results.json",
+    "sha256": "e5ed1c3ea2fc4ae136cf247f914dc9a566b57c1a446301534420bef834db94d5",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-100221-results-e5ed1c3ea2fc"
+  },
+  {
+    "id": ".tools/device-checks/20261027-100454/results.json@19b2269539aa94d5fc08666350d940fb4140d0888bdc37564be1667e0fb4a52f",
+    "location": ".tools/device-checks/20261027-100454/results.json",
+    "sha256": "19b2269539aa94d5fc08666350d940fb4140d0888bdc37564be1667e0fb4a52f",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-100454-results-19b2269539aa"
+  },
+  {
+    "id": ".tools/device-checks/20261027-100650/results.json@0aafbac6a5560b8f2d879fb1d44c6717b20f803769463b8180e0e5d3181c425a",
+    "location": ".tools/device-checks/20261027-100650/results.json",
+    "sha256": "0aafbac6a5560b8f2d879fb1d44c6717b20f803769463b8180e0e5d3181c425a",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-100650-results-0aafbac6a556"
+  },
+  {
+    "id": ".tools/device-checks/20261027-101031/results.json@ab7d495fb332dba28a4cfc4bf1284f2ec0b50a7b2779bf77ef2cef0abf280d2b",
+    "location": ".tools/device-checks/20261027-101031/results.json",
+    "sha256": "ab7d495fb332dba28a4cfc4bf1284f2ec0b50a7b2779bf77ef2cef0abf280d2b",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-101031-results-ab7d495fb332"
+  },
+  {
+    "id": ".tools/device-checks/20261027-101518/results.json@db2d8e38771ec496eb8362868420c699c8523dd1b8f20be763afdf57cff597b2",
+    "location": ".tools/device-checks/20261027-101518/results.json",
+    "sha256": "db2d8e38771ec496eb8362868420c699c8523dd1b8f20be763afdf57cff597b2",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-101518-results-db2d8e38771e"
+  },
+  {
+    "id": ".tools/device-checks/20261027-113242/results.json@74b2975ebdccf345eea5d3d1f274da426c2637c0811658442cb5ed16f5415896",
+    "location": ".tools/device-checks/20261027-113242/results.json",
+    "sha256": "74b2975ebdccf345eea5d3d1f274da426c2637c0811658442cb5ed16f5415896",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-113242-results-74b2975ebdcc"
+  },
+  {
+    "id": ".tools/device-checks/20261027-113855/results.json@167cc115520db0ddfcd1e40af8b57f4d864e1fb5ce4b1d1018d32970f0cc9c6d",
+    "location": ".tools/device-checks/20261027-113855/results.json",
+    "sha256": "167cc115520db0ddfcd1e40af8b57f4d864e1fb5ce4b1d1018d32970f0cc9c6d",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-113855-results-167cc115520d"
+  },
+  {
+    "id": ".tools/device-checks/20261027-114439/results.json@59ea468b85107fd1fbdc19b9a0d95bf572ac49446995b7cca259e7c2981dfc69",
+    "location": ".tools/device-checks/20261027-114439/results.json",
+    "sha256": "59ea468b85107fd1fbdc19b9a0d95bf572ac49446995b7cca259e7c2981dfc69",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-114439-results-59ea468b8510"
+  },
+  {
+    "id": ".tools/device-checks/20261027-114456/results.json@d16d1010e2062f4d6d42f7dd9c121a5c12041638d4966e0e988bbc5e44126e20",
+    "location": ".tools/device-checks/20261027-114456/results.json",
+    "sha256": "d16d1010e2062f4d6d42f7dd9c121a5c12041638d4966e0e988bbc5e44126e20",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-114456-results-d16d1010e206"
+  },
+  {
+    "id": ".tools/device-checks/20261027-114723/results.json@5663e2b257038a3cdde5d6b3f37ddee79604d33334fcf16e405ee5c1df047517",
+    "location": ".tools/device-checks/20261027-114723/results.json",
+    "sha256": "5663e2b257038a3cdde5d6b3f37ddee79604d33334fcf16e405ee5c1df047517",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-114723-results-5663e2b25703"
+  },
+  {
+    "id": ".tools/device-checks/20261027-115006/results.json@8dc4e7eed830f6c687c5ab6e455ced6c311bcf9ee457de15f2e7034616928c0b",
+    "location": ".tools/device-checks/20261027-115006/results.json",
+    "sha256": "8dc4e7eed830f6c687c5ab6e455ced6c311bcf9ee457de15f2e7034616928c0b",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-115006-results-8dc4e7eed830"
+  },
+  {
+    "id": ".tools/device-checks/20261027-135601/results.json@cedeb53d2fb9563b6471ca21547bcbd6b6a28591855bef61b3b8b5e09201afd7",
+    "location": ".tools/device-checks/20261027-135601/results.json",
+    "sha256": "cedeb53d2fb9563b6471ca21547bcbd6b6a28591855bef61b3b8b5e09201afd7",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-135601-results-cedeb53d2fb9"
+  },
+  {
+    "id": ".tools/device-checks/20261027-135723/results.json@7c4ba1455e54defb4011c2edd45cd89c95f80075d68133dfa08be9f9e9926f7e",
+    "location": ".tools/device-checks/20261027-135723/results.json",
+    "sha256": "7c4ba1455e54defb4011c2edd45cd89c95f80075d68133dfa08be9f9e9926f7e",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-135723-results-7c4ba1455e54"
+  },
+  {
+    "id": ".tools/device-checks/20261027-140101/results.json@6a833dd91ebed62c6052537aabbd04f0676cb8c2cdbc49afd446731a1b8913f4",
+    "location": ".tools/device-checks/20261027-140101/results.json",
+    "sha256": "6a833dd91ebed62c6052537aabbd04f0676cb8c2cdbc49afd446731a1b8913f4",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-140101-results-6a833dd91ebe"
+  },
+  {
+    "id": ".tools/device-checks/20261027-140133/results.json@d2ca8035f461096221733fd3d849d5b14607d001ddb60a6be30a8b9f3e865bda",
+    "location": ".tools/device-checks/20261027-140133/results.json",
+    "sha256": "d2ca8035f461096221733fd3d849d5b14607d001ddb60a6be30a8b9f3e865bda",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-140133-results-d2ca8035f461"
+  },
+  {
+    "id": ".tools/device-checks/20261027-140219/results.json@948b9a6da41b5104acc8f12c2dc9b2f0fb8220457642dc6aed3e424a009d4c01",
+    "location": ".tools/device-checks/20261027-140219/results.json",
+    "sha256": "948b9a6da41b5104acc8f12c2dc9b2f0fb8220457642dc6aed3e424a009d4c01",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-140219-results-948b9a6da41b"
+  },
+  {
+    "id": ".tools/device-checks/20261027-140451/results.json@fa2e0e935ec5200824760f7a444c942ffcd0b86e0a3a5ffc48804482fc361e96",
+    "location": ".tools/device-checks/20261027-140451/results.json",
+    "sha256": "fa2e0e935ec5200824760f7a444c942ffcd0b86e0a3a5ffc48804482fc361e96",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-140451-results-fa2e0e935ec5"
+  },
+  {
+    "id": ".tools/device-checks/20261027-140524/results.json@0be2201c1ea484c0ca49419c052e84b3071a494d3a479dbaa4f1db2f0cc9037b",
+    "location": ".tools/device-checks/20261027-140524/results.json",
+    "sha256": "0be2201c1ea484c0ca49419c052e84b3071a494d3a479dbaa4f1db2f0cc9037b",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-140524-results-0be2201c1ea4"
+  },
+  {
+    "id": ".tools/device-checks/20261027-140851/results.json@887a28bba3e73993b32428571ca9eb2088b6cb5491a18b4d71bd8c4f1358ad23",
+    "location": ".tools/device-checks/20261027-140851/results.json",
+    "sha256": "887a28bba3e73993b32428571ca9eb2088b6cb5491a18b4d71bd8c4f1358ad23",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-140851-results-887a28bba3e7"
+  },
+  {
+    "id": ".tools/device-checks/20261027-141227/results.json@a4d7f9ca23090dd654282bbdf7fb20eb3ef9b57f768ab6e34a0e7d8e1660997b",
+    "location": ".tools/device-checks/20261027-141227/results.json",
+    "sha256": "a4d7f9ca23090dd654282bbdf7fb20eb3ef9b57f768ab6e34a0e7d8e1660997b",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-141227-results-a4d7f9ca2309"
+  },
+  {
+    "id": ".tools/device-checks/20261027-141549/results.json@6f2dcd392d0965a98def2c04714c8eb4a62624cffc75382ab5793a1fbbabbc04",
+    "location": ".tools/device-checks/20261027-141549/results.json",
+    "sha256": "6f2dcd392d0965a98def2c04714c8eb4a62624cffc75382ab5793a1fbbabbc04",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-141549-results-6f2dcd392d09"
+  },
+  {
+    "id": ".tools/device-checks/20261027-141805/results.json@9c58bc8ae9289d97b8e23c1346366a4ed0ecc32df7efed224616046d721f92f2",
+    "location": ".tools/device-checks/20261027-141805/results.json",
+    "sha256": "9c58bc8ae9289d97b8e23c1346366a4ed0ecc32df7efed224616046d721f92f2",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-141805-results-9c58bc8ae928"
+  },
+  {
+    "id": ".tools/device-checks/20261027-142136/results.json@75f26139a3ec15b5ff2d494f4a97c21165752dbec03510bd3511a227d2f23d7c",
+    "location": ".tools/device-checks/20261027-142136/results.json",
+    "sha256": "75f26139a3ec15b5ff2d494f4a97c21165752dbec03510bd3511a227d2f23d7c",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-142136-results-75f26139a3ec"
+  },
+  {
+    "id": ".tools/device-checks/20261027-163651/results.json@d2ea19811d68ecfe21fdf2bd8bf0f4873ba0ba4018a8a2307d6d730740dc9f95",
+    "location": ".tools/device-checks/20261027-163651/results.json",
+    "sha256": "d2ea19811d68ecfe21fdf2bd8bf0f4873ba0ba4018a8a2307d6d730740dc9f95",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-163651-results-d2ea19811d68"
+  },
+  {
+    "id": ".tools/device-checks/20261027-164519/results.json@2afe11eef4b6d47a0e40a6c75d72885fde576c9177d8c1bb85df98e463b736d4",
+    "location": ".tools/device-checks/20261027-164519/results.json",
+    "sha256": "2afe11eef4b6d47a0e40a6c75d72885fde576c9177d8c1bb85df98e463b736d4",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-164519-results-2afe11eef4b6"
+  },
+  {
+    "id": ".tools/device-checks/20261027-165143/results.json@115683579435f0a1e8584cfc25f773e9990fa450afda1d43167d922f1b0c7694",
+    "location": ".tools/device-checks/20261027-165143/results.json",
+    "sha256": "115683579435f0a1e8584cfc25f773e9990fa450afda1d43167d922f1b0c7694",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-165143-results-115683579435"
+  },
+  {
+    "id": ".tools/device-checks/20261027-170054/results.json@3df196e3ca154e8dd9302264ee4e5e141e9722994ec32ce084deb5c78e0253e4",
+    "location": ".tools/device-checks/20261027-170054/results.json",
+    "sha256": "3df196e3ca154e8dd9302264ee4e5e141e9722994ec32ce084deb5c78e0253e4",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-170054-results-3df196e3ca15"
+  },
+  {
+    "id": ".tools/device-checks/20261027-170122/results.json@8f8ad9196987e1e025a98dff0691c1ef6caa792744a02675a4a017761bb2183c",
+    "location": ".tools/device-checks/20261027-170122/results.json",
+    "sha256": "8f8ad9196987e1e025a98dff0691c1ef6caa792744a02675a4a017761bb2183c",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-170122-results-8f8ad9196987"
+  },
+  {
+    "id": ".tools/device-checks/20261027-170603/results.json@1b91ab4259a3785241f91906b57e95d887837b23e72954d95711684ad5533460",
+    "location": ".tools/device-checks/20261027-170603/results.json",
+    "sha256": "1b91ab4259a3785241f91906b57e95d887837b23e72954d95711684ad5533460",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-170603-results-1b91ab4259a3"
+  },
+  {
+    "id": ".tools/device-checks/20261027-170952/results.json@b0b1f445d564ff3fc91b261091f4ee6c4e8f5fb2269a7a848ddccb95c39a1d18",
+    "location": ".tools/device-checks/20261027-170952/results.json",
+    "sha256": "b0b1f445d564ff3fc91b261091f4ee6c4e8f5fb2269a7a848ddccb95c39a1d18",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-170952-results-b0b1f445d564"
+  },
+  {
+    "id": ".tools/device-checks/20261027-172150/results.json@e5d9fdf8d8dd5b29dcc9c730cfdaf6730be1b8e8da4ecd644519015ba9407969",
+    "location": ".tools/device-checks/20261027-172150/results.json",
+    "sha256": "e5d9fdf8d8dd5b29dcc9c730cfdaf6730be1b8e8da4ecd644519015ba9407969",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-172150-results-e5d9fdf8d8dd"
+  },
+  {
+    "id": ".tools/device-checks/20261027-172855/results.json@9372394032626030418b11de1140704788b20afcc431f08acc3472756e37883e",
+    "location": ".tools/device-checks/20261027-172855/results.json",
+    "sha256": "9372394032626030418b11de1140704788b20afcc431f08acc3472756e37883e",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-172855-results-937239403262"
+  },
+  {
+    "id": ".tools/device-checks/20261027-191203/results.json@3f41c6135cf33099a0dd6f1d45fc902a970bd7ffa4d20620126ca54f2818282e",
+    "location": ".tools/device-checks/20261027-191203/results.json",
+    "sha256": "3f41c6135cf33099a0dd6f1d45fc902a970bd7ffa4d20620126ca54f2818282e",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-191203-results-3f41c6135cf3"
+  },
+  {
+    "id": ".tools/device-checks/20261027-191251/results.json@0212aae5082d651cc0d4904e289760d72468f6b415536150bafed1ee2e3d8ba8",
+    "location": ".tools/device-checks/20261027-191251/results.json",
+    "sha256": "0212aae5082d651cc0d4904e289760d72468f6b415536150bafed1ee2e3d8ba8",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-191251-results-0212aae5082d"
+  },
+  {
+    "id": ".tools/device-checks/20261027-204958/results.json@5a114d0cca56f12a9d75143fa497837f46f5dcb3be232a301a7bed16ad3a9727",
+    "location": ".tools/device-checks/20261027-204958/results.json",
+    "sha256": "5a114d0cca56f12a9d75143fa497837f46f5dcb3be232a301a7bed16ad3a9727",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-204958-results-5a114d0cca56"
+  },
+  {
+    "id": ".tools/device-checks/20261027-205403/results.json@bdeeb566f3b0aef2d37806540590912bbef2f2135cda58d637efecbcb7d52bbf",
+    "location": ".tools/device-checks/20261027-205403/results.json",
+    "sha256": "bdeeb566f3b0aef2d37806540590912bbef2f2135cda58d637efecbcb7d52bbf",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-205403-results-bdeeb566f3b0"
+  },
+  {
+    "id": ".tools/device-checks/20261027-205642/results.json@e013c69d2da60dd0907157465257b8d44c6559d9148d923f85fe1a6cff7b95e1",
+    "location": ".tools/device-checks/20261027-205642/results.json",
+    "sha256": "e013c69d2da60dd0907157465257b8d44c6559d9148d923f85fe1a6cff7b95e1",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-205642-results-e013c69d2da6"
+  },
+  {
+    "id": ".tools/device-checks/20261027-210004/results.json@f14c354ddf25bc79792f101ecfaed52f7a86acfdca5feba1d95515271f9c7043",
+    "location": ".tools/device-checks/20261027-210004/results.json",
+    "sha256": "f14c354ddf25bc79792f101ecfaed52f7a86acfdca5feba1d95515271f9c7043",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-210004-results-f14c354ddf25"
+  },
+  {
+    "id": ".tools/device-checks/20261027-210429/results.json@f5bfce8235afd72eefaa7edb27592a40c808f7df512a4a05140c839a7333dc15",
+    "location": ".tools/device-checks/20261027-210429/results.json",
+    "sha256": "f5bfce8235afd72eefaa7edb27592a40c808f7df512a4a05140c839a7333dc15",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-210429-results-f5bfce8235af"
+  },
+  {
+    "id": ".tools/device-checks/20261027-224749/results.json@5bc06fce1604f2f1ceca9f8bbd518453c4359bfce8c3f77cff46e0dcb26f2927",
+    "location": ".tools/device-checks/20261027-224749/results.json",
+    "sha256": "5bc06fce1604f2f1ceca9f8bbd518453c4359bfce8c3f77cff46e0dcb26f2927",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-224749-results-5bc06fce1604"
+  },
+  {
+    "id": ".tools/device-checks/20261027-225103/results.json@98974a08a3667760af9a3b0f3c914262b913e3a2051905221bb37e9ee5ed2e62",
+    "location": ".tools/device-checks/20261027-225103/results.json",
+    "sha256": "98974a08a3667760af9a3b0f3c914262b913e3a2051905221bb37e9ee5ed2e62",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-225103-results-98974a08a366"
+  },
+  {
+    "id": ".tools/device-checks/20261027-230807/results.json@f448748ae214742b1e9d5f8525fb2a3eb8ed67b56b6252e48d7dd3a0ffbd973a",
+    "location": ".tools/device-checks/20261027-230807/results.json",
+    "sha256": "f448748ae214742b1e9d5f8525fb2a3eb8ed67b56b6252e48d7dd3a0ffbd973a",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-230807-results-f448748ae214"
+  },
+  {
+    "id": ".tools/device-checks/20261027-231454/results.json@d21884bdfb4744d43dd7e461cd9cb47e925b5effa7b9e825c3b6bcd80939c8cd",
+    "location": ".tools/device-checks/20261027-231454/results.json",
+    "sha256": "d21884bdfb4744d43dd7e461cd9cb47e925b5effa7b9e825c3b6bcd80939c8cd",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-231454-results-d21884bdfb47"
+  },
+  {
+    "id": ".tools/device-checks/20261027-232603/results.json@d7b19b26e2047239291f0c84368305e3c86a4e5531d4881c2afe60be0ea9f39b",
+    "location": ".tools/device-checks/20261027-232603/results.json",
+    "sha256": "d7b19b26e2047239291f0c84368305e3c86a4e5531d4881c2afe60be0ea9f39b",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261027-232603-results-d7b19b26e204"
+  },
+  {
+    "id": ".tools/device-checks/20261028-095723/results.json@256db7938dcb48c60f1f9631d547eb05420c92287db7efaa5f5a6f83e71e99e7",
+    "location": ".tools/device-checks/20261028-095723/results.json",
+    "sha256": "256db7938dcb48c60f1f9631d547eb05420c92287db7efaa5f5a6f83e71e99e7",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-095723-results-256db7938dcb"
+  },
+  {
+    "id": ".tools/device-checks/20261028-095741/results.json@5db1072181b22aa20e80fba35f703a3f99ee85819972b64e3536f3288f70902d",
+    "location": ".tools/device-checks/20261028-095741/results.json",
+    "sha256": "5db1072181b22aa20e80fba35f703a3f99ee85819972b64e3536f3288f70902d",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-095741-results-5db1072181b2"
+  },
+  {
+    "id": ".tools/device-checks/20261028-095931/results.json@9895cc3dc35e9d7ee2cb4c93a5842de846e40b7dd7ae5f280dfe95f1da3b1f77",
+    "location": ".tools/device-checks/20261028-095931/results.json",
+    "sha256": "9895cc3dc35e9d7ee2cb4c93a5842de846e40b7dd7ae5f280dfe95f1da3b1f77",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-095931-results-9895cc3dc35e"
+  },
+  {
+    "id": ".tools/device-checks/20261028-115303/results.json@b3c9fa6c7e6d04043e81fb16f67744a596829f1fd336c7f492f0fc785baa110f",
+    "location": ".tools/device-checks/20261028-115303/results.json",
+    "sha256": "b3c9fa6c7e6d04043e81fb16f67744a596829f1fd336c7f492f0fc785baa110f",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-115303-results-b3c9fa6c7e6d"
+  },
+  {
+    "id": ".tools/device-checks/20261028-120238/results.json@30907a482965629598f8f129c79dbe3f02a74e40b04237cfe2887feb2ff44d93",
+    "location": ".tools/device-checks/20261028-120238/results.json",
+    "sha256": "30907a482965629598f8f129c79dbe3f02a74e40b04237cfe2887feb2ff44d93",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-120238-results-30907a482965"
+  },
+  {
+    "id": ".tools/device-checks/20261028-121507/results.json@78501fddc3fd6c13b5c1149e298a8e6fafb4e50e18a8d376fd06797accedfe3f",
+    "location": ".tools/device-checks/20261028-121507/results.json",
+    "sha256": "78501fddc3fd6c13b5c1149e298a8e6fafb4e50e18a8d376fd06797accedfe3f",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-121507-results-78501fddc3fd"
+  },
+  {
+    "id": ".tools/device-checks/20261028-122020/results.json@4aa2369ee53ef0bb763c8b797b4c84eacf4bf077635c376058695957eeb9cc33",
+    "location": ".tools/device-checks/20261028-122020/results.json",
+    "sha256": "4aa2369ee53ef0bb763c8b797b4c84eacf4bf077635c376058695957eeb9cc33",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-122020-results-4aa2369ee53e"
+  },
+  {
+    "id": ".tools/device-checks/20261028-122711/results.json@a220fcd26fa7ac843781eb59ff9d15fe6c91bbcda953ae0d7c282b8ba03067b4",
+    "location": ".tools/device-checks/20261028-122711/results.json",
+    "sha256": "a220fcd26fa7ac843781eb59ff9d15fe6c91bbcda953ae0d7c282b8ba03067b4",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-122711-results-a220fcd26fa7"
+  },
+  {
+    "id": ".tools/device-checks/20261028-123724/results.json@48a042d0a24bbfaaf9edb1a8cb565ad27926483bd314d9c694d4a3a8a44b1ea1",
+    "location": ".tools/device-checks/20261028-123724/results.json",
+    "sha256": "48a042d0a24bbfaaf9edb1a8cb565ad27926483bd314d9c694d4a3a8a44b1ea1",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-123724-results-48a042d0a24b"
+  },
+  {
+    "id": ".tools/device-checks/20261028-124857/results.json@5ac5de8cd1834331c18186eda327d7087157d5f85859fbd9d194984121680499",
+    "location": ".tools/device-checks/20261028-124857/results.json",
+    "sha256": "5ac5de8cd1834331c18186eda327d7087157d5f85859fbd9d194984121680499",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-124857-results-5ac5de8cd183"
+  },
+  {
+    "id": ".tools/device-checks/20261028-125303/results.json@8991f8ab547727f03414cf414812a878dd56147e3d511e5f470cedfd616f8850",
+    "location": ".tools/device-checks/20261028-125303/results.json",
+    "sha256": "8991f8ab547727f03414cf414812a878dd56147e3d511e5f470cedfd616f8850",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-125303-results-8991f8ab5477"
+  },
+  {
+    "id": ".tools/device-checks/20261028-130530/results.json@8e60d66e67bc72bea020501a7683132dd15aa399cfed9831d38ed39c4610abef",
+    "location": ".tools/device-checks/20261028-130530/results.json",
+    "sha256": "8e60d66e67bc72bea020501a7683132dd15aa399cfed9831d38ed39c4610abef",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-130530-results-8e60d66e67bc"
+  },
+  {
+    "id": ".tools/device-checks/20261028-130905/results.json@e9300168b1b1d4fd3d2edf1477ee0f15a74e106d1870a9674029b8660a0a865b",
+    "location": ".tools/device-checks/20261028-130905/results.json",
+    "sha256": "e9300168b1b1d4fd3d2edf1477ee0f15a74e106d1870a9674029b8660a0a865b",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-130905-results-e9300168b1b1"
+  },
+  {
+    "id": ".tools/device-checks/20261028-131016/results.json@dbe37aa84d433482d55cb4cdd753db303b210fec0ed225cf39184e168d1431cf",
+    "location": ".tools/device-checks/20261028-131016/results.json",
+    "sha256": "dbe37aa84d433482d55cb4cdd753db303b210fec0ed225cf39184e168d1431cf",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-131016-results-dbe37aa84d43"
+  },
+  {
+    "id": ".tools/device-checks/20261028-131742/results.json@eb2e2d779a4a6fe8adba249ea27e2d9117bb76a384186cc6dd0c1499b08a7b99",
+    "location": ".tools/device-checks/20261028-131742/results.json",
+    "sha256": "eb2e2d779a4a6fe8adba249ea27e2d9117bb76a384186cc6dd0c1499b08a7b99",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-131742-results-eb2e2d779a4a"
+  },
+  {
+    "id": ".tools/device-checks/20261028-131958/results.json@a0be9cc21ba014b56dc28ea20a93ebc898d773c6675852b75632a9cda7a7f9ce",
+    "location": ".tools/device-checks/20261028-131958/results.json",
+    "sha256": "a0be9cc21ba014b56dc28ea20a93ebc898d773c6675852b75632a9cda7a7f9ce",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-131958-results-a0be9cc21ba0"
+  },
+  {
+    "id": ".tools/device-checks/20261028-145026/results.json@e83b45ccf555d5b81451e70975e5b7c35d191893e62f17708727c47aae057384",
+    "location": ".tools/device-checks/20261028-145026/results.json",
+    "sha256": "e83b45ccf555d5b81451e70975e5b7c35d191893e62f17708727c47aae057384",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-145026-results-e83b45ccf555"
+  },
+  {
+    "id": ".tools/device-checks/20261028-145206/results.json@3a19444943246415695dccc0f82d410a848cbef71ebb903550d15647e91fe9b9",
+    "location": ".tools/device-checks/20261028-145206/results.json",
+    "sha256": "3a19444943246415695dccc0f82d410a848cbef71ebb903550d15647e91fe9b9",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-145206-results-3a1944494324"
+  },
+  {
+    "id": ".tools/device-checks/20261028-145232/results.json@0b25a68a0999c8a2b40a6eec77eee6b7ff907c7ddb18f81fbce2abca76559c86",
+    "location": ".tools/device-checks/20261028-145232/results.json",
+    "sha256": "0b25a68a0999c8a2b40a6eec77eee6b7ff907c7ddb18f81fbce2abca76559c86",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-145232-results-0b25a68a0999"
+  },
+  {
+    "id": ".tools/device-checks/20261028-145331/results.json@caf02e825999607b40604fb5b14d661e5758aaf00a16d5c40b420bcfda7cee7f",
+    "location": ".tools/device-checks/20261028-145331/results.json",
+    "sha256": "caf02e825999607b40604fb5b14d661e5758aaf00a16d5c40b420bcfda7cee7f",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-145331-results-caf02e825999"
+  },
+  {
+    "id": ".tools/device-checks/20261028-145803/results.json@95ff3f0af2ce3d04760ef339a1b3be198c240a43abd33f23088e044be9053a5e",
+    "location": ".tools/device-checks/20261028-145803/results.json",
+    "sha256": "95ff3f0af2ce3d04760ef339a1b3be198c240a43abd33f23088e044be9053a5e",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-145803-results-95ff3f0af2ce"
+  },
+  {
+    "id": ".tools/device-checks/20261028-150343/results.json@b55e727cd3b023bc48bdccecf90b13e3f01fa329adcf0b64f58b1842d4080939",
+    "location": ".tools/device-checks/20261028-150343/results.json",
+    "sha256": "b55e727cd3b023bc48bdccecf90b13e3f01fa329adcf0b64f58b1842d4080939",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-150343-results-b55e727cd3b0"
+  },
+  {
+    "id": ".tools/device-checks/20261028-150401/results.json@6cdb9f5281f4d0f45f1fe06faa8685618dbc080b836fc3a6c4149ef7f3620708",
+    "location": ".tools/device-checks/20261028-150401/results.json",
+    "sha256": "6cdb9f5281f4d0f45f1fe06faa8685618dbc080b836fc3a6c4149ef7f3620708",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-150401-results-6cdb9f5281f4"
+  },
+  {
+    "id": ".tools/device-checks/20261028-150600/results.json@f2be0fc7e2db6f81be4042776e0a8c9d7e258e8f37d90bdb5611f61b1c4845fe",
+    "location": ".tools/device-checks/20261028-150600/results.json",
+    "sha256": "f2be0fc7e2db6f81be4042776e0a8c9d7e258e8f37d90bdb5611f61b1c4845fe",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-150600-results-f2be0fc7e2db"
+  },
+  {
+    "id": ".tools/device-checks/20261028-164710/results.json@bfe59fb62e1bc7c9f5f2a87fa129a83d796cd96909f3cb0a4fb9d7d0d44edb56",
+    "location": ".tools/device-checks/20261028-164710/results.json",
+    "sha256": "bfe59fb62e1bc7c9f5f2a87fa129a83d796cd96909f3cb0a4fb9d7d0d44edb56",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-164710-results-bfe59fb62e1b"
+  },
+  {
+    "id": ".tools/device-checks/20261028-165627/results.json@a9cad16ea8f7cd1d030ac9b06dc2018399e8d4421c89aba87e7c557a26eebba6",
+    "location": ".tools/device-checks/20261028-165627/results.json",
+    "sha256": "a9cad16ea8f7cd1d030ac9b06dc2018399e8d4421c89aba87e7c557a26eebba6",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-165627-results-a9cad16ea8f7"
+  },
+  {
+    "id": ".tools/device-checks/20261028-170250/results.json@df7dcfd841cc7224abdf3adadc2ca6b983a67ec5a74097dcd8d2e9989b589fe2",
+    "location": ".tools/device-checks/20261028-170250/results.json",
+    "sha256": "df7dcfd841cc7224abdf3adadc2ca6b983a67ec5a74097dcd8d2e9989b589fe2",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-170250-results-df7dcfd841cc"
+  },
+  {
+    "id": ".tools/device-checks/20261028-170506/results.json@7f81fb07be5e0447af9aa3ed66d9e91c9e9884a0c6fc59534f5e058adc70bcc0",
+    "location": ".tools/device-checks/20261028-170506/results.json",
+    "sha256": "7f81fb07be5e0447af9aa3ed66d9e91c9e9884a0c6fc59534f5e058adc70bcc0",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-170506-results-7f81fb07be5e"
+  },
+  {
+    "id": ".tools/device-checks/20261028-171115/results.json@ea90baa77124666a7c97e52dddd194ecccaf5864b72623300d91b441e680c0c3",
+    "location": ".tools/device-checks/20261028-171115/results.json",
+    "sha256": "ea90baa77124666a7c97e52dddd194ecccaf5864b72623300d91b441e680c0c3",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-171115-results-ea90baa77124"
+  },
+  {
+    "id": ".tools/device-checks/20261028-172446/results.json@a9637995d234486d1de118dd7f7fe687438c3143be86e8393e20e2fcffb133c9",
+    "location": ".tools/device-checks/20261028-172446/results.json",
+    "sha256": "a9637995d234486d1de118dd7f7fe687438c3143be86e8393e20e2fcffb133c9",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-172446-results-a9637995d234"
+  },
+  {
+    "id": ".tools/device-checks/20261028-173332/results.json@5051ab93108cf6ac10f8b49b951860cb5bde9cabb1b60f7fb16443d63975de24",
+    "location": ".tools/device-checks/20261028-173332/results.json",
+    "sha256": "5051ab93108cf6ac10f8b49b951860cb5bde9cabb1b60f7fb16443d63975de24",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-173332-results-5051ab93108c"
+  },
+  {
+    "id": ".tools/device-checks/20261028-175644/results.json@5dbf0ae6be1a0a388aad92310c00be291d11e493d409fd2326eeff0d270d962b",
+    "location": ".tools/device-checks/20261028-175644/results.json",
+    "sha256": "5dbf0ae6be1a0a388aad92310c00be291d11e493d409fd2326eeff0d270d962b",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-175644-results-5dbf0ae6be1a"
+  },
+  {
+    "id": ".tools/device-checks/20261028-175824/results.json@15c9d9f70ce09950eabd00c3ea5944cfaf66a04ab039729f915a71ed4875e336",
+    "location": ".tools/device-checks/20261028-175824/results.json",
+    "sha256": "15c9d9f70ce09950eabd00c3ea5944cfaf66a04ab039729f915a71ed4875e336",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-175824-results-15c9d9f70ce0"
+  },
+  {
+    "id": ".tools/device-checks/20261028-205634/results.json@14bc0eb5cc727862f0e7f48c0b0a8dc9108c152e2179d77544227cb0e30ce56e",
+    "location": ".tools/device-checks/20261028-205634/results.json",
+    "sha256": "14bc0eb5cc727862f0e7f48c0b0a8dc9108c152e2179d77544227cb0e30ce56e",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-205634-results-14bc0eb5cc72"
+  },
+  {
+    "id": ".tools/device-checks/20261028-211115/results.json@912cba97a67a8195d681ac78b63daba829a290308868c2bda50d3e7b61126f3e",
+    "location": ".tools/device-checks/20261028-211115/results.json",
+    "sha256": "912cba97a67a8195d681ac78b63daba829a290308868c2bda50d3e7b61126f3e",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-211115-results-912cba97a67a"
+  },
+  {
+    "id": ".tools/device-checks/20261028-211319/results.json@6d5b74197be5d6ae895ccb7513d50a91d32afb337a1ca88a35be342f9e1ce9e5",
+    "location": ".tools/device-checks/20261028-211319/results.json",
+    "sha256": "6d5b74197be5d6ae895ccb7513d50a91d32afb337a1ca88a35be342f9e1ce9e5",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-211319-results-6d5b74197be5"
+  },
+  {
+    "id": ".tools/device-checks/20261028-211554/results.json@722430dec5a6ffcb69c86b5a41f4b67ddc6ddfe024e7b1841baa9f3b5c99fdcd",
+    "location": ".tools/device-checks/20261028-211554/results.json",
+    "sha256": "722430dec5a6ffcb69c86b5a41f4b67ddc6ddfe024e7b1841baa9f3b5c99fdcd",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-211554-results-722430dec5a6"
+  },
+  {
+    "id": ".tools/device-checks/20261028-213138/results.json@46583b303b1c57b33ec693b8d515a5cee44c0bc60c45d36c692b63f2c49a8f3d",
+    "location": ".tools/device-checks/20261028-213138/results.json",
+    "sha256": "46583b303b1c57b33ec693b8d515a5cee44c0bc60c45d36c692b63f2c49a8f3d",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-213138-results-46583b303b1c"
+  },
+  {
+    "id": ".tools/device-checks/20261028-214342/results.json@4daf281923d90841debcdb5c8f20923e2c4421ed0405a466a4332f481b51d2fc",
+    "location": ".tools/device-checks/20261028-214342/results.json",
+    "sha256": "4daf281923d90841debcdb5c8f20923e2c4421ed0405a466a4332f481b51d2fc",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-214342-results-4daf281923d9"
+  },
+  {
+    "id": ".tools/device-checks/20261028-215242/results.json@0888ac0a1ec44525daf4fb17da5167358d8baa73b25258956fa1791dac19d2de",
+    "location": ".tools/device-checks/20261028-215242/results.json",
+    "sha256": "0888ac0a1ec44525daf4fb17da5167358d8baa73b25258956fa1791dac19d2de",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-215242-results-0888ac0a1ec4"
+  },
+  {
+    "id": ".tools/device-checks/20261028-215649/results.json@3f3ea96979959143d7bea03f8ece94b823bc22fdb3b49aefddb17e2fe4c4fcc7",
+    "location": ".tools/device-checks/20261028-215649/results.json",
+    "sha256": "3f3ea96979959143d7bea03f8ece94b823bc22fdb3b49aefddb17e2fe4c4fcc7",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-215649-results-3f3ea9697995"
+  },
+  {
+    "id": ".tools/device-checks/20261028-215705/results.json@56ea652e42f7b399f2f8f3424e1a1c5ef974fdde3d9034cbcbe7b03d9e2b8db0",
+    "location": ".tools/device-checks/20261028-215705/results.json",
+    "sha256": "56ea652e42f7b399f2f8f3424e1a1c5ef974fdde3d9034cbcbe7b03d9e2b8db0",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-215705-results-56ea652e42f7"
+  },
+  {
+    "id": ".tools/device-checks/20261028-224444/results.json@82d06ba4d6c2897553bf8b1f13fcdc5c9ba3372ce6c2361ee2da25fd3a0bbe83",
+    "location": ".tools/device-checks/20261028-224444/results.json",
+    "sha256": "82d06ba4d6c2897553bf8b1f13fcdc5c9ba3372ce6c2361ee2da25fd3a0bbe83",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-224444-results-82d06ba4d6c2"
+  },
+  {
+    "id": ".tools/device-checks/20261028-231120/results.json@0f043b5d3231bb2a27b60ba39556001c2656ba920ed548522c95df1f76aa1939",
+    "location": ".tools/device-checks/20261028-231120/results.json",
+    "sha256": "0f043b5d3231bb2a27b60ba39556001c2656ba920ed548522c95df1f76aa1939",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261028-231120-results-0f043b5d3231"
+  },
+  {
+    "id": ".tools/device-checks/20261029-103919/results.json@f056f2dc1e9f53f882dc4e13e0840cb557f9eea6b0537c746a65940c77e16a60",
+    "location": ".tools/device-checks/20261029-103919/results.json",
+    "sha256": "f056f2dc1e9f53f882dc4e13e0840cb557f9eea6b0537c746a65940c77e16a60",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-103919-results-f056f2dc1e9f"
+  },
+  {
+    "id": ".tools/device-checks/20261029-104118/results.json@2f21aa4e4f1191513d56d744d844b98580bdd39f51e6f28e41bca707506be959",
+    "location": ".tools/device-checks/20261029-104118/results.json",
+    "sha256": "2f21aa4e4f1191513d56d744d844b98580bdd39f51e6f28e41bca707506be959",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-104118-results-2f21aa4e4f11"
+  },
+  {
+    "id": ".tools/device-checks/20261029-113732/results.json@955259a44c84040094219ba009c2c72a959e51ba7a8bd792e6e5f43346d53fe9",
+    "location": ".tools/device-checks/20261029-113732/results.json",
+    "sha256": "955259a44c84040094219ba009c2c72a959e51ba7a8bd792e6e5f43346d53fe9",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-113732-results-955259a44c84"
+  },
+  {
+    "id": ".tools/device-checks/20261029-114209/results.json@8f86bfdc108d4c94c278f8afd7224aaba15d31fe6f0900ff1ca507575718ba88",
+    "location": ".tools/device-checks/20261029-114209/results.json",
+    "sha256": "8f86bfdc108d4c94c278f8afd7224aaba15d31fe6f0900ff1ca507575718ba88",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-114209-results-8f86bfdc108d"
+  },
+  {
+    "id": ".tools/device-checks/20261029-114549/results.json@8ecc5ac7cce288419fe53f84d92fdbf1bc964b90ad832651b080d639acf799e8",
+    "location": ".tools/device-checks/20261029-114549/results.json",
+    "sha256": "8ecc5ac7cce288419fe53f84d92fdbf1bc964b90ad832651b080d639acf799e8",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-114549-results-8ecc5ac7cce2"
+  },
+  {
+    "id": ".tools/device-checks/20261029-115918/results.json@7ebbdcc6a43ef8118a943f6c8db4e5322312cbfe0b13372bcaa4e3a02dbef62b",
+    "location": ".tools/device-checks/20261029-115918/results.json",
+    "sha256": "7ebbdcc6a43ef8118a943f6c8db4e5322312cbfe0b13372bcaa4e3a02dbef62b",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-115918-results-7ebbdcc6a43e"
+  },
+  {
+    "id": ".tools/device-checks/20261029-120500/results.json@927778957e1223bdc7caf4965c0164daa97693121dd36f9f6b1af5cbb8853653",
+    "location": ".tools/device-checks/20261029-120500/results.json",
+    "sha256": "927778957e1223bdc7caf4965c0164daa97693121dd36f9f6b1af5cbb8853653",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-120500-results-927778957e12"
+  },
+  {
+    "id": ".tools/device-checks/20261029-143835/results.json@cc3e79322c42238fcbafbde8409d2f6c6e9bb6a2234197c274823207496f5dc5",
+    "location": ".tools/device-checks/20261029-143835/results.json",
+    "sha256": "cc3e79322c42238fcbafbde8409d2f6c6e9bb6a2234197c274823207496f5dc5",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-143835-results-cc3e79322c42"
+  },
+  {
+    "id": ".tools/device-checks/20261029-144003/results.json@64522d984b8a367f1d22428dc1fd843b4f2226bf62201ab35aec50be6e6aa1c6",
+    "location": ".tools/device-checks/20261029-144003/results.json",
+    "sha256": "64522d984b8a367f1d22428dc1fd843b4f2226bf62201ab35aec50be6e6aa1c6",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-144003-results-64522d984b8a"
+  },
+  {
+    "id": ".tools/device-checks/20261029-144127/results.json@7e5c91227c115e696aca287d36ca4f3f974cc44a50d9cfc05fbfba0de61f6c76",
+    "location": ".tools/device-checks/20261029-144127/results.json",
+    "sha256": "7e5c91227c115e696aca287d36ca4f3f974cc44a50d9cfc05fbfba0de61f6c76",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-144127-results-7e5c91227c11"
+  },
+  {
+    "id": ".tools/device-checks/20261029-144950/results.json@4ec612fec0f3362c2b472cc73d76aceed76bacb187dcb44249dfd520c611fd01",
+    "location": ".tools/device-checks/20261029-144950/results.json",
+    "sha256": "4ec612fec0f3362c2b472cc73d76aceed76bacb187dcb44249dfd520c611fd01",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-144950-results-4ec612fec0f3"
+  },
+  {
+    "id": ".tools/device-checks/20261029-150117/results.json@32c83de1e0225d9abb50213db7b29284077e75e706282b2b853844de1d85d374",
+    "location": ".tools/device-checks/20261029-150117/results.json",
+    "sha256": "32c83de1e0225d9abb50213db7b29284077e75e706282b2b853844de1d85d374",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-150117-results-32c83de1e022"
+  },
+  {
+    "id": ".tools/device-checks/20261029-150445/results.json@63ac9555232bef6bef512a3d709b356c974eb60bb76976f7d13299e39207a9e9",
+    "location": ".tools/device-checks/20261029-150445/results.json",
+    "sha256": "63ac9555232bef6bef512a3d709b356c974eb60bb76976f7d13299e39207a9e9",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-150445-results-63ac9555232b"
+  },
+  {
+    "id": ".tools/device-checks/20261029-150927/results.json@478e6d0fa2b08cb4fc8c893b1878ace812b9fcb8137b27e3c378bb0b1ff4c6ed",
+    "location": ".tools/device-checks/20261029-150927/results.json",
+    "sha256": "478e6d0fa2b08cb4fc8c893b1878ace812b9fcb8137b27e3c378bb0b1ff4c6ed",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-150927-results-478e6d0fa2b0"
+  },
+  {
+    "id": ".tools/device-checks/20261029-161442/results.json@5d0a8082818d68ce05dbae78990caad291a5a2fc2fb1d7542101b14b5b056250",
+    "location": ".tools/device-checks/20261029-161442/results.json",
+    "sha256": "5d0a8082818d68ce05dbae78990caad291a5a2fc2fb1d7542101b14b5b056250",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-161442-results-5d0a8082818d"
+  },
+  {
+    "id": ".tools/device-checks/20261029-162024/results.json@323d23afe28d0289581f9ef6d86fa0fa312a9d100f12b2edceabca0d0ae4f37c",
+    "location": ".tools/device-checks/20261029-162024/results.json",
+    "sha256": "323d23afe28d0289581f9ef6d86fa0fa312a9d100f12b2edceabca0d0ae4f37c",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-162024-results-323d23afe28d"
+  },
+  {
+    "id": ".tools/device-checks/20261029-162040/results.json@095d4518e06a0bd18753386522b030fde47899c114cddf98a0eb21342f09e06b",
+    "location": ".tools/device-checks/20261029-162040/results.json",
+    "sha256": "095d4518e06a0bd18753386522b030fde47899c114cddf98a0eb21342f09e06b",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-162040-results-095d4518e06a"
+  },
+  {
+    "id": ".tools/device-checks/20261029-162233/results.json@e20d3a11efbca6224c8ac6cc55e9a21d20cd9dddd83f8b0cdfa23440eff1dd4b",
+    "location": ".tools/device-checks/20261029-162233/results.json",
+    "sha256": "e20d3a11efbca6224c8ac6cc55e9a21d20cd9dddd83f8b0cdfa23440eff1dd4b",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-162233-results-e20d3a11efbc"
+  },
+  {
+    "id": ".tools/device-checks/20261029-170009/results.json@e49deabdc2a7d335fdedd920a11b59bb3074e33f696a7543fbc5410b16ce4e16",
+    "location": ".tools/device-checks/20261029-170009/results.json",
+    "sha256": "e49deabdc2a7d335fdedd920a11b59bb3074e33f696a7543fbc5410b16ce4e16",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-170009-results-e49deabdc2a7"
+  },
+  {
+    "id": ".tools/device-checks/20261029-171104/results.json@18b94e7cabb312e5b0b9b5a12b4f94ac84da34bde23822bb19c9f6d9142a21d6",
+    "location": ".tools/device-checks/20261029-171104/results.json",
+    "sha256": "18b94e7cabb312e5b0b9b5a12b4f94ac84da34bde23822bb19c9f6d9142a21d6",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-171104-results-18b94e7cabb3"
+  },
+  {
+    "id": ".tools/device-checks/20261029-171936/results.json@9ca65ebf92db9ec5c1ca624feb3ab6fbec49aca959bc769a5d9d0458237afce3",
+    "location": ".tools/device-checks/20261029-171936/results.json",
+    "sha256": "9ca65ebf92db9ec5c1ca624feb3ab6fbec49aca959bc769a5d9d0458237afce3",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-171936-results-9ca65ebf92db"
+  },
+  {
+    "id": ".tools/device-checks/20261029-180713/results.json@367feb8fa2a78ac4ed6257138af62e86ee80a1880840c5996c66a83838b152a8",
+    "location": ".tools/device-checks/20261029-180713/results.json",
+    "sha256": "367feb8fa2a78ac4ed6257138af62e86ee80a1880840c5996c66a83838b152a8",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-180713-results-367feb8fa2a7"
+  },
+  {
+    "id": ".tools/device-checks/20261029-194211/results.json@6f28e13839962f5d96c279730d9a1d0ab13fe5caec497ff2252435608149f6e4",
+    "location": ".tools/device-checks/20261029-194211/results.json",
+    "sha256": "6f28e13839962f5d96c279730d9a1d0ab13fe5caec497ff2252435608149f6e4",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-194211-results-6f28e1383996"
+  },
+  {
+    "id": ".tools/device-checks/20261029-194647/results.json@f822f4d53d8cc190c4c83ac5bc055f35d1f263402cf719ddc64907de692bef71",
+    "location": ".tools/device-checks/20261029-194647/results.json",
+    "sha256": "f822f4d53d8cc190c4c83ac5bc055f35d1f263402cf719ddc64907de692bef71",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-194647-results-f822f4d53d8c"
+  },
+  {
+    "id": ".tools/device-checks/20261029-202043/results.json@f1122469b0edbca72aad4b872c6f1cfa3bdbcfb8a346b3882f1128630a7e0dc3",
+    "location": ".tools/device-checks/20261029-202043/results.json",
+    "sha256": "f1122469b0edbca72aad4b872c6f1cfa3bdbcfb8a346b3882f1128630a7e0dc3",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-202043-results-f1122469b0ed"
+  },
+  {
+    "id": ".tools/device-checks/20261029-202133/results.json@adf7e3180e172ecaa92626e3361d4fa7852edc5c6b87a476a7f21e230c9d5953",
+    "location": ".tools/device-checks/20261029-202133/results.json",
+    "sha256": "adf7e3180e172ecaa92626e3361d4fa7852edc5c6b87a476a7f21e230c9d5953",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-202133-results-adf7e3180e17"
+  },
+  {
+    "id": ".tools/device-checks/20261029-202422/results.json@7fd375591729cdad8d7f5605d124f5460a7251c9daa13d343c4c949159ada5ad",
+    "location": ".tools/device-checks/20261029-202422/results.json",
+    "sha256": "7fd375591729cdad8d7f5605d124f5460a7251c9daa13d343c4c949159ada5ad",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261029-202422-results-7fd375591729"
+  },
+  {
+    "id": ".tools/device-checks/20261030-105757/results.json@e7293b1149a06e1e48b8fbe7c21c8b8b138b38106dfe9d13bd63078320b5c0a2",
+    "location": ".tools/device-checks/20261030-105757/results.json",
+    "sha256": "e7293b1149a06e1e48b8fbe7c21c8b8b138b38106dfe9d13bd63078320b5c0a2",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261030-105757-results-e7293b1149a0"
+  },
+  {
+    "id": ".tools/device-checks/20261030-110103/results.json@46c9d5e9b17d15f30755502f57b478eebe524c237d47845b3c19f4c9ea0f3c84",
+    "location": ".tools/device-checks/20261030-110103/results.json",
+    "sha256": "46c9d5e9b17d15f30755502f57b478eebe524c237d47845b3c19f4c9ea0f3c84",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261030-110103-results-46c9d5e9b17d"
+  },
+  {
+    "id": ".tools/device-checks/20261030-110425/results.json@2b26a14751f975e1c612bf81f2108dde6780f4812ed8f8fde17aa40bd842462c",
+    "location": ".tools/device-checks/20261030-110425/results.json",
+    "sha256": "2b26a14751f975e1c612bf81f2108dde6780f4812ed8f8fde17aa40bd842462c",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261030-110425-results-2b26a14751f9"
+  },
+  {
+    "id": ".tools/device-checks/20261030-110955/results.json@e14bc1081129e40be50b469c60c443c1eeba65ddef83ddc95f8dee38652eab26",
+    "location": ".tools/device-checks/20261030-110955/results.json",
+    "sha256": "e14bc1081129e40be50b469c60c443c1eeba65ddef83ddc95f8dee38652eab26",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261030-110955-results-e14bc1081129"
+  },
+  {
+    "id": ".tools/device-checks/20261030-112251/results.json@c39d7ed1a65985810a0e1ee71909911c6eff1553b23cefc17a6a56c61391c9b8",
+    "location": ".tools/device-checks/20261030-112251/results.json",
+    "sha256": "c39d7ed1a65985810a0e1ee71909911c6eff1553b23cefc17a6a56c61391c9b8",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261030-112251-results-c39d7ed1a659"
+  },
+  {
+    "id": "docs/validation/0.1.1/apk.json@74e2100af6158179d437edd77a02deca341f2da59632b0f52d977234c1c61cf5",
+    "location": "docs/validation/0.1.1/apk.json",
+    "sha256": "74e2100af6158179d437edd77a02deca341f2da59632b0f52d977234c1c61cf5",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": null,
+    "source_fields": {},
+    "declared_scope": []
+  },
+  {
+    "id": "docs/validation/color-grid/results.json@60cf703a2f56e7430b2d646be36ea3ae889ceea055361dbf92289030fb4d9268",
+    "location": "docs/validation/color-grid/results.json",
+    "sha256": "60cf703a2f56e7430b2d646be36ea3ae889ceea055361dbf92289030fb4d9268",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": "2026-10-25",
+    "source_fields": {
+      "apk": "app/build/outputs/apk/debug/app-debug.apk"
+    },
+    "declared_scope": []
+  },
+  {
+    "id": "docs/validation/emulator-api36/drag-results.json@9bd1f8c5793f60c20db8a9d49488a6ad7264629a7f28642580c53c7c52275b1b",
+    "location": "docs/validation/emulator-api36/drag-results.json",
+    "sha256": "9bd1f8c5793f60c20db8a9d49488a6ad7264629a7f28642580c53c7c52275b1b",
+    "note": "旧结构（非对象），仅索引"
+  },
+  {
+    "id": "docs/validation/emulator-api36/environment.json@e2c45a51beb3fdc32f80011bac4619a6dfb761399d2435a202d4b65b3392b65d",
+    "location": "docs/validation/emulator-api36/environment.json",
+    "sha256": "e2c45a51beb3fdc32f80011bac4619a6dfb761399d2435a202d4b65b3392b65d",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": "2026-10-21",
+    "source_fields": {},
+    "declared_scope": "WindowManager frame moves; tap changes/removes overlay; no FATAL EXCEPTION"
+  },
+  {
+    "id": "docs/validation/home-preview/results.json@dfa43dde1b14267f41ad4d22ffb844556743696b43cd1e929d573d3eadeb65fa",
+    "location": "docs/validation/home-preview/results.json",
+    "sha256": "dfa43dde1b14267f41ad4d22ffb844556743696b43cd1e929d573d3eadeb65fa",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": "2026-10-23",
+    "source_fields": {},
+    "declared_scope": [
+      "Home has no large time card; duration and start remain visible",
+      "Manual timer start and stop with real overlay",
+      "Live color and shape changes in settings preview",
+      "Continuous and step color mode comparison at same preview progress",
+      "Live intensity, base size and opacity changes while preview stays visible",
+      "Preview progress 100 percent with size 1.50 and intensity 1.00 shows completion; no timer service",
+      "Preview native timer text cannot expand or drag",
+      "Settings retained across process restart",
+      "Circle preview fitted with readable text in landscape and 1.3 font scale",
+      "Round rectangle preview after fit change"
+    ]
+  },
+  {
+    "id": "docs/validation/overlay-fixes/results.json@e29721cf17c30882860c08709888717e8c414993ed67f35c063e2934a928fd8a",
+    "location": "docs/validation/overlay-fixes/results.json",
+    "sha256": "e29721cf17c30882860c08709888717e8c414993ed67f35c063e2934a928fd8a",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": "2026-10-24",
+    "source_fields": {
+      "apk": "app/build/outputs/apk/debug/app-debug.apk"
+    },
+    "declared_scope": []
+  },
+  {
+    "id": "docs/validation/preset-extension/results.json@061d5a78f3d1f95e1a8c22dd4c81175ef179b68ec5145d8dd3f1acb4a3f6c753",
+    "location": "docs/validation/preset-extension/results.json",
+    "sha256": "061d5a78f3d1f95e1a8c22dd4c81175ef179b68ec5145d8dd3f1acb4a3f6c753",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": "2026-10-24",
+    "source_fields": {
+      "apk": "app/build/outputs/apk/debug/app-debug.apk"
+    },
+    "declared_scope": []
+  },
+  {
+    "id": "docs/validation/presets/results.json@c9102e2c2ef91105940f04b4c53a91989bb8273d0372df41d93f50a939a93219",
+    "location": "docs/validation/presets/results.json",
+    "sha256": "c9102e2c2ef91105940f04b4c53a91989bb8273d0372df41d93f50a939a93219",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": null,
+    "source_fields": {
+      "base_commit": "a313629d3b06c8567a49a987032d7728c89cc0c8",
+      "apk": {
+        "path": "app/build/outputs/apk/debug/app-debug.apk",
+        "sha256": "1a3ca73f5813a1edf66a0352f26b6cd2459d533419ca4c61d2e1c84d7bf0743d"
+      }
+    },
+    "declared_scope": []
+  },
+  {
+    "id": "docs/validation/release-0.2.0/results.json@0f8f038b1777e808e3860089dc4e0c603cc3f9da0ab189a48d8accf36bc18866",
+    "location": "docs/validation/release-0.2.0/results.json",
+    "sha256": "0f8f038b1777e808e3860089dc4e0c603cc3f9da0ab189a48d8accf36bc18866",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": "2026-10-25",
+    "source_fields": {
+      "apk": "dist\\0.2.0\\FloatingFocus-0.2.0-debug.apk"
+    },
+    "declared_scope": []
+  },
+  {
+    "id": "docs/validation/reminder-lab/results.json@e446512b437e4d7c281627917c6cb2265720973b5e26192b3a3b31692a30d142",
+    "location": "docs/validation/reminder-lab/results.json",
+    "sha256": "e446512b437e4d7c281627917c6cb2265720973b5e26192b3a3b31692a30d142",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": "2026-10-21",
+    "source_fields": {
+      "debugApkSha256": "1fc731d4974edea9fbf3160cfcc1eef8503554248e064645a4d518e72f169785"
+    },
+    "declared_scope": []
+  },
+  {
+    "id": "docs/validation/settings/results.json@198b5e499642dc1ddab2437a9c7522bb18a62a6d09c5c87198a25468ec835dab",
+    "location": "docs/validation/settings/results.json",
+    "sha256": "198b5e499642dc1ddab2437a9c7522bb18a62a6d09c5c87198a25468ec835dab",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": "2026-10-23",
+    "source_fields": {
+      "apk_sha256": "26fcc2c7684dcc670ab343ff9167956fdd6c5f413b8b0a32ff9bdeb05a0d7118"
+    },
+    "declared_scope": [
+      "gear opens settings",
+      "all five controls write preferences",
+      "process restart retains preferences",
+      "live color and shape update without restarting timer",
+      "round rectangle and circle rendering",
+      "circle transparent corner does not initiate drag on API 36",
+      "circle expand and drag",
+      "maximum size circle expiry title and close button visible and clickable",
+      "lab parameter controls removed",
+      "lab reset preserves official settings",
+      "cross-app overlay on launcher and Gallery",
+      "cancel closes overlay"
+    ]
+  },
+  {
+    "id": "docs/validation/time-records/results.json@d29f567428d760de12e9eb23482fedf6a81f006f1b5cf964d6f9ee99f09cbd03",
+    "location": "docs/validation/time-records/results.json",
+    "sha256": "d29f567428d760de12e9eb23482fedf6a81f006f1b5cf964d6f9ee99f09cbd03",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": "2026-10-24",
+    "source_fields": {
+      "base_commit": "189b860e54cd4e32913280aee0bc7f65c100549c",
+      "apk": {
+        "path": "app/build/outputs/apk/debug/app-debug.apk",
+        "sha256": "70e734a317d5734e74311b9bb1983f4259b4b2ff34b2bfe4274cef1dac7c37d2"
+      }
+    },
+    "declared_scope": [
+      "Manual stopwatch starts at zero, runs across Home and saves on explicit stop",
+      "Gallery shortcut starts stopwatch with target app metadata",
+      "Leaving target app does not stop session or record",
+      "Force-stop followed by restart recovers exactly the saved elapsed value as interrupted; no downtime or duplicate record",
+      "Real one-minute countdown continues beyond zero; one completion event and one submitted vibration request",
+      "Overtime overlay stop button ends timer and saves planned and full elapsed duration",
+      "Swipe FF out of recent tasks finalizes TASK_REMOVED record and removes overlay",
+      "System CreateDocument picker saves CSV; UTF-8 CSV parsed with five records and matching statuses",
+      "Stopwatch preset persists across force-stop/restart and launches Gallery in stopwatch mode; manual end persists"
+    ]
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.AutoTimerEngineTest.xml@75f4307fd56c379012a43cd27ef99c1b177d8476b8e128d5eb33367f0d640402",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.AutoTimerEngineTest.xml",
+    "sha256": "75f4307fd56c379012a43cd27ef99c1b177d8476b8e128d5eb33367f0d640402",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-AutoTimerEngineTest-75f4307fd56c"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.C4GeometryTest.xml@8a183e16d886e6c328b06b48f01a3c4950096e460c9337f2c16d56593a30bee2",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.C4GeometryTest.xml",
+    "sha256": "8a183e16d886e6c328b06b48f01a3c4950096e460c9337f2c16d56593a30bee2",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-C4GeometryTest-8a183e16d886"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.C4ModeTest.xml@5c719e98f629f693b456d27cd9d3cab26fe878769c1a53c4d5529d3d36faa098",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.C4ModeTest.xml",
+    "sha256": "5c719e98f629f693b456d27cd9d3cab26fe878769c1a53c4d5529d3d36faa098",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-C4ModeTest-5c719e98f629"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.C4TimelineTest.xml@d5e0115670c7bc74f47e5a7f3405671edf323f54fc898f6261ff5b33d0608d14",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.C4TimelineTest.xml",
+    "sha256": "d5e0115670c7bc74f47e5a7f3405671edf323f54fc898f6261ff5b33d0608d14",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-C4TimelineTest-d5e0115670c7"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.CompletionReminderTest.xml@1a6b5a878c285df860d4bb1756bdcaa88b32f53f51e304451a3ce0ee72de5f62",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.CompletionReminderTest.xml",
+    "sha256": "1a6b5a878c285df860d4bb1756bdcaa88b32f53f51e304451a3ce0ee72de5f62",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-CompletionReminderTest-1a6b5a878c28"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.CountdownTest.xml@2d4cad053e6c191139223937586e1900cf813bde4ab66c01c84e6d83b7bb75ec",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.CountdownTest.xml",
+    "sha256": "2d4cad053e6c191139223937586e1900cf813bde4ab66c01c84e6d83b7bb75ec",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-CountdownTest-2d4cad053e6c"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.FocusThemeTest.xml@87c7b7ef6f7caa2929f8f8a334f35adb6b5355c73e48c93511e1d1ff092742f5",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.FocusThemeTest.xml",
+    "sha256": "87c7b7ef6f7caa2929f8f8a334f35adb6b5355c73e48c93511e1d1ff092742f5",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-FocusThemeTest-87c7b7ef6f7c"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.HistoryStatisticsTest.xml@a17242988904b5d145a892c353207c82072db881b3637af1825d9ce1b5f9b8ec",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.HistoryStatisticsTest.xml",
+    "sha256": "a17242988904b5d145a892c353207c82072db881b3637af1825d9ce1b5f9b8ec",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-HistoryStatisticsTest-a17242988904"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.LabSimulationTest.xml@91f35cb88b34e9ff4652050e73d87b37ec96b051300fc414261c9359f47907a3",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.LabSimulationTest.xml",
+    "sha256": "91f35cb88b34e9ff4652050e73d87b37ec96b051300fc414261c9359f47907a3",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-LabSimulationTest-91f35cb88b34"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.OverlayDragGestureTest.xml@bdd8f8911d5000ffad31bded301a71cc85e8a0ecc089cbf1dc579cf3acdb18d5",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.OverlayDragGestureTest.xml",
+    "sha256": "bdd8f8911d5000ffad31bded301a71cc85e8a0ecc089cbf1dc579cf3acdb18d5",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-OverlayDragGestureTest-bdd8f8911d50"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.OverlayGeometryTest.xml@60591b1d0cbcd30a17f36f7ce7644856ca948e546ec16647b37234d0013f5f0a",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.OverlayGeometryTest.xml",
+    "sha256": "60591b1d0cbcd30a17f36f7ce7644856ca948e546ec16647b37234d0013f5f0a",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-OverlayGeometryTest-60591b1d0cbc"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.OverlayPositionTest.xml@4f8444a409341b5f1d4a4b5c76d71d29823e793ad3ad19e5add477897a53af64",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.OverlayPositionTest.xml",
+    "sha256": "4f8444a409341b5f1d4a4b5c76d71d29823e793ad3ad19e5add477897a53af64",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-OverlayPositionTest-4f8444a40934"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.PresetC4Test.xml@25632c83622aa35f1c4158dec4f0b16c8f0f86478180f8003ab9cb73583ce7b4",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.PresetC4Test.xml",
+    "sha256": "25632c83622aa35f1c4158dec4f0b16c8f0f86478180f8003ab9cb73583ce7b4",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-PresetC4Test-25632c83622a"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.PresetExtensionTest.xml@644145f0ec0a4b18093f0b478e09317cef20e753ca318aa87cd735de1841b609",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.PresetExtensionTest.xml",
+    "sha256": "644145f0ec0a4b18093f0b478e09317cef20e753ca318aa87cd735de1841b609",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-PresetExtensionTest-644145f0ec0a"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.PresetPinFeedbackTest.xml@e576f2de8655a0179beb93e32a1f32006af86bb35b5e8d8b7d8d6f969ee4a6e5",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.PresetPinFeedbackTest.xml",
+    "sha256": "e576f2de8655a0179beb93e32a1f32006af86bb35b5e8d8b7d8d6f969ee4a6e5",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-PresetPinFeedbackTest-e576f2de8655"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.PresetShortcutPolicyTest.xml@54a4790e3b29acffa1db915fa3d1fa2c7d6542dcc519fae929aa5256d57b0a57",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.PresetShortcutPolicyTest.xml",
+    "sha256": "54a4790e3b29acffa1db915fa3d1fa2c7d6542dcc519fae929aa5256d57b0a57",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-PresetShortcutPolicyTest-54a4790e3b29"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.QuickDurationsTest.xml@5359e586152f668c691136ab4dc65e560dcfcdec4c2c4c4512af5469a146a490",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.QuickDurationsTest.xml",
+    "sha256": "5359e586152f668c691136ab4dc65e560dcfcdec4c2c4c4512af5469a146a490",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-QuickDurationsTest-5359e586152f"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.QuickLaunchTargetsTest.xml@3cdb9ee94881f1e3bf09e9ae259a727e80009a5cfded26bf686be1e1b6f9fd16",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.QuickLaunchTargetsTest.xml",
+    "sha256": "3cdb9ee94881f1e3bf09e9ae259a727e80009a5cfded26bf686be1e1b6f9fd16",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-QuickLaunchTargetsTest-3cdb9ee94881"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.ReminderHighlightTest.xml@96188b2ebc1975c2b23dfc668f6e3ba33256497f344659d53060e960cce6f5b7",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.ReminderHighlightTest.xml",
+    "sha256": "96188b2ebc1975c2b23dfc668f6e3ba33256497f344659d53060e960cce6f5b7",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-ReminderHighlightTest-96188b2ebc19"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.ReminderPresenterTest.xml@cfe2f55bc3908653ba67fc385bf466398d4e9e5c0e0edd26f4e509c25c812932",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.ReminderPresenterTest.xml",
+    "sha256": "cfe2f55bc3908653ba67fc385bf466398d4e9e5c0e0edd26f4e509c25c812932",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-ReminderPresenterTest-cfe2f55bc390"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.ReminderSettingsTest.xml@ee538210cb6855e67122a6d37364d545dace21a4d8114614810bb13ae3b321b7",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.ReminderSettingsTest.xml",
+    "sha256": "ee538210cb6855e67122a6d37364d545dace21a4d8114614810bb13ae3b321b7",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-ReminderSettingsTest-ee538210cb68"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.ReminderStrategyTest.xml@8464ad32222f441025b636dc136a9ff9ea1e844a1c378a539415d1919fdd9685",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.ReminderStrategyTest.xml",
+    "sha256": "8464ad32222f441025b636dc136a9ff9ea1e844a1c378a539415d1919fdd9685",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-ReminderStrategyTest-8464ad32222f"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.StrategyEditingTest.xml@9633d3a9fcd8611c0eee5359a770fb293d02527b386f653567aa40f302920ae6",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.StrategyEditingTest.xml",
+    "sha256": "9633d3a9fcd8611c0eee5359a770fb293d02527b386f653567aa40f302920ae6",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-StrategyEditingTest-9633d3a9fcd8"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerHistoryTest.xml@335ddafd7ca5462c147322a81170e1c09f5c2e2d6eb15c4808e08e4bdcb94c9c",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerHistoryTest.xml",
+    "sha256": "335ddafd7ca5462c147322a81170e1c09f5c2e2d6eb15c4808e08e4bdcb94c9c",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-TimerHistoryTest-335ddafd7ca5"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerPresetTest.xml@6a6c1fbe0630a5bb979cfa1eb928fb44ec1d218753bdd538a8818d34fbf6fc3c",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerPresetTest.xml",
+    "sha256": "6a6c1fbe0630a5bb979cfa1eb928fb44ec1d218753bdd538a8818d34fbf6fc3c",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-TimerPresetTest-6a6c1fbe0630"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerStartAdmissionTest.xml@20d507938a8b63a65dd2f87abb4e3ec8aabf21927066a54d119254797e34a12d",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerStartAdmissionTest.xml",
+    "sha256": "20d507938a8b63a65dd2f87abb4e3ec8aabf21927066a54d119254797e34a12d",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-TimerStartAdmissionTest-20d507938a8b"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerStartupDefaultsTest.xml@7fc3ccba70221cd05beed0337f468dd49c5d408c0b6bc7812df672caff2a63a7",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerStartupDefaultsTest.xml",
+    "sha256": "7fc3ccba70221cd05beed0337f468dd49c5d408c0b6bc7812df672caff2a63a7",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-TimerStartupDefaultsTest-7fc3ccba7022"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerTaskPolicyTest.xml@ecb1df475288901f14176d3d7fd7dfaaf291525c89d10ad4d635fb2e5d92e5ed",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerTaskPolicyTest.xml",
+    "sha256": "ecb1df475288901f14176d3d7fd7dfaaf291525c89d10ad4d635fb2e5d92e5ed",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-TimerTaskPolicyTest-ecb1df475288"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerWidgetTest.xml@39a106d78831359e151dfe9ea27f47e5fd9681c4960ea8aac289c5fbd20eb234",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerWidgetTest.xml",
+    "sha256": "39a106d78831359e151dfe9ea27f47e5fd9681c4960ea8aac289c5fbd20eb234",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-TimerWidgetTest-39a106d78831"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.AutoTimerEngineTest.xml@233bd8523b22014fed92fe91e21039e321fd4e6bc67e954603b3b8d62a5b23d9",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.AutoTimerEngineTest.xml",
+    "sha256": "233bd8523b22014fed92fe91e21039e321fd4e6bc67e954603b3b8d62a5b23d9",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-AutoTimerEngineTest-233bd8523b22"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.C4GeometryTest.xml@d8356aa4a84ec9d53b9bd198581de6f90527f4ccc6841b330d943b5a945bf546",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.C4GeometryTest.xml",
+    "sha256": "d8356aa4a84ec9d53b9bd198581de6f90527f4ccc6841b330d943b5a945bf546",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-C4GeometryTest-d8356aa4a84e"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.C4ModeTest.xml@e475baa37d8eac3806e17968b2f7608c0c5d79fa1dfa7cace3be7deca0402891",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.C4ModeTest.xml",
+    "sha256": "e475baa37d8eac3806e17968b2f7608c0c5d79fa1dfa7cace3be7deca0402891",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-C4ModeTest-e475baa37d8e"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.C4TimelineTest.xml@d86206cd99e24938d96b93473b182635c1cb54682134d42568536603a7386f1e",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.C4TimelineTest.xml",
+    "sha256": "d86206cd99e24938d96b93473b182635c1cb54682134d42568536603a7386f1e",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-C4TimelineTest-d86206cd99e2"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.CompletionReminderTest.xml@92e4b1c4191e2ab96e78625891844d5c98aed32032b9cbb908f0ae78698e0d81",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.CompletionReminderTest.xml",
+    "sha256": "92e4b1c4191e2ab96e78625891844d5c98aed32032b9cbb908f0ae78698e0d81",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-CompletionReminderTest-92e4b1c4191e"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.CountdownTest.xml@c351aad188385e91fa89404da39b0d207c7de850bde406824120d36751eb4579",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.CountdownTest.xml",
+    "sha256": "c351aad188385e91fa89404da39b0d207c7de850bde406824120d36751eb4579",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-CountdownTest-c351aad18838"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.FocusThemeTest.xml@735d61f61a74ea93aa2f7fe84febf0441f97f44bf6dffba9905c8a7c7dad3acf",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.FocusThemeTest.xml",
+    "sha256": "735d61f61a74ea93aa2f7fe84febf0441f97f44bf6dffba9905c8a7c7dad3acf",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-FocusThemeTest-735d61f61a74"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.HistoryStatisticsTest.xml@495761416f77c355eb888e74ef76c178999380938e2878b0af7ee79ac0b24d58",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.HistoryStatisticsTest.xml",
+    "sha256": "495761416f77c355eb888e74ef76c178999380938e2878b0af7ee79ac0b24d58",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-HistoryStatisticsTest-495761416f77"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.OverlayDragGestureTest.xml@471d8d960dc3c80109923dcc64da7123c9eea5d1e73003e9ed06fad55d28e245",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.OverlayDragGestureTest.xml",
+    "sha256": "471d8d960dc3c80109923dcc64da7123c9eea5d1e73003e9ed06fad55d28e245",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-OverlayDragGestureTest-471d8d960dc3"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.OverlayGeometryTest.xml@6071b46e7de8ff37f77deeb76f3920453920bfd656f59ff18732ff2635f4374a",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.OverlayGeometryTest.xml",
+    "sha256": "6071b46e7de8ff37f77deeb76f3920453920bfd656f59ff18732ff2635f4374a",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-OverlayGeometryTest-6071b46e7de8"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.OverlayPositionTest.xml@3a38d40d0c7aef62db391f2607c19748ac50683d3cdd47bb9ff872c31c1ee026",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.OverlayPositionTest.xml",
+    "sha256": "3a38d40d0c7aef62db391f2607c19748ac50683d3cdd47bb9ff872c31c1ee026",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-OverlayPositionTest-3a38d40d0c7a"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.PresetC4Test.xml@b6bfefa22e91553943ebb199fdb556982b12698597ede1557f212254294ccd9b",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.PresetC4Test.xml",
+    "sha256": "b6bfefa22e91553943ebb199fdb556982b12698597ede1557f212254294ccd9b",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-PresetC4Test-b6bfefa22e91"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.PresetExtensionTest.xml@397b8df0821e1fd0127f8062a52385efdbed6b64dccb3e978d2afd8be8241c1d",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.PresetExtensionTest.xml",
+    "sha256": "397b8df0821e1fd0127f8062a52385efdbed6b64dccb3e978d2afd8be8241c1d",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-PresetExtensionTest-397b8df0821e"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.PresetPinFeedbackTest.xml@3af9e51b2de7c56e574a7dea0ef511f900fd3277ca54361098c0c9df738438b6",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.PresetPinFeedbackTest.xml",
+    "sha256": "3af9e51b2de7c56e574a7dea0ef511f900fd3277ca54361098c0c9df738438b6",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-PresetPinFeedbackTest-3af9e51b2de7"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.PresetShortcutPolicyTest.xml@f87861a2f67829ebae4613d637a7fbe81b4c9a022f7438baad5792fd20ca4d22",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.PresetShortcutPolicyTest.xml",
+    "sha256": "f87861a2f67829ebae4613d637a7fbe81b4c9a022f7438baad5792fd20ca4d22",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-PresetShortcutPolicyTest-f87861a2f678"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.QuickDurationsTest.xml@4e10038463bb27c24c35648cb7e35b2514495fb317c36183458ecedfcfafddcd",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.QuickDurationsTest.xml",
+    "sha256": "4e10038463bb27c24c35648cb7e35b2514495fb317c36183458ecedfcfafddcd",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-QuickDurationsTest-4e10038463bb"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.QuickLaunchTargetsTest.xml@8a7e2fa74fe5206722a6ca83328135f08b99a2269d2954e40c04591cf0718f86",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.QuickLaunchTargetsTest.xml",
+    "sha256": "8a7e2fa74fe5206722a6ca83328135f08b99a2269d2954e40c04591cf0718f86",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-QuickLaunchTargetsTest-8a7e2fa74fe5"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.ReminderHighlightTest.xml@71340c54abdc8c7290e1b77a8aefbdae9443289fc4838a0d0645f9979ff2e2a9",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.ReminderHighlightTest.xml",
+    "sha256": "71340c54abdc8c7290e1b77a8aefbdae9443289fc4838a0d0645f9979ff2e2a9",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-ReminderHighlightTest-71340c54abdc"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.ReminderPresenterTest.xml@a70fdb86cc4f53d7c9f1e64ced1fcac6b1f6ff6fd4ad03be9bf661dd3c9f16c3",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.ReminderPresenterTest.xml",
+    "sha256": "a70fdb86cc4f53d7c9f1e64ced1fcac6b1f6ff6fd4ad03be9bf661dd3c9f16c3",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-ReminderPresenterTest-a70fdb86cc4f"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.ReminderSettingsTest.xml@15358451111e9579d00b8f81c5fcb635a46fc100ab22bd4d210a09cbf393e26c",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.ReminderSettingsTest.xml",
+    "sha256": "15358451111e9579d00b8f81c5fcb635a46fc100ab22bd4d210a09cbf393e26c",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-ReminderSettingsTest-15358451111e"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.ReminderStrategyTest.xml@825aafcf8db79a31ad499bd1f3ab5e9b808c4c76736aa69444bab7d748d774b1",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.ReminderStrategyTest.xml",
+    "sha256": "825aafcf8db79a31ad499bd1f3ab5e9b808c4c76736aa69444bab7d748d774b1",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-ReminderStrategyTest-825aafcf8db7"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.StrategyEditingTest.xml@1f4c682d6174d00d102b007a81546bf968a44b8af9a2ba544adea8e3639303dc",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.StrategyEditingTest.xml",
+    "sha256": "1f4c682d6174d00d102b007a81546bf968a44b8af9a2ba544adea8e3639303dc",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-StrategyEditingTest-1f4c682d6174"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerHistoryTest.xml@e3b6e1e0c895fff5e79dce46a0e125a7b36be768c238d8958fd65d2e7f24ed69",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerHistoryTest.xml",
+    "sha256": "e3b6e1e0c895fff5e79dce46a0e125a7b36be768c238d8958fd65d2e7f24ed69",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-TimerHistoryTest-e3b6e1e0c895"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerPresetTest.xml@8da693e17cdb859da05b4e4d70936bc9802a3ebf432e3f0716eccb5dd324b8af",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerPresetTest.xml",
+    "sha256": "8da693e17cdb859da05b4e4d70936bc9802a3ebf432e3f0716eccb5dd324b8af",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-TimerPresetTest-8da693e17cdb"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerStartAdmissionTest.xml@1fdcf4fcc61508c88a0fdf466a03d4d9514f20c7eccfc073af71ec33eba5ebf6",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerStartAdmissionTest.xml",
+    "sha256": "1fdcf4fcc61508c88a0fdf466a03d4d9514f20c7eccfc073af71ec33eba5ebf6",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-TimerStartAdmissionTest-1fdcf4fcc615"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerStartupDefaultsTest.xml@8cb3e6c7c304aa71f965cc73f11c7ed5b364cae25aa8cd998d8dbb11ef7de26c",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerStartupDefaultsTest.xml",
+    "sha256": "8cb3e6c7c304aa71f965cc73f11c7ed5b364cae25aa8cd998d8dbb11ef7de26c",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-TimerStartupDefaultsTest-8cb3e6c7c304"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerTaskPolicyTest.xml@5bb358d30dee7d845a0bec756502ffd957b9eff5dd6acb6ee760d7ad59ba898a",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerTaskPolicyTest.xml",
+    "sha256": "5bb358d30dee7d845a0bec756502ffd957b9eff5dd6acb6ee760d7ad59ba898a",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-TimerTaskPolicyTest-5bb358d30dee"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerWidgetTest.xml@652517623ed27cb097eaf6b09fe6a6c29856b04bf98654e4e17bf29662a4d378",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerWidgetTest.xml",
+    "sha256": "652517623ed27cb097eaf6b09fe6a6c29856b04bf98654e4e17bf29662a4d378",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-TimerWidgetTest-652517623ed2"
+  }
+]

@@ -1,0 +1,3283 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "FF-JVM-COUNTDOWN",
+      "module": "计时",
+      "scenario": "有效范围与单调倒计时（模型类）",
+      "priority": "P0",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 CountdownTest 的全部@Test；查看独立JUnit XML",
+      "expected": "1秒及180分钟边界有效；剩余不为负；到期后不倒退；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/CountdownTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "计时"
+      ]
+    },
+    {
+      "id": "FF-JVM-COMPLETIONREMINDER",
+      "module": "提醒",
+      "scenario": "归零单次消费及振动策略（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 CompletionReminderTest 的全部@Test；查看独立JUnit XML",
+      "expected": "非活跃/暂停不消费；归零只消费一次；强度0无振动时长；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/CompletionReminderTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "提醒"
+      ]
+    },
+    {
+      "id": "FF-JVM-TIMERHISTORY",
+      "module": "记录",
+      "scenario": "正计时与累计记录模型（模型类）",
+      "priority": "P0",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 TimerHistoryTest 的全部@Test；查看独立JUnit XML",
+      "expected": "正计时无截止提醒；超时不重复累计；恢复不补停机时间；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/TimerHistoryTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "记录"
+      ]
+    },
+    {
+      "id": "FF-JVM-PRESETEXTENSION",
+      "module": "加时",
+      "scenario": "加时与已绑定预设模型（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 PresetExtensionTest 的全部@Test；查看独立JUnit XML",
+      "expected": "加时保留会话及旧超时；旧请求不重复加时；绑定字段保留；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/PresetExtensionTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "加时"
+      ]
+    },
+    {
+      "id": "FF-JVM-TIMERSTARTUPDEFAULTS",
+      "module": "启动默认",
+      "scenario": "启动默认与恢复选择（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 TimerStartupDefaultsTest 的全部@Test；查看独立JUnit XML",
+      "expected": "首次倒计时900秒；保存默认不覆盖已恢复选择；活跃会话用实际模式；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/TimerStartupDefaultsTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "启动默认"
+      ]
+    },
+    {
+      "id": "FF-JVM-QUICKDURATIONS",
+      "module": "常用时长",
+      "scenario": "四档兼容与损坏回退（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 QuickDurationsTest 的全部@Test；查看独立JUnit XML",
+      "expected": "四档独立且顺序不变；旧分钟兼容；非法/重复值回退；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/QuickDurationsTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "常用时长"
+      ]
+    },
+    {
+      "id": "FF-JVM-TIMERPRESET",
+      "module": "预设",
+      "scenario": "外观快照、稳定ID与位置（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 TimerPresetTest 的全部@Test；查看独立JUnit XML",
+      "expected": "编解码保留完整配置；重命名/编辑保留ID与锚点；删除只移除目标；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/TimerPresetTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "预设"
+      ]
+    },
+    {
+      "id": "FF-JVM-PRESETC4",
+      "module": "预设C4",
+      "scenario": "C4配置快照与旧数据（模型类）",
+      "priority": "P0",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 PresetC4Test 的全部@Test；查看独立JUnit XML",
+      "expected": "缺失/非法C4字段为关闭；开关独立持久化且不含音效快照；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/PresetC4Test.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "预设C4"
+      ]
+    },
+    {
+      "id": "FF-JVM-QUICKLAUNCHTARGETS",
+      "module": "快捷App",
+      "scenario": "快捷目标多选与迁移（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 QuickLaunchTargetsTest 的全部@Test；查看独立JUnit XML",
+      "expected": "移除一个目标不丢其他目标；旧目标兼容；不可用目标仍能移除；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/QuickLaunchTargetsTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "快捷App"
+      ]
+    },
+    {
+      "id": "FF-JVM-PRESETSHORTCUTPOLICY",
+      "module": "桌面快捷方式",
+      "scenario": "固定ID、失效、并发和会话冲突（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 PresetShortcutPolicyTest 的全部@Test；查看独立JUnit XML",
+      "expected": "只按ID读最新；删除不回退；已有会话优先；迟到确认不恢复已删除预设；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/PresetShortcutPolicyTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "桌面快捷方式"
+      ]
+    },
+    {
+      "id": "FF-JVM-PRESETPINFEEDBACK",
+      "module": "桌面快捷方式",
+      "scenario": "请求、等待与厂商指引（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 PresetPinFeedbackTest 的全部@Test；查看独立JUnit XML",
+      "expected": "超时不能覆盖成功；未确认不等于取消/失败；厂商指引条件明确；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/PresetPinFeedbackTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "桌面快捷方式"
+      ]
+    },
+    {
+      "id": "FF-JVM-TIMERSTARTADMISSION",
+      "module": "启动互斥",
+      "scenario": "重复及旧请求占位（模型类）",
+      "priority": "P0",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 TimerStartAdmissionTest 的全部@Test；查看独立JUnit XML",
+      "expected": "活跃/待启动阻止并行会话；旧回调不释放新占位；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/TimerStartAdmissionTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "启动互斥"
+      ]
+    },
+    {
+      "id": "FF-JVM-TIMERWIDGET",
+      "module": "桌面组件",
+      "scenario": "单调显示、尺寸和幂等控制（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 TimerWidgetTest 的全部@Test；查看独立JUnit XML",
+      "expected": "暂停冻结；单调采样补偿；旧会话/旧加时段拒绝；C4不能暂停结束；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/TimerWidgetTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "桌面组件"
+      ]
+    },
+    {
+      "id": "FF-JVM-TIMERTASKPOLICY",
+      "module": "生命周期",
+      "scenario": "中转关闭与主任务划除（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 TimerTaskPolicyTest 的全部@Test；查看独立JUnit XML",
+      "expected": "受控中转自行结束不停止新会话；主FF/未知任务仍执行清理；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/TimerTaskPolicyTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "生命周期"
+      ]
+    },
+    {
+      "id": "FF-JVM-OVERLAYDRAGGESTURE",
+      "module": "浮窗",
+      "scenario": "点击与拖动判定（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 OverlayDragGestureTest 的全部@Test；查看独立JUnit XML",
+      "expected": "touchSlop内点击；超过后不点击；回到原点仍不点击；取消/多指不误触；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/OverlayDragGestureTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "浮窗"
+      ]
+    },
+    {
+      "id": "FF-JVM-OVERLAYGEOMETRY",
+      "module": "浮窗",
+      "scenario": "三种轮廓与倍率（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 OverlayGeometryTest 的全部@Test；查看独立JUnit XML",
+      "expected": "圆形等边、胶囊方向正确；基础大小和动态倍率只作用一次；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/OverlayGeometryTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "浮窗"
+      ]
+    },
+    {
+      "id": "FF-JVM-OVERLAYPOSITION",
+      "module": "浮窗位置",
+      "scenario": "用户锚点与临时防越界（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 OverlayPositionTest 的全部@Test；查看独立JUnit XML",
+      "expected": "展开/缩放不改锚点；用户拖动才保存；旋转恢复安全区域比例位置；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/OverlayPositionTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "浮窗位置"
+      ]
+    },
+    {
+      "id": "FF-JVM-REMINDERSTRATEGY",
+      "module": "提醒策略",
+      "scenario": "节点及同进度效果（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 ReminderStrategyTest 的全部@Test；查看独立JUnit XML",
+      "expected": "默认50%/80%；命中较高级别不回退；变色和变尺寸共用策略；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/ReminderStrategyTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "提醒策略"
+      ]
+    },
+    {
+      "id": "FF-JVM-STRATEGYEDITING",
+      "module": "提醒策略",
+      "scenario": "两节点拖动与混合冲突（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 StrategyEditingTest 的全部@Test；查看独立JUnit XML",
+      "expected": "按实际时长换算；第二级严格早于第三级；旧歧义值不静默选取；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/StrategyEditingTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "提醒策略"
+      ]
+    },
+    {
+      "id": "FF-JVM-REMINDERSETTINGS",
+      "module": "外观设置",
+      "scenario": "兼容存储与独立效果（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 ReminderSettingsTest 的全部@Test；查看独立JUnit XML",
+      "expected": "缺失字段保留默认；非法值安全回退；两个效果可独立组合；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/ReminderSettingsTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "外观设置"
+      ]
+    },
+    {
+      "id": "FF-JVM-REMINDERPRESENTER",
+      "module": "外观设置",
+      "scenario": "阶段颜色、尺寸与前景（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 ReminderPresenterTest 的全部@Test；查看独立JUnit XML",
+      "expected": "尺寸单调变化；变尺寸不改基础色；颜色前景保持可读；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/ReminderPresenterTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "外观设置"
+      ]
+    },
+    {
+      "id": "FF-JVM-REMINDERHIGHLIGHT",
+      "module": "提醒",
+      "scenario": "提亮与橙红区分（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 ReminderHighlightTest 的全部@Test；查看独立JUnit XML",
+      "expected": "闪烁提高背景亮度且alpha不变；恢复原色；橙红色差可计算区分；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/ReminderHighlightTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "提醒"
+      ]
+    },
+    {
+      "id": "FF-JVM-C4TIMELINE",
+      "module": "C4",
+      "scenario": "时间轴、输入和单次结果（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 C4TimelineTest 的全部@Test；查看独立JUnit XML",
+      "expected": "44.439秒窗口含下包；4.92秒开放；7355608七位校验；截止只结算一种结果；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/C4TimelineTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-JVM-C4MODE",
+      "module": "C4",
+      "scenario": "C4仅倒计时适用（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 C4ModeTest 的全部@Test；查看独立JUnit XML",
+      "expected": "独立正计时无C4运行时/调度；关闭C4不影响两模式；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/C4ModeTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-JVM-C4GEOMETRY",
+      "module": "C4",
+      "scenario": "独立装置与键盘几何（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 C4GeometryTest 的全部@Test；查看独立JUnit XML",
+      "expected": "LCD双行及缩小键盘在主体内；至少44dp触摸槽；普通样式不改变C4主题；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/C4GeometryTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-JVM-HISTORYSTATISTICS",
+      "module": "统计导出",
+      "scenario": "分组拆分与精度（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 HistoryStatisticsTest 的全部@Test；查看独立JUnit XML",
+      "expected": "跨小时/日/月按区间拆分；包名区分同名App；各柱毫秒和等于总量；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/HistoryStatisticsTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "统计导出"
+      ]
+    },
+    {
+      "id": "FF-JVM-FOCUSTHEME",
+      "module": "主题适配",
+      "scenario": "深浅语义色对比度（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 FocusThemeTest 的全部@Test；查看独立JUnit XML",
+      "expected": "正文/提示/错误/图表使用对应语义色并满足代码规定对比度；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/FocusThemeTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "主题适配"
+      ]
+    },
+    {
+      "id": "FF-JVM-LABSIMULATION",
+      "module": "开发者模式",
+      "scenario": "模拟与正式状态隔离（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 LabSimulationTest 的全部@Test；查看独立JUnit XML",
+      "expected": "模拟不写真实会话、记录或正式设置；复用真实渲染；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/testDebug/java/app/floatingfocus/LabSimulationTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "开发者模式"
+      ]
+    },
+    {
+      "id": "FF-JVM-AUTOTIMERENGINE",
+      "module": "Deferred",
+      "scenario": "延期自动监测的既有模型回归（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 AutoTimerEngineTest 的全部@Test；查看独立JUnit XML",
+      "expected": "保留既有模型边界；当前功能入口/权限/监测仍关闭，不新增自动启动方案；该类失败/错误=0，跳过项单独标记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/AutoTimerEngineTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "Deferred"
+      ]
+    },
+    {
+      "id": "FF-TIMER-001",
+      "module": "计时",
+      "scenario": "普通计时启动、互斥及明确结束",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "C4关；悬浮权限已授予；无会话",
+      "steps": "选择02:05并开始；连续再点开始；回FF结束",
+      "expected": "开始125秒；全程仅一会话/浮窗；结束后窗口通知消失且仅一记录",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_regression.py#smoke"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "计时"
+      ]
+    },
+    {
+      "id": "FF-TIMER-002",
+      "module": "计时",
+      "scenario": "独立正计时不会进入C4",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "当前C4开、音效开；无会话",
+      "steps": "切正计时启动；在其他App使用至少46秒后结束",
+      "expected": "从00:00累加；无C4外观/音频/事件请求；记录模式STOPWATCH",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_theme.py#theme"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "计时"
+      ]
+    },
+    {
+      "id": "FF-TIMER-003",
+      "module": "计时",
+      "scenario": "归零后继续超时",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "普通倒计时；提醒强度>0",
+      "steps": "等待真实归零并继续10秒，再结束",
+      "expected": "显示超时+时间；完成事件一次；最终同一记录含超时",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_regression.py#inline"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "计时"
+      ]
+    },
+    {
+      "id": "FF-EXTEND-001",
+      "module": "加时",
+      "scenario": "浮窗加时默认、取消及同会话换段",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "普通计时已归零；记下窗口和记录ID",
+      "steps": "点加时；核对02:00；滚轮后取消；再次确认加时",
+      "expected": "滚轮不拖窗；取消不变；确认时新段开始；App/窗口/记录ID不变",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_regression.py#inline"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "加时"
+      ]
+    },
+    {
+      "id": "FF-EXTEND-002",
+      "module": "加时",
+      "scenario": "冲突策略阻止加时",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "已有剩余时间节点策略；选择会冲突的加时时长",
+      "steps": "在浮窗调到冲突时长并尝试确认",
+      "expected": "显示冲突原因、确认不可用；不改原会话或节点",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_preferences.py#preferences"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "加时"
+      ]
+    },
+    {
+      "id": "FF-DURATION-001",
+      "module": "常用时长",
+      "scenario": "四档秒数、保存及取消",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "从首页手动设置进入",
+      "steps": "改四个不同档位并保存、重开；另改后返回",
+      "expected": "四值和顺序保留；取消不写回；保存/返回回首页；设置无重复入口",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_preferences.py#preferences"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "常用时长"
+      ]
+    },
+    {
+      "id": "FF-DURATION-002",
+      "module": "启动默认",
+      "scenario": "默认模式与时长独立",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "四档与启动默认不同",
+      "steps": "保存正计时；切回倒计时；重开新首页与已有首页",
+      "expected": "倒计时秒数保留；仅新且无恢复选择首页初始化；不自动开始或重置旧选择",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_startup.py#startup"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "启动默认"
+      ]
+    },
+    {
+      "id": "FF-DURATION-003",
+      "module": "常用时长",
+      "scenario": "统一分秒滚轮回显与上下限",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "自定义/常用/预设/加时/策略的现有入口",
+      "steps": "分别重开、滚动、确认或取消；到达各自上下限",
+      "expected": "秒范围00–59；180分仅00秒；入口按自身1秒或60秒下限；取消不写入",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_preferences.py#preferences"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "常用时长"
+      ]
+    },
+    {
+      "id": "FF-PRESET-001",
+      "module": "预设",
+      "scenario": "保存当前与独立编辑草稿",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "已绑定快捷App；有独立外观与C4配置",
+      "steps": "保存当前；编辑名称/秒数/外观并保存；重启",
+      "expected": "ID/绑定/位置不丢；新配置持久化；不改其他预设或全局C4",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_preset_c4.py#preset_c4"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "预设"
+      ]
+    },
+    {
+      "id": "FF-PRESET-002",
+      "module": "预设",
+      "scenario": "编辑取消及目标绑定",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "至少两个预设与两个快捷App",
+      "steps": "编辑一个预设外观/时长/目标后取消；再明确保存",
+      "expected": "取消保留原快照；保存只更新目标预设；只从FF快捷App列表绑定",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_preferences.py#preferences"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "预设"
+      ]
+    },
+    {
+      "id": "FF-PRESET-003",
+      "module": "预设",
+      "scenario": "位置按ID恢复且不被展开覆盖",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "两个绑定预设；无会话",
+      "steps": "分别拖到不同角落结束；重启后再启动；展开收起/旋转",
+      "expected": "各自恢复安全区比例位置；只有用户拖动改锚点；编辑改名保留",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_settings.py#settings"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "预设"
+      ]
+    },
+    {
+      "id": "FF-PRESET-004",
+      "module": "预设C4",
+      "scenario": "保存状态与当前开关相反",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "一预设C4关、一预设C4开",
+      "steps": "当前开时启关闭预设；当前关时启开启预设；首页与桌面各启动",
+      "expected": "预设用保存值；不写全局；旧缺失字段关；音效不被预设重新打开",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_preset_c4.py#preset_c4"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "预设C4"
+      ]
+    },
+    {
+      "id": "FF-PRESET-005",
+      "module": "预设C4",
+      "scenario": "会话快照及加时沿用",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "普通/预设计时已启动、尚未C4锁定",
+      "steps": "改当前C4开关；归零后加时；再新开一场",
+      "expected": "活跃会话与同会话加时保持原C4值；后续普通启动用当前值",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_preset_c4.py#preset_c4"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "预设C4"
+      ]
+    },
+    {
+      "id": "FF-QUICK-001",
+      "module": "快捷App",
+      "scenario": "当前配置打开App并开始记录",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "快捷列表有可启动App；当前首页有秒数与外观",
+      "steps": "点快捷App；回Home再回FF；结束",
+      "expected": "目标App前台及浮窗出现；按当前配置；离开App不暂停；成功打开才记目标记录",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_regression.py#home"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "快捷App"
+      ]
+    },
+    {
+      "id": "FF-QUICK-002",
+      "module": "快捷App",
+      "scenario": "不可用目标与已有会话不被覆盖",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "目标已卸载/停用；另有会话或无会话",
+      "steps": "点失效目标或计时中点另一App入口",
+      "expected": "给修复/失败提示；不改绑、不留新计时、不停止已有会话",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_preset_shortcuts.py#preset_shortcuts"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "快捷App"
+      ]
+    },
+    {
+      "id": "FF-DESKTOP-001",
+      "module": "桌面快捷方式",
+      "scenario": "创建等待、取消与无成功回调",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "支持固定快捷方式的启动器；预设绑定有效",
+      "steps": "添加并取消；等待超过6秒；再添加确认",
+      "expected": "创建不开始；接受请求不报已创建；未确认不无限忙；私有回调才确认成功",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_preset_shortcuts.py#preset_shortcuts"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "桌面快捷方式"
+      ]
+    },
+    {
+      "id": "FF-DESKTOP-002",
+      "module": "桌面快捷方式",
+      "scenario": "稳定ID、更新及已删除入口",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "两个同App或同名不同ID预设；已有固定入口",
+      "steps": "改名称/时长/绑定后点击；重复添加；删除再点旧图标",
+      "expected": "使用最新ID配置；不生成新身份；删除入口不能启动其他预设",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_preset_shortcuts.py#preset_shortcuts"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "桌面快捷方式"
+      ]
+    },
+    {
+      "id": "FF-DESKTOP-003",
+      "module": "桌面快捷方式",
+      "scenario": "权限返回、热冷启动和重建",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "固定入口存在；悬浮权限未授予",
+      "steps": "点击、去系统授权、返回；旋转；点继续启动",
+      "expected": "授权返回不自动开始；明确继续重读预设；冷/热/重建不重复消费",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_preset_shortcuts.py#preset_shortcuts"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "桌面快捷方式"
+      ]
+    },
+    {
+      "id": "FF-WIDGET-001",
+      "module": "桌面组件",
+      "scenario": "默认开始及多组件暂停继续结束",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "Launcher3真实添加两尺寸；默认65秒",
+      "steps": "2×1开始；两组件比较；暂停2秒后继续；2×2结束",
+      "expected": "单会话planned=65000；暂停两处冻结；继续运行；结束记录MANUAL",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_widgets.py#widgets"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "桌面组件"
+      ]
+    },
+    {
+      "id": "FF-WIDGET-002",
+      "module": "桌面组件",
+      "scenario": "预设、最新配置与冲突",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "真实组件；前两预设为65秒倒计时/正计时",
+      "steps": "点预设1；活跃时点预设2；结束；改预设1为70秒后再点",
+      "expected": "打开Gallery且模式/计划正确；不替换活跃记录；修改后planned=70000",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_widgets.py#widgets"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "桌面组件"
+      ]
+    },
+    {
+      "id": "FF-WIDGET-003",
+      "module": "桌面组件",
+      "scenario": "默认开始缺权限后明确继续",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "组件已添加；悬浮权限拒绝",
+      "steps": "点开始；去授权；返回；点继续开始",
+      "expected": "拒绝时无窗口记录；返回不自启；明确继续仅启动一次",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_widgets.py#widgets"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "桌面组件"
+      ]
+    },
+    {
+      "id": "FF-WIDGET-004",
+      "module": "桌面组件",
+      "scenario": "超时与C4控制守卫",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "组件已添加；2秒普通及20秒C4夹具",
+      "steps": "普通等待超时结束；C4中点查看/结束",
+      "expected": "普通同记录进入超时；C4不暂停、不结束、不替换，且无新增暂停日志",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_widgets.py#widgets"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "桌面组件"
+      ]
+    },
+    {
+      "id": "FF-WIDGET-005",
+      "module": "桌面组件",
+      "scenario": "默认正计时及缓存进程冷启动",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "默认正计时；无会话；组件已存在",
+      "steps": "组件开始/结束；杀缓存进程后再点击开始",
+      "expected": "两次均正计时planned=0；中转关闭不把新会话结束",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_widgets.py#widgets"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "桌面组件"
+      ]
+    },
+    {
+      "id": "FF-WIDGET-006",
+      "module": "桌面组件",
+      "scenario": "真实启动器缩放切布局",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "真实2×1组件处于空闲",
+      "steps": "拖动底部调整把手增高到两行以上",
+      "expected": "原组件放大后出现预设和结束；不新建会话、不出现统计图",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_widgets.py#widgets"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "桌面组件"
+      ]
+    },
+    {
+      "id": "FF-VISUAL-WIDGET",
+      "module": "桌面组件",
+      "scenario": "1.5倍字的时间和预设文字截图",
+      "priority": "P2",
+      "kind": "功能场景",
+      "preconditions": "当前构建浅/深及1.5倍字截图",
+      "steps": "逐张检查2×1/2×2时间与前两个名称",
+      "expected": "截图中五位01:05完整且不遮挡按钮；不以截图判定实际点击通过",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_widgets.py#widgets"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "桌面组件"
+      ]
+    },
+    {
+      "id": "FF-OVERLAY-001",
+      "module": "浮窗",
+      "scenario": "三形状四边展开收起及位置",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "普通浮窗三种形状；可安全拖动",
+      "steps": "四边各轻触标题/背景展开收起；录制中间帧",
+      "expected": "位置一次更新；收起回用户锚点；无矩形时间波纹/先画后移动",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_regression.py#edges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "浮窗"
+      ]
+    },
+    {
+      "id": "FF-OVERLAY-002",
+      "module": "浮窗",
+      "scenario": "滚轮与按钮的手势所有权",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "普通展开/加时面板",
+      "steps": "拖动实体背景；滑滚轮；按钮轻点与拖后松开",
+      "expected": "滚轮不带动窗；拖动不误提交；按钮轻触各执行一次",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_regression.py#inline"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "浮窗"
+      ]
+    },
+    {
+      "id": "FF-APPEARANCE-001",
+      "module": "外观设置",
+      "scenario": "五参数实时预览与真实浮窗",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "普通会话；参数页可见",
+      "steps": "切两种效果组合及形状/颜色/大小/透明度",
+      "expected": "预览不触发服务；真实窗口同步；设置重启保留；倍率不累乘、无不透明文字底板",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_settings.py#settings"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "外观设置"
+      ]
+    },
+    {
+      "id": "FF-STRATEGY-001",
+      "module": "提醒策略",
+      "scenario": "混合节点冲突阻止全部入口",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "总30秒；二级50%、三级剩20秒",
+      "steps": "尝试普通/快捷App/预设启动；再修成有效顺序",
+      "expected": "冲突明确提示且不打开App/启动；不自动交换节点；修好后按实际节点触发",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_preferences.py#preferences"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "提醒策略"
+      ]
+    },
+    {
+      "id": "FF-C4-001",
+      "module": "C4",
+      "scenario": "60/40/30/10秒相应时间轴与双向形态",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "C4启用；不同总时长；媒体可缺失",
+      "steps": "分别启动；切换/拖动；观察进入和截止",
+      "expected": "仅最后44439ms；短计时不延长；收起/展开不重播不改截止；正计时排除",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_c4.py#c4"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-C4-002",
+      "module": "C4",
+      "scenario": "早按、退格、清空、错误与成功",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "C4阶段；剩余足够",
+      "steps": "下包中按键；开放后错输、*、#，最后7355608",
+      "expected": "早按不缓存；每次一位；错误不罚时；第七位自动校验；成功只结算一次",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_c4.py#c4"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-C4-003",
+      "module": "C4",
+      "scenario": "C4独立样式及实体触摸",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "普通大小/颜色/透明度有不同值；三种常态形状",
+      "steps": "进入C4并开合；0至7位输入；在实体和键区拖动",
+      "expected": "C4大小/军灰色/0.7不透明度不随普通值变；双行LCD完整；键区不收起拖窗；形状按保存值",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_c4.py#c4_keypad"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-C4-004",
+      "module": "C4",
+      "scenario": "无音频及关闭声音仍可解除",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "无录音构建或音效关闭；C4启用",
+      "steps": "进入阶段、口令解除；另一次自然到时",
+      "expected": "无声音不阻止计时/键盘；到时不等待播放器；尾音时序后恢复超时",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_c4.py#c4"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-C4-005",
+      "module": "C4",
+      "scenario": "阶段内禁止普通退出，系统清理有效",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "C4锁定阶段；旧停止请求可构造",
+      "steps": "点首页/通知/组件结束、暂停/加时；随后系统停止",
+      "expected": "普通入口不结束/换会话；系统停止仍清理；不补爆炸",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_c4.py#c4"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-PERMISSION-001",
+      "module": "权限",
+      "scenario": "首次拒绝与授权返回不自动启动",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "悬浮权限未授予；无会话",
+      "steps": "从首页、快捷App、预设分别启动；拒绝后授权返回",
+      "expected": "拒绝不创建会话或打开目标；返回等待用户明确启动；无第二套授权流程",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_regression.py#home"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-PERMISSION-002",
+      "module": "权限",
+      "scenario": "撤销悬浮权限和拒绝通知",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "正在计时；使用现有系统权限入口",
+      "steps": "撤销悬浮权限；再重新允许；另测通知拒绝启动",
+      "expected": "撤权停止/清理且前台无假活跃；重授不自启；通知拒绝不暗加其他权限",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_c4.py#c4"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-ONBOARD-001",
+      "module": "教程",
+      "scenario": "首次/重看教程与权限独立",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "首次无完成标记；随后已有完成状态",
+      "steps": "滑动和按钮走四页；跳过介绍；暂不授权；设置重看",
+      "expected": "页码一致；跳过到权限页；可浏览但未授权不能计时；重看不重置数据",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_onboarding.py#onboarding"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "教程"
+      ]
+    },
+    {
+      "id": "FF-HISTORY-001",
+      "module": "记录",
+      "scenario": "正常结束与异常检查点恢复",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "短会话并保存检查点；记录原ID",
+      "steps": "正常结束；另一次强停后等15秒再打开",
+      "expected": "每次一条记录；正常结束方式正确；异常标约计且不补停机15秒",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_regression.py#smoke"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "记录"
+      ]
+    },
+    {
+      "id": "FF-HISTORY-002",
+      "module": "统计导出",
+      "scenario": "范围/App统一及柱详情",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "跨日、同名包与手动计时夹具",
+      "steps": "切今日/周/月和App；点柱、取消选择",
+      "expected": "总量/图表/明细同筛选；柱详情不改筛选；按包名不误合并",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_history.py#history"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "统计导出"
+      ]
+    },
+    {
+      "id": "FF-HISTORY-003",
+      "module": "统计导出",
+      "scenario": "CSV保存取消和读取失败",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "存在可导出原始记录；可注入读错夹具",
+      "steps": "导出到系统文档；读回CSV；取消；加载失败后重试",
+      "expected": "导出全部原始记录；转义安全；取消不产物；读错不装成0且重试不结算活跃会话",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_history.py#history"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "统计导出"
+      ]
+    },
+    {
+      "id": "FF-THEME-001",
+      "module": "主题适配",
+      "scenario": "主题/字号/方向不丢草稿和会话",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "设置草稿、记录页和活跃会话分别存在",
+      "steps": "系统切深浅/1.5倍字/横竖屏；打开原生滚轮与错误对话框",
+      "expected": "语义色可读、无截断；选择/草稿/会话不重置；普通浮窗配色不被页面主题覆盖",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_theme.py#theme"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "主题适配"
+      ]
+    },
+    {
+      "id": "FF-DEBUG-001",
+      "module": "开发者模式",
+      "scenario": "Debug专属入口与模拟隔离",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "Debug和无录音Release均可检查",
+      "steps": "检查设置/首页；Debug切预设样式及实验浮窗；检查Release打包",
+      "expected": "Debug只在设置有开发者模式；Release无实验组件；预览不计时、不写正式数据；快捷网格不随样式切换",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_developer.py#developer"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "开发者模式"
+      ]
+    },
+    {
+      "id": "FF-DEFERRED-001",
+      "module": "Deferred",
+      "scenario": "自动监测维持关闭",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "现有APP_USAGE_AUTO_TIMER=false",
+      "steps": "检查Flag、正式入口与服务启动路径",
+      "expected": "无使用情况/无障碍引导，无监测轮询自动启动；不扩展延期功能",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "app/src/main/java/app/floatingfocus/FeatureFlags.kt"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "Deferred"
+      ]
+    },
+    {
+      "id": "FF-PHONE-01",
+      "module": "桌面快捷方式",
+      "scenario": "HyperOS图标实际启动和会话冲突",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "两个实际桌面预设入口已存在；目标App可启动",
+      "steps": "点普通预设；核对App/模式/时长；活跃时点另一入口",
+      "expected": "按ID打开正确App和保存时长/模式；另一入口不替换已有会话",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "docs/testing/REAL_DEVICE.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 1,
+      "gap": "Launcher3不能证明HyperOS固定入口确认/图标/路由",
+      "impact_tags": [
+        "桌面快捷方式"
+      ]
+    },
+    {
+      "id": "FF-PHONE-02",
+      "module": "桌面组件",
+      "scenario": "HyperOS两尺寸及同步控制",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "桌面添加2×1/2×2；启动默认60秒、当前C4关",
+      "steps": "开始；暂停约5秒；继续；2×2结束；拖动放大",
+      "expected": "两组件同会话；暂停冻结，继续同步；结束回空闲；放大布局可用",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "docs/testing/REAL_DEVICE.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 1,
+      "gap": "厂商组件网格、刷新、缩放与点击分发不同",
+      "impact_tags": [
+        "桌面组件"
+      ]
+    },
+    {
+      "id": "FF-PHONE-03",
+      "module": "桌面组件",
+      "scenario": "HyperOS组件预设打开目标",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "组件前两个实际预设绑定有效",
+      "steps": "点展示的预设；核对App/模式/时长；若C4则用口令结束",
+      "expected": "与首页同预设配置一致；无额外会话；不要求把新预设移到前两位",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "docs/testing/REAL_DEVICE.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 1,
+      "gap": "模拟器目标打开不证明厂商桌面PendingIntent实际路径",
+      "impact_tags": [
+        "桌面组件"
+      ]
+    },
+    {
+      "id": "FF-PHONE-04",
+      "module": "浮窗",
+      "scenario": "真实手指及普通浮窗外部穿透",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "普通60秒；其他App有可辨认按钮和可滑动内容",
+      "steps": "拖到屏幕边缘、展开收起；点/滑浮窗外底层区域",
+      "expected": "拖动不误点击；不跳位；外部操作到达底层，透明角落不触发浮窗",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "docs/testing/REAL_DEVICE.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 2,
+      "gap": "注入手势不能代替实际手指和厂商触摸分发",
+      "impact_tags": [
+        "浮窗"
+      ]
+    },
+    {
+      "id": "FF-PHONE-05",
+      "module": "提醒",
+      "scenario": "提醒真实触感（与请求日志分开）",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "普通倒计时或开发者触发；记录强度与系统声音/勿扰状态",
+      "steps": "在本轮普通归零时顺带确认实际振动；只有没感到振动才再用开发者触发定位，不必反复重测",
+      "expected": "确实感到至少一次振动；仅系统vibrate调用成功不能判本例通过；重复触发去重由对应自动化/归零用例核对",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "docs/testing/REAL_DEVICE.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 2,
+      "gap": "历史振动成功未绑定本包；系统执行请求不证明马达触感",
+      "impact_tags": [
+        "提醒"
+      ]
+    },
+    {
+      "id": "FF-PHONE-06",
+      "module": "C4",
+      "scenario": "完整装置透明外部与实体键盘",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "C460秒；其他App可辨认控件",
+      "steps": "阶段内展开；点装置外透明区域的下层控件；输入735、收起展开再5608",
+      "expected": "透明外部到下层；键区不兼收起；输入保留；正确口令结算一次",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "docs/testing/REAL_DEVICE.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 3,
+      "gap": "Android遮挡策略与厂商窗口差异；截图透明不证明触摸穿透",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-PHONE-07",
+      "module": "C4音频",
+      "scenario": "拆除语音实际可听与收尾",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "本机Debug三段录音；音效开；正常响铃、无勿扰、媒体音量适中",
+      "steps": "60秒C4在开放后输入7355608；听完整语音",
+      "expected": "原滴声停；约220ms后窗关；成功语音完整一次；不爆炸、不把语音时长计入会话",
+      "builds": [
+        "Debug本地音频"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "docs/testing/REAL_DEVICE.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 3,
+      "gap": "播放器start日志和2.091秒文件长度不能证明可听/无切词",
+      "impact_tags": [
+        "C4音频"
+      ]
+    },
+    {
+      "id": "FF-PHONE-08",
+      "module": "C4音频",
+      "scenario": "自然到时前后实际连续性",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "沿用上项音频条件；另起C4会话",
+      "steps": "不输口令；听最后10秒、归零、尾音与恢复超时",
+      "expected": "无明显空隙、双声或重播；爆炸一次；约5.9秒尾音后恢复超时",
+      "builds": [
+        "Debug本地音频"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "docs/testing/REAL_DEVICE.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 3,
+      "gap": "两段样本数相等不证明硬件解码/扬声器衔接",
+      "impact_tags": [
+        "C4音频"
+      ]
+    },
+    {
+      "id": "FF-PHONE-09",
+      "module": "C4音频",
+      "scenario": "全局音效与静音/振动/勿扰",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "本地Debug；可分多轮；明确媒体音量",
+      "steps": "发声时关开音效；分别试静音/振动/勿扰并恢复",
+      "expected": "音效关闭立即静音；三种系统限制下C4不播放；计时/口令继续；恢复不重播下包",
+      "builds": [
+        "Debug本地音频"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "docs/testing/REAL_DEVICE.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 4,
+      "gap": "厂商声音策略未听验；振动在勿扰下另受系统闹钟规则，不一概判失败",
+      "impact_tags": [
+        "C4音频"
+      ]
+    },
+    {
+      "id": "FF-PHONE-10",
+      "module": "C4音频",
+      "scenario": "真实音频焦点让出及恢复",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "C4发声；准备另一视频/音乐App",
+      "steps": "播放另一App，暂停后回到计时；必要时另测语音通话",
+      "expected": "真正失焦时让出；倒计时恢复到当前进度，不补滴声/加音量；成功语音被打断可停止",
+      "builds": [
+        "Debug本地音频"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "docs/testing/REAL_DEVICE.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 4,
+      "gap": "模拟器焦点日志不能证明真实媒体应用与硬件听感",
+      "impact_tags": [
+        "C4音频"
+      ]
+    },
+    {
+      "id": "FF-PHONE-11",
+      "module": "生命周期",
+      "scenario": "日常省电下后台和锁屏",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "保持日常电池限制；普通计时",
+      "steps": "切两个App/Home；锁20秒后解锁；另一次跨归零锁屏",
+      "expected": "离开App不暂停；解锁校准不重置；无重复提醒/窗口；锁屏可隐藏浮窗，不保证深睡准点唤醒",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "docs/testing/REAL_DEVICE.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 5,
+      "gap": "HyperOS省电及休眠不等同模拟器，不预先放宽后台限制",
+      "impact_tags": [
+        "生命周期"
+      ]
+    },
+    {
+      "id": "FF-PHONE-12",
+      "module": "生命周期",
+      "scenario": "最近任务划掉真正FF的清理",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "先开FF首页使最近任务有FF卡；短C4会话",
+      "steps": "回目标App，在最近任务划掉FF卡；15秒后重开看记录",
+      "expected": "浮窗/声音停止且不重启补爆炸；不加15秒停机；直杀可约计但不承诺强杀瞬间精度",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "docs/testing/REAL_DEVICE.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 6,
+      "gap": "本次改过中转任务清理；厂商可能直接杀进程而不回调",
+      "impact_tags": [
+        "生命周期"
+      ]
+    },
+    {
+      "id": "FF-PHONE-13",
+      "module": "C4音频",
+      "scenario": "耳机与蓝牙输出",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "日常确实使用耳机；沿用三录音条件",
+      "steps": "用耳机重复一次成功或爆炸",
+      "expected": "输出设备正确，无明显断词/双声；不强行变音量",
+      "builds": [
+        "Debug本地音频"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "docs/testing/REAL_DEVICE.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "建议真机",
+      "manual_group": 7,
+      "gap": "扬声器结果不能覆盖蓝牙路由和延迟",
+      "impact_tags": [
+        "C4音频"
+      ]
+    },
+    {
+      "id": "FF-PHONE-14",
+      "module": "主题适配",
+      "scenario": "真机大字、深色、方向与安全区",
+      "priority": "P2",
+      "kind": "功能场景",
+      "preconditions": "使用日常最大字号；设备支持的横屏App",
+      "steps": "切主题和字号；转屏；边缘展开收起；看桌面组件",
+      "expected": "数字完整、按键可达，无安全区越界；不重置会话/草稿",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "docs/testing/REAL_DEVICE.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "建议真机",
+      "manual_group": 7,
+      "gap": "字体、安全区域、导航手势及桌面不一定同模拟器",
+      "impact_tags": [
+        "主题适配"
+      ]
+    },
+    {
+      "id": "FF-PHONE-15",
+      "module": "生命周期",
+      "scenario": "强停/撤权后的记录与桌面缓存",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "测试会话，不清数据不卸载",
+      "steps": "系统强停或撤权；等15秒；重开与重新授权",
+      "expected": "无自动恢复；异常仅最后检查点；组件旧显示交互后校正；重授不自启",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "docs/testing/REAL_DEVICE.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "建议真机",
+      "manual_group": 7,
+      "gap": "ADB可覆盖正常路径，真机无回调清理及桌面缓存仍需补充",
+      "impact_tags": [
+        "生命周期"
+      ]
+    },
+    {
+      "id": "FF-PHONE-16",
+      "module": "生命周期",
+      "scenario": "15–30分钟后台省电表现",
+      "priority": "P2",
+      "kind": "功能场景",
+      "preconditions": "维持日常设置，普通计时",
+      "steps": "正常使用其他App或锁屏15–30分钟后查看",
+      "expected": "无意外重置/重复会话；记录实际延迟/中断与明显温升，不据短测宣称全天稳定",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "docs/testing/REAL_DEVICE.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "建议真机",
+      "manual_group": 7,
+      "gap": "短时模拟器不证明长期后台、耗电或温度",
+      "impact_tags": [
+        "生命周期"
+      ]
+    },
+    {
+      "id": "FF-SUITE-SMOKE",
+      "module": "计时",
+      "scenario": "预设启动Gallery、结束和记录（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite smoke -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_regression.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "计时"
+      ]
+    },
+    {
+      "id": "FF-SUITE-EDGES",
+      "module": "浮窗",
+      "scenario": "三形状四边展开收起（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite edges -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_regression.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "浮窗"
+      ]
+    },
+    {
+      "id": "FF-SUITE-INLINE",
+      "module": "加时",
+      "scenario": "真实归零、浮窗加时与第二次到时（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite inline -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_regression.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "加时"
+      ]
+    },
+    {
+      "id": "FF-SUITE-SETTINGS",
+      "module": "外观设置",
+      "scenario": "参数持久化与各预设锚点（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite settings -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_settings.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "外观设置"
+      ]
+    },
+    {
+      "id": "FF-SUITE-HOME",
+      "module": "首页",
+      "scenario": "三分组、快捷App及入口（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite home -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_regression.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "首页"
+      ]
+    },
+    {
+      "id": "FF-SUITE-PREFERENCES",
+      "module": "提醒策略",
+      "scenario": "滚轮、秒精度与节点冲突（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite preferences -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_preferences.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "提醒策略"
+      ]
+    },
+    {
+      "id": "FF-SUITE-STARTUP",
+      "module": "启动默认",
+      "scenario": "默认值保存取消和恢复选择（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite startup -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_startup.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "启动默认"
+      ]
+    },
+    {
+      "id": "FF-SUITE-THEME",
+      "module": "主题适配",
+      "scenario": "主题、大字及正计时排除C4（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite theme -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_theme.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "主题适配"
+      ]
+    },
+    {
+      "id": "FF-SUITE-C4",
+      "module": "C4",
+      "scenario": "时间轴、口令、声光请求和系统清理（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite c4 -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_c4.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-SUITE-C4_KEYPAD",
+      "module": "C4",
+      "scenario": "LCD/键盘几何与可点击性（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite c4_keypad -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_regression.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-SUITE-C4_COMPACT",
+      "module": "C4",
+      "scenario": "常态三形状、穿透、开合保留输入（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite c4_compact -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_regression.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-SUITE-ONBOARDING",
+      "module": "教程",
+      "scenario": "四页与授权返回（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite onboarding -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_onboarding.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "教程"
+      ]
+    },
+    {
+      "id": "FF-SUITE-DEVELOPER",
+      "module": "开发者模式",
+      "scenario": "调试入口和模拟隔离（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite developer -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_developer.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "开发者模式"
+      ]
+    },
+    {
+      "id": "FF-SUITE-HISTORY",
+      "module": "统计导出",
+      "scenario": "图表筛选和原始CSV（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite history -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_history.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "统计导出"
+      ]
+    },
+    {
+      "id": "FF-SUITE-PRESET_STYLES",
+      "module": "预设",
+      "scenario": "Debug候选布局比较（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite preset_styles -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_preset_styles.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "预设"
+      ]
+    },
+    {
+      "id": "FF-SUITE-PRESET_SHORTCUTS",
+      "module": "桌面快捷方式",
+      "scenario": "Launcher3固定入口及最新ID启动（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite preset_shortcuts -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_preset_shortcuts.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "桌面快捷方式"
+      ]
+    },
+    {
+      "id": "FF-SUITE-PRESET_C4",
+      "module": "预设C4",
+      "scenario": "当前/预设开关、加时和编辑隔离（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite preset_c4 -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_preset_c4.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "预设C4"
+      ]
+    },
+    {
+      "id": "FF-SUITE-WIDGETS",
+      "module": "桌面组件",
+      "scenario": "真实组件与共享会话（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite widgets -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_widgets.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "桌面组件"
+      ]
+    },
+    {
+      "id": "FF-GATE-BUILD",
+      "module": "检查门禁",
+      "scenario": "构建产物",
+      "priority": "P0",
+      "kind": "检查汇总",
+      "preconditions": "现有项目工具链/独立结构化摘要",
+      "steps": "执行现有check.ps1 Full",
+      "expected": "assemble任务完成并输出APK，不作为功能通过",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "自动化",
+      "entry_points": [
+        "scripts/check.ps1"
+      ],
+      "scope": "汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "检查门禁"
+      ]
+    },
+    {
+      "id": "FF-GATE-UNIT",
+      "module": "检查门禁",
+      "scenario": "JVM执行汇总",
+      "priority": "P0",
+      "kind": "检查汇总",
+      "preconditions": "现有项目工具链/独立结构化摘要",
+      "steps": "执行现有check.ps1 Unit/Full",
+      "expected": "JUnit失败/错误0；跳过数量保留，不扩为逐功能通过",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "自动化",
+      "entry_points": [
+        "scripts/check.ps1"
+      ],
+      "scope": "汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "检查门禁"
+      ]
+    },
+    {
+      "id": "FF-GATE-LINT",
+      "module": "检查门禁",
+      "scenario": "Lint检查",
+      "priority": "P0",
+      "kind": "检查汇总",
+      "preconditions": "现有项目工具链/独立结构化摘要",
+      "steps": "执行现有check.ps1 Full",
+      "expected": "lintErrors=0；warning数量原样记录，不证明运行结果",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "自动化",
+      "entry_points": [
+        "scripts/check.ps1"
+      ],
+      "scope": "汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "检查门禁"
+      ]
+    },
+    {
+      "id": "FF-GATE-DEVICE",
+      "module": "检查门禁",
+      "scenario": "设备回归批次完整性",
+      "priority": "P0",
+      "kind": "检查汇总",
+      "preconditions": "现有项目工具链/独立结构化摘要",
+      "steps": "执行现有test-device.ps1指定suite",
+      "expected": "批次状态passed；源码/APK未改、还原结果成立；失败不猜具体功能",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "自动化",
+      "entry_points": [
+        "scripts/test-device.ps1"
+      ],
+      "scope": "汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "检查门禁"
+      ]
+    },
+    {
+      "id": "FF-GATE-CHECK",
+      "module": "检查门禁",
+      "scenario": "原检查批次执行状态（未细分失败任务）",
+      "priority": "P0",
+      "kind": "检查汇总",
+      "preconditions": "现有项目工具链/独立结构化摘要",
+      "steps": "读取原独立check摘要，不从残留JUnit或APK反推失败任务",
+      "expected": "保持原批次失败/阻塞；未明确失败任务时不宣称assemble/Lint/单测中任一项单独失败",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "自动化",
+      "entry_points": [
+        "scripts/check.ps1"
+      ],
+      "scope": "汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "检查门禁"
+      ]
+    },
+    {
+      "id": "FF-PHONE-01A",
+      "module": "桌面快捷方式",
+      "scenario": "HyperOS厂商权限允许后真实图标生成",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "已有厂商桌面快捷方式权限；两测试预设已绑定App",
+      "steps": "沿用已允许的桌面快捷方式权限，从预设管理请求添加并实际查看图标；无需为了重测主动关闭权限",
+      "expected": "桌面确实出现该预设入口；创建本身不启动计时。只验证创建，不由此宣称点击启动通过",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "docs/testing/REAL_DEVICE.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 1,
+      "gap": "Launcher3不能证明HyperOS固定入口确认/图标/路由",
+      "impact_tags": [
+        "桌面快捷方式"
+      ]
+    }
+  ],
+  "junit_classes": {
+    "CountdownTest": "FF-JVM-COUNTDOWN",
+    "CompletionReminderTest": "FF-JVM-COMPLETIONREMINDER",
+    "TimerHistoryTest": "FF-JVM-TIMERHISTORY",
+    "PresetExtensionTest": "FF-JVM-PRESETEXTENSION",
+    "TimerStartupDefaultsTest": "FF-JVM-TIMERSTARTUPDEFAULTS",
+    "QuickDurationsTest": "FF-JVM-QUICKDURATIONS",
+    "TimerPresetTest": "FF-JVM-TIMERPRESET",
+    "PresetC4Test": "FF-JVM-PRESETC4",
+    "QuickLaunchTargetsTest": "FF-JVM-QUICKLAUNCHTARGETS",
+    "PresetShortcutPolicyTest": "FF-JVM-PRESETSHORTCUTPOLICY",
+    "PresetPinFeedbackTest": "FF-JVM-PRESETPINFEEDBACK",
+    "TimerStartAdmissionTest": "FF-JVM-TIMERSTARTADMISSION",
+    "TimerWidgetTest": "FF-JVM-TIMERWIDGET",
+    "TimerTaskPolicyTest": "FF-JVM-TIMERTASKPOLICY",
+    "OverlayDragGestureTest": "FF-JVM-OVERLAYDRAGGESTURE",
+    "OverlayGeometryTest": "FF-JVM-OVERLAYGEOMETRY",
+    "OverlayPositionTest": "FF-JVM-OVERLAYPOSITION",
+    "ReminderStrategyTest": "FF-JVM-REMINDERSTRATEGY",
+    "StrategyEditingTest": "FF-JVM-STRATEGYEDITING",
+    "ReminderSettingsTest": "FF-JVM-REMINDERSETTINGS",
+    "ReminderPresenterTest": "FF-JVM-REMINDERPRESENTER",
+    "ReminderHighlightTest": "FF-JVM-REMINDERHIGHLIGHT",
+    "C4TimelineTest": "FF-JVM-C4TIMELINE",
+    "C4ModeTest": "FF-JVM-C4MODE",
+    "C4GeometryTest": "FF-JVM-C4GEOMETRY",
+    "HistoryStatisticsTest": "FF-JVM-HISTORYSTATISTICS",
+    "FocusThemeTest": "FF-JVM-FOCUSTHEME",
+    "LabSimulationTest": "FF-JVM-LABSIMULATION",
+    "AutoTimerEngineTest": "FF-JVM-AUTOTIMERENGINE"
+  },
+  "device_details": {
+    "widgets": {
+      "defaultPauseResumeEnd": "FF-WIDGET-001",
+      "latestPresetsAndConflict": "FF-WIDGET-002",
+      "permissionExplicitContinue": "FF-WIDGET-003",
+      "overtimeAndC4Guards": "FF-WIDGET-004",
+      "savedStopwatchAndColdStart": "FF-WIDGET-005",
+      "realLauncherResize": "FF-WIDGET-006"
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "id": "FF-20261030-68517f8",
+  "source_commit": "68517f83cabe28d4ecc9cf626754317f39499729",
+  "note": "固定到本轮已构建应用。后续仅资料/脚本变更不生成新APK，也不改写原报告中的7361c48+dirty身份。",
+  "builds": {
+    "Debug": {
+      "sha256": "a2c4fbd7fede219e4cfcea5b2f72d46b729e58012a9627c40242e3c8cdb1e490",
+      "fingerprint": "23bdf8c4d9e3f2992de9535b89a6c1e285685d35b6643e462c64c1009e9ab583",
+      "reported_commit": "7361c485541d668324afd7b1094b409912b2cec3",
+      "reported_dirty": true,
+      "version_name": "0.3.0",
+      "version_code": 4,
+      "check": ".tools/checks/check-full-debug-20261030-111850-775.json",
+      "apk": "app/build/outputs/apk/debug/app-debug.apk",
+      "audio_local": true,
+      "installable": true
+    },
+    "Release": {
+      "sha256": "935e4040dc3d525b3d5449fd51663f45b575215242dcabbc00965fd5e7fe42d2",
+      "fingerprint": "23bdf8c4d9e3f2992de9535b89a6c1e285685d35b6643e462c64c1009e9ab583",
+      "reported_commit": "7361c485541d668324afd7b1094b409912b2cec3",
+      "reported_dirty": true,
+      "version_name": "0.3.0",
+      "version_code": 4,
+      "check": ".tools/checks/check-full-release-20261030-112024-277.json",
+      "apk": "app/build/outputs/apk/release/app-release-unsigned.apk",
+      "audio_local": false,
+      "installable": false
+    }
+  }
+}

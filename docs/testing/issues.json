@@ -1,0 +1,102 @@
+[
+  {
+    "id": "FF-ISSUE-LOG-SCOPE",
+    "type": "测试脚本判定范围",
+    "description": "组件回归误把此前正常暂停日志当成本次C4暂停。原报告只有空AssertionError；原因来自当时对话及代码修正，不由原JSON自动猜测。",
+    "affected_cases": [
+      "FF-GATE-DEVICE",
+      "FF-WIDGET-004"
+    ],
+    "failed_records": [
+      "DEVICE-20261030-110103-results-46c9d5e9b17d:FF-GATE-DEVICE:0"
+    ],
+    "retests": [
+      {
+        "of": "DEVICE-20261030-110103-results-46c9d5e9b17d:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261030-112251-results-c39d7ed1a659:FF-GATE-DEVICE:7"
+      }
+    ],
+    "evidence": [
+      ".tools/device-checks/20261030-110103/results.json",
+      "scripts/device_widgets.py"
+    ],
+    "status": "已修正规则；完整回归复测通过，不称作应用C4缺陷"
+  },
+  {
+    "id": "FF-ISSUE-ENTRY-LIFECYCLE",
+    "type": "历史应用缺陷",
+    "description": "组件首次点击过早于RESUMED；后续中转finish曾被当成主任务划除。原失败未留可绑定的结构化APK身份。",
+    "affected_cases": [
+      "FF-WIDGET-001",
+      "FF-JVM-TIMERTASKPOLICY",
+      "FF-PHONE-12"
+    ],
+    "failed_records": [],
+    "retests": [],
+    "evidence": [
+      ".tools/widget-check/red-default-first-click.png",
+      ".tools/widget-check/default-disappeared.png",
+      "app/src/main/java/app/floatingfocus/TimerTaskPolicy.kt"
+    ],
+    "status": "当前组件细项已通过；原失败身份缺口保留；真机任务划除待验"
+  },
+  {
+    "id": "FF-ISSUE-WIDGET-FONT",
+    "type": "历史视觉缺陷",
+    "description": "旧组件1.5倍字截图时间末位截断，当前布局已调整。截图采集不自动代表视觉复测通过。",
+    "affected_cases": [
+      "FF-VISUAL-WIDGET",
+      "FF-PHONE-14"
+    ],
+    "failed_records": [],
+    "retests": [],
+    "evidence": [
+      ".tools/device-checks/20261030-110425/widgets-large-font.png",
+      ".tools/device-checks/20261030-112251/widgets-large-font.png"
+    ],
+    "status": "修正代码和新截图存在；待明确视觉记录，不能编造原失败身份"
+  },
+  {
+    "id": "FF-ISSUE-JUNIT-IDENTITY",
+    "type": "证据缺口",
+    "description": "现存JUnit XML不含源码/APK绑定，类/方法计数可读但不自动关联相邻Full摘要。",
+    "affected_cases": [
+      "FF-JVM-COUNTDOWN",
+      "FF-JVM-COMPLETIONREMINDER",
+      "FF-JVM-TIMERHISTORY",
+      "FF-JVM-PRESETEXTENSION",
+      "FF-JVM-TIMERSTARTUPDEFAULTS",
+      "FF-JVM-QUICKDURATIONS",
+      "FF-JVM-TIMERPRESET",
+      "FF-JVM-PRESETC4",
+      "FF-JVM-QUICKLAUNCHTARGETS",
+      "FF-JVM-PRESETSHORTCUTPOLICY",
+      "FF-JVM-PRESETPINFEEDBACK",
+      "FF-JVM-TIMERSTARTADMISSION",
+      "FF-JVM-TIMERWIDGET",
+      "FF-JVM-TIMERTASKPOLICY",
+      "FF-JVM-OVERLAYDRAGGESTURE",
+      "FF-JVM-OVERLAYGEOMETRY",
+      "FF-JVM-OVERLAYPOSITION",
+      "FF-JVM-REMINDERSTRATEGY",
+      "FF-JVM-STRATEGYEDITING",
+      "FF-JVM-REMINDERSETTINGS",
+      "FF-JVM-REMINDERPRESENTER",
+      "FF-JVM-REMINDERHIGHLIGHT",
+      "FF-JVM-C4TIMELINE",
+      "FF-JVM-C4MODE",
+      "FF-JVM-C4GEOMETRY",
+      "FF-JVM-HISTORYSTATISTICS",
+      "FF-JVM-FOCUSTHEME",
+      "FF-JVM-LABSIMULATION",
+      "FF-JVM-AUTOTIMERENGINE"
+    ],
+    "failed_records": [],
+    "retests": [],
+    "evidence": [
+      "app/build/test-results",
+      "scripts/check.ps1"
+    ],
+    "status": "待后续改善原检查证据；本轮只标缺口"
+  }
+]

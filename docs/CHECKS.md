@@ -1,5 +1,7 @@
 # 统一检查入口
 
+用例、历史执行及当前证据缺口统一见 [测试库](testing/README.md)；用户亲测项见 [真机最小集](testing/REAL_DEVICE.md)。只整理已有结果：`python scripts/test_catalog.py refresh`，不运行应用测试。Excel是派生报告，实际结果从独立原始摘要追加导入。
+
 在项目根目录使用 PowerShell：
 
 ```powershell
