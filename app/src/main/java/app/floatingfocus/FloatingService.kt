@@ -48,7 +48,8 @@ data class SessionState(
     val timerStartedAt: Long = 0,
     val c4Locked: Boolean = false,
     val startRequestId: String? = null,
-    val durationMillis: Long = 0
+    val durationMillis: Long = 0,
+    val sampledAt: Long = 0
 )
 
 class FloatingService : Service() {
@@ -134,7 +135,7 @@ class FloatingService : Service() {
             overlayState = SessionState(true, remaining, progress, stage, mode = timer.mode,
                 elapsedMillis = timer.elapsedAt(now), overtimeMillis = timer.overtimeAt(now), timerStartedAt = timer.startedAt,
                 paused = manualClock.paused, c4Locked = c4Frame.active, startRequestId = activeStartRequestId,
-                durationMillis = timer.durationMillis)
+                durationMillis = timer.durationMillis, sampledAt = physicalNow)
             checkpointRecord(physicalNow)
             record?.let { recordStore.save(it, checkpoint = true) }
             mutableSession.value = overlayState
@@ -152,6 +153,20 @@ class FloatingService : Service() {
     override fun onBind(intent: Intent): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_WIDGET_CONTROL) {
+            val command = intent.getStringExtra("widget_command")?.let { name -> WidgetCommand.entries.firstOrNull { it.name == name } }
+            if (command != null && c4Runtime?.locked() != true && TimerWidgetModel.accepts(overlayState, command,
+                    intent.getStringExtra(EXTRA_REQUEST_ID), intent.getLongExtra("timer_start", -1L))) {
+                when (command) {
+                    WidgetCommand.END -> finishSession()
+                    WidgetCommand.PAUSE -> setPaused(overlayState.timerStartedAt, true)
+                    WidgetCommand.RESUME -> setPaused(overlayState.timerStartedAt, false)
+                    else -> Unit
+                }
+            }
+            if (countdown == null && monitor == null && !successPending && !startPending) stopSelf(startId)
+            return START_NOT_STICKY
+        }
         if (intent?.action == ACTION_EXTENSION_EDITOR) {
             if (c4Runtime?.locked() == true) return START_NOT_STICKY
             val timer = countdown
@@ -226,7 +241,7 @@ class FloatingService : Service() {
         }
         completionReminder.reset()
         overlayState = SessionState(true, duration, mode = mode, timerStartedAt = countdown!!.startedAt, startRequestId = requested,
-            durationMillis = countdown!!.durationMillis)
+            durationMillis = countdown!!.durationMillis, sampledAt = SystemClock.elapsedRealtime())
         interactive = getSystemService(PowerManager::class.java).isInteractive
         val nm = getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(NotificationChannel(CHANNEL, "悬浮计时", NotificationManager.IMPORTANCE_LOW).apply {
@@ -287,8 +302,9 @@ class FloatingService : Service() {
                 onC4Key = { key ->
                     if (!stopping && c4Runtime?.key(key) == C4KeyResult.DEFUSED) finishSession(defusedFeedback = true)
                 },
-                onTogglePause = if (!overlayState.automatic && overlayState.mode == TimerMode.COUNTDOWN &&
-                    (c4Runtime?.enabledForSession == true || overlayState.paused)) ({ togglePause(timerStart) }) else null,
+                onTogglePause = if (!overlayState.automatic &&
+                    ((overlayState.mode == TimerMode.COUNTDOWN && c4Runtime?.enabledForSession == true) || overlayState.paused))
+                    ({ togglePause(timerStart) }) else null,
                 onExtend = if (countdown != null) ({ seconds -> extendTimer(timerStart, seconds) }) else null) {
                 if (c4Runtime?.locked() != true) finishSession()
             }
@@ -306,10 +322,11 @@ class FloatingService : Service() {
 
     private fun completeCountdown() {
         val timer = countdown ?: return
-        val now = manualClock.at(SystemClock.elapsedRealtime())
+        val physicalNow = SystemClock.elapsedRealtime()
+        val now = manualClock.at(physicalNow)
         if (timer.mode != TimerMode.COUNTDOWN || !completionReminder.consume(true, manualClock.paused, timer.remainingAt(now))) return
         overlayState = overlayState.copy(remainingMillis = 0, progress = 1f, stage = ReminderStage.FINISHED,
-            elapsedMillis = timer.elapsedAt(now), overtimeMillis = timer.overtimeAt(now))
+            elapsedMillis = timer.elapsedAt(now), overtimeMillis = timer.overtimeAt(now), sampledAt = physicalNow)
         mutableSession.value = overlayState
         c4Runtime?.completed()
         Log.d(TAG, "Timer completed: remaining=0")
@@ -317,13 +334,17 @@ class FloatingService : Service() {
     }
 
     private fun togglePause(expectedStart: Long) {
+        if (c4Runtime?.enabledForSession != true && !manualClock.paused) return
+        setPaused(expectedStart, !manualClock.paused)
+    }
+
+    private fun setPaused(expectedStart: Long, paused: Boolean) {
         if (c4Runtime?.locked() == true) return
         val timer = countdown ?: return
         val physicalNow = SystemClock.elapsedRealtime()
-        if (stopping || timer.startedAt != expectedStart || timer.mode != TimerMode.COUNTDOWN ||
-            timer.remainingAt(manualClock.at(physicalNow)) == 0L) return
-        if (c4Runtime?.enabledForSession != true && !manualClock.paused) return
-        if (manualClock.paused) manualClock.resume(physicalNow) else manualClock.pause(physicalNow)
+        if (stopping || timer.startedAt != expectedStart || manualClock.paused == paused ||
+            (timer.mode == TimerMode.COUNTDOWN && timer.remainingAt(manualClock.at(physicalNow)) == 0L)) return
+        if (paused) manualClock.pause(physicalNow) else manualClock.resume(physicalNow)
         handler.removeCallbacks(tick)
         tick.run()
         Log.d(TAG, "C4 clock paused=${manualClock.paused} remaining=${overlayState.remainingMillis}")
@@ -407,7 +428,7 @@ class FloatingService : Service() {
         val c4Locked = c4Runtime?.locked() == true || c4Frame.active
         return NotificationCompat.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_notification).setContentTitle(if (automatic) "指定 App 监测 · ${if (mutableMonitor.value.running) "计时中" else "已暂停/等待"}" else if (overlayState.paused) "Floating Focus · 已暂停" else if (finished) "Floating Focus · 超时计时" else "Floating Focus · 正在计时")
-            .setContentText(if (c4Locked) "C4 · ${formatRemaining(overlayState.remainingMillis)}" else if (automatic) "${mutableMonitor.value.reason} · 点击管理；可随时停止" else if (overlayState.paused) "${formatRemaining(overlayState.remainingMillis)} · 点击浮窗继续或结束" else if (finished) "正在记录超时时长，可随时结束" else "点击悬浮胶囊可展开操作")
+            .setContentText(if (c4Locked) "C4 · ${formatRemaining(overlayState.remainingMillis)}" else if (automatic) "${mutableMonitor.value.reason} · 点击管理；可随时停止" else if (overlayState.paused) "${if (overlayState.mode == TimerMode.STOPWATCH) formatElapsed(overlayState.elapsedMillis) else formatRemaining(overlayState.remainingMillis)} · 点击浮窗继续或结束" else if (finished) "正在记录超时时长，可随时结束" else "点击悬浮胶囊可展开操作")
             .setContentIntent(open).apply { if (!c4Locked) addAction(0, if (automatic) "停止监测" else "结束计时", stop) }
             .setWhen(if (overlayState.mode == TimerMode.STOPWATCH || finished)
                 System.currentTimeMillis() - (if (finished) overlayState.overtimeMillis else overlayState.elapsedMillis)
@@ -502,7 +523,9 @@ class FloatingService : Service() {
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
-        finishSession(status = RecordStatus.TASK_REMOVED)
+        val ends = TimerTaskPolicy.endsSession(rootIntent?.component?.className)
+        Log.d(TAG, "Task removed root=${rootIntent?.component?.className} endsSession=$ends")
+        if (ends) finishSession(status = RecordStatus.TASK_REMOVED)
         super.onTaskRemoved(rootIntent)
     }
 
@@ -534,6 +557,7 @@ class FloatingService : Service() {
         private const val ACTION_EXTENSION_EDITOR = "app.floatingfocus.EXTENSION_EDITOR"
         private const val ACTION_APP_OPENED = "app.floatingfocus.APP_OPENED"
         private const val ACTION_STOP = "app.floatingfocus.STOP"
+        private const val ACTION_WIDGET_CONTROL = "app.floatingfocus.WIDGET_CONTROL"
         private const val ACTION_LAUNCH_FAILED = "app.floatingfocus.LAUNCH_FAILED"
         private const val ACTION_MONITOR = "app.floatingfocus.MONITOR"
         private const val EXTRA_DURATION = "duration_millis"
@@ -587,6 +611,10 @@ class FloatingService : Service() {
         fun stop(context: Context) {
             context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_STOP))
         }
+        internal fun widgetControlIntent(context: Context, command: WidgetCommand, state: SessionState): Intent =
+            Intent(context, FloatingService::class.java).setAction(ACTION_WIDGET_CONTROL)
+                .putExtra("widget_command", command.name).putExtra(EXTRA_REQUEST_ID, state.startRequestId)
+                .putExtra("timer_start", state.timerStartedAt)
         fun cancelFailedLaunch(context: Context, requestId: String) {
             context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_LAUNCH_FAILED).putExtra(EXTRA_REQUEST_ID, requestId))
         }

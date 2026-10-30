@@ -134,7 +134,7 @@ class MainActivity : ComponentActivity() {
                         }
                         if (session.active) {
                             Text(when {
-                                session.paused -> "已暂停 · ${formatRemaining(session.remainingMillis)}"
+                                session.paused -> "已暂停 · ${if (session.mode == TimerMode.STOPWATCH) formatElapsed(session.elapsedMillis) else formatRemaining(session.remainingMillis)}"
                                 session.mode == TimerMode.STOPWATCH -> "正计时 · ${formatElapsed(session.elapsedMillis)}"
                                 session.stage == ReminderStage.FINISHED -> "超时 +${formatElapsed(session.overtimeMillis)}"
                                 else -> "计时中 · ${formatRemaining(session.remainingMillis)}" },

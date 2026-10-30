@@ -1,0 +1,36 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/widget_surface" android:padding="8dp" android:orientation="vertical" android:gravity="center_vertical">
+    <TextView android:id="@+id/widget_status" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="@string/widget_countdown" android:textColor="@color/widget_muted" android:textSize="11sp" android:maxLines="1" android:ellipsize="end" />
+    <Chronometer android:id="@+id/widget_clock" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:textColor="@color/widget_ink" android:textSize="24sp" android:fontFamily="monospace" android:maxLines="1"
+        android:autoSizeTextType="uniform" android:autoSizeMinTextSize="18sp" android:autoSizeMaxTextSize="24sp" android:autoSizeStepGranularity="1sp" />
+    <TextView android:id="@+id/widget_time" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="@string/widget_preview_time" android:textColor="@color/widget_ink" android:textSize="24sp" android:fontFamily="monospace" android:maxLines="1"
+        android:autoSizeTextType="uniform" android:autoSizeMinTextSize="18sp" android:autoSizeMaxTextSize="24sp" android:autoSizeStepGranularity="1sp" android:visibility="gone" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="44dp" android:orientation="horizontal" android:layout_marginTop="2dp" android:baselineAligned="false">
+        <TextView android:id="@+id/widget_primary" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+            android:text="@string/widget_start" android:gravity="center" android:textColor="@color/widget_on_primary" android:textSize="13sp"
+            android:background="@drawable/widget_primary" android:maxLines="1" android:clickable="true" android:layout_marginEnd="6dp" />
+        <TextView android:id="@+id/widget_end" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+            android:text="@string/widget_end" android:gravity="center" android:textColor="@color/widget_on_soft" android:textSize="13sp"
+            android:background="@drawable/widget_soft" android:maxLines="1" android:clickable="true" />
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:layout_marginTop="4dp" android:baselineAligned="false">
+        <FrameLayout android:id="@+id/widget_preset_one" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+            android:background="@drawable/widget_soft" android:padding="3dp" android:layout_marginEnd="6dp" android:clickable="true">
+            <ImageView android:id="@+id/widget_preset_icon_one" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" android:importantForAccessibility="no" />
+            <TextView android:id="@+id/widget_preset_name_one" android:layout_width="match_parent" android:layout_height="match_parent"
+                android:text="@string/widget_add_preset" android:gravity="center" android:textColor="@color/widget_on_soft" android:maxLines="2" android:ellipsize="end" android:includeFontPadding="false"
+                android:autoSizeTextType="uniform" android:autoSizeMinTextSize="10sp" android:autoSizeMaxTextSize="11sp" android:autoSizeStepGranularity="1sp" />
+        </FrameLayout>
+        <FrameLayout android:id="@+id/widget_preset_two" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+            android:background="@drawable/widget_soft" android:padding="3dp" android:clickable="true">
+            <ImageView android:id="@+id/widget_preset_icon_two" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" android:importantForAccessibility="no" />
+            <TextView android:id="@+id/widget_preset_name_two" android:layout_width="match_parent" android:layout_height="match_parent"
+                android:text="@string/widget_add_preset" android:gravity="center" android:textColor="@color/widget_on_soft" android:maxLines="2" android:ellipsize="end" android:includeFontPadding="false"
+                android:autoSizeTextType="uniform" android:autoSizeMinTextSize="10sp" android:autoSizeMaxTextSize="11sp" android:autoSizeStepGranularity="1sp" />
+        </FrameLayout>
+    </LinearLayout>
+</LinearLayout>

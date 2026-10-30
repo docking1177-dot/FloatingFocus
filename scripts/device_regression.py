@@ -26,6 +26,7 @@ from device_developer import developer
 from device_history import history
 from device_preset_styles import preset_styles
 from device_preset_shortcuts import preset_shortcuts, require_empty_pins, PINNED_MATCH_FLAGS
+from device_widgets import widgets, require_empty_widgets
 
 PACKAGE = 'app.floatingfocus'
 
@@ -406,7 +407,7 @@ def inline(d):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--serial', default='emulator-5554')
-    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'settings', 'home', 'preferences', 'startup', 'theme', 'c4', 'c4_keypad', 'c4_compact', 'onboarding', 'developer', 'history', 'preset_styles', 'preset_shortcuts', 'preset_c4', 'all'], default='all')
+    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'settings', 'home', 'preferences', 'startup', 'theme', 'c4', 'c4_keypad', 'c4_compact', 'onboarding', 'developer', 'history', 'preset_styles', 'preset_shortcuts', 'preset_c4', 'widgets', 'all'], default='all')
     p.add_argument('--apk', type=Path, default=ROOT / 'app/build/outputs/apk/debug/app-debug.apk')
     p.add_argument('--allow-test-data-changes', action='store_true')
     args = p.parse_args()
@@ -429,6 +430,7 @@ def main():
         if 'package:'+PACKAGE not in d.shell('pm', 'list', 'packages', PACKAGE).splitlines():
             assert 'Success' in d.adb('install', str(args.apk)).decode()
         require_empty_pins(d.shell('cmd', 'shortcut', 'get-shortcuts', '--user', '0', '--flags', PINNED_MATCH_FLAGS, PACKAGE))
+        require_empty_widgets(d.shell('dumpsys', 'appwidget'))
         assert d.overlay() is None, 'End the existing test timer before regression'
         d.stop()
         assert d.shell('run-as', PACKAGE, 'pwd').strip() in ('/data/user/0/' + PACKAGE, '/data/data/' + PACKAGE)
@@ -447,7 +449,7 @@ def main():
         # These grants are test-emulator setup only, not production app permission requests.
         d.shell('appops', 'set', PACKAGE, 'SYSTEM_ALERT_WINDOW', 'allow')
         d.shell('pm', 'grant', PACKAGE, 'android.permission.POST_NOTIFICATIONS')
-        for suite in (['smoke', 'edges', 'inline', 'settings', 'home', 'preferences', 'startup', 'theme', 'c4', 'onboarding', 'developer', 'history', 'preset_styles', 'preset_shortcuts', 'preset_c4'] if args.suite == 'all' else [args.suite]):
+        for suite in (['smoke', 'edges', 'inline', 'settings', 'home', 'preferences', 'startup', 'theme', 'c4', 'onboarding', 'developer', 'history', 'preset_styles', 'preset_shortcuts', 'preset_c4', 'widgets'] if args.suite == 'all' else [args.suite]):
             d.shell('logcat', '-c')
             result['details'][suite] = globals()[suite](d)
             runtime = d.shell('logcat', '-d', '-s', 'AndroidRuntime:*')

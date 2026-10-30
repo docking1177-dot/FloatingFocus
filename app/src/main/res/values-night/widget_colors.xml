@@ -1,0 +1,10 @@
+<resources>
+    <color name="widget_surface">#202923</color>
+    <color name="widget_ink">#EDF1E9</color>
+    <color name="widget_muted">#BDCABF</color>
+    <color name="widget_primary">#A8CEB4</color>
+    <color name="widget_on_primary">#163A27</color>
+    <color name="widget_soft">#304839</color>
+    <color name="widget_on_soft">#D9EBD6</color>
+    <color name="widget_ripple">#40A8CEB4</color>
+</resources>

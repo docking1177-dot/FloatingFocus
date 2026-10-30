@@ -32,6 +32,8 @@
 
 ## 工程设计原则
 
+- 桌面组件在 `TimerWidgets.kt` / `TimerWidgetModel.kt`：2×1计时和开始/暂停/继续，2×2增加前两个原序预设及结束，支持缩放；空闲开始用已保存启动默认值，预设复用ID入口读最新配置。所有实例共享正式会话，不替换已有计时，C4禁暂停/结束。系统Chronometer按单调基准计秒，进程内仅状态变化更新，不加服务/轮询/保活；强杀后可能暂存旧显示，不能据此补计。`WidgetStartActivity` 等待RESUMED且只消费一次请求，缺权限返回明确继续；控制动作绑定会话与加时段，拒绝旧请求。`TimerTaskPolicy` 仅排除受控默认/预设中转任务自结束，划掉主FF任务仍结算停止。桌面回归为 `widgets`，先拒绝已有FF组件，再经真实Launcher3添加/清理自己的组件并还原数据；见 `docs/WIDGETS.md`。
+
 - 预设桌面快捷方式为正式能力：`PresetDesktopShortcuts.kt` 固定 `ff.preset.<ID>`，仅 ID 路由到 `PresetShortcutActivity`，每次读最新预设并经共用 `PresetLauncher` / `AppTimerLauncher` 启动。已有会话（含 C4）不替换；缺权限可创建，授权/修复返回须明确继续，重建不重播。系统支持与确认后固定，成功只认私有回调；无拒绝回调不永久忙。名称/绑定更新显示，删除禁用，读错不判删除且不覆盖存储；有限同步不加轮询。入口独立 task 保护原 FF 草稿；图标共用本机 AppIcon 来源与占位，启动器外观/数量不作保证。见 `docs/PRESET_DESKTOP_SHORTCUTS.md`。
 
 开发新功能或修改现有功能时：
