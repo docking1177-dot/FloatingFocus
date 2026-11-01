@@ -45,7 +45,8 @@ def preset_shortcuts(d):
         raise AssertionError('No action '+repr(labels)+' in '+repr(texts()))
     def pin(name, accept=True, allow_existing=False):
         d.start()
-        if '管理预设方案' not in texts(): d.tap('管理',scroll=True)
+        if '管理预设方案' not in texts():
+            d.home_tab('预设'); d.tap('管理',scroll=True)
         confirmations=d.shell('logcat','-d','-s','FloatingFocus:*').count('PIN confirmed id=')
         d.tap('添加到桌面 '+name,scroll=True)
         wait(lambda: '.launcher3' in d.foreground() or (allow_existing and
@@ -86,8 +87,9 @@ def preset_shortcuts(d):
         d.stop(); d.write_prefs('timer_presets',{'items':json.dumps(items)})
         if appearance is not None: d.write_prefs('reminder_settings',appearance)
         d.start()
+        d.home_tab('预设')
     def rename(old,new):
-        d.start(); d.tap('管理',scroll=True); d.tap('重命名 '+old,scroll=True)
+        d.start(); d.home_tab('预设'); d.tap('管理',scroll=True); d.tap('重命名 '+old,scroll=True)
         field=next(n for n in d.dump().iter('node') if n.get('class')=='android.widget.EditText')
         x,y,r,b=d.bounds(field); d.tapxy((x+r)/2,(y+b)/2)
         d.shell('input','keyevent',123); d.shell('input','keyevent',*([67]*45)); d.shell('input','text',new.replace(' ','%s'))

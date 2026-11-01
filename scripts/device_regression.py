@@ -27,6 +27,7 @@ from device_history import history
 from device_preset_styles import preset_styles
 from device_preset_shortcuts import preset_shortcuts, require_empty_pins, PINNED_MATCH_FLAGS
 from device_widgets import widgets, require_empty_widgets
+from device_home_navigation import home_navigation, home_reorder
 
 PACKAGE = 'app.floatingfocus'
 
@@ -112,6 +113,25 @@ class Device:
         x, y, r, b = self.frame()
         self.tapxy(x+(r-x)*xf, y+(b-y)*yf)
 
+    def home_tab(self, label):
+        headings = {'计时': '常规计时', '预设': '我的预设', 'App': '打开 App 并计时'}
+        assert label in headings, 'Unknown home tab: ' + label
+        self.tap('首页入口 ' + label)
+        assert self.home_tab_node(label).get('selected') == 'true', 'Home tab did not select ' + label
+
+    def home_tab_node(self, label, tree=None):
+        tree = self.dump() if tree is None else tree
+        parents = {c: p for p in tree.iter('node') for c in p}
+        node = next((n for n in tree.iter('node') if n.get('content-desc') == '首页入口 ' + label), None)
+        assert node is not None, 'Home tab description missing: ' + label
+        # Compose can expose the description below the selectable semantics.
+        # Only this entry's nearest actual control supplies its selected state.
+        while node is not None:
+            if any(node.get(key) == 'true' for key in ('focusable', 'clickable', 'selected')):
+                return node
+            node = parents.get(node)
+        raise AssertionError('Home tab has no selectable control: ' + label)
+
     def overlay(self):
         raw = self.shell('dumpsys', 'window', 'windows')
         match = re.search(r'Window\{([^ ]+) u0 app\.floatingfocus\}:.*?Frames:.*?frame=\[(-?\d+),(-?\d+)\]\[(-?\d+),(-?\d+)\]', raw, re.S)
@@ -153,6 +173,7 @@ class Device:
     def seed(self, shape='ROUNDED_RECTANGLE', style='COLOR', minutes=15):
         self.stop()
         self.write_prefs('onboarding', {'completed': True})
+        self.write_prefs('home_navigation', {'order': 'timer,presets,apps'})
         # Normal-overlay suites own their fixture; an optional C4 setting must not hijack inline expiry.
         self.write_prefs('c4_settings', dict(enabled=False, sound=True, noticeAcknowledged=True))
         settings = dict(shape=shape, style=style, color='BLUE', colorMode='CONTINUOUS',
@@ -163,6 +184,7 @@ class Device:
         self.write_prefs('timer_presets', {'items': json.dumps([preset])})
         self.write_prefs('quick_launch', {'targets': json.dumps([{'package': 'com.android.gallery3d', 'label': 'Gallery'}])})
         self.start()
+        self.home_tab('预设')
         self.tap('启动预设 Regression', scroll=True)
         deadline = time.monotonic() + 10
         while time.monotonic() < deadline:
@@ -182,6 +204,7 @@ class Device:
         self.start()
         self.tap('结束计时')
         self.wait_stopped()
+        self.home_tab('计时')
 
     def wait_stopped(self):
         deadline = time.monotonic() + 3
@@ -200,10 +223,13 @@ def home(d):
     assert len(targets) >= 2, 'Need two installed fixture Apps'
     d.stop()
     d.write_prefs('quick_launch', {'targets': json.dumps(targets)})
+    d.write_prefs('quick_durations', {'seconds': '300,600,900,1800', 'startup_mode': 'COUNTDOWN', 'startup_seconds': 900})
     fixture = dict(settings=dict(shape='ROUNDED_RECTANGLE', color='BLUE'), minutes=15, mode='COUNTDOWN',
                    targetPackage='com.android.gallery3d', targetLabel='Gallery')
     d.write_prefs('timer_presets', {'items': json.dumps([dict(fixture, id='home-'+str(i), name='Home '+str(i)) for i in range(3)])})
     d.start()
+    navigation = home_navigation(d)
+    d.home_tab('计时')
     texts = [n.get('text', '') for n in d.dump().iter('node')]
     assert '常规计时' in texts and not any('布局比较' in t for t in texts)
     d.shot('home-top')
@@ -224,6 +250,7 @@ def home(d):
     d.shot('settings-home')
     d.shell('input', 'keyevent', 'KEYCODE_BACK')
     assert any(n.get('text') == 'Floating Focus' for n in d.dump().iter('node')), 'Settings did not return to home'
+    d.home_tab('预设')
     d.tap('新建预设', scroll=True)
     name = next(n for n in d.dump().iter('node') if n.get('class') == 'android.widget.EditText')
     x,y,r,b = d.bounds(name)
@@ -238,6 +265,7 @@ def home(d):
     d.tap('启动预设 HomeNew', scroll=True)
     assert d.overlay() and 'com.android.gallery3d' in d.foreground()
     d.finish()
+    d.home_tab('App')
     d.tap('添加 App', scroll=True)
     tree = d.dump()
     assert any(n.get('text') == '管理常用 App' for n in tree.iter('node'))
@@ -288,7 +316,7 @@ def home(d):
     d.start()
     assert not any(n.get('text') == '允许显示悬浮窗' for n in d.dump().iter('node'))
     return dict(fourColumnGrid=True, addAppRetainsSelection=True, newPresetEntry=True, customDefaultOneMinute=True, quickLaunch=True, helpAndLicensesInSettings=True,
-                contextualOverlayPermission=True, icons='screenshots require visual review')
+                contextualOverlayPermission=True, icons='screenshots require visual review', **navigation)
 
 
 def smoke(d):
@@ -407,7 +435,7 @@ def inline(d):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--serial', default='emulator-5554')
-    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'settings', 'home', 'preferences', 'startup', 'theme', 'c4', 'c4_keypad', 'c4_compact', 'onboarding', 'developer', 'history', 'preset_styles', 'preset_shortcuts', 'preset_c4', 'widgets', 'all'], default='all')
+    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'settings', 'home', 'home_reorder', 'preferences', 'startup', 'theme', 'c4', 'c4_keypad', 'c4_compact', 'onboarding', 'developer', 'history', 'preset_styles', 'preset_shortcuts', 'preset_c4', 'widgets', 'all'], default='all')
     p.add_argument('--apk', type=Path, default=ROOT / 'app/build/outputs/apk/debug/app-debug.apk')
     p.add_argument('--allow-test-data-changes', action='store_true')
     args = p.parse_args()

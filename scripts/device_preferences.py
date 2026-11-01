@@ -112,7 +112,8 @@ def preferences(d):
     d.write_prefs('timer_presets', {'items': json.dumps([preset])})
     d.start()
     d.tap('1:05')
-    for entry in ('\u5f00\u59cb\u5012\u8ba1\u65f6', '\u542f\u52a8\u9884\u8bbe Conflict', '\u6253\u5f00 Gallery \u5e76\u8ba1\u65f6'):
+    for tab, entry in (('计时', '\u5f00\u59cb\u5012\u8ba1\u65f6'), ('预设', '\u542f\u52a8\u9884\u8bbe Conflict'), ('App', '\u6253\u5f00 Gallery \u5e76\u8ba1\u65f6')):
+        d.home_tab(tab)
         d.tap(entry, scroll=True)
         assert d.overlay() is None
         assert any('\u89e6\u53d1\u987a\u5e8f\u51b2\u7a81' in n.get('text', '') for n in d.dump().iter('node'))
@@ -123,6 +124,7 @@ def preferences(d):
     preset['settings'] = dict(saved)
     d.write_prefs('timer_presets', {'items': json.dumps([preset])})
     d.start()
+    d.home_tab('预设')
     d.tap('\u7ba1\u7406', scroll=True)
     d.tap('\u7f16\u8f91 Conflict')
     d.tap('\u8ba1\u65f6\u65f6\u957f', scroll=True)
@@ -134,6 +136,7 @@ def preferences(d):
     assert items[0]['durationSeconds'] == 66
     d.stop()
     d.start()
+    d.home_tab('预设')
     d.tap('\u542f\u52a8\u9884\u8bbe Conflict', scroll=True)
     time.sleep(1)
     assert d.overlay() and 'com.android.gallery3d' in d.foreground()

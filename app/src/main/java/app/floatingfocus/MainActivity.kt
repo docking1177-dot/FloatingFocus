@@ -43,11 +43,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -96,6 +98,11 @@ class MainActivity : ComponentActivity() {
         var permissionMessage by rememberSaveable { mutableStateOf<String?>(null) }
         var permissionHelp by rememberSaveable { mutableStateOf(false) }
         var quickStarting by remember { mutableStateOf(false) }
+        val navigation = remember { HomeNavigationStore(this@MainActivity) }
+        val entryOrder by navigation.order.collectAsStateWithLifecycle()
+        var selectedEntryId by rememberSaveable { mutableStateOf(entryOrder.first().id) }
+        val selectedEntry = HomeEntries.selected(entryOrder, selectedEntryId)
+        val entryStates = rememberSaveableStateHolder()
         // Result never auto-starts a timer: start must happen while this activity is visible.
         val notificationRequest = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
             notificationAllowed = hasNotificationPermission()
@@ -111,7 +118,7 @@ class MainActivity : ComponentActivity() {
         }
         Scaffold(containerColor = MaterialTheme.colorScheme.background) { insets ->
             Box(Modifier.fillMaxSize().padding(insets), contentAlignment = Alignment.TopCenter) {
-                Column(Modifier.widthIn(max = 520.dp).fillMaxWidth().verticalScroll(rememberScrollState())
+                Column(Modifier.widthIn(max = 520.dp).fillMaxSize()
                     .padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 16.dp)) {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Surface(modifier = Modifier.size(40.dp), color = MaterialTheme.colorScheme.primary, shape = CircleShape) {
@@ -126,98 +133,115 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     Spacer(Modifier.height(12.dp))
-                    HomeSection {
-                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                            Text("常规计时", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                            TextButton(onClick = { startActivity(Intent(this@MainActivity, SettingsActivity::class.java)
-                                .putExtra("settings_page", "durations").putExtra("duration_seconds", seconds)) }) { Text("手动设置", style = MaterialTheme.typography.labelMedium) }
-                        }
-                        if (session.active) {
-                            Text(when {
-                                session.paused -> "已暂停 · ${if (session.mode == TimerMode.STOPWATCH) formatElapsed(session.elapsedMillis) else formatRemaining(session.remainingMillis)}"
-                                session.mode == TimerMode.STOPWATCH -> "正计时 · ${formatElapsed(session.elapsedMillis)}"
-                                session.stage == ReminderStage.FINISHED -> "超时 +${formatElapsed(session.overtimeMillis)}"
-                                else -> "计时中 · ${formatRemaining(session.remainingMillis)}" },
-                                style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Spacer(Modifier.height(8.dp))
-                            if (session.mode == TimerMode.COUNTDOWN && session.stage == ReminderStage.FINISHED && !session.automatic && !session.c4Locked)
-                                TextButton(onClick = { FloatingService.requestExtension(this@MainActivity, session.timerStartedAt) }) { Text("加时") }
-                        }
-                        if (monitor.enabled) Text(monitor.reason, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            TimerMode.entries.forEach { option ->
-                                FilterChip(mode == option, { selection = selection.copy(mode = option) }, label = { Text(option.label) },
-                                    enabled = !session.active && !monitor.enabled && !quickStarting)
-                            }
-                        }
-                        if (mode == TimerMode.COUNTDOWN) {
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            quickDurations.forEach { value ->
-                                FilterChip(selected = seconds == value, enabled = !session.active && !monitor.enabled && !quickStarting,
-                                    onClick = { selection = selection.copy(durationSeconds = value) }, modifier = Modifier.weight(1f),
-                                    label = { Text(if (value % 60 == 0) "${value / 60}分" else "%d:%02d".format(java.util.Locale.ROOT, value / 60, value % 60),
-                                        modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center,
-                                        style = MaterialTheme.typography.labelMedium, maxLines = 1, softWrap = false) })
-                            }
-                        }
-                        DurationEntry("自定义时长", customSeconds, { customSeconds = it; selection = selection.copy(durationSeconds = it) },
-                            enabled = !session.active && !monitor.enabled && !quickStarting, minSeconds = 1)
-                        if (seconds !in quickDurations) Text("已选时长 · ${durationLabel(seconds)}",
-                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-
-                        }
-                        Spacer(Modifier.height(4.dp))
-                        if (session.active || monitor.enabled) {
-                          if (!session.c4Locked) {
-                            Button(onClick = { FloatingService.stop(this@MainActivity) }, modifier = Modifier.fillMaxWidth().height(48.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)) {
-                                Text(if (monitor.enabled) "停止 App 监测" else "结束计时")
-                            }
-                          }
-                        } else {
-                            Button(enabled = !quickStarting, onClick = {
-                                if (!OverlayPermission.granted(this@MainActivity)) permissionHelp = true
-                                else {
-                                    strategyError = ReminderSettingsStore.get(this@MainActivity).settings.value.strategy.validationError(seconds * 1000L, mode)
-                                    if (strategyError == null) FloatingService.start(this@MainActivity, seconds * 1000L, mode)
+                    HomeEntryTabs(entryOrder, selectedEntry, enabled = !quickStarting,
+                        onSelect = { selectedEntryId = it.id }, onReorder = navigation::save)
+                    if (session.active || monitor.enabled) {
+                        Spacer(Modifier.height(8.dp))
+                        HomeSection {
+                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                Text(when {
+                                    monitor.enabled -> monitor.reason
+                                    session.paused -> "已暂停 · ${if (session.mode == TimerMode.STOPWATCH) formatElapsed(session.elapsedMillis) else formatRemaining(session.remainingMillis)}"
+                                    session.mode == TimerMode.STOPWATCH -> "正计时 · ${formatElapsed(session.elapsedMillis)}"
+                                    session.stage == ReminderStage.FINISHED -> "超时 +${formatElapsed(session.overtimeMillis)}"
+                                    else -> "计时中 · ${formatRemaining(session.remainingMillis)}"
+                                }, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                                if (session.mode == TimerMode.COUNTDOWN && session.stage == ReminderStage.FINISHED && !session.automatic && !session.c4Locked)
+                                    TextButton(onClick = { FloatingService.requestExtension(this@MainActivity, session.timerStartedAt) }) { Text("加时") }
+                                if (!session.c4Locked) TextButton(onClick = { FloatingService.stop(this@MainActivity) },
+                                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) {
+                                    Text(if (monitor.enabled) "停止 App 监测" else "结束计时")
                                 }
-                            }, modifier = Modifier.fillMaxWidth().height(48.dp)) { Text(if (mode == TimerMode.STOPWATCH) "开始正计时" else "开始倒计时") }
-                        }
-                        if (!overlayAllowed) {
-                            PermissionCard("允许显示悬浮窗", "用于在其他 App 上方显示倒计时。", "去授权") { permissionHelp = true }
+                            }
                         }
                     }
                     Spacer(Modifier.height(12.dp))
-                    HomeSection {
-                        TimerPresetsCard(seconds, mode = mode, enabled = !session.active && !monitor.enabled && !quickStarting,
-                        onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true },
-                        onApplied = { selectedSeconds, selectedMode ->
-                            selection = TimerStartupDefaults(selectedMode, selectedSeconds)
-                            if (selectedSeconds !in quickDurations) customSeconds = selectedSeconds
-                        })
-                    }
-                    Spacer(Modifier.height(12.dp))
-                    HomeSection {
-                        QuickLaunchCard(seconds, mode = mode, enabled = !session.active && !monitor.enabled && !quickStarting,
-                            onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true })
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    HomeLink("时长记录") { startActivity(Intent(this@MainActivity, HistoryActivity::class.java)) }
-                    if (FeatureFlags.APP_USAGE_AUTO_TIMER) {
-                        TextButton(onClick = { startActivity(Intent(this@MainActivity, AutoTriggerActivity::class.java)) }) {
-                            Text("指定 App 自动计时 · 可选")
+                    // Compose 1.8.2 can retain a stale scroll layer when ReusableContent
+                    // swaps branches. Separate layout lifetimes, retain saved state by ID.
+                    key(selectedEntry.id) {
+                    entryStates.SaveableStateProvider(selectedEntry.id) {
+                        Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())) {
+                            when (selectedEntry) {
+                                HomeEntry.TIMER -> {
+                                    HomeSection {
+                                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                            Text("常规计时", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                                            TextButton(onClick = { startActivity(Intent(this@MainActivity, SettingsActivity::class.java)
+                                                .putExtra("settings_page", "durations").putExtra("duration_seconds", seconds)) }) { Text("手动设置", style = MaterialTheme.typography.labelMedium) }
+                                        }
+                                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            TimerMode.entries.forEach { option ->
+                                                FilterChip(mode == option, { selection = selection.copy(mode = option) }, label = { Text(option.label) },
+                                                    enabled = !session.active && !monitor.enabled && !quickStarting)
+                                            }
+                                        }
+                                        if (mode == TimerMode.COUNTDOWN) {
+                                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                quickDurations.forEach { value ->
+                                                    FilterChip(selected = seconds == value, enabled = !session.active && !monitor.enabled && !quickStarting,
+                                                        onClick = { selection = selection.copy(durationSeconds = value) }, modifier = Modifier.weight(1f),
+                                                        label = { Text(if (value % 60 == 0) "${value / 60}分" else "%d:%02d".format(java.util.Locale.ROOT, value / 60, value % 60),
+                                                            modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center,
+                                                            style = MaterialTheme.typography.labelMedium, maxLines = 1, softWrap = false) })
+                                                }
+                                            }
+                                            DurationEntry("自定义时长", customSeconds, { customSeconds = it; selection = selection.copy(durationSeconds = it) },
+                                                enabled = !session.active && !monitor.enabled && !quickStarting, minSeconds = 1)
+                                            if (seconds !in quickDurations) Text("已选时长 · ${durationLabel(seconds)}",
+                                                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        }
+                                        Spacer(Modifier.height(4.dp))
+                                        if (!session.active && !monitor.enabled) {
+                                            Button(enabled = !quickStarting, onClick = {
+                                                if (!OverlayPermission.granted(this@MainActivity)) permissionHelp = true
+                                                else {
+                                                    strategyError = ReminderSettingsStore.get(this@MainActivity).settings.value.strategy.validationError(seconds * 1000L, mode)
+                                                    if (strategyError == null) FloatingService.start(this@MainActivity, seconds * 1000L, mode)
+                                                }
+                                            }, modifier = Modifier.fillMaxWidth().height(48.dp)) { Text(if (mode == TimerMode.STOPWATCH) "开始正计时" else "开始倒计时") }
+                                        }
+                                    }
+                                }
+                                HomeEntry.PRESETS -> {
+                                    HomeSection {
+                                        TimerPresetsCard(seconds, mode = mode, enabled = !session.active && !monitor.enabled && !quickStarting,
+                                            onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true },
+                                            onApplied = { selectedSeconds, selectedMode ->
+                                                selection = TimerStartupDefaults(selectedMode, selectedSeconds)
+                                                if (selectedSeconds !in quickDurations) customSeconds = selectedSeconds
+                                            })
+                                    }
+                                }
+                                HomeEntry.APPS -> {
+                                    HomeSection {
+                                        QuickLaunchCard(seconds, mode = mode, enabled = !session.active && !monitor.enabled && !quickStarting,
+                                            onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true })
+                                    }
+                                }
+                            }
+                            if (!overlayAllowed) {
+                                PermissionCard("允许显示悬浮窗", "用于在其他 App 上方显示倒计时。", "去授权") { permissionHelp = true }
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            HomeLink("时长记录") { startActivity(Intent(this@MainActivity, HistoryActivity::class.java)) }
+                            if (FeatureFlags.APP_USAGE_AUTO_TIMER) {
+                                TextButton(onClick = { startActivity(Intent(this@MainActivity, AutoTriggerActivity::class.java)) }) {
+                                    Text("指定 App 自动计时 · 可选")
+                                }
+                            }
+                            if (!notificationAllowed && Build.VERSION.SDK_INT >= 33) {
+                                PermissionCard("开启计时通知", "建议开启；拒绝后仍可计时，可从悬浮窗结束。", "去设置") {
+                                    if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) ||
+                                        !getPreferences(MODE_PRIVATE).getBoolean("notificationAsked", false)) {
+                                        getPreferences(MODE_PRIVATE).edit { putBoolean("notificationAsked", true) }
+                                        notificationRequest.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                    } else openSettings(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName))
+                                }
+                            }
+                            (session.error ?: permissionMessage)?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(vertical = 12.dp)) }
                         }
                     }
-                    if (!notificationAllowed && Build.VERSION.SDK_INT >= 33) {
-                        PermissionCard("开启计时通知", "建议开启；拒绝后仍可计时，可从悬浮窗结束。", "去设置") {
-                            if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) ||
-                                !getPreferences(MODE_PRIVATE).getBoolean("notificationAsked", false)) {
-                                getPreferences(MODE_PRIVATE).edit { putBoolean("notificationAsked", true) }
-                                notificationRequest.launch(Manifest.permission.POST_NOTIFICATIONS)
-                            } else openSettings(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName))
-                        }
                     }
-                    (session.error ?: permissionMessage)?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(vertical = 12.dp)) }
                 }
             }
         }

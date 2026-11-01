@@ -1,6 +1,6 @@
 # 用户真机测试清单
 
-目标：FF-20261030-68517f8，0.3.0 / code 4，本地Debug。APK SHA256：`a2c4fbd7fede219e4cfcea5b2f72d46b729e58012a9627c40242e3c8cdb1e490`。
+目标：FF-20261101-home-tabs-13ced6c6，0.3.0 / code 4，本地Debug。APK SHA256：`13ced6c62bf66a3758dfd7a1b9992dc55b0c04ee4efc7b18f7b1d171772ceeba`。
 
 这是用例库派生视图，只在cases.json维护步骤；执行结果另记manual_runs.jsonl。已有同SHA/同机/同系统通过的项可跳过，不凭同名版本号要求重测。
 本地Debug已含前段/爆炸/成功三录音；Release无本地录音且当前为未签名检查包，不要求安装或把无声当故障。不卸载清数据。

@@ -11,6 +11,34 @@ from device_c4 import has_timer_service
 
 
 class DeviceEvidenceTests(unittest.TestCase):
+    def test_home_tab_is_explicit_and_requires_expected_content(self):
+        device = Device('emulator-5554', MagicMock())
+        device.tap = Mock()
+        device.dump = Mock(return_value=ET.fromstring('<hierarchy><node content-desc="首页入口 预设" selected="true"/></hierarchy>'))
+        device.home_tab('预设')
+        device.tap.assert_called_once_with('首页入口 预设')
+        with self.assertRaises(AssertionError):
+            device.home_tab('App')
+        self.assertEqual(2, device.tap.call_count)
+
+    def test_unknown_home_tab_never_taps_another_entry(self):
+        device = Device('emulator-5554', MagicMock())
+        device.tap = Mock()
+        with self.assertRaises(AssertionError):
+            device.home_tab('missing')
+        device.tap.assert_not_called()
+
+    def test_home_tab_reads_the_selectable_parent_not_its_descriptive_child(self):
+        device = Device('emulator-5554', MagicMock())
+        device.tap = Mock()
+        device.dump = Mock(return_value=ET.fromstring('''<hierarchy>
+          <node focusable="true" selected="true"><node content-desc="首页入口 预设" selected="false"/></node>
+          <node focusable="true" selected="false"><node content-desc="首页入口 App" selected="false"/></node>
+        </hierarchy>'''))
+        device.home_tab('预设')
+        with self.assertRaises(AssertionError):
+            device.home_tab('App')
+
     def test_timer_service_check_ignores_global_historical_anr(self):
         for component in ('app.floatingfocus/.FloatingService', 'app.floatingfocus/app.floatingfocus.FloatingService'):
             with self.subTest(component=component):

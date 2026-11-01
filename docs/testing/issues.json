@@ -98,5 +98,64 @@
       "scripts/check.ps1"
     ],
     "status": "待后续改善原检查证据；本轮只标缺口"
+  },
+  {
+    "id": "FF-ISSUE-HOME-REUSE",
+    "type": "应用绘制缺陷",
+    "description": "首页SaveableStateProvider内部复用滚动布局图层，控件已换栏而旧画面未失效；匹配Compose1.8.2上游父图层失效问题。采用栏目ID隔离布局生命周期，保留同一state holder。",
+    "affected_cases": [
+      "FF-HOME-008",
+      "FF-HOME-006"
+    ],
+    "failed_records": [
+      "VISUAL-20261101-HOME-REUSE-FAIL:FF-HOME-008:0"
+    ],
+    "retests": [],
+    "evidence": [
+      ".tools/device-checks/20261101-095912/home-tabs-presets.png",
+      ".tools/device-checks/20261101-095912/home-tabs-apps.png",
+      "app/src/main/java/app/floatingfocus/MainActivity.kt",
+      "https://android.googlesource.com/platform/frameworks/support/+/fac106bd0c14de492d2301ee746aef98a8329c01%5E1..fac106bd0c14de492d2301ee746aef98a8329c01/"
+    ],
+    "status": "当前APK实际截图与滚动恢复复测通过，旧失败保留"
+  },
+  {
+    "id": "FF-ISSUE-HOME-DOWN",
+    "type": "应用手势边界",
+    "description": "反向排序曾移动邻项；原实现按长按识别时的位置选项，改为在DOWN锁定入口和抓取偏移。排序专项两轮及完整home复测。",
+    "affected_cases": [
+      "FF-HOME-003"
+    ],
+    "failed_records": [
+      "OBS-20261101-HOME-REVERSE-FAIL:FF-HOME-003:0"
+    ],
+    "retests": [
+      {
+        "of": "OBS-20261101-HOME-REVERSE-FAIL:FF-HOME-003:0",
+        "record": "DEVICE-20261101-102300-results-52fe8b360e6f:FF-HOME-003:3"
+      }
+    ],
+    "evidence": [
+      ".tools/device-checks/20261101-100621/results.json",
+      ".tools/device-checks/20261101-102026/results.json",
+      ".tools/device-checks/20261101-102300/results.json"
+    ],
+    "status": "已修复并在当前APK自动复测通过"
+  },
+  {
+    "id": "FF-ISSUE-DURATION-FONT",
+    "type": "既有视觉限制（P2）",
+    "description": "两倍系统字号下四个等宽时长标签末字裁切，原实现即有；本轮未改普通时长按钮。",
+    "affected_cases": [
+      "FF-DURATION-FONT-001"
+    ],
+    "failed_records": [
+      "VISUAL-20261101-DURATION-FONT-FAIL:FF-DURATION-FONT-001:0"
+    ],
+    "retests": [],
+    "evidence": [
+      ".tools\\device-checks\\20261101-102300\\home-tabs-large-0.png"
+    ],
+    "status": "未修复，独立后续处理；不影响本轮标签与计时行为验收"
   }
 ]

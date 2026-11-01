@@ -38,7 +38,8 @@ def preset_c4(d):
         d.start()
     def launch(kind, enabled, mode='COUNTDOWN'):
         before=current(); count=len(d.records()); d.shell('logcat','-c')
-        if kind=='home': d.tap('启动预设 Source',scroll=True)
+        if kind=='home':
+            d.home_tab('预设'); d.tap('启动预设 Source',scroll=True)
         elif kind=='desktop':
             d.shell('input','keyevent','KEYCODE_HOME')
             for direction in (None, 'left', 'left', 'right', 'right', 'right'):
@@ -49,8 +50,10 @@ def preset_c4(d):
                 if nodes:
                     d.shot('preset-c4-desktop-icon'); x,y,r,b=d.bounds(nodes[0]); d.tapxy((x+r)/2,(y+b)/2); break
             else: raise AssertionError('Actual desktop icon missing')
-        elif kind=='quick': d.tap('打开 Gallery 并计时',scroll=True)
-        else: top(); d.tap('开始正计时' if mode=='STOPWATCH' else '开始倒计时')
+        elif kind=='quick':
+            d.home_tab('App'); d.tap('打开 Gallery 并计时',scroll=True)
+        else:
+            d.home_tab('计时'); top(); d.tap('开始正计时' if mode=='STOPWATCH' else '开始倒计时')
         wait(lambda: d.overlay() is not None and len(d.records())>count,'No timer/record')
         expected=f'C4 session enabled={str(enabled).lower()} mode={mode}'
         wait(lambda: expected in logs(),'Wrong session C4 source')
@@ -63,7 +66,7 @@ def preset_c4(d):
         d.shot('preset-c4-'+kind+'-'+str(enabled)+'-'+mode)
         return row
     def editor(save):
-        before=current(); d.start(); d.tap('管理',scroll=True); d.tap('编辑 Source',scroll=True)
+        before=current(); d.start(); d.home_tab('预设'); d.tap('管理',scroll=True); d.tap('编辑 Source',scroll=True)
         d.tap('C4 倒计时',scroll=True); d.shot('preset-c4-edit-'+str(save))
         d.tap('保存' if save else '取消')
         assert current()==before
@@ -74,7 +77,7 @@ def preset_c4(d):
             d.tap('C4 倒计时'); return
         d.start(); park(); top(); d.tap('设置'); d.tap('提醒'); d.tap('C4 倒计时')
     def pin():
-        before=len(d.records()); d.start(); d.tap('管理',scroll=True); d.tap('添加到桌面 Source',scroll=True)
+        before=len(d.records()); d.start(); d.home_tab('预设'); d.tap('管理',scroll=True); d.tap('添加到桌面 Source',scroll=True)
         wait(lambda: '.launcher3' in d.foreground(),'No official pin confirmation')
         tree=d.dump(); parents={c:p for p in tree.iter('node') for c in p}
         for node in tree.iter('node'):
@@ -108,7 +111,7 @@ def preset_c4(d):
         d.stop()
 
         print('Preset C4: save current, independent presets and normal/quick sources...',flush=True)
-        setup(True,False); d.tap('保存当前')
+        setup(True,False); d.home_tab('预设'); d.tap('保存当前')
         d.tap('Gallery'); d.tap('保存')
         rows=items(); assert len(rows)==3 and rows[-1]['c4Enabled'] and not rows[0]['c4Enabled']
         d.stop(); d.start(); assert items()[-1]['c4Enabled']

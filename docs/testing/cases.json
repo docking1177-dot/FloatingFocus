@@ -3237,6 +3237,345 @@
       "impact_tags": [
         "桌面快捷方式"
       ]
+    },
+    {
+      "id": "FF-HOME-001",
+      "module": "首页",
+      "scenario": "三栏只显示当前内容",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "默认顺序、首页空闲",
+      "steps": "依次点击计时、预设、App",
+      "expected": "当前栏标题可见，其他两栏内容不出现在页面；三标签始终可点",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1 -Suite home -AllowTestDataChanges",
+        "scripts/device_home_navigation.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "真机手感与文字可读性按需补充，不把截图产生当通过",
+      "impact_tags": [
+        "首页",
+        "导航"
+      ]
+    },
+    {
+      "id": "FF-HOME-002",
+      "module": "首页",
+      "scenario": "临时时长与模式跨栏保留",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "首页四档含10分钟",
+      "steps": "选10分钟切App；切回正计时再切App",
+      "expected": "App摘要分别为倒计时10分钟、正计时；返回计时不丢选择",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1 -Suite home -AllowTestDataChanges",
+        "scripts/device_home_navigation.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "真机手感与文字可读性按需补充，不把截图产生当通过",
+      "impact_tags": [
+        "首页",
+        "导航"
+      ]
+    },
+    {
+      "id": "FF-HOME-003",
+      "module": "首页",
+      "scenario": "长按排序与首栏启动",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "初始计时/预设/App",
+      "steps": "快速划过不排序；长按App拖到首位；重启FF；将已选App拖回末位",
+      "expected": "仅长按拖动完成后保存apps,timer,presets；当前栏不变；全新启动显示App；反向拖回恢复原序，拖动对象始终为最初按下的入口",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1 -Suite home -AllowTestDataChanges",
+        "scripts/device_home_navigation.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "真机手感与文字可读性按需补充，不把截图产生当通过",
+      "impact_tags": [
+        "首页",
+        "导航"
+      ]
+    },
+    {
+      "id": "FF-HOME-004",
+      "module": "首页",
+      "scenario": "取消排序不写回",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "已保存App/计时/预设",
+      "steps": "长按预设并拖移，未松手时回桌面取消，返回FF",
+      "expected": "已保存顺序不变，三个入口无缺失或重复，当前栏目仍为预设",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1 -Suite home -AllowTestDataChanges",
+        "scripts/device_home_navigation.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "真机手感与文字可读性按需补充，不把截图产生当通过",
+      "impact_tags": [
+        "首页",
+        "导航"
+      ]
+    },
+    {
+      "id": "FF-HOME-005",
+      "module": "首页",
+      "scenario": "返回与重建保留当前栏目",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "App排首位，当前预设",
+      "steps": "进设置返回；回桌面后打开FF；横竖屏切换",
+      "expected": "各次仍在预设，不因首位为App而覆盖当前栏目",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1 -Suite home -AllowTestDataChanges",
+        "scripts/device_home_navigation.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "真机手感与文字可读性按需补充，不把截图产生当通过",
+      "impact_tags": [
+        "首页",
+        "导航"
+      ]
+    },
+    {
+      "id": "FF-HOME-006",
+      "module": "首页",
+      "scenario": "大字体触摸区域及各栏滚动",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "三条预设，字号2倍",
+      "steps": "三栏切换；预设滚动至末尾，切App再回预设",
+      "expected": "标签均在屏幕内且至少48dp高；新建预设位置恢复；文字可读性另看截图",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1 -Suite home -AllowTestDataChanges",
+        "scripts/device_home_navigation.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "真机手感与文字可读性按需补充，不把截图产生当通过",
+      "impact_tags": [
+        "首页",
+        "导航"
+      ]
+    },
+    {
+      "id": "FF-HOME-007",
+      "module": "首页",
+      "scenario": "活跃会话跨栏可操作且不被替换",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "空闲、非C4、10分钟",
+      "steps": "手动开始；预设/App栏点已有入口；从App栏结束",
+      "expected": "只有一个600000ms倒计时会话；各栏有结束操作；禁用入口不打开App或替换记录；结束为MANUAL",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1 -Suite home -AllowTestDataChanges",
+        "scripts/device_home_navigation.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "真机手感与文字可读性按需补充，不把截图产生当通过",
+      "impact_tags": [
+        "首页",
+        "导航"
+      ]
+    },
+    {
+      "id": "FF-JVM-HOMENAVIGATION",
+      "module": "首页",
+      "scenario": "入口顺序编解码及稳定ID（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行HomeNavigationTest，查看独立JUnit XML",
+      "expected": "六种排序可往返；非法值回退完整三入口；移动不丢ID；恢复优先按ID而非位置；失败/错误为0",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/HomeNavigationTest.kt",
+        "scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "首页",
+        "导航"
+      ]
+    },
+    {
+      "id": "FF-HOME-008",
+      "module": "首页",
+      "scenario": "切栏实际画面与控件匹配，无旧栏残影",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "默认顺序、首页空闲",
+      "steps": "空闲时连续切计时、预设、App，每栏截取真实屏幕；滚动后切回；深浅主题及大字体复核",
+      "expected": "真实画面分别显示计时控件、预设卡片、App网格，和当前栏目及控件树一致；不残留旧栏内容；独立滚动位置保留",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "模拟器截图审查，真机按需补充",
+      "entry_points": [
+        "scripts/device_home_navigation.py",
+        "docs/HOME_NAVIGATION.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "需核对实际渲染；tabIsolation结构化断言不证明屏幕像素正确",
+      "impact_tags": [
+        "首页",
+        "导航"
+      ]
+    },
+    {
+      "id": "FF-SUITE-HOME_REORDER",
+      "module": "首页",
+      "scenario": "已选入口双向排序（局部套件）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite home_reorder -AllowTestDataChanges",
+      "expected": "真实长按拖动App到首位并拖回末位，完整顺序与选中ID正确，连续两轮；仅验证局部手势，不替代home全部用例",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/device_home_navigation.py",
+        "scripts/test-device.ps1"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "首页",
+        "导航"
+      ]
+    },
+    {
+      "id": "FF-DURATION-FONT-001",
+      "module": "常用时长",
+      "scenario": "两倍系统字号下四档文字完整性",
+      "priority": "P2",
+      "kind": "功能场景",
+      "preconditions": "1080x2340、440dpi专用模拟器，字号2倍，四档5/10/15/30分",
+      "steps": "打开计时栏，查看四个等宽时长按钮，核对数字和分字的实际画面",
+      "expected": "每档数字与单位完整可读，没有末字裁切",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "模拟器截图审查，真机按需补充",
+      "entry_points": [
+        "docs/HOME_NAVIGATION.md",
+        ".tools\\device-checks\\20261101-102300\\home-tabs-large-0.png"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "既有FilterChip单行标签限制，本轮不扩大到时长按钮重设计",
+      "impact_tags": [
+        "常用时长",
+        "大字体"
+      ]
     }
   ],
   "junit_classes": {
@@ -3268,7 +3607,8 @@
     "HistoryStatisticsTest": "FF-JVM-HISTORYSTATISTICS",
     "FocusThemeTest": "FF-JVM-FOCUSTHEME",
     "LabSimulationTest": "FF-JVM-LABSIMULATION",
-    "AutoTimerEngineTest": "FF-JVM-AUTOTIMERENGINE"
+    "AutoTimerEngineTest": "FF-JVM-AUTOTIMERENGINE",
+    "HomeNavigationTest": "FF-JVM-HOMENAVIGATION"
   },
   "device_details": {
     "widgets": {
@@ -3278,6 +3618,15 @@
       "overtimeAndC4Guards": "FF-WIDGET-004",
       "savedStopwatchAndColdStart": "FF-WIDGET-005",
       "realLauncherResize": "FF-WIDGET-006"
+    },
+    "home": {
+      "tabIsolation": "FF-HOME-001",
+      "sharedSelection": "FF-HOME-002",
+      "longPressReorderAndColdStart": "FF-HOME-003",
+      "cancelledDragNotSaved": "FF-HOME-004",
+      "selectionRestoredOnReturnAndRotation": "FF-HOME-005",
+      "largeFontTargetsAndScrollRestore": "FF-HOME-006",
+      "activeSessionSharedGuards": "FF-HOME-007"
     }
   }
 }

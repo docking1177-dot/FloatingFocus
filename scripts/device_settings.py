@@ -26,6 +26,7 @@ def settings(d):
 
     def launch(name):
         d.start()
+        d.home_tab('预设')
         d.tap('启动预设 ' + name, scroll=True)
         deadline = time.monotonic() + 8
         while time.monotonic() < deadline:

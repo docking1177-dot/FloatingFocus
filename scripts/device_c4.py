@@ -78,7 +78,7 @@ def c4(d, focus=None):
         d.write_prefs('reminder_settings', appearance)
         d.write_prefs('timer_presets', {'items': json.dumps([preset])})
         d.write_prefs('quick_launch', {'targets': json.dumps([dict(package='com.android.gallery3d', label='Gallery')])})
-        d.start(); d.shell('logcat', '-c')
+        d.start(); d.home_tab('计时'); d.shell('logcat', '-c')
         home_tree = d.dump()
         gear = next(n for n in home_tree.iter('node') if n.get('content-desc')=='设置')
         gx,gy,gr,gb=d.bounds(gear); gear_point=((gx+gr)/2,(gy+gb)/2)
@@ -86,6 +86,7 @@ def c4(d, focus=None):
         # In landscape the start button is legitimately below the first viewport.
         # Only the portrait handoff case uses this cached action.
         home_start_point = None if primary is None else tuple((a+b)/2 for a,b in zip(d.bounds(primary)[:2],d.bounds(primary)[2:]))
+        d.home_tab('预设')
         d.tap('启动预设 C4 '+str(seconds), scroll=True)
         wait_for(lambda: d.overlay() and 'com.android.gallery3d' in d.foreground() and d.frame()[2]-d.frame()[0] < d.width, 8)
         time.sleep(.3)
@@ -175,7 +176,7 @@ def c4(d, focus=None):
         print('C4: new timer preempts success voice and old callbacks cannot stop it...', flush=True)
         start(30)
         expand()
-        d.start(); top()
+        d.start(); d.home_tab('计时'); top()
         for char in '735560': key(char)
         kx,ky = key_point('8')
         assert home_start_point is not None, 'Handoff start action is not visible'

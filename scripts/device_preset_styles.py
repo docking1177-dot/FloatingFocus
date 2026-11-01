@@ -64,6 +64,7 @@ def preset_styles(d, focus=None):
         assert '.SettingsActivity' in d.foreground()
         d.shell('input','keyevent','KEYCODE_BACK')
         assert '.MainActivity' in d.foreground()
+        d.home_tab('预设')
     def no_session():
         assert d.overlay() is None
         assert 'ServiceRecord{' not in d.shell('dumpsys','activity','services',PACKAGE)
@@ -71,17 +72,11 @@ def preset_styles(d, focus=None):
         return {p:hashlib.sha256(d.adb('shell','run-as',PACKAGE,'cat','shared_prefs/'+p+'.xml')).hexdigest()
                 for p in ('timer_presets','reminder_settings','quick_launch')}
     def arrange():
+        d.home_tab('预设')
         top()
-        target=round(88*d.density)
-        for _ in range(10):
-            tree=d.dump()
-            header=next((n for n in tree.iter('node') if n.get('text')=='我的预设'),None)
-            y=d.bounds(header)[1] if header is not None else 0
-            if 68*d.density<=y<=target+40*d.density: return tree
-            shift=min(max(y-target,40*d.density),120*d.density) if y>0 else -120*d.density
-            start=int(d.height*.65)
-            d.shell('input','swipe',int(d.width*.05),start,int(d.width*.05),int(start-shift),1000)
-        raise AssertionError('Could not frame the preset section heading')
+        tree=d.dump()
+        assert any(n.get('text')=='我的预设' for n in tree.iter('node')), 'Missing preset heading'
+        return tree
     def controls(tree):
         return [n for n in tree.iter('node') if n.get('content-desc','').startswith('启动预设 ') and d.bounds(n)[3]>d.bounds(n)[1]]
     def seed(items,style=None):
@@ -89,6 +84,7 @@ def preset_styles(d, focus=None):
         d.write_prefs('timer_presets',{'items':json.dumps(items)})
         if style is not None: d.write_prefs('debug_preset_style',{'style':style})
         d.start()
+        d.home_tab('预设')
 
     apps=[dict(package=p,label=n) for p,n in [('com.android.gallery3d','Gallery'),('com.android.music','Music'),
           ('com.android.messaging','Messaging'),('com.android.deskclock','Clock'),('app.unavailable.fixture','Unavailable')]]
@@ -129,6 +125,7 @@ def preset_styles(d, focus=None):
             d.shot('presets-'+value.lower())
             assert all(n.get('text')!='点击启动' for n in tree.iter('node'))
             # The quick launcher remains four columns with its own current-config summary.
+            d.home_tab('App')
             find('打开 Gallery 并计时')
             tree=d.dump()
             quick=[next(n for n in tree.iter('node') if n.get('content-desc')=='打开 '+app['label']+' 并计时') for app in apps[:4]]
