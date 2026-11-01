@@ -342,12 +342,40 @@ def edges(d):
             d.shell('input', 'swipe', cx, cy, x, y, 450)
             time.sleep(.3)
             initial = d.frame()
+            d.shot(shape + '-' + edge + '-compact')
+            # A second tap on the lower half of the old time label must never
+            # become a tap on a newly moved End button. Use screen coordinates,
+            # without an accessibility dump between the two taps.
+            tx = (initial[0] + initial[2]) // 2
+            ty = (initial[1] + initial[3]) // 2 + round(4 * d.density * 1.5)
+            d.shell('input', 'tap', tx, ty)
+            time.sleep(.12)
+            d.shell('input', 'tap', tx, ty)
+            time.sleep(.3)
+            assert d.overlay() is not None, (shape, edge, 'second tap at original time ended the session')
+            assert max(abs(a-b) for a, b in zip(initial, d.frame())) <= 1, (shape, edge, 'second tap did not collapse at the original time position', initial, d.frame())
+            if edge == 'right':
+                # Repeated MOVE events while the frame's edge clamp changes must
+                # track the finger once, not accumulate local header rearrangements.
+                tx, ty = (initial[0]+initial[2])//2, (initial[1]+initial[3])//2
+                dx = -round(48*d.density)
+                d.tapxy(tx, ty)
+                d.shell('input', 'swipe', tx, ty, tx+dx, ty, 1000)
+                time.sleep(.3)
+                d.tapxy(tx+dx, ty)
+                moved = d.frame()
+                expected = (initial[0]+dx, initial[1], initial[2]+dx, initial[3])
+                assert max(abs(a-b) for a,b in zip(expected,moved)) <= 2, (shape, 'expanded drag drift', expected, moved)
+                d.shell('input', 'swipe', tx+dx, ty, tx, ty, 450)
+                time.sleep(.3)
+                assert max(abs(a-b) for a,b in zip(initial,d.frame())) <= 2, (shape, 'drag restore')
             for attempt in range(2):
                 # Exercise both the title and visible background away from digits.
                 a, b, r, bottom = d.frame()
                 d.tapxy((a+r)//2, (b+bottom)//2 if attempt == 0 else b+(bottom-b)*.18)
                 expanded = d.frame()
                 assert expanded != initial, (shape, edge, 'did not expand')
+                d.shot(shape + '-' + edge + '-expanded-' + str(attempt))
                 # Expanded controls are one 48dp row. Fixture scale is 1.5.
                 # Prefer semantics; non-focusable overlay may be absent from UIAutomator.
                 node = next((n for n in d.dump().iter('node') if '点击收起操作' in n.get('content-desc', '')), None)
@@ -355,8 +383,7 @@ def edges(d):
                     a, b, r, bottom = d.bounds(node)
                     d.tapxy((a+r)//2, (b+bottom)//2)
                 else:
-                    cx, cy = d.center()
-                    d.tapxy(cx, cy - 24*d.density*1.5)
+                    d.tapxy((initial[0]+initial[2])//2, (initial[1]+initial[3])//2)
                 # ADB queries are asynchronous; allow the collapse traversal to run.
                 # Transient frame placement also needs a recorded-frame review.
                 deadline = time.monotonic() + 3

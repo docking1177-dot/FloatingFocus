@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.painterResource
@@ -43,6 +44,7 @@ fun FocusOverlay(
     onC4Key: (Char) -> Unit = {},
     paused: Boolean = false,
     onTogglePause: (() -> Unit)? = null,
+    onContentMeasured: ((OverlayContentGeometry) -> OverlayContentPlacement)? = null,
     onStop: () -> Unit
 ) {
     if (c4.active && c4Expanded) {
@@ -88,22 +90,22 @@ fun FocusOverlay(
     Surface(color = Color(background), shape = CircleShape,
         modifier = Modifier.padding(2.dp).graphicsLayer { this.alpha = appearance.opacity }) {
         Layout(content = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                val header = toggleControls
-                    .semantics { contentDescription = if (c4.active) "${appearance.title}，点击展开 C4，可拖动" else if (controlsEnabled)
-                        "${appearance.title}，点击${if (expanded) "收起" else "展开"}操作，可拖动" else appearance.title }
-                    .padding(4.dp)
-                val title: @Composable () -> Unit = {
-                    Icon(painterResource(R.drawable.ic_notification), contentDescription = null,
-                        tint = foreground, modifier = Modifier.size(20.dp))
-                    Text(appearance.title.removePrefix("◷").trim().let { if (finished) it.removePrefix("超时 ") else it }, style = textStyle,
-                        fontSize = if (showingControls) 16.sp else 18.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.Monospace,
-                        maxLines = 1, softWrap = false)
-                }
-                if (vertical) Column(header, horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)) { title() }
-                else Row(header, verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)) { title() }
+            val header = toggleControls
+                .semantics { contentDescription = if (c4.active) "${appearance.title}，点击展开 C4，可拖动" else if (controlsEnabled)
+                    "${appearance.title}，点击${if (expanded) "收起" else "展开"}操作，可拖动" else appearance.title }
+                .padding(4.dp)
+            val title: @Composable () -> Unit = {
+                Icon(painterResource(R.drawable.ic_notification), contentDescription = null,
+                    tint = foreground, modifier = Modifier.size(20.dp))
+                Text(appearance.title.removePrefix("◷").trim().let { if (finished) it.removePrefix("超时 ") else it }, style = textStyle,
+                    fontSize = 18.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.Monospace,
+                    maxLines = 1, softWrap = false)
+            }
+            if (vertical) Column(header, horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)) { title() }
+            else Row(header, verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)) { title() }
+            if (showingControls) Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 if (!c4.active && appearance.confirmationRequired) {
                     Text("确认提醒", style = textStyle)
                     TextButton(onClick = onConfirm, enabled = controlsEnabled) { Text("已看到提醒", style = textStyle) }
@@ -139,15 +141,38 @@ fun FocusOverlay(
             toggleControls.c4CompactArt(appearance.shape, led = c4.led, defused = c4.phase == C4Phase.DEFUSED)
         } else toggleControls) { measurables, constraints ->
             // Measure at a stable base size; apply the current reminder scale exactly once.
-            val body = measurables.single().measure(Constraints(maxWidth = 240.dp.roundToPx()))
-            val frame = OverlayGeometry.frame(appearance.shape, body.width / density, body.height / density, size,
+            val contentConstraints = Constraints(maxWidth = 240.dp.roundToPx())
+            val header = measurables.first().measure(contentConstraints)
+            val controls = measurables.getOrNull(1)?.measure(contentConstraints)
+            val contentWidth = maxOf(header.width, controls?.width ?: 0)
+            val contentHeight = header.height + (controls?.height ?: 0)
+            val frame = OverlayGeometry.frame(appearance.shape, contentWidth / density, contentHeight / density, size,
                 constraints.maxWidth / density, constraints.maxHeight / density, expanded = showingControls)
             val width = constraints.constrainWidth((frame.width * density).roundToInt())
             val height = constraints.constrainHeight((frame.height * density).roundToInt())
+            val inset = 2.dp.roundToPx().toFloat()
+            val top = (height - contentHeight * frame.scale) / 2f
+            val geometry = OverlayContentGeometry(width + inset.toInt() * 2, height + inset.toInt() * 2,
+                header.width * frame.scale, header.height * frame.scale,
+                inset + top + header.height * frame.scale / 2,
+                inset + top + (controls?.height ?: 0) * frame.scale + header.height * frame.scale / 2,
+                inset)
+            // Report during measurement so ViewRoot submits the new size and
+            // time-anchored position together. C4 retains its existing placement.
+            val placement = if (c4.active) geometry.centered()
+                else onContentMeasured?.invoke(geometry) ?: geometry.centered()
             layout(width, height) {
-                body.placeRelativeWithLayer((width - body.width) / 2, (height - body.height) / 2) {
+                header.placeWithLayer((placement.headerX - inset - geometry.headerWidth / 2).roundToInt(),
+                    (placement.headerY - inset - geometry.headerHeight / 2).roundToInt()) {
                     scaleX = frame.scale
                     scaleY = frame.scale
+                    transformOrigin = TransformOrigin(0f, 0f)
+                }
+                controls?.placeWithLayer(((width - controls.width * frame.scale) / 2).roundToInt(),
+                    (top + if (placement.controlsAbove) 0f else header.height * frame.scale).roundToInt()) {
+                    scaleX = frame.scale
+                    scaleY = frame.scale
+                    transformOrigin = TransformOrigin(0f, 0f)
                 }
             }
         }

@@ -1,6 +1,6 @@
 # 用户真机测试清单
 
-目标：FF-20261101-app-quota-09e88e69，0.3.0 / code 4，本地Debug。APK SHA256：`09e88e6962cf9be07f2eb0f0204c37335743f7064fa6133fea31b8e3c60b905a`。
+目标：FF-20261101-overlay-anchor-b9cd41cd，0.3.0 / code 4，本地Debug。APK SHA256：`b9cd41cd80a7b9df99f25bd31bd5b9ed57c2131cdf66209e5feb877b5f2da95f`。
 
 这是用例库派生视图，只在cases.json维护步骤；执行结果另记manual_runs.jsonl。已有同SHA/同机/同系统通过的项可跳过，不凭同名版本号要求重测。
 本地Debug已含前段/爆炸/成功三录音；Release无本地录音且当前为未签名检查包，不要求安装或把无声当故障。不卸载清数据。

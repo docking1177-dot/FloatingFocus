@@ -234,5 +234,31 @@
       ".tools/device-checks/20261101-163639/results.json"
     ],
     "status": "系统确认及真实图标启动复测通过，非手机厂商权限验收"
+  },
+  {
+    "id": "FF-ISSUE-OVERLAY-DOUBLE-TAP",
+    "type": "本轮应用缺陷",
+    "description": "旧逻辑保持整个窗口中心，时间与按钮整体居中且展开时数字缩小，按钮可能进入原数字点击位置。现已分开测量标题/操作区，以可见时间锚点定位并保留字号；底边反向展开，连续拖动固定屏幕起点。",
+    "affected_cases": [
+      "FF-GATE-DEVICE",
+      "FF-SUITE-EDGES",
+      "FF-OVERLAY-001",
+      "FF-JVM-OVERLAYPOSITION"
+    ],
+    "failed_records": [
+      "DEVICE-20261101-194731-results-ea15e9bfe66c:FF-GATE-DEVICE:0"
+    ],
+    "retests": [
+      {
+        "of": "DEVICE-20261101-194731-results-ea15e9bfe66c:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261101-213222-results-51aa786011aa:FF-GATE-DEVICE:1"
+      }
+    ],
+    "evidence": [
+      ".tools/device-checks/20261101-194731/results.json",
+      ".tools/device-checks/20261101-213222/results.json",
+      "docs/validation/20261101-overlay-anchor.json"
+    ],
+    "status": "原APK模拟器已复现；当前Debug三形状四边同点连点与展开连续拖动复测通过，真机未测"
   }
 ]

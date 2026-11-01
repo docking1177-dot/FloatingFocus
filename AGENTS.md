@@ -17,6 +17,7 @@
 - 首次教程在 `OnboardingScreen.kt` / `OnboardingArt.kt`，共享 PagerState 驱动滑动、按钮和进度；只演示核心功能，悬浮授权放最后一页，其他权限按实际使用再申请。完成状态由 `OnboardingStore` 独立持久化，不绑定版本或权限；允许暂不授权浏览，设置可重看且不重置数据。首页和教程复用 `OverlayPermission`，回前台查系统真实授权；示意开关不得授权或冒充系统操作。演示不启动真实计时/声音，不写用户配置；教程可用简短核心价值说明，不把介绍文案堆回首页。旧用户迁移与测试见 `docs/ONBOARDING.md`。
 - 浮窗宿主与边界在 `OverlayWindow.kt`，整个窗口的手势分发在 `OverlayTouchLayout.kt`，手势状态在 `OverlayDragGesture.kt`，内容在 `FocusOverlay.kt`。
 - 浮窗可见背景与时间标题均可点击展开/收起，内部按钮和分秒滚轮保留各自操作，透明角落不响应；展开/收起应一次完成尺寸与位置变化，宿主在测量阶段按新尺寸计算位置，不在布局完成后补移窗口；Android 14+ 通过公开 API 关闭本窗口额外的位移动画，旧系统保留兼容路径，不使用隐藏 API。
+- 普通浮窗展开以原计时区域为锚点，数字字号不随展开改变，不以扩大后的窗口几何中心重定位；操作区优先向下、底边空间不足向上，避免连续点击原数字区域误触结束。只在实际边界不足时最小让位，收起恢复原位，临时防越界不写回预设；C4 专用装置沿用自身定位。入口为 `OverlayPosition` / `FocusOverlay` / `OverlayWindow`。
 - 提醒策略与渲染数据在 `ReminderPresentation.kt`；阶段色差和提醒动画应清晰可辨，提亮通过背景颜色完成，不降低用户设置的不透明度；文字和图标随背景选择可读的前景色。实验室仅在 `app/src/debug/`，不得把模拟状态写入正式服务。使用与设计按需看 `docs/REMINDER_LAB.md`。
 - 正式外观设置在 `SettingsActivity.kt`，统一由 `ReminderSettingsStore.kt` 持久化并实时共享；实验室只读取外观配置，不新增平行调参入口。颜色/形状、版本边界及震动链路见 `docs/SETTINGS.md`，归零单次触发由 `CompletionReminder.kt` 管理。
 - Debug 调试入口统一名为「开发者模式」，仅在设置中出现；Release 不含入口或实验组件。复用正式配置组合预览，不保留已实装功能的旧方案选择或无效调试按钮；浮窗操作使用同一行「显示浮窗 / 关闭浮窗」，退出复用系统返回键。源码集仍沿用 `ReminderLabActivity/Service`，不为界面改名重建调试系统。

@@ -65,12 +65,15 @@ class OverlayWindow(private val context: Context,
     private var dragStartX = 0
     private var dragStartY = 0
     private val view = OverlayTouchLayout(context,
-        onDragStart = { dragStartX = params.x; dragStartY = params.y },
+        onDragStart = ::beginDrag,
         onDrag = ::dragTo, onDragEnd = ::persistPosition, onMeasured = ::placeMeasured)
     private var attached = false
     private var closed = false
     private var positioned = false
     private val position = OverlayPosition()
+    private var contentGeometry: OverlayContentGeometry? = null
+    private var contentPlacement: OverlayContentPlacement? = null
+    private var c4Active = false
     private var rememberedAnchor = initialPosition
     private var positionChanged = false
     private var ownerCreated = false
@@ -84,7 +87,7 @@ class OverlayWindow(private val context: Context,
         format = PixelFormat.TRANSLUCENT
         gravity = Gravity.TOP or Gravity.LEFT
         if (Build.VERSION.SDK_INT >= 34) {
-            // Resize and its center-preserving offset are one visual change, not
+            // Resize and its content-anchored offset are one visual change, not
             // a new-size buffer followed by WindowManager's position animation.
             setCanPlayMoveAnimation(false)
         }
@@ -128,18 +131,38 @@ class OverlayWindow(private val context: Context,
     }
 
     fun clampPosition() {
-        placeMeasured(view.measuredWidth, view.measuredHeight)
+        // Re-measure content as well as the frame after the safe area changes.
+        view.requestLayout()
     }
 
-    private fun placeMeasured(width: Int, height: Int) {
-        if (!attached || closed || width <= 0 || height <= 0) return
-        val size = safeSize()
+    private fun restorePosition(width: Int, height: Int, size: Point) {
         if (!positioned) {
             positioned = true
             position.anchor(size.x - width - dp(16), dp(36), width, height)
         }
         rememberedAnchor?.let { position.restore(it, size.x, size.y) }
-        val (x, y) = position.place(width, height, size.x, size.y)
+    }
+
+    fun measureContent(content: OverlayContentGeometry): OverlayContentPlacement {
+        val size = safeSize()
+        if (content.hasControls && contentGeometry?.hasControls == false) {
+            currentContentPlacement()?.let { position.pinContent(params.x + it.headerX, params.y + it.headerY) }
+        } else if (!content.hasControls) position.releaseContent()
+        restorePosition(content.width, content.height, size)
+        contentGeometry = content
+        return position.placeContent(content, size.x, size.y).also { contentPlacement = it }
+    }
+
+    private fun placeMeasured(width: Int, height: Int) {
+        if (!attached || closed || width <= 0 || height <= 0) return
+        val size = safeSize()
+        restorePosition(width, height, size)
+        val content = contentGeometry?.takeIf { !c4Active && it.width == width && it.height == height }
+        // Compose may reuse a same-constraint measurement. Position the header
+        // that was actually placed, instead of independently choosing a new local layout.
+        val placed = contentPlacement?.takeIf { content != null }
+        val (x, y) = position.place(width, height, size.x, size.y,
+            placed?.headerX ?: width / 2f, placed?.headerY ?: height / 2f)
         if (params.x == x && params.y == y) return
         params.x = x
         params.y = y
@@ -164,12 +187,26 @@ class OverlayWindow(private val context: Context,
         }
     }
 
+    private fun beginDrag() {
+        dragStartX = params.x
+        dragStartY = params.y
+        val content = currentContentPlacement()
+        position.beginDrag(params.x, params.y, view.width, view.height,
+            content?.headerX ?: view.width / 2f, content?.headerY ?: view.height / 2f)
+    }
+
+    private fun currentContentPlacement(): OverlayContentPlacement? = contentPlacement?.takeIf {
+        !c4Active && contentGeometry?.width == view.width && contentGeometry?.height == view.height
+    }
+
     private fun dragTo(dx: Float, dy: Float) {
         val size = safeSize()
-        params.x = (dragStartX + dx).roundToInt().coerceIn(0, (size.x - view.width).coerceAtLeast(0))
-        params.y = (dragStartY + dy).roundToInt().coerceIn(0, (size.y - view.height).coerceAtLeast(0))
+        val content = currentContentPlacement()
+        val (x, y) = position.dragTo(dx, dy, view.width, view.height, size.x, size.y,
+            content?.headerX ?: view.width / 2f, content?.headerY ?: view.height / 2f)
+        params.x = x
+        params.y = y
         if (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0) Log.d("FloatingFocus", "Overlay drag from=$dragStartX,$dragStartY delta=$dx,$dy placed=${params.x},${params.y} view=${view.width}x${view.height} safe=${size.x}x${size.y}")
-        position.anchor(params.x, params.y, view.width, view.height)
         rememberedAnchor = position.snapshot(size.x, size.y)
         positionChanged = true
         update()
@@ -184,6 +221,8 @@ class OverlayWindow(private val context: Context,
     private fun dp(value: Int) = (value * context.resources.displayMetrics.density).roundToInt()
 
     fun setGeometry(shape: OverlayShape, size: Float, device: Boolean = false, opacity: Float = 1f, c4Active: Boolean = device) {
+        this.c4Active = c4Active
+        if (c4Active) { contentGeometry = null; contentPlacement = null; position.releaseContent() }
         view.setGeometry(shape, size, device, c4Active)
         val windowAlpha = if (c4Active) opacity else 1f
         if (params.alpha != windowAlpha) { params.alpha = windowAlpha; update() }

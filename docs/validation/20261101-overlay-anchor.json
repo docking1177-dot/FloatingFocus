@@ -1,0 +1,74 @@
+{
+  "date": "2026-11-01",
+  "scope": "普通浮窗以原计时区域为锚点展开，修复同点连续点击误结束",
+  "source": {
+    "commit": "ddeec53a66fd6e29f531cbde3600bda95490b584",
+    "fingerprint": "f587d336ca771c812bbbe2870538541997d229a85c458affc4d030c524c14946",
+    "dirty": true,
+    "untrackedSource": [],
+    "excludedUntrackedAssetCount": 6
+  },
+  "cause": "旧逻辑保持整个窗口中心，时间与按钮整体居中且展开时数字缩小，按钮可能进入原数字点击位置。",
+  "implementation": [
+    "标题与操作区分开测量，保持18sp标题；以实际可见时间区域定位，优先向下、底边向上。",
+    "可见临时锚点与持久偏好分离，只有主动拖动写回预设；连续MOVE以按下时屏幕锚点加累计位移计算。",
+    "宿主使用Compose实际放置的局部位置，同一测量阶段更新尺寸与位置；C4继续自身路径。"
+  ],
+  "before": {
+    "report": ".tools/device-checks/20261101-194731/results.json",
+    "apk_sha256": "09e88e6962cf9be07f2eb0f0204c37335743f7064fa6133fea31b8e3c60b905a",
+    "observation": "修复前横胶囊左边同点第二次点击实际结束会话；原始失败与数据还原记录保留。"
+  },
+  "checks": {
+    "Debug": {
+      "report": ".tools/checks/check-full-debug-20261101-212933-244.json",
+      "tests": 198,
+      "failures": 0,
+      "errors": 0,
+      "lint_errors": 0,
+      "lint_warnings": 0,
+      "apk_sha256": "b9cd41cd80a7b9df99f25bd31bd5b9ed57c2131cdf66209e5feb877b5f2da95f"
+    },
+    "Release": {
+      "report": ".tools/checks/check-full-release-20261101-213201-829.json",
+      "tests": 190,
+      "failures": 0,
+      "errors": 0,
+      "lint_errors": 0,
+      "lint_warnings": 0,
+      "apk_sha256": "12fdc53a99990b79f5725409a0848c1d56a1549f4d387e2227414edb7a1829d0"
+    }
+  },
+  "script_tests": {
+    "tests": 38,
+    "log": ".tools/checks/script-tests-20261101-overlay-anchor-final.log",
+    "note": "首轮沙箱限制临时目录写入与清理，在常规本地权限下复跑通过；首轮日志仍保留。"
+  },
+  "device_reports": {
+    "edges": ".tools/device-checks/20261101-213222/results.json",
+    "inline": ".tools/device-checks/20261101-213638/results.json",
+    "c4_compact": ".tools/device-checks/20261101-213909/results.json"
+  },
+  "device_info": ".tools/device-checks/overlay-anchor-device-info-20261101.json",
+  "observed": [
+    "edges三形状四边12处同点连点未误结束、24次标题/背景展开收起恢复，以及3次展开后1000ms连续拖动位置断言通过。",
+    "inline实际两轮归零、取消与确认加时、滚轮不拖窗、同窗口/会话/前台App及加时基础尺寸恢复通过。",
+    "c4_compact五种形状/字体/普通样式组合，透明角无响应、展开收起、拖动、部分输入保留、单次时间轴及口令结束通过；本组静音。"
+  ],
+  "visual_review": [
+    "横胶囊左侧展开前后及底边向上展开截图；竖胶囊右侧展开；圆形左侧/底侧展开；加时滚轮截图已人工查看，文字/按钮可见。"
+  ],
+  "boundaries": [
+    "未做REDMI K80真机回归或逐帧录屏；静态截图不代替交互断言。",
+    "C4本组静音，不证明音频听感；音频资源及计时规则未改。",
+    "原emulator-5554存在固定FF快捷方式，安全门禁拒绝修改；实际使用独立AVD副本emulator-5556，未删除原快捷方式。",
+    "极限屏幕空间仍允许必要防越界/整体现有适配，不能承诺所有字号和窗口尺寸下绝不让位。"
+  ],
+  "retest": {
+    "of": "DEVICE-20261101-194731-results-ea15e9bfe66c:FF-GATE-DEVICE:0",
+    "record": "DEVICE-20261101-213222-results-51aa786011aa:FF-GATE-DEVICE:1"
+  },
+  "version_changed": false,
+  "merged": false,
+  "released": false
+}

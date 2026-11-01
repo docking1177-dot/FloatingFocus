@@ -301,6 +301,7 @@ class FloatingService : Service() {
             SideEffect { overlay.setGeometry(appearance.shape, appearance.size, c4Frame.active && c4Expanded, appearance.opacity, c4Frame.active) }
             val timerStart = overlayState.timerStartedAt
             FocusOverlay(if (c4Frame.active) appearance.copy(opacity = 1f) else appearance, interactive, extensionRequest = extensionRequest,
+                onContentMeasured = overlay::measureContent,
                 extensionStrategy = settings.strategy, c4 = c4Frame, c4Expanded = c4Expanded,
                 onC4Toggle = { if (!stopping) c4Expanded = !c4Expanded }, paused = overlayState.paused,
                 onC4Key = { key ->

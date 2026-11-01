@@ -73,6 +73,7 @@ class ReminderLabService : Service() {
                 val appearance = ReminderPresenter.present(lab.snapshot, settings, lab.acknowledgedStage)
                 SideEffect { overlay.setGeometry(appearance.shape, appearance.size) }
                 FocusOverlay(appearance, interactive,
+                    onContentMeasured = overlay::measureContent,
                     animationRequest = ReminderLabState.animationRequest,
                     onConfirm = { ReminderLabState.simulation = ReminderLabState.simulation.confirm(settings.strategy) }, onStop = ::close)
             } }
