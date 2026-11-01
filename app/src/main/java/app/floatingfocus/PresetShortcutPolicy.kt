@@ -47,7 +47,8 @@ object PresetLaunchPolicy {
         if (app == null || !saved(app)) return reject(PresetLaunchIssue.BINDING, "请先为预设绑定 FF 中的快捷 App。")
         if (!available(app)) return reject(PresetLaunchIssue.UNAVAILABLE, "该 App 已卸载、停用或无法打开，请重新选择。")
         if (!permission) return reject(PresetLaunchIssue.PERMISSION, "请允许 Floating Focus 显示悬浮窗，再继续启动。")
-        preset.settings.strategy.validationError(preset.durationSeconds * 1000L, preset.mode)?.let {
+        // Quota duration is resolved at admission, not from the fixed-duration fallback snapshot.
+        if (preset.timeSource == PresetTimeSource.FIXED) preset.settings.strategy.validationError(preset.durationSeconds * 1000L, preset.mode)?.let {
             return reject(PresetLaunchIssue.STRATEGY, it)
         }
         return PresetLaunchCheck(preset)

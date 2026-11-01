@@ -157,5 +157,82 @@
       ".tools\\device-checks\\20261101-102300\\home-tabs-large-0.png"
     ],
     "status": "未修复，独立后续处理；不影响本轮标签与计时行为验收"
+  },
+  {
+    "id": "FF-ISSUE-QUOTA-WIDGET-HOST",
+    "type": "测试脚本兼容性",
+    "description": "当前Launcher3的2×1实例高度足以使用响应式预设布局，两个实例都有结束/预设控件；旧脚本假定全屏只能有一份。控件XML确认是脚本范围假设，不是额度功能或组件布局故障。已按较大实例定位操作，并以实际高度增长验证缩放。",
+    "affected_cases": [
+      "FF-GATE-DEVICE",
+      "FF-SUITE-WIDGETS",
+      "FF-WIDGET-006",
+      "FF-QUOTA-WIDGET-001"
+    ],
+    "failed_records": [
+      "DEVICE-20261101-161922-results-9d95f2ea49b2:FF-GATE-DEVICE:0",
+      "DEVICE-20261101-162251-results-18d81c91737f:FF-GATE-DEVICE:0",
+      "DEVICE-20261101-162556-results-a8480dc0ae42:FF-GATE-DEVICE:0"
+    ],
+    "retests": [
+      {
+        "of": "DEVICE-20261101-161922-results-9d95f2ea49b2:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261101-163142-results-680769607c83:FF-GATE-DEVICE:8"
+      },
+      {
+        "of": "DEVICE-20261101-162251-results-18d81c91737f:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261101-163142-results-680769607c83:FF-GATE-DEVICE:8"
+      },
+      {
+        "of": "DEVICE-20261101-162556-results-a8480dc0ae42:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261101-163142-results-680769607c83:FF-GATE-DEVICE:8"
+      }
+    ],
+    "evidence": [
+      ".tools/device-checks/20261101-162251/widgets-controls.xml",
+      ".tools/device-checks/20261101-163142/results.json",
+      ".tools/checks/script-tests-20261101-quota-final.log"
+    ],
+    "status": "当前widgets全套复测通过，实际高度326→686px；旧失败保留"
+  },
+  {
+    "id": "FF-ISSUE-QUOTA-RESET-EDIT",
+    "type": "本轮应用缺陷",
+    "description": "已安排次日04:00重置后，跨过旧午夜再改01:00或00:00，曾按旧基准提前返额。现在持久化既定边界下限，重复编辑不能提前重置；已先运行新增回归观察失败，再修复。",
+    "affected_cases": [
+      "FF-JVM-DAILYAPPQUOTA"
+    ],
+    "failed_records": [
+      "CHECK-checks-check-unit-debug-20261101-160001-439-09c52b490451:FF-GATE-CHECK:0"
+    ],
+    "retests": [],
+    "evidence": [
+      ".tools/checks/check-unit-debug-20261101-160001-439.log",
+      ".tools/checks/check-full-debug-20261101-163638-896.json",
+      "app/src/test/java/app/floatingfocus/DailyAppQuotaTest.kt"
+    ],
+    "status": "已修复并包含在189项通过检查；失败原记录为整体check范围，未伪造成单项源绑定或跨用例自动解除"
+  },
+  {
+    "id": "FF-ISSUE-QUOTA-PIN-LABEL",
+    "type": "测试脚本控件识别",
+    "description": "首轮quota回归未匹配Launcher3全大写ADD TO HOME SCREEN，截图显示系统确认实际已出现。补充实际按钮名后，在桌面找到图标并点击核对最新余额与目标App。",
+    "affected_cases": [
+      "FF-GATE-DEVICE",
+      "FF-QUOTA-003"
+    ],
+    "failed_records": [
+      "DEVICE-20261101-155634-results-1fefddd74a9f:FF-GATE-DEVICE:0"
+    ],
+    "retests": [
+      {
+        "of": "DEVICE-20261101-155634-results-1fefddd74a9f:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261101-163639-results-afa9a01b07e5:FF-GATE-DEVICE:8"
+      }
+    ],
+    "evidence": [
+      ".tools/device-checks/20261101-155634/failure.png",
+      ".tools/device-checks/20261101-163639/results.json"
+    ],
+    "status": "系统确认及真实图标启动复测通过，非手机厂商权限验收"
   }
 ]

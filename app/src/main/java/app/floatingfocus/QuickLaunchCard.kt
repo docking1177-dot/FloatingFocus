@@ -60,6 +60,7 @@ fun QuickLaunchCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled
     var choosing by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var quotaApp by remember { mutableStateOf<LaunchableApp?>(null) }
 
     val launch: (LaunchableApp) -> Unit = { app ->
         if (enabled && !busy) {
@@ -82,7 +83,7 @@ fun QuickLaunchCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text("打开 App 并计时", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-            TextButton(enabled = enabled && !busy, onClick = { choosing = true }) {
+            TextButton(enabled = !busy && !FloatingService.startPending && !appTimerLaunchGate.busy, onClick = { choosing = true }) {
                 Text("管理（${targets.size}）", style = MaterialTheme.typography.labelMedium)
             }
         }
@@ -93,6 +94,7 @@ fun QuickLaunchCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
     }
     error?.takeIf { it.contains("提醒策略") }?.let { message -> StrategyConflictDialog(message, seconds, onDismiss = { error = null }) }
+    quotaApp?.let { AppQuotaEditor(it) { quotaApp = null } }
     if (choosing) {
         var selected by remember { mutableStateOf(targets.map { it.packageName }.toSet()) }
         var search by remember { mutableStateOf("") }
@@ -104,10 +106,12 @@ fun QuickLaunchCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled
             catch (_: RuntimeException) { loadError = true }
             loaded = true
         }
-        AlertDialog(onDismissRequest = { choosing = false }, title = { Text("管理常用 App") }, text = {
+        if (quotaApp == null) AlertDialog(onDismissRequest = { choosing = false }, title = { Text("管理常用 App") }, text = {
             Column {
+                QuotaResetEntry()
                 OutlinedTextField(search, { search = it }, label = { Text("搜索名称或包名") }, singleLine = true)
                 Text("已选 ${selected.size} 个 · 可多选")
+                if (!enabled) Text("计时中仅可修改每日额度。", style = MaterialTheme.typography.bodySmall)
                 val matching = (apps + targets).distinctBy { it.packageName }
                     .filter { it.label.contains(search, true) || it.packageName.contains(search, true) }
                 if (!loaded) Text("正在加载…")
@@ -115,21 +119,22 @@ fun QuickLaunchCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled
                 else if (matching.isEmpty()) Text("未找到可打开的 App")
                 LazyColumn(Modifier.heightIn(max = 360.dp)) {
                     items(matching, key = { it.packageName }) { app ->
-                        Row(Modifier.fillMaxWidth().toggleable(app.packageName in selected, role = Role.Checkbox) {
+                        Row(Modifier.fillMaxWidth().toggleable(app.packageName in selected, enabled = enabled, role = Role.Checkbox) {
                             selected = if (it) selected + app.packageName else selected - app.packageName
                         }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Checkbox(app.packageName in selected, onCheckedChange = null)
+                            Checkbox(app.packageName in selected, onCheckedChange = null, enabled = enabled)
                             AppIcon(app.packageName, 32.dp)
                             Column(Modifier.weight(1f).padding(start = 8.dp)) {
                                 Text(app.label + if (loaded && apps.none { it.packageName == app.packageName }) "（不可用）" else "")
-                                Text(app.packageName, style = MaterialTheme.typography.bodySmall)
+                                Text(app.packageName, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
                             }
+                            if (targets.any { it.packageName == app.packageName }) TextButton(onClick = { quotaApp = app }) { Text("每日额度") }
                         }
                     }
                 }
             }
         }, confirmButton = {
-            TextButton(enabled = loaded && !loadError, onClick = {
+            TextButton(enabled = enabled && loaded && !loadError, onClick = {
                 targets = QuickLaunchTargets.applySelection(targets, apps, selected)
                 prefs.writeTargets(targets)
                 error = null

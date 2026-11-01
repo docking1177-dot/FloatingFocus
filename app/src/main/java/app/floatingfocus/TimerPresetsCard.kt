@@ -30,6 +30,8 @@ fun TimerPresetsCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
     val scope = rememberCoroutineScope()
     val store = remember { TimerPresetStore.get(context) }
     val presets by store.presets.collectAsStateWithLifecycle()
+    val quotas = rememberAppQuotas()
+    val timeLabels = presets.associate { it.id to presetTimeLabel(it, quotas) }
     var saving by remember { mutableStateOf<TimerPreset?>(null) }
     var renaming by remember { mutableStateOf<TimerPreset?>(null) }
     var deleting by remember { mutableStateOf<TimerPreset?>(null) }
@@ -79,7 +81,8 @@ fun TimerPresetsCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
                 scope.launch {
                     try {
                         error = launchPresetWithTimer(context, lifecycle, preset.id)
-                        if (error == null) check.preset?.let { onApplied(it.durationSeconds, it.mode) }
+                        if (error == null) check.preset?.let { onApplied(if (it.timeSource == PresetTimeSource.APP_DAILY_QUOTA)
+                            ((FloatingService.session.value.durationMillis + 999) / 1000).toInt().coerceAtLeast(1) else it.durationSeconds, it.mode) }
                     } finally { busy = false; onBusyChange(false) }
                 }
             }
@@ -97,12 +100,16 @@ fun TimerPresetsCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
             TextButton(enabled = enabled && !busy, onClick = createPreset) { Text("保存当前", style = MaterialTheme.typography.labelMedium) }
             if (presets.isNotEmpty()) TextButton(enabled = enabled && !busy, onClick = { managing = true }) { Text("管理", style = MaterialTheme.typography.labelMedium) }
         }
-        PresetItems(presets, enabled && !busy, createPreset, launch)
+        PresetItems(presets, enabled && !busy, createPreset, launch, timeLabels)
         if (busy) Text("正在启动…", style = MaterialTheme.typography.bodySmall)
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         pinNotice()
     }
-    error?.takeIf { it.contains("提醒策略") }?.let { message -> StrategyConflictDialog(message, launchingPreset?.durationSeconds ?: seconds, launchingPreset?.id, { error = null }) }
+    error?.takeIf { it.contains("提醒策略") }?.let { message ->
+        val duration = launchingPreset?.let { if (it.timeSource == PresetTimeSource.APP_DAILY_QUOTA)
+            ((quotas.summary(it.targetApp?.packageName.orEmpty())?.remainingMillis ?: 1000) / 1000).toInt().coerceAtLeast(1) else it.durationSeconds } ?: seconds
+        StrategyConflictDialog(message, duration, launchingPreset?.id, { error = null })
+    }
     saving?.let { preset -> PresetSaveDialog(preset, { saving = null }) { saved ->
         if (store.save(saved)) saving = null else error = "暂时无法读取预设，保存未完成，请重试。"
     } }
@@ -126,7 +133,7 @@ fun TimerPresetsCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
                 Column {
                     Text(preset.name, style = MaterialTheme.typography.titleSmall)
                     Text(preset.targetApp?.label ?: "未绑定 App", style = MaterialTheme.typography.bodySmall)
-                    Text("${if (preset.mode == TimerMode.STOPWATCH) "正计时" else durationLabel(preset.durationSeconds)} · ${preset.settings.shape.label} · ${preset.settings.color.label}", style = MaterialTheme.typography.bodySmall)
+                    Text("${timeLabels[preset.id]} · ${preset.settings.shape.label} · ${preset.settings.color.label}", style = MaterialTheme.typography.bodySmall)
                     Row {
                         TextButton(onClick = { renaming = preset; renameError = null; managing = false },
                             modifier = Modifier.semantics { contentDescription = "重命名 ${preset.name}" }) { Text("重命名") }
@@ -174,13 +181,15 @@ private fun PresetSaveDialog(preset: TimerPreset, onDismiss: () -> Unit,
     var name by rememberSaveable(preset.id) { mutableStateOf(preset.name) }
     var targetPackage by rememberSaveable(preset.id) { mutableStateOf(preset.targetApp?.packageName.orEmpty()) }
     var targetLabel by rememberSaveable(preset.id) { mutableStateOf(preset.targetApp?.label.orEmpty()) }
+    var timeSource by rememberSaveable(preset.id) { mutableStateOf(preset.timeSource) }
     val target = targetPackage.takeIf { it.isNotBlank() }?.let { LaunchableApp(it, targetLabel) }
     AlertDialog(onDismissRequest = onDismiss, title = { Text(title) }, text = {
         Column {
             OutlinedTextField(name, { name = it.take(40) }, label = { Text("方案名称") }, singleLine = true)
             ShortcutAppPicker(target) { targetPackage = it.packageName; targetLabel = it.label }
+            if (preset.mode == TimerMode.COUNTDOWN) PresetTimeSourceSetting(timeSource) { timeSource = it }
         }
     }, confirmButton = { TextButton(enabled = name.isNotBlank() && context.isSavedShortcut(target), onClick = {
-        if (context.isSavedShortcut(target)) onSave(preset.copy(name = name.trim(), targetApp = target))
+        if (context.isSavedShortcut(target)) onSave(preset.copy(name = name.trim(), targetApp = target, timeSource = timeSource))
     }) { Text("保存") } }, dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } })
 }

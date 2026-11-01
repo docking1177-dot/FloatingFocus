@@ -49,7 +49,7 @@ object TimerWidgets {
                 // Exclude per-second samples and draggable positions. Rebase only at real state changes.
                 val key = listOf(state.active, state.paused, state.mode, state.c4Locked, state.startRequestId,
                     state.timerStartedAt, state.durationMillis, state.error, p.primary, p.overtime, defaults,
-                    presets.map { listOf(it.id, it.name, it.durationSeconds, it.mode, it.targetApp) })
+                    presets.map { listOf(it.id, it.name, it.durationSeconds, it.mode, it.targetApp, it.timeSource) })
                 if (key != lastKey) { lastKey = key; refresh(app) }
             }
         }
@@ -136,7 +136,7 @@ object TimerWidgets {
                 val enabled = !state.active && !FloatingService.startPending
                 v.setBoolean(button, "setEnabled", enabled)
                 v.setFloat(button, "setAlpha", if (enabled) 1f else .38f)
-                v.setContentDescription(button, preset?.let { "启动预设 ${it.name}，${if (it.mode == TimerMode.STOPWATCH) "正计时" else durationLabel(it.durationSeconds)}" } ?: name)
+                v.setContentDescription(button, preset?.let { "启动预设 ${it.name}，${if (it.timeSource == PresetTimeSource.APP_DAILY_QUOTA) "今日 App 额度" else if (it.mode == TimerMode.STOPWATCH) "正计时" else durationLabel(it.durationSeconds)}" } ?: name)
                 val pixels = (24 * context.resources.displayMetrics.density).toInt().coerceAtLeast(1)
                 val bitmap = preset?.targetApp?.let { localAppIcon(context, it.packageName)?.toBitmap(pixels, pixels) }
                 if (bitmap != null) v.setImageViewBitmap(icon, bitmap) else v.setImageViewResource(icon, R.drawable.ic_app_placeholder)

@@ -31,6 +31,20 @@ def find_desktop_widget(d):
     raise AssertionError('FF widget exists globally but was not found on inspected launcher pages; inspect remaining IDs before retrying.')
 
 
+def widget_control_points(tree, bounds):
+    def find(id, root):
+        return [n for n in root.iter('node') if n.get('resource-id') == PACKAGE+':id/'+id]
+    roots=find('widget_root',tree)
+    if len(roots)!=2:return None
+    larger=max(roots,key=lambda n:bounds(n)[3]-bounds(n)[1])
+    groups={id:find(id,tree if id=='widget_primary' else larger) for id in
+            ('widget_primary','widget_end','widget_preset_one','widget_preset_two')}
+    if len(groups['widget_primary'])!=2 or any(len(groups[id])!=1 for id in groups if id!='widget_primary'):return None
+    def point(n):
+        x,y,r,b=bounds(n);return (x+r)//2,(y+b)//2
+    return {id:[point(n) for n in nodes] for id,nodes in groups.items()}
+
+
 def widgets(d):
     def wait(check, message, seconds=10):
         deadline = time.monotonic() + seconds
@@ -69,12 +83,17 @@ def widgets(d):
     def capture_controls():
         # Capture fresh ID geometry while idle. Running Chronometers produce
         # accessibility changes every second, so UIAutomator cannot always idle.
-        tree=d.dump()
-        result={id:[point(n) for n in find(id,tree)] for id in
-                ('widget_primary','widget_end','widget_preset_one','widget_preset_two')}
-        assert len(find('widget_root',tree))==2
-        assert len(result['widget_primary'])==2 and len(result['widget_end'])==1
-        return result
+        # Bind preset/end actions to the larger instance. A roomy 2x1 host may
+        # legitimately choose a responsive layout which also exposes these actions.
+        for attempt in range(4):
+            tree=d.dump()
+            result=widget_control_points(tree,d.bounds)
+            if result is not None:return result
+            time.sleep(.5)
+        import xml.etree.ElementTree as ET
+        (d.output/'widgets-controls.xml').write_bytes(ET.tostring(tree))
+        (d.output/'widgets-options.txt').write_text(d.shell('dumpsys','appwidget'),encoding='utf-8')
+        raise AssertionError('Expected two instances with preset/end controls in the larger widget; inspect widgets-controls.xml')
 
     def press(id,index=0):
         d.tapxy(*controls[id][index])
@@ -163,6 +182,24 @@ def widgets(d):
         count=len(d.records());press('widget_preset_one');started(count,planned=70000,target='com.android.gallery3d');end()
         results['latestPresetsAndConflict']=True
 
+        print('Widgets: quota preset reads the common balance and pause excludes usage...',flush=True)
+        from device_quota import seed_quota, ledger as quota_ledger, APP
+        d.stop();seed_quota(d,limit=180000,used=10000)
+        items[0]=dict(one,timeSource='APP_DAILY_QUOTA')
+        seed();controls=capture_controls();count=len(d.records())
+        balance=quota_ledger(d)['apps'][APP]['limitMillis']-quota_ledger(d)['day']['used'][APP]
+        press('widget_preset_one');started(count,planned=balance,target=APP)
+        press('widget_primary')
+        wait(lambda:not quota_ledger(d)['cursor']['running'],'Quota pause not checkpointed')
+        paused_usage=quota_ledger(d)['day']['used'][APP];time.sleep(2)
+        assert quota_ledger(d)['day']['used'][APP]==paused_usage,'Paused quota kept deducting'
+        press('widget_primary');time.sleep(2);end()
+        wait(lambda:quota_ledger(d)['cursor']['closed'],'Quota final settlement not saved')
+        assert quota_ledger(d)['day']['used'][APP]>paused_usage
+        results['quotaLatestBalanceAndPause']=True
+        items[0]=dict(one,name='最新70秒',durationSeconds=70)
+        seed();controls=capture_controls()
+
         print('Widgets: missing overlay permission and explicit continuation...',flush=True)
         d.shell('appops','set',PACKAGE,'SYSTEM_ALERT_WINDOW','deny')
         count=len(d.records());press('widget_primary')
@@ -196,19 +233,26 @@ def widgets(d):
 
         seed();d.shell('cmd','uimode','night','yes');time.sleep(.6);home();d.shot('widgets-idle-dark')
         d.shell('settings','put','system','font_scale','1.5');time.sleep(.6);home();d.shot('widgets-large-font')
-        assert len(find('widget_preset_one'))==1
+        assert widget_control_points(d.dump(),d.bounds) is not None, 'Large-font widget controls missing'
         results['themeAndFontScreenshots']=True
         d.shell('settings','put','system','font_scale','1.0');time.sleep(.5)
         home()
-        root=find('widget_root')[0];x,y,r,b=d.bounds(root)
+        root=min(find('widget_root'),key=lambda n:d.bounds(n)[3]-d.bounds(n)[1]);x,y,r,b=d.bounds(root)
+        before_height=b-y
+        center_x=(x+r)//2
         sx,sy=(x+r)//2,y+round(8*d.density)
         d.shell('input','swipe',sx,sy,sx,sy,1000)
         handle=next(n for n in d.dump().iter('node') if n.get('resource-id')=='com.android.launcher3:id/widget_resize_bottom_handle')
         hx,hy=point(handle)
         d.shell('input','swipe',hx,hy,hx,hy+round(112*d.density),700)
         d.tapxy(int(d.width*.88),int(d.height*.7));home()
-        assert len(find('widget_preset_one'))==2,'Resized 2x1 did not expose presets'
+        resized=min(find('widget_root'),key=lambda n:abs((d.bounds(n)[0]+d.bounds(n)[2])//2-center_x))
+        after_bounds=d.bounds(resized)
+        after_height=after_bounds[3]-after_bounds[1]
+        assert after_height>before_height+round(40*d.density), 'Launcher did not actually enlarge the selected widget'
+        assert len(find('widget_preset_one',resized))==1,'Enlarged widget has no preset action'
         d.shot('widgets-resized');results['realLauncherResize']=True
+        results['resizeHeightPixels']=[before_height,after_height]
         return results
     finally:
         d.shell('appops','set',PACKAGE,'SYSTEM_ALERT_WINDOW','allow')

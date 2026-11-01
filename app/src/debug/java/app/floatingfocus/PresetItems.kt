@@ -21,14 +21,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /** Only this source set knows the comparison preference. Business actions stay in TimerPresetsCard. */
 @Composable
-internal fun PresetItems(presets: List<TimerPreset>, enabled: Boolean, onCreate: () -> Unit, onLaunch: (TimerPreset) -> Unit) {
+internal fun PresetItems(presets: List<TimerPreset>, enabled: Boolean, onCreate: () -> Unit, onLaunch: (TimerPreset) -> Unit,
+                         timeLabels: Map<String, String> = emptyMap()) {
     val style by PresetStyleStore.get(LocalContext.current).style.collectAsStateWithLifecycle()
-    PresetComparisonItems(style, presets, enabled, onCreate, onLaunch)
+    PresetComparisonItems(style, presets, enabled, onCreate, onLaunch, timeLabels)
 }
 
 @Composable
 internal fun PresetComparisonItems(style: PresetStyle, presets: List<TimerPreset>, enabled: Boolean,
-                                   onCreate: () -> Unit, onLaunch: (TimerPreset) -> Unit) {
+                                   onCreate: () -> Unit, onLaunch: (TimerPreset) -> Unit, timeLabels: Map<String, String> = emptyMap()) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("使用保存的计时与外观配置", style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -37,14 +38,14 @@ internal fun PresetComparisonItems(style: PresetStyle, presets: List<TimerPreset
             items.forEachIndexed { index, preset ->
                 key(preset?.id ?: "new-preset") {
                     if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    PresetOption(style, preset, enabled, Modifier.fillMaxWidth(), onCreate, onLaunch)
+                    PresetOption(style, preset, enabled, Modifier.fillMaxWidth(), onCreate, onLaunch, timeLabels[preset?.id])
                 }
             }
         } else items.chunked(2).forEach { pair ->
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 pair.forEach { preset ->
                     key(preset?.id ?: "new-preset") {
-                        PresetOption(style, preset, enabled, Modifier.weight(1f).fillMaxHeight(), onCreate, onLaunch)
+                        PresetOption(style, preset, enabled, Modifier.weight(1f).fillMaxHeight(), onCreate, onLaunch, timeLabels[preset?.id])
                     }
                 }
                 if (pair.size == 1) Spacer(Modifier.weight(1f))
@@ -55,7 +56,7 @@ internal fun PresetComparisonItems(style: PresetStyle, presets: List<TimerPreset
 
 @Composable
 private fun PresetOption(style: PresetStyle, preset: TimerPreset?, enabled: Boolean, modifier: Modifier,
-                         onCreate: () -> Unit, onLaunch: (TimerPreset) -> Unit) {
+                         onCreate: () -> Unit, onLaunch: (TimerPreset) -> Unit, timeLabel: String?) {
     val row = style == PresetStyle.COMPACT_ROW
     val tile = style == PresetStyle.ICON_TILE
     val largeText = LocalDensity.current.fontScale >= 1.3f
@@ -85,7 +86,7 @@ private fun PresetOption(style: PresetStyle, preset: TimerPreset?, enabled: Bool
                     }
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     AppName(preset)
-                    PresetTime(preset)
+                    PresetTime(timeLabel ?: presetTimeLabel(preset))
                 }
             }
             PresetStyle.ICON_TILE -> Column(Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally,
@@ -93,7 +94,7 @@ private fun PresetOption(style: PresetStyle, preset: TimerPreset?, enabled: Bool
                 AppIcon(preset.targetApp?.packageName.orEmpty(), 36.dp)
                 Text(preset.name, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center)
-                Text("${preset.targetApp?.label ?: "选择 App"} · ${timeLabel(preset)}",
+                Text("${preset.targetApp?.label ?: "选择 App"} · ${timeLabel ?: presetTimeLabel(preset)}",
                     style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
             }
             PresetStyle.COMPACT_ROW -> Row(Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
@@ -103,14 +104,12 @@ private fun PresetOption(style: PresetStyle, preset: TimerPreset?, enabled: Bool
                     Text(preset.name, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                     AppName(preset)
                 }
-                Text(timeLabel(preset), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium,
+                Text(timeLabel ?: presetTimeLabel(preset), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.End, modifier = Modifier.width(80.dp))
             }
         }
     }
 }
-
-private fun timeLabel(preset: TimerPreset) = if (preset.mode == TimerMode.STOPWATCH) "正计时" else durationLabel(preset.durationSeconds)
 
 @Composable
 private fun AppName(preset: TimerPreset) {
@@ -119,6 +118,6 @@ private fun AppName(preset: TimerPreset) {
 }
 
 @Composable
-private fun PresetTime(preset: TimerPreset) {
-    Text(timeLabel(preset), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+private fun PresetTime(label: String) {
+    Text(label, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
 }

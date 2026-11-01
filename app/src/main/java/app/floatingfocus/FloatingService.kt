@@ -64,6 +64,7 @@ class FloatingService : Service() {
     private var c4Expanded by mutableStateOf(false)
     private var c4Frame by mutableStateOf(C4Frame())
     private val recordStore by lazy { TimerRecordStore.get(this) }
+    private val quotaStore by lazy { AppQuotaStore.get(this) }
     private var record: TimerRecord? = null
     private var recordStartedAt = 0L
     private var awaitingApp: String? = null
@@ -78,9 +79,11 @@ class FloatingService : Service() {
         recordStartedAt = elapsed
         record = TimerRecord(java.util.UUID.randomUUID().toString(), appName, appPackage, timer.mode, timer.durationMillis, wall)
         recordStore.save(record!!)
+        if (appPackage.isNotBlank()) quotaStore.begin(record!!.id, appPackage, elapsed, wall)
     }
 
     private fun checkpointRecord(now: Long) {
+        record?.takeIf { it.packageName.isNotBlank() }?.let { quotaStore.checkpoint(it.id, !manualClock.paused, now) }
         record = record?.checkpoint(recordStartedAt, now)
         countdown?.let { timer -> record = record?.copy(plannedMillis = timer.totalPlannedMillis,
             savedOvertimeMillis = timer.totalOvertimeAt(manualClock.at(now))) }
@@ -88,6 +91,7 @@ class FloatingService : Service() {
 
     private fun completeRecord(status: RecordStatus, after: (() -> Unit)? = null) {
         checkpointRecord(SystemClock.elapsedRealtime())
+        record?.takeIf { it.packageName.isNotBlank() }?.let { quotaStore.checkpoint(it.id, false, SystemClock.elapsedRealtime(), finish = true) }
         val ended = record?.copy(status = status)
         record = null
         if (ended != null) recordStore.save(ended, after = after) else after?.invoke()
@@ -475,6 +479,7 @@ class FloatingService : Service() {
         if (stopping) return
         stopping = true
         checkpointRecord(SystemClock.elapsedRealtime())
+        record?.takeIf { it.packageName.isNotBlank() }?.let { quotaStore.checkpoint(it.id, false, SystemClock.elapsedRealtime(), finish = true) }
         mutableMonitor.value = AutoMonitorStatus(reason = if (preserveError) mutableSession.value.error ?: "已停止" else "未开启")
         if (defusedFeedback) {
             successPending = true; successWindowClosed = false

@@ -3576,6 +3576,412 @@
         "常用时长",
         "大字体"
       ]
+    },
+    {
+      "id": "FF-JVM-DAILYAPPQUOTA",
+      "module": "今日App额度",
+      "scenario": "实际运行区间、包名共享、暂停、跨日、重复日界线编辑、固定时区DST、异常改时及进程恢复",
+      "priority": "P0",
+      "kind": "模型类汇总",
+      "preconditions": "现有JVM夹具，无需Android设备",
+      "steps": "运行DailyAppQuotaTest并读取独立JUnit XML",
+      "expected": "该类全部JUnit执行，失败和错误为0；跳过项单列",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/DailyAppQuotaTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "额度",
+        "预设",
+        "会话",
+        "存储"
+      ]
+    },
+    {
+      "id": "FF-JVM-QUOTAPERSISTENCE",
+      "module": "今日App额度",
+      "scenario": "账本编码、坏数据拒绝及写失败重试与草稿回滚",
+      "priority": "P0",
+      "kind": "模型类汇总",
+      "preconditions": "现有JVM夹具，无需Android设备",
+      "steps": "运行QuotaPersistenceTest并读取独立JUnit XML",
+      "expected": "该类全部JUnit执行，失败和错误为0；跳过项单列",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/QuotaPersistenceTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "额度",
+        "预设",
+        "会话",
+        "存储"
+      ]
+    },
+    {
+      "id": "FF-JVM-PRESETQUOTA",
+      "module": "今日App额度",
+      "scenario": "旧预设固定来源、额度字段迁移及正计时来源限制",
+      "priority": "P0",
+      "kind": "模型类汇总",
+      "preconditions": "现有JVM夹具，无需Android设备",
+      "steps": "运行PresetQuotaTest并读取独立JUnit XML",
+      "expected": "该类全部JUnit执行，失败和错误为0；跳过项单列",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/PresetQuotaTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "额度",
+        "预设",
+        "会话",
+        "存储"
+      ]
+    },
+    {
+      "id": "FF-SUITE-QUOTA",
+      "module": "今日App额度",
+      "scenario": "每日额度设备套件",
+      "priority": "P0",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36，Debug；套件备份还原私有数据并拒绝原有FF固定入口/组件",
+      "steps": "运行quota套件并检查results.json",
+      "expected": "原套件整体passed；不把汇总替代未执行的单项/真机观察",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "./scripts/test-device.ps1 -Suite quota -AllowTestDataChanges"
+      ],
+      "scope": "套件",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "额度",
+        "预设",
+        "会话",
+        "存储"
+      ]
+    },
+    {
+      "id": "FF-QUOTA-001",
+      "module": "今日App额度",
+      "scenario": "独立来源草稿及真实额度滚轮保存",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，Debug；套件备份还原私有数据并拒绝原有FF固定入口/组件",
+      "steps": "编辑预设来源先取消再保存；App管理打开已配置额度并用分秒滚轮编辑，先取消再保存",
+      "expected": "取消来源编辑不写回；保存额度来源持久化；取消总量草稿不变，保存新总量仍保留已用",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_quota.py",
+        "./scripts/test-device.ps1 -Suite quota -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "额度",
+        "预设",
+        "会话",
+        "存储"
+      ]
+    },
+    {
+      "id": "FF-QUOTA-002",
+      "module": "今日App额度",
+      "scenario": "同App多预设多次启动及活跃会话冲突",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，Debug；套件备份还原私有数据并拒绝原有FF固定入口/组件",
+      "steps": "依次从首页启动同App两个额度预设并结束；运行时再次触发ID入口；运行中在App管理编辑额度并保存，核对当前记录的计划时长",
+      "expected": "第二次计划毫秒数等于当时额度减已用且小于首次；重复ID入口不替换活跃会话；活跃额度编辑不改变本次会话或计划毫秒数",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_quota.py",
+        "./scripts/test-device.ps1 -Suite quota -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "额度",
+        "预设",
+        "会话",
+        "存储"
+      ]
+    },
+    {
+      "id": "FF-QUOTA-003",
+      "module": "今日App额度",
+      "scenario": "真实桌面图标读取冷启动最新余额",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，Debug；套件备份还原私有数据并拒绝原有FF固定入口/组件",
+      "steps": "请求并确认固定QuotaTwo图标，停止FF进程，在真实桌面找到图标后点击",
+      "expected": "实际Launcher3图标可见并能打开绑定App，记录模式与最新余额毫秒数匹配",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_quota.py",
+        "./scripts/test-device.ps1 -Suite quota -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "额度",
+        "预设",
+        "会话",
+        "存储"
+      ]
+    },
+    {
+      "id": "FF-QUOTA-004",
+      "module": "今日App额度",
+      "scenario": "绑定正计时及固定倒计时超时共同扣额",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，Debug；套件备份还原私有数据并拒绝原有FF固定入口/组件",
+      "steps": "快捷App使用正计时再结束；固定时长预设归零继续2秒后结束",
+      "expected": "正计时计划时长0且扣额；固定1秒倒计时进入超时，消耗继续增加",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_quota.py",
+        "./scripts/test-device.ps1 -Suite quota -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "额度",
+        "预设",
+        "会话",
+        "存储"
+      ]
+    },
+    {
+      "id": "FF-QUOTA-005",
+      "module": "今日App额度",
+      "scenario": "进程中断恢复不补扣停机",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，Debug；套件备份还原私有数据并拒绝原有FF固定入口/组件",
+      "steps": "额度会话运行后强停，等待，再开FF但不开始新会话",
+      "expected": "重启后已用等于停止进程时最后持久化值，原记录标异常中断",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_quota.py",
+        "./scripts/test-device.ps1 -Suite quota -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "额度",
+        "预设",
+        "会话",
+        "存储"
+      ]
+    },
+    {
+      "id": "FF-QUOTA-006",
+      "module": "今日App额度",
+      "scenario": "余额耗尽首页及桌面ID入口拒绝启动",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，Debug；套件备份还原私有数据并拒绝原有FF固定入口/组件",
+      "steps": "使用已用大于限额的受控夹具，分别点击首页预设及预设ID入口",
+      "expected": "两个入口均提示已用完，无新浮窗和有效记录",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_quota.py",
+        "./scripts/test-device.ps1 -Suite quota -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "额度",
+        "预设",
+        "会话",
+        "存储"
+      ]
+    },
+    {
+      "id": "FF-QUOTA-007",
+      "module": "今日App额度",
+      "scenario": "坏账本显示错误且不按满额启动",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，Debug；套件备份还原私有数据并拒绝原有FF固定入口/组件",
+      "steps": "停止进程后将受控账本写为损坏JSON，重新打开并点击额度预设",
+      "expected": "提示额度读取失败；不增加记录，不出现浮窗",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_quota.py",
+        "./scripts/test-device.ps1 -Suite quota -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "额度",
+        "预设",
+        "会话",
+        "存储"
+      ]
+    },
+    {
+      "id": "FF-QUOTA-WIDGET-001",
+      "module": "今日App额度",
+      "scenario": "真实桌面组件按余额启动及暂停不扣额",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，Debug；套件备份还原私有数据并拒绝原有FF固定入口/组件",
+      "steps": "真实添加2×2组件，点击额度预设，暂停2秒、恢复2秒、结束",
+      "expected": "组件预设计时等于最新余额；暂停期间持久化已用不变，恢复后增加且结束游标closed",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_widgets.py",
+        "./scripts/test-device.ps1 -Suite widgets -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "额度",
+        "预设",
+        "会话",
+        "存储"
+      ]
+    },
+    {
+      "id": "FF-QUOTA-PHONE-001",
+      "module": "今日App额度",
+      "scenario": "厂商后台、锁屏和任务划除后的额度进度",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "本轮相同SHA256 APK及正常悬浮权限；记录手机/Android/厂商省电设置，关闭C4以便结束，不改变日常省电配置",
+      "steps": "为一个App设2分钟并使用额度预设；运行10秒后锁屏8秒，解锁查看；划除FF，等5秒重开查看余额，再次从同一预设启动",
+      "expected": "存活服务只扣运行区间；划除后不再增加；再开保留已用，不恢复满额；异常强杀仅保证最后持久化值",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "真机按需补充",
+      "entry_points": [
+        "docs/APP_QUOTAS.md",
+        "App → 管理 → 每日额度"
+      ],
+      "scope": "单例",
+      "manual_tier": "建议真机",
+      "manual_group": 7,
+      "gap": "尚未真机验证",
+      "impact_tags": [
+        "额度",
+        "预设",
+        "会话",
+        "存储"
+      ]
     }
   ],
   "junit_classes": {
@@ -3608,7 +4014,10 @@
     "FocusThemeTest": "FF-JVM-FOCUSTHEME",
     "LabSimulationTest": "FF-JVM-LABSIMULATION",
     "AutoTimerEngineTest": "FF-JVM-AUTOTIMERENGINE",
-    "HomeNavigationTest": "FF-JVM-HOMENAVIGATION"
+    "HomeNavigationTest": "FF-JVM-HOMENAVIGATION",
+    "DailyAppQuotaTest": "FF-JVM-DAILYAPPQUOTA",
+    "QuotaPersistenceTest": "FF-JVM-QUOTAPERSISTENCE",
+    "PresetQuotaTest": "FF-JVM-PRESETQUOTA"
   },
   "device_details": {
     "widgets": {
@@ -3617,7 +4026,8 @@
       "permissionExplicitContinue": "FF-WIDGET-003",
       "overtimeAndC4Guards": "FF-WIDGET-004",
       "savedStopwatchAndColdStart": "FF-WIDGET-005",
-      "realLauncherResize": "FF-WIDGET-006"
+      "realLauncherResize": "FF-WIDGET-006",
+      "quotaLatestBalanceAndPause": "FF-QUOTA-WIDGET-001"
     },
     "home": {
       "tabIsolation": "FF-HOME-001",
@@ -3627,6 +4037,15 @@
       "selectionRestoredOnReturnAndRotation": "FF-HOME-005",
       "largeFontTargetsAndScrollRestore": "FF-HOME-006",
       "activeSessionSharedGuards": "FF-HOME-007"
+    },
+    "quota": {
+      "draftAndLimitPreserveUsage": "FF-QUOTA-001",
+      "sharedBalanceAndConflict": "FF-QUOTA-002",
+      "actualDesktopLatestBalance": "FF-QUOTA-003",
+      "stopwatchAndOvertimeDeduct": "FF-QUOTA-004",
+      "interruptedNoBackfill": "FF-QUOTA-005",
+      "exhaustedNoStart": "FF-QUOTA-006",
+      "readFailureNoRefill": "FF-QUOTA-007"
     }
   }
 }

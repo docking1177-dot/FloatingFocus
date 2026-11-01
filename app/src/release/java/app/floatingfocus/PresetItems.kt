@@ -15,7 +15,8 @@ import androidx.compose.ui.unit.dp
 
 /** The existing production layout. No Debug style preference or experimental renderer. */
 @Composable
-internal fun PresetItems(presets: List<TimerPreset>, enabled: Boolean, onCreate: () -> Unit, onLaunch: (TimerPreset) -> Unit) {
+internal fun PresetItems(presets: List<TimerPreset>, enabled: Boolean, onCreate: () -> Unit, onLaunch: (TimerPreset) -> Unit,
+                         timeLabels: Map<String, String> = emptyMap()) {
         (presets + listOf<TimerPreset?>(null)).chunked(2).forEach { pair ->
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 pair.forEach { preset ->
@@ -33,7 +34,7 @@ internal fun PresetItems(presets: List<TimerPreset>, enabled: Boolean, onCreate:
                                     maxLines = 2, overflow = TextOverflow.Ellipsis)
                                 if (preset.targetApp?.label != preset.name) Text(preset.targetApp?.label ?: "选择 App",
                                     style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                Text(if (preset.mode == TimerMode.STOPWATCH) "正计时" else durationLabel(preset.durationSeconds),
+                                Text(timeLabels[preset.id] ?: presetTimeLabel(preset),
                                     style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                                 Text("点击启动", style = MaterialTheme.typography.labelSmall)
                             }

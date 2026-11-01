@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('smoke', 'edges', 'inline', 'settings', 'home', 'home_reorder', 'preferences', 'startup', 'theme', 'c4', 'c4_keypad', 'c4_compact', 'onboarding', 'developer', 'history', 'preset_styles', 'preset_shortcuts', 'preset_c4', 'widgets', 'all')][string]$Suite = 'all',
+    [ValidateSet('smoke', 'edges', 'inline', 'settings', 'home', 'home_reorder', 'preferences', 'startup', 'theme', 'c4', 'c4_keypad', 'c4_compact', 'onboarding', 'developer', 'history', 'preset_styles', 'preset_shortcuts', 'preset_c4', 'widgets', 'quota', 'all')][string]$Suite = 'all',
     [ValidatePattern('^emulator-\d+$')][string]$Serial = 'emulator-5554',
     [switch]$AllowTestDataChanges
 )

@@ -1,5 +1,7 @@
 # 统一检查入口
 
+今日 App 额度回归：`./scripts/test-device.ps1 -Suite quota -AllowTestDataChanges`；真实组件的余额启动与暂停扣额在 `widgets`。账本日历/改时边界由 JVM 测试覆盖，不修改设备系统时间。见 [额度口径与存储](APP_QUOTAS.md)。
+
 用例、历史执行及当前证据缺口统一见 [测试库](testing/README.md)；用户亲测项见 [真机最小集](testing/REAL_DEVICE.md)。只整理已有结果：`python scripts/test_catalog.py refresh`，不运行应用测试。Excel是派生报告，实际结果从独立原始摘要追加导入。
 
 在项目根目录使用 PowerShell：

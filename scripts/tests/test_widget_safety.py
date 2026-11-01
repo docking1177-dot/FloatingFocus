@@ -4,10 +4,28 @@ from pathlib import Path
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from device_widgets import require_empty_widgets,widget_ids,find_desktop_widget
+from device_widgets import require_empty_widgets,widget_ids,find_desktop_widget,widget_control_points
 
 
 class WidgetSafetyTest(unittest.TestCase):
+    def test_controls_bind_to_larger_widget_when_both_instances_offer_actions(self):
+        import re
+        def node(height):
+            return '<node resource-id="app.floatingfocus:id/widget_root" bounds="[0,0][200,'+str(height)+']">' + ''.join(
+                '<node resource-id="app.floatingfocus:id/'+name+'" bounds="[0,'+str(height-40)+'][100,'+str(height)+']"/>'
+                for name in ('widget_primary','widget_end','widget_preset_one','widget_preset_two'))+'</node>'
+        tree=ET.fromstring('<hierarchy>'+node(120)+node(250)+'</hierarchy>')
+        bounds=lambda n:tuple(map(int,re.findall(r'\d+',n.get('bounds'))))
+        controls=widget_control_points(tree,bounds)
+        self.assertEqual(2,len(controls['widget_primary']))
+        self.assertEqual([(50,230)],controls['widget_end'])
+        self.assertEqual([(50,230)],controls['widget_preset_one'])
+        self.assertEqual([(50,230)],controls['widget_preset_two'])
+
+    def test_incomplete_widget_tree_is_not_accepted_as_ready(self):
+        tree=ET.fromstring('<hierarchy><node resource-id="app.floatingfocus:id/widget_root" bounds="[0,0][200,250]"/></hierarchy>')
+        self.assertIsNone(widget_control_points(tree,lambda n:(0,0,200,250)))
+
     def test_provider_registration_is_not_a_bound_widget(self):
         require_empty_widgets('Providers:\n app.floatingfocus/TimerWidgetProvider\nWidgets:\nHosts:\n app.floatingfocus')
 

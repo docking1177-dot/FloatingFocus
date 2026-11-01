@@ -108,13 +108,17 @@ class SettingsActivity : ComponentActivity() {
             val target = targetPackage.takeIf { it.isNotBlank() }?.let { LaunchableApp(it, targetLabel) }
             var mode by rememberSaveable(presetId) { mutableStateOf(preset?.mode ?: TimerMode.COUNTDOWN) }
             var c4Enabled by rememberSaveable(presetId) { mutableStateOf(preset?.c4Enabled ?: false) }
+            var timeSource by rememberSaveable(presetId) { mutableStateOf(preset?.timeSource ?: PresetTimeSource.FIXED) }
             var seconds by rememberSaveable(presetId) { mutableIntStateOf(preset?.durationSeconds ?: intent.getIntExtra("duration_seconds", 900)) }
+            val quotas = rememberAppQuotas()
+            val previewSeconds = if (editing && mode == TimerMode.COUNTDOWN && timeSource == PresetTimeSource.APP_DAILY_QUOTA)
+                (quotas.summary(targetPackage)?.remainingMillis?.div(1000)?.toInt() ?: seconds).coerceAtLeast(1) else seconds
             val settings = if (editing) draft else sharedSettings
             val updateSettings: ((ReminderSettings) -> ReminderSettings) -> Unit = { change ->
                 if (editing) draft = change(draft) else store.update(change)
             }
             if (page == "strategy") {
-                StrategyScreen(settings.strategy, seconds, { strategy -> updateSettings { it.copy(strategy = strategy) } }, back)
+                StrategyScreen(settings.strategy, previewSeconds, { strategy -> updateSettings { it.copy(strategy = strategy) } }, back)
                 return@FocusTheme
             }
             Scaffold { insets ->
@@ -127,14 +131,15 @@ class SettingsActivity : ComponentActivity() {
                             TextButton(onClick = { if (editing) finish() else back() }) { Text(if (editing) "取消" else "返回") }
                             if (editing) TextButton(enabled = isSavedShortcut(target) && name.isNotBlank() && (mode == TimerMode.STOPWATCH || seconds in 1..10800), onClick = {
                                 val saved = presetStore.save(preset!!.copy(name = name.trim(), minutes = (seconds / 60).coerceAtLeast(1), durationSeconds = seconds,
-                                    settings = draft, mode = mode, targetApp = target, c4Enabled = c4Enabled))
+                                    settings = draft, mode = mode, targetApp = target, c4Enabled = c4Enabled,
+                                    timeSource = if (mode == TimerMode.STOPWATCH) PresetTimeSource.FIXED else timeSource))
                                 if (saved) {
                                     if (c4Enabled) C4SettingsStore.get(this@SettingsActivity).acknowledgeNotice()
                                     finish()
                                 } else Toast.makeText(this@SettingsActivity, "暂时无法读取预设，保存未完成，请重试。", Toast.LENGTH_LONG).show()
                             }) { Text("保存") }
                         }
-                        SettingsPreview(settings, previewHeight, seconds * 1000L, if (editing) mode else TimerMode.COUNTDOWN)
+                        SettingsPreview(settings, previewHeight, previewSeconds * 1000L, if (editing) mode else TimerMode.COUNTDOWN)
                         HorizontalDivider()
                         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = FocusSpacing.page, vertical = FocusSpacing.medium),
                             verticalArrangement = Arrangement.spacedBy(FocusSpacing.small)) {
@@ -146,7 +151,14 @@ class SettingsActivity : ComponentActivity() {
                                     }
                                 }
                                 OutlinedTextField(name, { name = it.take(40) }, label = { Text("方案名称") }, singleLine = true)
-                                if (mode == TimerMode.COUNTDOWN) DurationEntry("计时时长", seconds, { seconds = it }, minSeconds = 1)
+                                if (mode == TimerMode.COUNTDOWN) {
+                                    PresetTimeSourceSetting(timeSource) { timeSource = it }
+                                    if (timeSource == PresetTimeSource.FIXED) DurationEntry("计时时长", seconds, { seconds = it }, minSeconds = 1)
+                                    else {
+                                        Text(presetTimeLabel(preset!!.copy(targetApp = target, timeSource = timeSource, mode = mode), quotas))
+                                        Text("启动时读取该 App 最新余额；在 App 管理中设置每日额度。", style = MaterialTheme.typography.bodySmall)
+                                    }
+                                } else Text("正计时也计入该 App 已启用的每日额度。", style = MaterialTheme.typography.bodySmall)
                                 C4EnabledSetting(c4Enabled) { c4Enabled = it }
                                 Text("仅修改此预设；音效由当前设置控制。", style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -218,7 +230,7 @@ internal fun SettingsEntry(label: String, onClick: () -> Unit) {
 }
 
 @Composable
-private fun EffectSwitch(label: String, enabled: Boolean, onChange: (Boolean) -> Unit) {
+internal fun EffectSwitch(label: String, enabled: Boolean, onChange: (Boolean) -> Unit) {
     Row(Modifier.fillMaxWidth().toggleable(value = enabled, role = Role.Switch, onValueChange = onChange)
         .heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(label, modifier = Modifier.weight(1f))
