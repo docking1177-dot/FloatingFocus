@@ -23,19 +23,35 @@ def startup(d):
             x, y = d.center()
             d.shell('input', 'swipe', x, y, int(d.width*.8), int(d.height*height), 350)
     def settings():
-        park_overlay(.4)
+        park_overlay(.72)
+        # The unified page moved this action beside the mode chips. Keep the
+        # real fixture away from its actual target rather than tapping a clock.
+        target = next(n for n in d.dump().iter('node') if n.get('text') == '手动设置')
+        x,y,r,b = d.bounds(target)
+        if d.overlay():
+            left,top,right,bottom = d.frame()
+            assert not (left <= (x+r)/2 <= right and top <= (y+b)/2 <= bottom), 'Fixture overlay covers settings target'
         d.tap('手动设置')
+        assert '.SettingsActivity' in d.foreground(), 'Settings action did not open its actual Activity'
         d.tap('启动默认配置', scroll=True)
     def save():
         park_overlay(.24)
         d.tap('保存', scroll=True)
+    def finish():
+        d.start()
+        park_overlay(.72)
+        target = next(n for n in d.dump().iter('node') if n.get('text') == '结束计时')
+        x,y,r,b = d.bounds(target)
+        left,top,right,bottom = d.frame()
+        assert not (left <= (x+r)/2 <= right and top <= (y+b)/2 <= bottom), 'Fixture overlay covers end target'
+        d.finish()
     def fresh(): d.stop(); d.start()
     def scroll_top():
         for _ in range(3):
             d.shell('input', 'swipe', int(d.width*.03), int(d.height*.25), int(d.width*.03), int(d.height*.85), 200)
 
     print('Startup: migration, wheels and saved defaults...', flush=True)
-    d.seed(); d.finish(); d.stop()
+    d.seed(); finish(); d.stop()
     # Existing users have four duration slots but no startup keys.
     d.write_prefs('quick_durations', {'seconds': '300,600,900,1800'})
     d.start(); idle()
@@ -80,7 +96,7 @@ def startup(d):
     d.shell('am', 'start', '-W', '-n', PACKAGE+'/.MainActivity', '-f', '0x18000000')
     assert selected('倒计时') and '已选时长 · 2 分 5 秒' in texts()
     assert d.records()[-1]['id'] == row['id']
-    d.finish(); fresh()
+    finish(); fresh()
     assert selected('正计时'); idle()
     settings(); d.tap('倒计时'); d.tap('默认倒计时时长')
     assert wheel(d, '分')[1] == 2 and wheel(d, '秒')[1] == 5
@@ -99,7 +115,7 @@ def startup(d):
     d.tap('开始正计时'); time.sleep(.5)
     final = d.records()[-1]
     assert final['mode'] == 'STOPWATCH' and final['plannedMillis'] == 0
-    d.finish()
+    finish()
     return dict(firstUseCountdown900=True, savedCountdown125=True, slotsIndependent=True,
                 noAutomaticStart=True, existingChoicePreserved=True, recreationPreserved=True,
                 activeSessionRecovered=True, stopwatchRetainsCountdown=True,

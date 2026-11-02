@@ -8,28 +8,28 @@ import struct
 import xml.etree.ElementTree as ET
 
 PACKAGE = 'app.floatingfocus'
-LABELS = ('计时', '预设', 'App')
-HEADINGS = {'计时': '常规计时', '预设': '我的预设', 'App': '打开 App 并计时'}
+LABELS = ('计时', '预设')
+HEADINGS = {'计时': '倒计时', '预设': '我的预设'}
 
 
 def home_reorder(d):
     """Narrow real-gesture regression; does not claim the whole home suite."""
-    d.seed(); d.finish(); d.home_tab('App')
+    d.seed(); d.finish(); d.home_tab('预设')
     def order():
         raw = d.adb('shell', 'run-as', PACKAGE, 'cat', 'shared_prefs/home_navigation.xml')
         return ET.fromstring(raw).find("string[@name='order']").text
     def move_to(label):
         points=[]
-        for entry in ('App', label):
+        for entry in ('预设', label):
             x,y,r,b=d.bounds(d.home_tab_node(entry)); points.append(((x+r)//2,(y+b)//2))
         d.shell('input','draganddrop',*points[0],*points[1],700); time.sleep(.5)
     for index in range(2):
         move_to('计时')
-        assert order()=='apps,timer,presets', ('forward',index,order())
-        assert d.home_tab_node('App').get('selected')=='true'
-        move_to('预设')
-        assert order()=='timer,presets,apps', ('reverse',index,order())
-        assert d.home_tab_node('App').get('selected')=='true'
+        assert order()=='presets,timer', ('forward',index,order())
+        assert d.home_tab_node('预设').get('selected')=='true'
+        move_to('计时')
+        assert order()=='timer,presets', ('reverse',index,order())
+        assert d.home_tab_node('预设').get('selected')=='true'
     d.shot('home-reorder-roundtrip')
     return dict(selectedEntryBidirectional=True,roundTrips=2,scope='reorder-only')
 
@@ -68,32 +68,30 @@ def home_navigation(d):
         x, y = point
         return tuple(raw[offset+(y*width+x)*4:][:3])
 
-    print('Home tabs: exclusive content, shared selection and real long-press reorder...', flush=True)
+    print('Home tabs: two exclusive pages, shared selection and real long-press reorder...', flush=True)
     exclusive('计时')
     d.shot('home-tabs-timer')
     d.tap('10分')
-    d.home_tab('App'); exclusive('App')
-    assert '当前配置：倒计时 · 10 分钟' in texts(), 'Tab switch discarded timer duration'
-    d.shot('home-tabs-apps')
     d.home_tab('预设'); exclusive('预设'); d.shot('home-tabs-presets')
-    d.home_tab('计时'); d.tap('正计时'); d.home_tab('App')
-    assert '当前配置：正计时' in texts(), 'Tab switch discarded stopwatch mode'
-    d.home_tab('计时'); d.tap('倒计时')
+    d.home_tab('计时'); d.tap('正计时'); d.home_tab('预设'); d.home_tab('计时')
+    assert '开始正计时' in texts(), 'Tab switch discarded stopwatch mode'
+    d.tap('倒计时')
     initial = saved_order()
-    a, b = center('App'), center('计时')
+    a, b = center('预设'), center('计时')
     d.shell('input', 'swipe', *a, *b, 150)
     assert saved_order() == initial, 'A short swipe reordered tabs'
-    drag('App', '计时')
-    assert saved_order() == 'apps,timer,presets'
-    assert actual_order() == ['App', '计时', '预设']
+    drag('预设', '计时')
+    assert saved_order() == 'presets,timer'
+    assert actual_order() == ['预设', '计时']
     exclusive('计时')  # Dragging another entry must not select it.
     d.shot('home-tabs-reordered')
-    d.stop(); d.start(); exclusive('App')
-    assert saved_order() == 'apps,timer,presets', 'Order was not restored on cold start'
+    d.stop(); d.start(); exclusive('预设')
+    assert saved_order() == 'presets,timer', 'Order was not restored on cold start'
 
     print('Home tabs: foreground/configuration restore and cancelled drag...', flush=True)
-    d.home_tab('预设'); d.tap('设置'); d.shell('input', 'keyevent', 'KEYCODE_BACK'); exclusive('预设')
-    d.shell('input', 'keyevent', 'KEYCODE_HOME'); d.start(); exclusive('预设')
+    # Choose the non-first page: resetting to the saved first page must fail.
+    d.home_tab('计时'); d.tap('设置'); d.shell('input', 'keyevent', 'KEYCODE_BACK'); exclusive('计时')
+    d.shell('input', 'keyevent', 'KEYCODE_HOME'); d.start(); exclusive('计时')
     rotation = {key: d.shell('settings', 'get', 'system', key).strip() for key in ('accelerometer_rotation', 'user_rotation')}
     font = d.shell('settings', 'get', 'system', 'font_scale').strip()
     night = d.shell('cmd', 'uimode', 'night').strip().split()[-1]
@@ -107,13 +105,13 @@ def home_navigation(d):
                 if (width > height) == (value == '1'): break
                 assert time.monotonic() < deadline, 'Requested screen rotation never took effect'
                 time.sleep(.2)
-            exclusive('预设')
+            exclusive('计时')
         # Losing window focus cancels the in-progress gesture. Never finish the
         # drag with UP in FF: that would be a completed, persistable reorder.
-        a, b = center('预设'), center('App')
+        a, b = center('计时'), center('预设')
         before = saved_order()
-        target_sample = surface_point('App')
-        selected_color = color_at(surface_point('预设'))
+        target_sample = surface_point('预设')
+        selected_color = color_at(surface_point('计时'))
         assert color_at(target_sample) != selected_color, 'Cancel fixture target is already selected'
         try:
             d.shell('input', 'motionevent', 'DOWN', *a); time.sleep(.8)
@@ -126,9 +124,9 @@ def home_navigation(d):
             d.shell('input', 'keyevent', 'KEYCODE_HOME')
         finally:
             d.shell('input', 'motionevent', 'UP', *b)
-        d.start(); exclusive('预设')
+        d.start(); exclusive('计时')
         assert saved_order() == before, 'Cancelled drag was persisted'
-        assert actual_order() == ['App', '计时', '预设']
+        assert actual_order() == ['预设', '计时']
         for mode in ('yes', 'no'):
             d.shell('cmd', 'uimode', 'night', mode); time.sleep(.8)
             for label in LABELS:
@@ -143,7 +141,7 @@ def home_navigation(d):
             d.shot('home-tabs-large-' + str(LABELS.index(label)))
         d.home_tab('预设'); d.tap('新建预设', scroll=True); d.tap('取消')
         old_bounds = d.bounds(next(n for n in d.dump().iter('node') if n.get('content-desc') == '新建预设'))
-        d.home_tab('App'); d.home_tab('预设')
+        d.home_tab('计时'); d.home_tab('预设')
         new_bounds = d.bounds(next(n for n in d.dump().iter('node') if n.get('content-desc') == '新建预设'))
         assert max(abs(a-b) for a, b in zip(old_bounds, new_bounds)) <= 3, 'Preset scroll position was reset'
     finally:
@@ -163,7 +161,7 @@ def home_navigation(d):
     # pinned tabs before touching them, rather than accidentally expanding it.
     d.shell('input', 'swipe', *d.center(), int(d.width*.7), int(d.height*.78), 450)
     time.sleep(.4)
-    for label, action in [('预设', '启动预设 Home 0'), ('App', '打开 Gallery 并计时')]:
+    for label, action in [('预设', '启动预设 Home 0'), ('计时', '打开 Gallery 并计时')]:
         d.home_tab(label)
         assert '结束计时' in texts(), 'Active session controls are hidden in ' + label
         d.tap(action, scroll=True)
@@ -173,9 +171,10 @@ def home_navigation(d):
     deadline = time.monotonic()+3
     while d.records()[-1]['status'] != 'MANUAL' and time.monotonic() < deadline: time.sleep(.1)
     assert d.records()[-1]['status'] == 'MANUAL'
-    drag('App', '预设')
-    assert saved_order() == 'timer,presets,apps'
+    drag('计时', '预设')
+    assert saved_order() == 'timer,presets'
     d.home_tab('计时')
+    for _ in range(3): d.shell('input','swipe',int(d.width*.03),int(d.height*.25),int(d.width*.03),int(d.height*.85),200)
     return dict(tabIsolation=True, sharedSelection=True, longPressReorderAndColdStart=True,
                 cancelledDragNotSaved=True, selectionRestoredOnReturnAndRotation=True,
                 largeFontTargetsAndScrollRestore=True, activeSessionSharedGuards=True)

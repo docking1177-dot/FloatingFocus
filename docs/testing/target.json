@@ -1,31 +1,31 @@
 {
-  "id": "FF-20261102-controls-overtime-b601497d",
-  "source_commit": "89d27c04184c2e2d13afe541a8bee11577606091",
-  "note": "本轮控制中心/滑动/普通累计/C4持续超时开发包；原检查保留89d27c0+dirty与内容指纹，不改写成后补文档提交。最后仅修改Debug预览控件换行，main/release未再改动；核心设备回归1410381d与三样式66601e19分范围保留，不冒充全部为当前包。Debug含本机三录音，Release无录音且未签名；未真机验收。",
+  "id": "FF-20261102-unified-timer-ca57617b",
+  "source_commit": "008276bf3ae6d9d05dc18ba7bc0e17562f66ff1f",
   "builds": {
     "Debug": {
-      "sha256": "b601497dbce78734c03ee17786e0c3fa373d394ae61f7ff5ec55a7466604e922",
-      "fingerprint": "65831f9389c1586ef9a41179f53ab74090f6640c728e27a8cd0fd0e38924a7f4",
-      "reported_commit": "89d27c04184c2e2d13afe541a8bee11577606091",
+      "sha256": "ca57617bbc0ff956db78c8b57ebfc1e2ad703a0bc12fc51886d67c6f27a23fa8",
+      "fingerprint": "8b73ce55e34a9bad59f073e01418aced54fde68bb010f6bc76c06d964ac5b694",
+      "reported_commit": "008276bf3ae6d9d05dc18ba7bc0e17562f66ff1f",
       "reported_dirty": true,
       "version_name": "0.3.0",
       "version_code": 4,
-      "check": ".tools/checks/check-full-debug-20261102-103833-315.json",
+      "check": ".tools/checks/check-full-debug-20261102-165942-925.json",
       "apk": "app/build/outputs/apk/debug/app-debug.apk",
       "audio_local": true,
       "installable": true
     },
     "Release": {
-      "sha256": "83d233a371636d376f7dbb2c192ee567c126b252432a72fda472f12b1b31edef",
-      "fingerprint": "495d904acd4846154957129ac40ff1ee4335a850c014dc7143b7dae31a6ba20a",
-      "reported_commit": "89d27c04184c2e2d13afe541a8bee11577606091",
+      "sha256": "05516b9bd38daeb8da466b128652fd84e8f627db80c7f209d7554a0b86d525fc",
+      "fingerprint": "8b73ce55e34a9bad59f073e01418aced54fde68bb010f6bc76c06d964ac5b694",
+      "reported_commit": "008276bf3ae6d9d05dc18ba7bc0e17562f66ff1f",
       "reported_dirty": true,
       "version_name": "0.3.0",
       "version_code": 4,
-      "check": ".tools/checks/check-full-release-20261102-100334-385.json",
+      "check": ".tools/checks/check-full-release-20261102-170201-829.json",
       "apk": "app/build/outputs/apk/release/app-release-unsigned.apk",
       "audio_local": false,
       "installable": false
     }
-  }
+  },
+  "note": "统一计时页开发包，0.3.0/4未变。检查基于008276b+dirty及原内容指纹，后补文档/测试库不冒充新构建。首页改动单独同步codex/unified-timer，避免上传当前本地分支两条无关视频提交；应用源码一致性另核对。Debug有本机C4录音，Release无录音且未签名；本轮无真机验收。"
 }

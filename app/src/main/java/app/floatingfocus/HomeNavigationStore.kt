@@ -7,8 +7,14 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class HomeNavigationStore(context: Context) {
     private val prefs = context.applicationContext.getSharedPreferences("home_navigation", Context.MODE_PRIVATE)
-    private val current = MutableStateFlow(HomeEntries.decode(prefs.all["order"] as? String))
+    private val savedOrder = prefs.all["order"] as? String
+    private val current = MutableStateFlow(HomeEntries.decode(savedOrder))
     val order = current.asStateFlow()
+
+    init {
+        val normalized = HomeEntries.encode(current.value)
+        if (savedOrder != null && savedOrder != normalized) prefs.edit { putString("order", normalized) }
+    }
 
     fun save(order: List<HomeEntry>) {
         val encoded = HomeEntries.encode(order)

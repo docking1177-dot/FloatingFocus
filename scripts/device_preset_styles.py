@@ -124,8 +124,8 @@ def preset_styles(d, focus=None):
             else: assert first[0]!=second[0] and first[1]==second[1]
             d.shot('presets-'+value.lower())
             assert all(n.get('text')!='点击启动' for n in tree.iter('node'))
-            # The quick launcher remains four columns with its own current-config summary.
-            d.home_tab('App')
+            # The embedded quick launcher remains four columns using the current configuration.
+            d.home_tab('计时')
             find('打开 Gallery 并计时')
             tree=d.dump()
             quick=[next(n for n in tree.iter('node') if n.get('content-desc')=='打开 '+app['label']+' 并计时') for app in apps[:4]]

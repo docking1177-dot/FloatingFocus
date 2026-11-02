@@ -82,13 +82,13 @@ fun QuickLaunchCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enabled
     }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("打开 App 并计时", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            Text("打开 App", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
             TextButton(enabled = !busy && !FloatingService.startPending && !appTimerLaunchGate.busy, onClick = { choosing = true }) {
                 Text("管理（${targets.size}）", style = MaterialTheme.typography.labelMedium)
             }
         }
-        Text("当前配置：${mode.label}" + if (mode == TimerMode.COUNTDOWN) " · ${durationLabel(seconds)}" else "",
-            style = MaterialTheme.typography.bodySmall)
+        Text("点击 App，使用上方配置打开并计时。", style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
         QuickLaunchButtons(targets, enabled && !busy, launch) { choosing = true }
         if (busy) Text("正在启动…")
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }

@@ -56,7 +56,7 @@ def quota(d):
     def open_editor(name):
         d.start(); d.home_tab('预设'); d.tap('管理', scroll=True); d.tap('编辑 '+name, scroll=True)
     def quota_editor():
-        d.start(); d.home_tab('App'); d.tap('管理（1）'); d.tap('每日额度', scroll=True)
+        d.start(); d.home_tab('计时'); d.tap('管理（1）',scroll=True); d.tap('每日额度', scroll=True)
     def click_desktop(name):
         d.shell('input', 'keyevent', 'KEYCODE_HOME')
         for direction in (None, 'left', 'left', 'right', 'right', 'right'):
@@ -115,7 +115,7 @@ def quota(d):
         started(before, balance); time.sleep(1); end(); result['actualDesktopLatestBalance'] = True
 
         print('Quota: bound stopwatch, overtime and interrupted process...', flush=True)
-        d.home_tab('计时'); d.tap('正计时'); d.home_tab('App'); before=len(d.records()); prior=used()
+        d.home_tab('计时'); d.tap('正计时'); before=len(d.records()); prior=used()
         d.tap('打开 Gallery 并计时', scroll=True); started(before, 0, 'STOPWATCH'); time.sleep(1); end(); assert used() > prior
         d.home_tab('预设'); before=len(d.records()); prior=used(); d.tap('启动预设 Fixed', scroll=True)
         started(before, 1000); time.sleep(2); assert d.records()[-1].get('overtimeMillis', 0) > 0

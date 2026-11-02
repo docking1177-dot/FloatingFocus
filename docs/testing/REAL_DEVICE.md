@@ -1,6 +1,6 @@
 # 用户真机测试清单
 
-目标：FF-20261102-controls-overtime-b601497d，0.3.0 / code 4，本地Debug。APK SHA256：`b601497dbce78734c03ee17786e0c3fa373d394ae61f7ff5ec55a7466604e922`。
+目标：FF-20261102-unified-timer-ca57617b，0.3.0 / code 4，本地Debug。APK SHA256：`ca57617bbc0ff956db78c8b57ebfc1e2ad703a0bc12fc51886d67c6f27a23fa8`。
 
 这是用例库派生视图，只在cases.json维护步骤；执行结果另记manual_runs.jsonl。已有同SHA/同机/同系统通过的项可跳过，不凭同名版本号要求重测。
 本地Debug已含前段/爆炸/成功三录音；Release无本地录音且当前为未签名检查包，不要求安装或把无声当故障。不卸载清数据。

@@ -1,7 +1,7 @@
 package app.floatingfocus
 
 enum class HomeEntry(val id: String, val label: String) {
-    TIMER("timer", "计时"), PRESETS("presets", "预设"), APPS("apps", "App")
+    TIMER("timer", "计时"), PRESETS("presets", "预设")
 }
 
 /** Navigation identity is independent of timer selections, saved presets and their order. */
@@ -10,9 +10,12 @@ object HomeEntries {
 
     fun decode(raw: String?): List<HomeEntry> {
         val ids = raw?.split(',') ?: return defaults
-        val entries = ids.mapNotNull { id -> HomeEntry.entries.find { it.id == id } }
-        return entries.takeIf { ids.size == defaults.size && it.size == defaults.size && it.distinct().size == defaults.size }
-            ?: defaults
+        val currentIds = defaults.map { it.id }.toSet()
+        val validCurrent = ids.size == currentIds.size && ids.toSet() == currentIds
+        val validLegacy = ids.size == currentIds.size + 1 && ids.toSet() == currentIds + "apps"
+        if (!validCurrent && !validLegacy) return defaults
+        // Preserve the first occurrence: an old App-first home becomes Timer-first.
+        return ids.map { id -> HomeEntry.entries.first { it.id == if (id == "apps") "timer" else id } }.distinct()
     }
 
     fun encode(order: List<HomeEntry>): String {
@@ -26,5 +29,5 @@ object HomeEntries {
     }
 
     fun selected(order: List<HomeEntry>, restoredId: String?): HomeEntry =
-        order.find { it.id == restoredId } ?: order.first()
+        order.find { it.id == if (restoredId == "apps") "timer" else restoredId } ?: order.first()
 }

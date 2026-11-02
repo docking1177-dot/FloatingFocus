@@ -371,5 +371,48 @@
       ".tools/device-checks/20261102-102734/results.json"
     ],
     "status": "夹具已修复，没有改应用定位规则"
+  },
+  {
+    "id": "FF-ISSUE-UNIFIED-PREFERENCES-TAB",
+    "type": "静态审查发现的测试入口过时",
+    "description": "移除独立App栏后，策略冲突脚本的一个元组仍使用App。已改为计时栏再点真实App图标；辅助测试拒绝旧App标签。没有实际失败执行，不伪造失败批次。",
+    "affected_cases": [
+      "FF-SUITE-PREFERENCES"
+    ],
+    "failed_records": [],
+    "retests": [],
+    "evidence": [
+      "scripts/device_preferences.py",
+      "docs/validation/20261102-unified-timer.json"
+    ],
+    "status": "脚本已修正，新APK preferences实际回归通过"
+  },
+  {
+    "id": "FF-ISSUE-UNIFIED-STARTUP-OCCLUSION",
+    "type": "测试夹具遮挡真实点击目标",
+    "description": "启动默认值脚本固定停靠浮窗后，分别挡住手动设置与结束计时。失败截图显示误点展开浮窗且仍在首页；调整停靠并检查目标无遮挡/实际Activity，完整startup新包复测通过。应用逻辑未修改。",
+    "affected_cases": [
+      "FF-SUITE-STARTUP"
+    ],
+    "failed_records": [
+      "DEVICE-20261102-171634-results-42d7f7030cb2:FF-GATE-DEVICE:0",
+      "DEVICE-20261102-172036-results-25cecb3ce55a:FF-GATE-DEVICE:0"
+    ],
+    "retests": [
+      {
+        "of": "DEVICE-20261102-171634-results-42d7f7030cb2:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261102-172827-results-d431f1c76755:FF-GATE-DEVICE:1"
+      },
+      {
+        "of": "DEVICE-20261102-172036-results-25cecb3ce55a:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261102-172827-results-d431f1c76755:FF-GATE-DEVICE:1"
+      }
+    ],
+    "evidence": [
+      ".tools/device-checks/20261102-171634/results.json",
+      ".tools/device-checks/20261102-172036/results.json",
+      "docs/validation/20261102-unified-timer.json"
+    ],
+    "status": "夹具已修正，原失败保留；新完整startup通过"
   }
 ]

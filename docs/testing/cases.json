@@ -3241,12 +3241,12 @@
     {
       "id": "FF-HOME-001",
       "module": "首页",
-      "scenario": "三栏只显示当前内容",
+      "scenario": "两栏只显示当前内容",
       "priority": "P1",
       "kind": "功能场景",
-      "preconditions": "默认顺序、首页空闲",
-      "steps": "依次点击计时、预设、App",
-      "expected": "当前栏标题可见，其他两栏内容不出现在页面；三标签始终可点",
+      "preconditions": "已完成教程；首页为计时/预设",
+      "steps": "点击或滑动两栏；检查当前页控件及无独立App标签",
+      "expected": "计时包含当前参数和App网格，预设仅展示保存方案；两个标签且互斥，无空白页",
       "builds": [
         "Debug",
         "Release"
@@ -3272,12 +3272,12 @@
     {
       "id": "FF-HOME-002",
       "module": "首页",
-      "scenario": "临时时长与模式跨栏保留",
+      "scenario": "临时模式跨栏保留",
       "priority": "P1",
       "kind": "功能场景",
-      "preconditions": "首页四档含10分钟",
-      "steps": "选10分钟切App；切回正计时再切App",
-      "expected": "App摘要分别为倒计时10分钟、正计时；返回计时不丢选择",
+      "preconditions": "当前计时页；无会话",
+      "steps": "选择正计时，往返预设与计时，再回倒计时",
+      "expected": "往返后仍显示开始正计时，不因切栏重新套用默认模式；时长共享另由FF-HOME-MERGE-002的实际记录验证",
       "builds": [
         "Debug",
         "Release"
@@ -3306,9 +3306,9 @@
       "scenario": "长按排序与首栏启动",
       "priority": "P1",
       "kind": "功能场景",
-      "preconditions": "初始计时/预设/App",
-      "steps": "快速划过不排序；长按App拖到首位；重启FF；将已选App拖回末位",
-      "expected": "仅长按拖动完成后保存apps,timer,presets；当前栏不变；全新启动显示App；反向拖回恢复原序，拖动对象始终为最初按下的入口",
+      "preconditions": "初始计时/预设",
+      "steps": "快速划过不排序；长按预设拖到首位；冷启；选中项拖回",
+      "expected": "仅完成长按拖动后保存presets,timer，当前栏目ID不变；冷启显示预设，反向拖回恢复原序",
       "builds": [
         "Debug",
         "Release"
@@ -3337,9 +3337,9 @@
       "scenario": "取消排序不写回",
       "priority": "P1",
       "kind": "功能场景",
-      "preconditions": "已保存App/计时/预设",
-      "steps": "长按预设并拖移，未松手时回桌面取消，返回FF",
-      "expected": "已保存顺序不变，三个入口无缺失或重复，当前栏目仍为预设",
+      "preconditions": "已保存预设/计时，当前非首栏计时",
+      "steps": "长按计时拖到预设处，按住时回桌面取消；返回FF",
+      "expected": "保存顺序不变，两栏无缺失或重复，仍选中计时",
       "builds": [
         "Debug",
         "Release"
@@ -3368,9 +3368,9 @@
       "scenario": "返回与重建保留当前栏目",
       "priority": "P1",
       "kind": "功能场景",
-      "preconditions": "App排首位，当前预设",
+      "preconditions": "预设排首位，计时为当前页（非首栏）",
       "steps": "进设置返回；回桌面后打开FF；横竖屏切换",
-      "expected": "各次仍在预设，不因首位为App而覆盖当前栏目",
+      "expected": "设置返回、后台与旋转保留当前栏目ID和选择，不重选首栏",
       "builds": [
         "Debug",
         "Release"
@@ -3400,7 +3400,7 @@
       "priority": "P1",
       "kind": "功能场景",
       "preconditions": "三条预设，字号2倍",
-      "steps": "三栏切换；预设滚动至末尾，切App再回预设",
+      "steps": "两栏切换；预设滚动至末尾，切计时再回预设",
       "expected": "标签均在屏幕内且至少48dp高；新建预设位置恢复；文字可读性另看截图",
       "builds": [
         "Debug",
@@ -3431,7 +3431,7 @@
       "priority": "P0",
       "kind": "功能场景",
       "preconditions": "空闲、非C4、10分钟",
-      "steps": "手动开始；预设/App栏点已有入口；从App栏结束",
+      "steps": "手动开始10分钟；预设与计时栏点击禁用的预设/App；从计时栏结束",
       "expected": "只有一个600000ms倒计时会话；各栏有结束操作；禁用入口不打开App或替换记录；结束为MANUAL",
       "builds": [
         "Debug",
@@ -3463,7 +3463,7 @@
       "kind": "模型类汇总",
       "preconditions": "现有JUnit夹具，无需设备",
       "steps": "运行HomeNavigationTest，查看独立JUnit XML",
-      "expected": "六种排序可往返；非法值回退完整三入口；移动不丢ID；恢复优先按ID而非位置；失败/错误为0",
+      "expected": "两种新顺序往返；六种旧顺序apps映射timer并稳定去重；畸形值回退两入口；旧apps恢复到timer；移动不丢ID；失败/错误为0",
       "builds": [
         "Debug",
         "Release"
@@ -3492,8 +3492,8 @@
       "priority": "P1",
       "kind": "功能场景",
       "preconditions": "默认顺序、首页空闲",
-      "steps": "空闲时连续切计时、预设、App，每栏截取真实屏幕；滚动后切回；深浅主题及大字体复核",
-      "expected": "真实画面分别显示计时控件、预设卡片、App网格，和当前栏目及控件树一致；不残留旧栏内容；独立滚动位置保留",
+      "steps": "空闲时切计时/预设并截图；滚动后切回；检查深浅主题及大字",
+      "expected": "计时页含参数和App网格，预设页含保存方案；真实画面与选中标签一致，无旧App栏或残影；独立滚动保留",
       "builds": [
         "Debug",
         "Release"
@@ -4246,7 +4246,7 @@
       "priority": "P1",
       "kind": "功能场景",
       "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
-      "steps": "选择10分，滑到预设并纵向滚动，滑App再返回；长按排序再滑动；重开首页",
+      "steps": "计时滑到预设并纵向滚动，尝试滑出末页，往返两栏；长按排序后再滑动和重开",
       "expected": "内容区双向滑动后标签与唯一可见栏目一致；点击与滑动保持同步",
       "builds": [
         "Debug"
@@ -4696,8 +4696,8 @@
       "priority": "P1",
       "kind": "功能场景",
       "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
-      "steps": "选择10分，滑到预设并纵向滚动，滑App再返回；长按排序再滑动；重开首页",
-      "expected": "长按将App拖到首位，当前计时栏目ID不变；向左滑到预设，重开开首栏",
+      "steps": "计时滑到预设并纵向滚动，尝试滑出末页，往返两栏；长按排序后再滑动和重开",
+      "expected": "将预设拖到首位时当前计时ID不变；按新顺序滑到预设，冷启显示预设",
       "builds": [
         "Debug"
       ],
@@ -4720,12 +4720,12 @@
     {
       "id": "FF-HOME-SWIPE-003",
       "module": "首页",
-      "scenario": "滑动保留选择与滚动",
+      "scenario": "滑动保留栏目与列表滚动",
       "priority": "P1",
       "kind": "功能场景",
       "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
-      "steps": "选择10分，滑到预设并纵向滚动，滑App再返回；长按排序再滑动；重开首页",
-      "expected": "App摘要仍10分钟；预设返回后可见项及位置与离开前一致",
+      "steps": "计时滑到预设并纵向滚动，尝试滑出末页，往返两栏；长按排序后再滑动和重开",
+      "expected": "往返后标签与当前栏目一致；预设可见项及位置与离开前相同；不以已删除的App摘要作为参数证据",
       "builds": [
         "Debug"
       ],
@@ -4856,6 +4856,259 @@
       "impact_tags": [
         "系统磁贴"
       ]
+    },
+    {
+      "id": "FF-HOME-MERGE-001",
+      "module": "首页",
+      "scenario": "旧三栏顺序实际迁移",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "六种有效旧order；无会话",
+      "steps": "逐个保存旧顺序并冷启动；核对标签及落盘值",
+      "expected": "仅timer/presets，保留原先首次位置，无新增会话",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1 -Suite home_unified -Serial emulator-5556 -AllowTestDataChanges",
+        "scripts/device_unified_timer.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "模拟器自动断言；厂商真机手感不在本项通过范围",
+      "impact_tags": [
+        "首页",
+        "快捷启动",
+        "导航"
+      ]
+    },
+    {
+      "id": "FF-HOME-MERGE-002",
+      "module": "首页",
+      "scenario": "同配置正倒两模式与两种启动入口",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "自定义1分35秒；Gallery可启动",
+      "steps": "各模式分别点主按钮与Gallery图标，读取实际记录和前台",
+      "expected": "倒计时均95000ms，正计时均0计划值；仅App路径绑定并打开Gallery",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1 -Suite home_unified -Serial emulator-5556 -AllowTestDataChanges",
+        "scripts/device_unified_timer.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "模拟器自动断言；厂商真机手感不在本项通过范围",
+      "impact_tags": [
+        "首页",
+        "快捷启动",
+        "导航"
+      ]
+    },
+    {
+      "id": "FF-HOME-MERGE-003",
+      "module": "首页",
+      "scenario": "快速交替点击与活跃会话守卫",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "空闲；已选1分35秒",
+      "steps": "按钮/App按两种先后快速点击；运行后再点图标",
+      "expected": "每次仅一条会话，模式/绑定遵循首次动作，后续不替换ID",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1 -Suite home_unified -Serial emulator-5556 -AllowTestDataChanges",
+        "scripts/device_unified_timer.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "模拟器自动断言；厂商真机手感不在本项通过范围",
+      "impact_tags": [
+        "首页",
+        "快捷启动",
+        "导航"
+      ]
+    },
+    {
+      "id": "FF-HOME-MERGE-004",
+      "module": "首页",
+      "scenario": "自定义秒数切栏及模式切换回显",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "分秒滚轮初始1分0秒",
+      "steps": "选1分35秒、取消重开、切预设和正计时再返回",
+      "expected": "滚轮仍1分35秒，App和按钮使用同一秒数；不把正计时改回倒计时",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1 -Suite home_unified -Serial emulator-5556 -AllowTestDataChanges",
+        "scripts/device_unified_timer.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "模拟器自动断言；厂商真机手感不在本项通过范围",
+      "impact_tags": [
+        "首页",
+        "快捷启动",
+        "导航"
+      ]
+    },
+    {
+      "id": "FF-HOME-MERGE-005",
+      "module": "首页",
+      "scenario": "目标不可用不产生记录并可继续启动",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "快捷列表含不可用包；空闲",
+      "steps": "点击不可用图标，再点正常主按钮",
+      "expected": "明确错误，无新会话或外观改写；随后按钮仍使用95000ms",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1 -Suite home_unified -Serial emulator-5556 -AllowTestDataChanges",
+        "scripts/device_unified_timer.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "模拟器自动断言；厂商真机手感不在本项通过范围",
+      "impact_tags": [
+        "首页",
+        "快捷启动",
+        "导航"
+      ]
+    },
+    {
+      "id": "FF-HOME-MERGE-006",
+      "module": "首页",
+      "scenario": "两种入口缺悬浮权限均拦截",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "悬浮权限拒绝；空闲",
+      "steps": "分别点击开始与App图标，取消授权说明",
+      "expected": "均出现真实授权引导，无浮窗/记录/目标启动，不代用户授权",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1 -Suite home_unified -Serial emulator-5556 -AllowTestDataChanges",
+        "scripts/device_unified_timer.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "模拟器自动断言；厂商真机手感不在本项通过范围",
+      "impact_tags": [
+        "首页",
+        "快捷启动",
+        "导航"
+      ]
+    },
+    {
+      "id": "FF-HOME-MERGE-007",
+      "module": "首页",
+      "scenario": "合并后额度管理入口可达",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "三个快捷App；空闲",
+      "steps": "计时页管理，打开每日额度后返回",
+      "expected": "打开对应App额度编辑，未保存不启动计时或写入新方案",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1 -Suite home_unified -Serial emulator-5556 -AllowTestDataChanges",
+        "scripts/device_unified_timer.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "模拟器自动断言；厂商真机手感不在本项通过范围",
+      "impact_tags": [
+        "首页",
+        "快捷启动",
+        "导航"
+      ]
+    },
+    {
+      "id": "FF-SUITE-HOME_UNIFIED",
+      "module": "首页",
+      "scenario": "统一计时页面实际启动与迁移（套件汇总）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；无用户固定入口/组件；允许测试夹具",
+      "steps": "./scripts/test-device.ps1 -Suite home_unified -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "passedSuites明确包含本套件；无FATAL；源码/APK未变且数据还原。仅证明脚本执行断言，不证明真机听感/触感或全部视觉",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器",
+        "真机"
+      ],
+      "recommended_path": "现有设备脚本/ADB",
+      "entry_points": [
+        "scripts/test-device.ps1",
+        "scripts/device_regression.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "首页"
+      ]
     }
   ],
   "junit_classes": {
@@ -4953,6 +5206,16 @@
     "preset_c4_extensions": {
       "normalExtensionSnapshotStable": "FF-PRESET-C4-EXTEND-001",
       "c4OvertimeNoExtension": "FF-PRESET-C4-EXTEND-002"
+    },
+    "home_unified": {
+      "twoPagesOnly": "FF-HOME-001",
+      "legacyMigrationVerified": "FF-HOME-MERGE-001",
+      "sharedCurrentConfiguration": "FF-HOME-MERGE-002",
+      "rapidCrossEntrySingleSession": "FF-HOME-MERGE-003",
+      "customValueRetained": "FF-HOME-MERGE-004",
+      "missingAppNoRecordAndCanRetry": "FF-HOME-MERGE-005",
+      "permissionsGuardBothEntries": "FF-HOME-MERGE-006",
+      "quotaManagementReachable": "FF-HOME-MERGE-007"
     }
   }
 }

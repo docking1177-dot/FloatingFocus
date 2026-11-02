@@ -83,7 +83,7 @@ def onboarding(d):
         assert not d.overlay()
         d.tap('稍后')
         d.stop(); d.start()
-        assert any(n.get('text') == '常规计时' for n in d.dump().iter('node'))
+        assert any(n.get('content-desc') == '首页入口 计时' for n in d.dump().iter('node'))
         # Independent fresh-incomplete fixture, to verify a successful grant does not itself complete the tutorial.
         d.stop(); d.write_prefs('onboarding', dict(completed=False)); d.start(); page(1)
         d.tap('跳过'); page(4)
@@ -147,7 +147,7 @@ def onboarding(d):
         d.stop()
         d.shell('run-as', PACKAGE, 'rm', 'shared_prefs/onboarding.xml')
         d.start()
-        assert completed() and any(n.get('text') == '常规计时' for n in d.dump().iter('node'))
+        assert completed() and any(n.get('content-desc') == '首页入口 计时' for n in d.dump().iter('node'))
         assert functional_data() == before
         activity_log = d.shell('logcat', '-d', '-s', 'ActivityManager:E')
         (d.output / 'onboarding-activity-manager.txt').write_text(activity_log, encoding='utf-8')

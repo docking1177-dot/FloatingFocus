@@ -70,9 +70,10 @@ def home_swipe(d):
     d.stop(); d.write_prefs('timer_presets',{'items':json.dumps([dict(sample,id='swipe-'+str(i),name='Swipe '+str(i)) for i in range(21)])}); d.start()
     def selected(label):
         assert d.home_tab_node(label).get('selected')=='true', 'Wrong selected page: '+label
-        expected={'计时':'常规计时','预设':'我的预设','App':'打开 App 并计时'}
+        expected={'计时':'倒计时','预设':'我的预设'}
         seen=texts(d)
         assert all(h not in seen for key,h in expected.items() if key!=label), 'Other page exposed as visible'
+        assert not any(n.get('content-desc')=='首页入口 App' for n in d.dump().iter('node')), 'Legacy App tab remains'
     def swipe(left=True):
         a,b=(.85,.15) if left else (.15,.85)
         d.shell('input','swipe',int(d.width*a),int(d.height*.65),int(d.width*b),int(d.height*.65),350); time.sleep(.4)
@@ -81,20 +82,21 @@ def home_swipe(d):
     tree=d.dump()
     before=[(n.get('content-desc'),d.bounds(n)) for n in tree.iter('node') if n.get('content-desc','').startswith('启动预设 ') and d.bounds(n)[3]>d.bounds(n)[1]]
     assert before and before[0][0]!='启动预设 Swipe 0', 'Preset list did not scroll'
-    swipe(); selected('App'); assert '当前配置：倒计时 · 10 分钟' in texts(d)
-    swipe(False); selected('预设')
+    swipe(); selected('预设')  # Last page has no phantom third entrance.
+    swipe(False); selected('计时')
+    swipe(); selected('预设')
     after=[(n.get('content-desc'),d.bounds(n)) for n in d.dump().iter('node') if n.get('content-desc','').startswith('启动预设 ') and d.bounds(n)[3]>d.bounds(n)[1]]
     assert before==after, 'Swipe discarded preset scroll'
     swipe(False); selected('计时')
-    a=d.bounds(d.home_tab_node('App')); b=d.bounds(d.home_tab_node('计时'))
+    a=d.bounds(d.home_tab_node('预设')); b=d.bounds(d.home_tab_node('计时'))
     print('Home swipe reorder points:',a,b,flush=True)
     d.shell('input','draganddrop',(a[0]+a[2])//2,(a[1]+a[3])//2,(b[0]+b[2])//2,(b[1]+b[3])//2,700); time.sleep(.4)
     saved=ET.fromstring(d.adb('shell','run-as',PACKAGE,'cat','shared_prefs/home_navigation.xml')).find("string[@name='order']").text
-    assert saved=='apps,timer,presets', ('Reorder destination',saved,a,b)
-    selected('计时'); swipe(); selected('预设')
+    assert saved=='presets,timer', ('Reorder destination',saved,a,b)
+    selected('计时'); swipe(False); selected('预设')
     d.tap('设置'); d.shell('input','keyevent','KEYCODE_BACK'); selected('预设')
     d.shot('home-swipe-reordered-presets')
-    d.stop(); d.start(); selected('App')
+    d.stop(); d.start(); selected('预设')
     d.shot('home-swipe-cold-first-entry')
     return dict(realSwipesAndClickSync=True,customOrderRespected=True,scrollAndSelectionRetained=True,
                 verticalScrollDoesNotSwitch=True,coldFirstEntry=True)

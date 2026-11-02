@@ -5237,5 +5237,636 @@
     "sha256": "b9870796c7e2a7cbd0cbe32eafb6748db4c55eb895e736b43b064b6ce16dc775",
     "note": "JUnit原始类/方法计数已导入，身份未核验",
     "batch_id": "JUNIT-testReleaseUnitTest-TimerWidgetTest-b9870796c7e2"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261102-165035-119.json@9c32c8ffa79f0798648879fc02f48531e67feb1fe192606e68b70acf930a3647",
+    "location": ".tools/checks/check-full-debug-20261102-165035-119.json",
+    "sha256": "9c32c8ffa79f0798648879fc02f48531e67feb1fe192606e68b70acf930a3647",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261102-165035-119-9c32c8ffa79f"
+  },
+  {
+    "id": ".tools/checks/check-full-debug-20261102-165942-925.json@821d88200655fa4e8a2d42a4a6631326d74a7252cb7818fcb7af393ce5a29342",
+    "location": ".tools/checks/check-full-debug-20261102-165942-925.json",
+    "sha256": "821d88200655fa4e8a2d42a4a6631326d74a7252cb7818fcb7af393ce5a29342",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-debug-20261102-165942-925-821d88200655"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261102-165308-074.json@ecd7d5c29ae9cc36b3ad1241cb9e1815692df5140efbbf0e15f29440b1794d4a",
+    "location": ".tools/checks/check-full-release-20261102-165308-074.json",
+    "sha256": "ecd7d5c29ae9cc36b3ad1241cb9e1815692df5140efbbf0e15f29440b1794d4a",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261102-165308-074-ecd7d5c29ae9"
+  },
+  {
+    "id": ".tools/checks/check-full-release-20261102-170201-829.json@4f89d3f56fa1c4de636d7f448de4dc3efb25b5f9bc8491d9accb63ded065db38",
+    "location": ".tools/checks/check-full-release-20261102-170201-829.json",
+    "sha256": "4f89d3f56fa1c4de636d7f448de4dc3efb25b5f9bc8491d9accb63ded065db38",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-full-release-20261102-170201-829-4f89d3f56fa1"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261102-164124-889.json@f1e728755261170069e1f6ac0f92f7852816340e55daaf3e1cf843abd4214c71",
+    "location": ".tools/checks/check-unit-debug-20261102-164124-889.json",
+    "sha256": "f1e728755261170069e1f6ac0f92f7852816340e55daaf3e1cf843abd4214c71",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261102-164124-889-f1e728755261"
+  },
+  {
+    "id": ".tools/checks/check-unit-debug-20261102-164455-149.json@b456894fe637d3d1e9bc7a84a68f0ba1db91e80877d4d24654b4995f7cc0769d",
+    "location": ".tools/checks/check-unit-debug-20261102-164455-149.json",
+    "sha256": "b456894fe637d3d1e9bc7a84a68f0ba1db91e80877d4d24654b4995f7cc0769d",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "CHECK-checks-check-unit-debug-20261102-164455-149-b456894fe637"
+  },
+  {
+    "id": ".tools/checks/latest.json@4f89d3f56fa1c4de636d7f448de4dc3efb25b5f9bc8491d9accb63ded065db38",
+    "location": ".tools/checks/latest.json",
+    "sha256": "4f89d3f56fa1c4de636d7f448de4dc3efb25b5f9bc8491d9accb63ded065db38",
+    "note": "latest指针，不重复导入"
+  },
+  {
+    "id": ".tools/device-checks/20261102-165242/results.json@96063e6e1e2771a38466cb9d33ee44a71982e03a10ffa6e104fbea19d06e3072",
+    "location": ".tools/device-checks/20261102-165242/results.json",
+    "sha256": "96063e6e1e2771a38466cb9d33ee44a71982e03a10ffa6e104fbea19d06e3072",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261102-165242-results-96063e6e1e27"
+  },
+  {
+    "id": ".tools/device-checks/20261102-170202/results.json@8b76f2438f8251a3291d187a898f382a900f84f0377f485611a9c5fe05f2048e",
+    "location": ".tools/device-checks/20261102-170202/results.json",
+    "sha256": "8b76f2438f8251a3291d187a898f382a900f84f0377f485611a9c5fe05f2048e",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261102-170202-results-8b76f2438f82"
+  },
+  {
+    "id": ".tools/device-checks/20261102-170915/results.json@a77199c68364c1bc823c522af03ca8d5d7975012692bc42f49be345e2b97afda",
+    "location": ".tools/device-checks/20261102-170915/results.json",
+    "sha256": "a77199c68364c1bc823c522af03ca8d5d7975012692bc42f49be345e2b97afda",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261102-170915-results-a77199c68364"
+  },
+  {
+    "id": ".tools/device-checks/20261102-171508/results.json@3dff800c2fc4aee5d7eddfc2de174ad3914a0fc39f5461bea2c6fcd21608a5a5",
+    "location": ".tools/device-checks/20261102-171508/results.json",
+    "sha256": "3dff800c2fc4aee5d7eddfc2de174ad3914a0fc39f5461bea2c6fcd21608a5a5",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261102-171508-results-3dff800c2fc4"
+  },
+  {
+    "id": ".tools/device-checks/20261102-171634/results.json@42d7f7030cb2aaf3d3da7950ed44baf6b67fc7e54478ca9fce43f7c93def16da",
+    "location": ".tools/device-checks/20261102-171634/results.json",
+    "sha256": "42d7f7030cb2aaf3d3da7950ed44baf6b67fc7e54478ca9fce43f7c93def16da",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261102-171634-results-42d7f7030cb2"
+  },
+  {
+    "id": ".tools/device-checks/20261102-172036/results.json@25cecb3ce55abe4d85aff3f30d55b5866b34b833256084bf150375aad75537b6",
+    "location": ".tools/device-checks/20261102-172036/results.json",
+    "sha256": "25cecb3ce55abe4d85aff3f30d55b5866b34b833256084bf150375aad75537b6",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261102-172036-results-25cecb3ce55a"
+  },
+  {
+    "id": ".tools/device-checks/20261102-172453/results.json@ae45aff55bf88aca3b083354ecbaf578068eae0a0b4d2684653804b8014a81e5",
+    "location": ".tools/device-checks/20261102-172453/results.json",
+    "sha256": "ae45aff55bf88aca3b083354ecbaf578068eae0a0b4d2684653804b8014a81e5",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261102-172453-results-ae45aff55bf8"
+  },
+  {
+    "id": ".tools/device-checks/20261102-172827/results.json@d431f1c7675578d7fa97c9c5299fedb7996aefcabb7f258e808328391a2c5102",
+    "location": ".tools/device-checks/20261102-172827/results.json",
+    "sha256": "d431f1c7675578d7fa97c9c5299fedb7996aefcabb7f258e808328391a2c5102",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261102-172827-results-d431f1c76755"
+  },
+  {
+    "id": ".tools/device-checks/20261102-173143/results.json@d1b9f5336a207abcdfaa528aa79a094d21b4626f0b7f569310c42be1b7dc59d4",
+    "location": ".tools/device-checks/20261102-173143/results.json",
+    "sha256": "d1b9f5336a207abcdfaa528aa79a094d21b4626f0b7f569310c42be1b7dc59d4",
+    "note": "已导入，保持原证据粒度",
+    "batch_id": "DEVICE-20261102-173143-results-d1b9f5336a20"
+  },
+  {
+    "id": "docs/validation/20261102-unified-timer.json@0ab6d7996c7a5ff69d79e2d540b4ab87b9db2725a09479afe18759fb8baa82ce",
+    "location": "docs/validation/20261102-unified-timer.json",
+    "sha256": "0ab6d7996c7a5ff69d79e2d540b4ab87b9db2725a09479afe18759fb8baa82ce",
+    "note": "旧schema/交付汇总，仅索引原声明；不把引用结果重复计为新执行",
+    "date": "2026-11-02",
+    "source_fields": {},
+    "declared_scope": []
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.AutoTimerEngineTest.xml@9b1bb394fec3f440b2dcbf8144aeecabcce43b1998d369498b15fef531c627cc",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.AutoTimerEngineTest.xml",
+    "sha256": "9b1bb394fec3f440b2dcbf8144aeecabcce43b1998d369498b15fef531c627cc",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-AutoTimerEngineTest-9b1bb394fec3"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.C4GeometryTest.xml@4d14523848426b42b8bf6f4b8db3cda2bff079d57f09fea1a6cf2ec2e34e9432",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.C4GeometryTest.xml",
+    "sha256": "4d14523848426b42b8bf6f4b8db3cda2bff079d57f09fea1a6cf2ec2e34e9432",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-C4GeometryTest-4d1452384842"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.C4ModeTest.xml@62133163d884eb4fb77fbb958fcd628d65c22c0211e28326dacb2c131ba29bfd",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.C4ModeTest.xml",
+    "sha256": "62133163d884eb4fb77fbb958fcd628d65c22c0211e28326dacb2c131ba29bfd",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-C4ModeTest-62133163d884"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.C4OvertimeControlsTest.xml@58468241ff803db34f954658ec236446fbb24c3b2b3358fd3b954fe812c0696f",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.C4OvertimeControlsTest.xml",
+    "sha256": "58468241ff803db34f954658ec236446fbb24c3b2b3358fd3b954fe812c0696f",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-C4OvertimeControlsTest-58468241ff80"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.C4TimelineTest.xml@d56632e94c4290fbc86b443989d0110936389f8a22209ef1e2a45b94d7e5eaee",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.C4TimelineTest.xml",
+    "sha256": "d56632e94c4290fbc86b443989d0110936389f8a22209ef1e2a45b94d7e5eaee",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-C4TimelineTest-d56632e94c42"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.CompletionReminderTest.xml@3bc183e0bfc07d208be65c977e87a1db18cc53d95c4ff29e022cbd32f3db48ab",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.CompletionReminderTest.xml",
+    "sha256": "3bc183e0bfc07d208be65c977e87a1db18cc53d95c4ff29e022cbd32f3db48ab",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-CompletionReminderTest-3bc183e0bfc0"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.CountdownTest.xml@a6242221a36a874b35ab6f06541df998b19959128189e810d7beac0232d7a3d3",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.CountdownTest.xml",
+    "sha256": "a6242221a36a874b35ab6f06541df998b19959128189e810d7beac0232d7a3d3",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-CountdownTest-a6242221a36a"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.DailyAppQuotaTest.xml@89cd5a9b434d82de33a91f376eb739073e407180252e5c04bb1e5991edb4fbcd",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.DailyAppQuotaTest.xml",
+    "sha256": "89cd5a9b434d82de33a91f376eb739073e407180252e5c04bb1e5991edb4fbcd",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-DailyAppQuotaTest-89cd5a9b434d"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.FocusThemeTest.xml@dc8af044287137185b4923f6d375b7c592f7fedd4a6cd1f02b8c05c37ace7b47",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.FocusThemeTest.xml",
+    "sha256": "dc8af044287137185b4923f6d375b7c592f7fedd4a6cd1f02b8c05c37ace7b47",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-FocusThemeTest-dc8af0442871"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.HistoryStatisticsTest.xml@f16db57918c2529943c3246d7c42dd1bee53efda5e00908690236c95c91a6cfd",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.HistoryStatisticsTest.xml",
+    "sha256": "f16db57918c2529943c3246d7c42dd1bee53efda5e00908690236c95c91a6cfd",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-HistoryStatisticsTest-f16db57918c2"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.HomeNavigationTest.xml@5b866c1932b4444d0d94968e71fa761ade574b76aeecb748500ded53cf8d2f7e",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.HomeNavigationTest.xml",
+    "sha256": "5b866c1932b4444d0d94968e71fa761ade574b76aeecb748500ded53cf8d2f7e",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-HomeNavigationTest-5b866c1932b4"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.LabSimulationTest.xml@be19e4c7572d4f8b3bbfb27402e4083f61408f2200584b5711e11b671ed98e71",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.LabSimulationTest.xml",
+    "sha256": "be19e4c7572d4f8b3bbfb27402e4083f61408f2200584b5711e11b671ed98e71",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-LabSimulationTest-be19e4c7572d"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.OverlayDragGestureTest.xml@f170e67581a360db70054888de38c359f1cd1d66cc41e89b0a24ebf74867e91d",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.OverlayDragGestureTest.xml",
+    "sha256": "f170e67581a360db70054888de38c359f1cd1d66cc41e89b0a24ebf74867e91d",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-OverlayDragGestureTest-f170e67581a3"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.OverlayGeometryTest.xml@f8d0bc498336b6bce67b5f67472224174f43ee42252cffc718d1e7b38aab7cb0",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.OverlayGeometryTest.xml",
+    "sha256": "f8d0bc498336b6bce67b5f67472224174f43ee42252cffc718d1e7b38aab7cb0",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-OverlayGeometryTest-f8d0bc498336"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.OverlayPositionTest.xml@5bd72395b64b6fb68376f7158939f33846c19f5ed42d54f3d46d26925dfdee92",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.OverlayPositionTest.xml",
+    "sha256": "5bd72395b64b6fb68376f7158939f33846c19f5ed42d54f3d46d26925dfdee92",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-OverlayPositionTest-5bd72395b64b"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.OvertimeReadoutTest.xml@43162e920571c270718f85f456448634d95b8ef6775dc51a09ce9731404e5289",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.OvertimeReadoutTest.xml",
+    "sha256": "43162e920571c270718f85f456448634d95b8ef6775dc51a09ce9731404e5289",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-OvertimeReadoutTest-43162e920571"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.PresetC4Test.xml@0132e6509466ec13dbd76b21ec75e34ce296da387c178de076b155018f4f254a",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.PresetC4Test.xml",
+    "sha256": "0132e6509466ec13dbd76b21ec75e34ce296da387c178de076b155018f4f254a",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-PresetC4Test-0132e6509466"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.PresetExtensionTest.xml@6bd0483304ae5627bd4045ac64d6efb6bb59acd6ababb7d9d944108809cf0d05",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.PresetExtensionTest.xml",
+    "sha256": "6bd0483304ae5627bd4045ac64d6efb6bb59acd6ababb7d9d944108809cf0d05",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-PresetExtensionTest-6bd0483304ae"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.PresetPinFeedbackTest.xml@0f1205f5ff9b327658b45ed2146365716c9a3210a71778d1d6888996b68c330f",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.PresetPinFeedbackTest.xml",
+    "sha256": "0f1205f5ff9b327658b45ed2146365716c9a3210a71778d1d6888996b68c330f",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-PresetPinFeedbackTest-0f1205f5ff9b"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.PresetQuotaTest.xml@e0ca9dc3bc688c95a049ef5dc566ee6021ad8d8ef67a57cca6be74f455149da5",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.PresetQuotaTest.xml",
+    "sha256": "e0ca9dc3bc688c95a049ef5dc566ee6021ad8d8ef67a57cca6be74f455149da5",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-PresetQuotaTest-e0ca9dc3bc68"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.PresetShortcutPolicyTest.xml@78fc2be2c38f911defa8bd599218e87c63ead8614311a6b91a1593229d355398",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.PresetShortcutPolicyTest.xml",
+    "sha256": "78fc2be2c38f911defa8bd599218e87c63ead8614311a6b91a1593229d355398",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-PresetShortcutPolicyTest-78fc2be2c38f"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.QuickDurationsTest.xml@28cc7dd73bd35cec2404c0679349964afe6fbfd725fcdbe4e5900a7007960b4f",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.QuickDurationsTest.xml",
+    "sha256": "28cc7dd73bd35cec2404c0679349964afe6fbfd725fcdbe4e5900a7007960b4f",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-QuickDurationsTest-28cc7dd73bd3"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.QuickLaunchTargetsTest.xml@33cdc7b54172170e41c19d691257f0d10ab54e5d66a3cb93efebb7910a02c0ad",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.QuickLaunchTargetsTest.xml",
+    "sha256": "33cdc7b54172170e41c19d691257f0d10ab54e5d66a3cb93efebb7910a02c0ad",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-QuickLaunchTargetsTest-33cdc7b54172"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.QuotaPersistenceTest.xml@9335ece28327b224773a1c43ff5eaf7a8a1152d22aa675fba6dc4dae0b564ab0",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.QuotaPersistenceTest.xml",
+    "sha256": "9335ece28327b224773a1c43ff5eaf7a8a1152d22aa675fba6dc4dae0b564ab0",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-QuotaPersistenceTest-9335ece28327"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.ReminderHighlightTest.xml@1f0fbaee0152cc468ce998611ab01828a2328f861f9fa8ecd345def2645610db",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.ReminderHighlightTest.xml",
+    "sha256": "1f0fbaee0152cc468ce998611ab01828a2328f861f9fa8ecd345def2645610db",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-ReminderHighlightTest-1f0fbaee0152"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.ReminderPresenterTest.xml@3f6bd679cedd22ebcce72727b2c82810cc6105d6526fae742213c74b21c711df",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.ReminderPresenterTest.xml",
+    "sha256": "3f6bd679cedd22ebcce72727b2c82810cc6105d6526fae742213c74b21c711df",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-ReminderPresenterTest-3f6bd679cedd"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.ReminderSettingsTest.xml@cb07de2e3608c33e40708cb6be7c588ead56489ec56af1f50171c1fb524c5e03",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.ReminderSettingsTest.xml",
+    "sha256": "cb07de2e3608c33e40708cb6be7c588ead56489ec56af1f50171c1fb524c5e03",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-ReminderSettingsTest-cb07de2e3608"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.ReminderStrategyTest.xml@07bae8f16bd959a3e22d010c728b11c2b4c3b3d5ba80a5727162731363d85474",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.ReminderStrategyTest.xml",
+    "sha256": "07bae8f16bd959a3e22d010c728b11c2b4c3b3d5ba80a5727162731363d85474",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-ReminderStrategyTest-07bae8f16bd9"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.StartAdmissionObservableTest.xml@a049f165981ffc57bffd46844ab874374d71f317e234a2cb005f6e6e9a2fc73c",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.StartAdmissionObservableTest.xml",
+    "sha256": "a049f165981ffc57bffd46844ab874374d71f317e234a2cb005f6e6e9a2fc73c",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-StartAdmissionObservableTest-a049f165981f"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.StrategyEditingTest.xml@ba9a965b7b3ff9883e8239318f1ef3e76af2283fc8eb0d1b90e0ed927eadf735",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.StrategyEditingTest.xml",
+    "sha256": "ba9a965b7b3ff9883e8239318f1ef3e76af2283fc8eb0d1b90e0ed927eadf735",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-StrategyEditingTest-ba9a965b7b3f"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerHistoryTest.xml@6021af805cc640d5732193728f3e9fae193960a0e21c42aa2ab46e714df03ccb",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerHistoryTest.xml",
+    "sha256": "6021af805cc640d5732193728f3e9fae193960a0e21c42aa2ab46e714df03ccb",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-TimerHistoryTest-6021af805cc6"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerPresetTest.xml@3b51a3a4ae7537798321d254ed4bb7de496066824ef4923d04503bbf575f24af",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerPresetTest.xml",
+    "sha256": "3b51a3a4ae7537798321d254ed4bb7de496066824ef4923d04503bbf575f24af",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-TimerPresetTest-3b51a3a4ae75"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerStartAdmissionTest.xml@5e2e9adccedf8aa87724c42fa0ed64d6dfbc01d1fbfc5f1e03307f9fd766d6e7",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerStartAdmissionTest.xml",
+    "sha256": "5e2e9adccedf8aa87724c42fa0ed64d6dfbc01d1fbfc5f1e03307f9fd766d6e7",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-TimerStartAdmissionTest-5e2e9adccedf"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerStartupDefaultsTest.xml@8f2b12c0d64beff5fa1b26e92427072fb6f30cab21e3cae0ec7980fba878c733",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerStartupDefaultsTest.xml",
+    "sha256": "8f2b12c0d64beff5fa1b26e92427072fb6f30cab21e3cae0ec7980fba878c733",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-TimerStartupDefaultsTest-8f2b12c0d64b"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerTaskPolicyTest.xml@c8a95e4dc8b520ae73c05439f608a9b64e6c9919fbbdd5bd2b72312e505df9e8",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerTaskPolicyTest.xml",
+    "sha256": "c8a95e4dc8b520ae73c05439f608a9b64e6c9919fbbdd5bd2b72312e505df9e8",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-TimerTaskPolicyTest-c8a95e4dc8b5"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerTileModelTest.xml@125086a477f5dc2243d8ba363780eb6232073c1755df7fb08a6f429c8d24fc2c",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerTileModelTest.xml",
+    "sha256": "125086a477f5dc2243d8ba363780eb6232073c1755df7fb08a6f429c8d24fc2c",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-TimerTileModelTest-125086a477f5"
+  },
+  {
+    "id": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerWidgetTest.xml@5b630b62dc412bb3601c6ff0650a9f51aa7e32c586681bcdc08566e59fecc6b8",
+    "location": "app/build/test-results/testDebugUnitTest/TEST-app.floatingfocus.TimerWidgetTest.xml",
+    "sha256": "5b630b62dc412bb3601c6ff0650a9f51aa7e32c586681bcdc08566e59fecc6b8",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testDebugUnitTest-TimerWidgetTest-5b630b62dc41"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.AutoTimerEngineTest.xml@79295f6bc64c648d70654eab5ac117cd13db7aecbff4e582b75afd5eea0c9322",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.AutoTimerEngineTest.xml",
+    "sha256": "79295f6bc64c648d70654eab5ac117cd13db7aecbff4e582b75afd5eea0c9322",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-AutoTimerEngineTest-79295f6bc64c"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.C4GeometryTest.xml@793b1c5e132398ef68c7a4dc326eb23caf26291cf6b703ffa8e30ef320d7f5a3",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.C4GeometryTest.xml",
+    "sha256": "793b1c5e132398ef68c7a4dc326eb23caf26291cf6b703ffa8e30ef320d7f5a3",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-C4GeometryTest-793b1c5e1323"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.C4ModeTest.xml@10bf185a673274a3b453c4ddf171c6e4de7fc4fc1bc61d8ed0e9627ff55dd4cc",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.C4ModeTest.xml",
+    "sha256": "10bf185a673274a3b453c4ddf171c6e4de7fc4fc1bc61d8ed0e9627ff55dd4cc",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-C4ModeTest-10bf185a6732"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.C4OvertimeControlsTest.xml@cb265324dd94c5bd0f6e12b7790b5071775dbdabb6fe6768c90ba9b2d4e48e7c",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.C4OvertimeControlsTest.xml",
+    "sha256": "cb265324dd94c5bd0f6e12b7790b5071775dbdabb6fe6768c90ba9b2d4e48e7c",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-C4OvertimeControlsTest-cb265324dd94"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.C4TimelineTest.xml@0751f222fe9eedcd38e9df9c24e807c43d7a2763b118383c137814e243d7b035",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.C4TimelineTest.xml",
+    "sha256": "0751f222fe9eedcd38e9df9c24e807c43d7a2763b118383c137814e243d7b035",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-C4TimelineTest-0751f222fe9e"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.CompletionReminderTest.xml@167f84350eebcfd93129d539fca22de61163e6acda3f4658661b9d3e308fe353",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.CompletionReminderTest.xml",
+    "sha256": "167f84350eebcfd93129d539fca22de61163e6acda3f4658661b9d3e308fe353",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-CompletionReminderTest-167f84350eeb"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.CountdownTest.xml@d335ca09ef1d526fee6570a1be931a018a03de5ed4b6f347e6ae4d8efc8c441c",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.CountdownTest.xml",
+    "sha256": "d335ca09ef1d526fee6570a1be931a018a03de5ed4b6f347e6ae4d8efc8c441c",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-CountdownTest-d335ca09ef1d"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.DailyAppQuotaTest.xml@b5dd2d200ca3fbe90523593997752bf111a2291145e552f77b743fd88e39156d",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.DailyAppQuotaTest.xml",
+    "sha256": "b5dd2d200ca3fbe90523593997752bf111a2291145e552f77b743fd88e39156d",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-DailyAppQuotaTest-b5dd2d200ca3"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.FocusThemeTest.xml@2b876334a037b0c13f8ac9b7f39b4efba4a50d51d2b5d3dec88db3332374d94f",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.FocusThemeTest.xml",
+    "sha256": "2b876334a037b0c13f8ac9b7f39b4efba4a50d51d2b5d3dec88db3332374d94f",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-FocusThemeTest-2b876334a037"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.HistoryStatisticsTest.xml@37a3f3cddf43b3c9344295112a3dd3e3567fc699a927e2188cb4bb7fc32b14ff",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.HistoryStatisticsTest.xml",
+    "sha256": "37a3f3cddf43b3c9344295112a3dd3e3567fc699a927e2188cb4bb7fc32b14ff",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-HistoryStatisticsTest-37a3f3cddf43"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.HomeNavigationTest.xml@d6ecf2742d6a8f1f8030e8798538f2b5cd587e779f86e592e5419bb9daa99460",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.HomeNavigationTest.xml",
+    "sha256": "d6ecf2742d6a8f1f8030e8798538f2b5cd587e779f86e592e5419bb9daa99460",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-HomeNavigationTest-d6ecf2742d6a"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.OverlayDragGestureTest.xml@31030073abd2e7bd1b42591a0343abec511c2cd5c4dd43817bf4dda2e414a1aa",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.OverlayDragGestureTest.xml",
+    "sha256": "31030073abd2e7bd1b42591a0343abec511c2cd5c4dd43817bf4dda2e414a1aa",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-OverlayDragGestureTest-31030073abd2"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.OverlayGeometryTest.xml@d1becd8aa9eba68feed31ee0d1d1564485a419f6ed7c69af081604df9b474987",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.OverlayGeometryTest.xml",
+    "sha256": "d1becd8aa9eba68feed31ee0d1d1564485a419f6ed7c69af081604df9b474987",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-OverlayGeometryTest-d1becd8aa9eb"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.OverlayPositionTest.xml@4408808dce3b1d88bd7ef70b4a74ad0e9d93b3b46c6fab777923cf8314c6b29f",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.OverlayPositionTest.xml",
+    "sha256": "4408808dce3b1d88bd7ef70b4a74ad0e9d93b3b46c6fab777923cf8314c6b29f",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-OverlayPositionTest-4408808dce3b"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.OvertimeReadoutTest.xml@63416cf49578bb5e8e8d1a14e75c04f6a87e93cef30497d9d8d927836b4ff7f6",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.OvertimeReadoutTest.xml",
+    "sha256": "63416cf49578bb5e8e8d1a14e75c04f6a87e93cef30497d9d8d927836b4ff7f6",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-OvertimeReadoutTest-63416cf49578"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.PresetC4Test.xml@55a0dd2509aa8dc021a83210df04b703bd71834cecc1671bf081ba79c8f14744",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.PresetC4Test.xml",
+    "sha256": "55a0dd2509aa8dc021a83210df04b703bd71834cecc1671bf081ba79c8f14744",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-PresetC4Test-55a0dd2509aa"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.PresetExtensionTest.xml@2c723efbc73375a9ee4023908ee654107bc4d6a169b8e01a9d5f5dca4e20d32a",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.PresetExtensionTest.xml",
+    "sha256": "2c723efbc73375a9ee4023908ee654107bc4d6a169b8e01a9d5f5dca4e20d32a",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-PresetExtensionTest-2c723efbc733"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.PresetPinFeedbackTest.xml@a74a6744bd71e0cf4e3cae98f53782e305288e9ec60740f2f00a5db6d8ad5b28",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.PresetPinFeedbackTest.xml",
+    "sha256": "a74a6744bd71e0cf4e3cae98f53782e305288e9ec60740f2f00a5db6d8ad5b28",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-PresetPinFeedbackTest-a74a6744bd71"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.PresetQuotaTest.xml@e863032379befc11e22b7f53ff1d75d2ad255b88cca2b7e7d22a96a75c5bd7a1",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.PresetQuotaTest.xml",
+    "sha256": "e863032379befc11e22b7f53ff1d75d2ad255b88cca2b7e7d22a96a75c5bd7a1",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-PresetQuotaTest-e863032379be"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.PresetShortcutPolicyTest.xml@082f79be9762512552f4f139500f3f485321dab7cfc597b39951d31d346ba9d8",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.PresetShortcutPolicyTest.xml",
+    "sha256": "082f79be9762512552f4f139500f3f485321dab7cfc597b39951d31d346ba9d8",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-PresetShortcutPolicyTest-082f79be9762"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.QuickDurationsTest.xml@1fac81d3045d1a856256a23c066cfbce1d47f80435dc632a2c345c1adc865fe4",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.QuickDurationsTest.xml",
+    "sha256": "1fac81d3045d1a856256a23c066cfbce1d47f80435dc632a2c345c1adc865fe4",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-QuickDurationsTest-1fac81d3045d"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.QuickLaunchTargetsTest.xml@706eccd96bde39a16960e19a1e401d1ab0542b665dcaf8908f66a13131307034",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.QuickLaunchTargetsTest.xml",
+    "sha256": "706eccd96bde39a16960e19a1e401d1ab0542b665dcaf8908f66a13131307034",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-QuickLaunchTargetsTest-706eccd96bde"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.QuotaPersistenceTest.xml@15533c145565e463cc804572ae636ebf15196f6f1c371cbc799461a0f3593a63",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.QuotaPersistenceTest.xml",
+    "sha256": "15533c145565e463cc804572ae636ebf15196f6f1c371cbc799461a0f3593a63",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-QuotaPersistenceTest-15533c145565"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.ReminderHighlightTest.xml@a6b2a85104eb95793e16316a7cda640e126cc3c8e93d67b7536a75fc3e0beb29",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.ReminderHighlightTest.xml",
+    "sha256": "a6b2a85104eb95793e16316a7cda640e126cc3c8e93d67b7536a75fc3e0beb29",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-ReminderHighlightTest-a6b2a85104eb"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.ReminderPresenterTest.xml@aee0f033a100c967d5ebe949486f0c1c435528659be3c70578d7fc63ba28f5da",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.ReminderPresenterTest.xml",
+    "sha256": "aee0f033a100c967d5ebe949486f0c1c435528659be3c70578d7fc63ba28f5da",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-ReminderPresenterTest-aee0f033a100"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.ReminderSettingsTest.xml@0d7b32d724e8c3a2368644a9e5e7fd140447b53594612bcdab3d98f6fda0ea7f",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.ReminderSettingsTest.xml",
+    "sha256": "0d7b32d724e8c3a2368644a9e5e7fd140447b53594612bcdab3d98f6fda0ea7f",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-ReminderSettingsTest-0d7b32d724e8"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.ReminderStrategyTest.xml@d7293c2ed069ad326c1ae551cfb78b89fc3d8c43adb227d102b84289b3704b5a",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.ReminderStrategyTest.xml",
+    "sha256": "d7293c2ed069ad326c1ae551cfb78b89fc3d8c43adb227d102b84289b3704b5a",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-ReminderStrategyTest-d7293c2ed069"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.StartAdmissionObservableTest.xml@40a9011e10190c251990267af5b28dbead6fe2d166155238b0b75dd6ffebbab7",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.StartAdmissionObservableTest.xml",
+    "sha256": "40a9011e10190c251990267af5b28dbead6fe2d166155238b0b75dd6ffebbab7",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-StartAdmissionObservableTest-40a9011e1019"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.StrategyEditingTest.xml@4621a7f0e6d221e105f2c08d78a455c32076e203a0e1c28750bbb44212df3c3b",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.StrategyEditingTest.xml",
+    "sha256": "4621a7f0e6d221e105f2c08d78a455c32076e203a0e1c28750bbb44212df3c3b",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-StrategyEditingTest-4621a7f0e6d2"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerHistoryTest.xml@c5cfbd5a166a4eeec1dc8d4ab617d7983e04881e659829bf6ff82eb8512dea50",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerHistoryTest.xml",
+    "sha256": "c5cfbd5a166a4eeec1dc8d4ab617d7983e04881e659829bf6ff82eb8512dea50",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-TimerHistoryTest-c5cfbd5a166a"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerPresetTest.xml@6b6fdebf24a1d50a89cc6167ae93e3a36c9b4fd069f8b5b605652cb1acabe53f",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerPresetTest.xml",
+    "sha256": "6b6fdebf24a1d50a89cc6167ae93e3a36c9b4fd069f8b5b605652cb1acabe53f",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-TimerPresetTest-6b6fdebf24a1"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerStartAdmissionTest.xml@7b1f898ab0e9c03355553e9cbb2da272c280c6cb1a18e461f9538f1f02ea0e37",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerStartAdmissionTest.xml",
+    "sha256": "7b1f898ab0e9c03355553e9cbb2da272c280c6cb1a18e461f9538f1f02ea0e37",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-TimerStartAdmissionTest-7b1f898ab0e9"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerStartupDefaultsTest.xml@f550995c7169946a58b8ed43c02eda64e131f80990a3f87a34f8148a05c1985d",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerStartupDefaultsTest.xml",
+    "sha256": "f550995c7169946a58b8ed43c02eda64e131f80990a3f87a34f8148a05c1985d",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-TimerStartupDefaultsTest-f550995c7169"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerTaskPolicyTest.xml@59a2283d01e55a39c47f0665c0fb6caa19ae297810c313cd738c2b63d0e89cfb",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerTaskPolicyTest.xml",
+    "sha256": "59a2283d01e55a39c47f0665c0fb6caa19ae297810c313cd738c2b63d0e89cfb",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-TimerTaskPolicyTest-59a2283d01e5"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerTileModelTest.xml@2781dcbac34201d8261d2ad5aec564efc6afd08915f879622790fd62091a016a",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerTileModelTest.xml",
+    "sha256": "2781dcbac34201d8261d2ad5aec564efc6afd08915f879622790fd62091a016a",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-TimerTileModelTest-2781dcbac342"
+  },
+  {
+    "id": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerWidgetTest.xml@a41a16f5c96d1bad68b9f3c19252ff66deecc8662223b3304d5fa3abdb32c24f",
+    "location": "app/build/test-results/testReleaseUnitTest/TEST-app.floatingfocus.TimerWidgetTest.xml",
+    "sha256": "a41a16f5c96d1bad68b9f3c19252ff66deecc8662223b3304d5fa3abdb32c24f",
+    "note": "JUnit原始类/方法计数已导入，身份未核验",
+    "batch_id": "JUNIT-testReleaseUnitTest-TimerWidgetTest-a41a16f5c96d"
   }
 ]

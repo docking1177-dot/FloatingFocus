@@ -1,11 +1,11 @@
 # 测试覆盖与证据摘要
 
-目标：FF-20261102-controls-overtime-b601497d。Excel是导出报告；维护源见README。
+目标：FF-20261102-unified-timer-ca57617b。Excel是导出报告；维护源见README。
 
-用例 167；执行记录 1145；批次 693。这些是条目数量，不是功能覆盖率。
+用例 175；执行记录 1279；批次 781。这些是条目数量，不是功能覆盖率。
 
-用例粒度：{'功能场景': 100, '检查汇总': 5, '模型类汇总': 37, '套件汇总': 25}。
-执行原结果：{'通过': 1012, '失败': 133}（跨版本/环境，不相加当成当前通过）。
+用例粒度：{'功能场景': 107, '检查汇总': 5, '模型类汇总': 37, '套件汇总': 26}。
+执行原结果：{'通过': 1143, '失败': 136}（跨版本/环境，不相加当成当前通过）。
 
 本包真机通过记录：0；最小真机待验用例：15。
 
@@ -13,15 +13,37 @@
 
 | 用例 | 环境 | 构建 | 原结果 | 证据粒度 |
 |---|---|---|---|---|
-| FF-SUITE-OVERTIME_PREVIEW | 模拟器 | Debug | 通过 | 套件汇总 |
-| FF-OVERTIME-PREVIEW-001 | 模拟器 | Debug | 通过 | 结构化细项 |
+| FF-GATE-DEVICE | 模拟器 | Debug | 失败 | 汇总 |
+| FF-SUITE-HOME_SWIPE | 模拟器 | Debug | 通过 | 套件汇总 |
+| FF-HOME-SWIPE-003 | 模拟器 | Debug | 通过 | 结构化细项 |
+| FF-HOME-SWIPE-002 | 模拟器 | Debug | 通过 | 结构化细项 |
+| FF-HOME-SWIPE-001 | 模拟器 | Debug | 通过 | 结构化细项 |
 | FF-GATE-DEVICE | 模拟器 | Debug | 通过 | 汇总 |
-| FF-GATE-UNIT | JVM | Debug | 通过 | 汇总 |
-| FF-GATE-LINT | JVM | Debug | 通过 | 汇总 |
-| FF-GATE-BUILD | JVM | Debug | 通过 | 汇总 |
+| FF-SUITE-HOME | 模拟器 | Debug | 通过 | 套件汇总 |
+| FF-HOME-007 | 模拟器 | Debug | 通过 | 结构化细项 |
+| FF-HOME-006 | 模拟器 | Debug | 通过 | 结构化细项 |
+| FF-HOME-005 | 模拟器 | Debug | 通过 | 结构化细项 |
+| FF-HOME-004 | 模拟器 | Debug | 通过 | 结构化细项 |
+| FF-HOME-003 | 模拟器 | Debug | 通过 | 结构化细项 |
+| FF-HOME-002 | 模拟器 | Debug | 通过 | 结构化细项 |
+| FF-HOME-001 | 模拟器 | Debug | 通过 | 结构化细项 |
+| FF-GATE-DEVICE | 模拟器 | Debug | 通过 | 汇总 |
+| FF-SUITE-HOME_UNIFIED | 模拟器 | Debug | 通过 | 套件汇总 |
+| FF-HOME-MERGE-007 | 模拟器 | Debug | 通过 | 结构化细项 |
+| FF-HOME-MERGE-006 | 模拟器 | Debug | 通过 | 结构化细项 |
+| FF-HOME-MERGE-005 | 模拟器 | Debug | 通过 | 结构化细项 |
+| FF-HOME-MERGE-004 | 模拟器 | Debug | 通过 | 结构化细项 |
+| FF-HOME-MERGE-003 | 模拟器 | Debug | 通过 | 结构化细项 |
+| FF-HOME-MERGE-002 | 模拟器 | Debug | 通过 | 结构化细项 |
+| FF-HOME-MERGE-001 | 模拟器 | Debug | 通过 | 结构化细项 |
+| FF-HOME-001 | 模拟器 | Debug | 通过 | 结构化细项 |
+| FF-GATE-DEVICE | 模拟器 | Debug | 通过 | 汇总 |
 | FF-GATE-UNIT | JVM | Release | 通过 | 汇总 |
 | FF-GATE-LINT | JVM | Release | 通过 | 汇总 |
 | FF-GATE-BUILD | JVM | Release | 通过 | 汇总 |
+| FF-GATE-UNIT | JVM | Debug | 通过 | 汇总 |
+| FF-GATE-LINT | JVM | Debug | 通过 | 汇总 |
+| FF-GATE-BUILD | JVM | Debug | 通过 | 汇总 |
 
 ## 各模块尚未取得逐例当前结果的条目
 
@@ -41,7 +63,7 @@
 | 加时 | 4 | 0 | 0 | 0 |
 | 记录 | 2 | 0 | 0 | 0 |
 | 统计导出 | 4 | 0 | 0 | 0 |
-| 首页 | 16 | 0 | 0 | 0 |
+| 首页 | 24 | 20 | 0 | 0 |
 | 权限 | 2 | 0 | 0 | 0 |
 | 预设 | 5 | 0 | 0 | 0 |
 | 预设C4 | 4 | 0 | 0 | 0 |
@@ -52,9 +74,9 @@
 | 外观设置 | 4 | 0 | 0 | 0 |
 | 常用时长 | 4 | 0 | 0 | 0 |
 | 教程 | 2 | 0 | 0 | 0 |
-| 超时读数 | 7 | 2 | 0 | 0 |
+| 超时读数 | 7 | 0 | 0 | 0 |
 | 主题适配 | 4 | 0 | 0 | 0 |
-| 检查门禁 | 5 | 4 | 0 | 0 |
+| 检查门禁 | 5 | 3 | 0 | 0 |
 | 启动互斥 | 2 | 0 | 0 | 0 |
 | 浮窗位置 | 1 | 0 | 0 | 0 |
 

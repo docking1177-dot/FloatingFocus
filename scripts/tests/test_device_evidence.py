@@ -18,14 +18,15 @@ class DeviceEvidenceTests(unittest.TestCase):
         device.home_tab('预设')
         device.tap.assert_called_once_with('首页入口 预设')
         with self.assertRaises(AssertionError):
-            device.home_tab('App')
+            device.home_tab('计时')
         self.assertEqual(2, device.tap.call_count)
 
     def test_unknown_home_tab_never_taps_another_entry(self):
         device = Device('emulator-5554', MagicMock())
         device.tap = Mock()
-        with self.assertRaises(AssertionError):
-            device.home_tab('missing')
+        for label in ('missing', 'App'):
+            with self.assertRaises(AssertionError):
+                device.home_tab(label)
         device.tap.assert_not_called()
 
     def test_home_tab_reads_the_selectable_parent_not_its_descriptive_child(self):
@@ -33,11 +34,11 @@ class DeviceEvidenceTests(unittest.TestCase):
         device.tap = Mock()
         device.dump = Mock(return_value=ET.fromstring('''<hierarchy>
           <node focusable="true" selected="true"><node content-desc="首页入口 预设" selected="false"/></node>
-          <node focusable="true" selected="false"><node content-desc="首页入口 App" selected="false"/></node>
+          <node focusable="true" selected="false"><node content-desc="首页入口 计时" selected="false"/></node>
         </hierarchy>'''))
         device.home_tab('预设')
         with self.assertRaises(AssertionError):
-            device.home_tab('App')
+            device.home_tab('计时')
 
     def test_timer_service_check_ignores_global_historical_anr(self):
         for component in ('app.floatingfocus/.FloatingService', 'app.floatingfocus/app.floatingfocus.FloatingService'):

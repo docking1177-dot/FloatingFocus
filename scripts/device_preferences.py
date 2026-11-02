@@ -112,7 +112,7 @@ def preferences(d):
     d.write_prefs('timer_presets', {'items': json.dumps([preset])})
     d.start()
     d.tap('1:05')
-    for tab, entry in (('计时', '\u5f00\u59cb\u5012\u8ba1\u65f6'), ('预设', '\u542f\u52a8\u9884\u8bbe Conflict'), ('App', '\u6253\u5f00 Gallery \u5e76\u8ba1\u65f6')):
+    for tab, entry in (('计时', '\u5f00\u59cb\u5012\u8ba1\u65f6'), ('预设', '\u542f\u52a8\u9884\u8bbe Conflict'), ('计时', '\u6253\u5f00 Gallery \u5e76\u8ba1\u65f6')):
         d.home_tab(tab)
         d.tap(entry, scroll=True)
         assert d.overlay() is None

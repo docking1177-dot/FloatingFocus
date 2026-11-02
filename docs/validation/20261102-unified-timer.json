@@ -1,0 +1,285 @@
+{
+  "date": "2026-11-02",
+  "local_branch": "codex/system-controls-overtime",
+  "sync_branch": "codex/unified-timer",
+  "baseline": "008276b",
+  "version_changed": false,
+  "merged": false,
+  "release_published": false,
+  "builds": {
+    "Debug": {
+      "path": ".tools/checks/check-full-debug-20261102-165942-925.json",
+      "sha256": "821d88200655fa4e8a2d42a4a6631326d74a7252cb7818fcb7af393ce5a29342",
+      "source": {
+        "commit": "008276bf3ae6d9d05dc18ba7bc0e17562f66ff1f",
+        "fingerprint": "8b73ce55e34a9bad59f073e01418aced54fde68bb010f6bc76c06d964ac5b694",
+        "dirty": true
+      },
+      "apk_sha256": "ca57617bbc0ff956db78c8b57ebfc1e2ad703a0bc12fc51886d67c6f27a23fa8",
+      "tests": 212,
+      "lint_errors": 0,
+      "lint_warnings": 0
+    },
+    "Release": {
+      "path": ".tools/checks/check-full-release-20261102-170201-829.json",
+      "sha256": "4f89d3f56fa1c4de636d7f448de4dc3efb25b5f9bc8491d9accb63ded065db38",
+      "source": {
+        "commit": "008276bf3ae6d9d05dc18ba7bc0e17562f66ff1f",
+        "fingerprint": "8b73ce55e34a9bad59f073e01418aced54fde68bb010f6bc76c06d964ac5b694",
+        "dirty": true
+      },
+      "apk_sha256": "05516b9bd38daeb8da466b128652fd84e8f627db80c7f209d7554a0b86d525fc",
+      "tests": 204,
+      "lint_errors": 0,
+      "lint_warnings": 0
+    }
+  },
+  "device_evidence": [
+    {
+      "path": ".tools/device-checks/20261102-170202/results.json",
+      "sha256": "8b76f2438f8251a3291d187a898f382a900f84f0377f485611a9c5fe05f2048e",
+      "apk_sha256": "ca57617bbc0ff956db78c8b57ebfc1e2ad703a0bc12fc51886d67c6f27a23fa8",
+      "source": {
+        "commit": "008276bf3ae6d9d05dc18ba7bc0e17562f66ff1f",
+        "fingerprint": "8b73ce55e34a9bad59f073e01418aced54fde68bb010f6bc76c06d964ac5b694",
+        "dirty": true
+      },
+      "suites": [
+        "home_unified"
+      ],
+      "details": {
+        "home_unified": {
+          "legacyOrdersMigrated": {
+            "timer,presets,apps": "timer,presets",
+            "timer,apps,presets": "timer,presets",
+            "presets,timer,apps": "presets,timer",
+            "presets,apps,timer": "presets,timer",
+            "apps,timer,presets": "timer,presets",
+            "apps,presets,timer": "timer,presets"
+          },
+          "legacyMigrationVerified": true,
+          "twoPagesOnly": true,
+          "currentConfigShared": [
+            {
+              "mode": "COUNTDOWN",
+              "entry": "button",
+              "id": "8ccbfcf9-5dfc-4760-906d-cc878b35ff10",
+              "plannedMillis": 95000
+            },
+            {
+              "mode": "COUNTDOWN",
+              "entry": "app",
+              "id": "e85a7f93-e42d-443b-ac45-f60588e48587",
+              "plannedMillis": 95000
+            },
+            {
+              "mode": "STOPWATCH",
+              "entry": "button",
+              "id": "6a9939d6-ef62-453c-bf1c-4d54d3c8196f",
+              "plannedMillis": 0
+            },
+            {
+              "mode": "STOPWATCH",
+              "entry": "app",
+              "id": "fd1206d9-b822-45d4-8121-3b230ee7b8f0",
+              "plannedMillis": 0
+            }
+          ],
+          "sharedCurrentConfiguration": true,
+          "customValueRetained": true,
+          "rapidCrossEntrySingleSession": true,
+          "activeSessionNotReplaced": true,
+          "missingAppNoRecordAndCanRetry": true,
+          "permissionsGuardBothEntries": true,
+          "quotaManagementReachable": true,
+          "screenshots": [
+            "unified-timer-countdown.png",
+            "unified-timer-stopwatch.png",
+            "unified-timer-permission.png"
+          ]
+        }
+      },
+      "app_data_restored": true
+    },
+    {
+      "path": ".tools/device-checks/20261102-173143/results.json",
+      "sha256": "d1b9f5336a207abcdfaa528aa79a094d21b4626f0b7f569310c42be1b7dc59d4",
+      "apk_sha256": "ca57617bbc0ff956db78c8b57ebfc1e2ad703a0bc12fc51886d67c6f27a23fa8",
+      "source": {
+        "commit": "008276bf3ae6d9d05dc18ba7bc0e17562f66ff1f",
+        "fingerprint": "19328c76a65761d9c69380b2917a0ce6ecb7be96e815368173ae8360092c318a",
+        "dirty": true
+      },
+      "suites": [
+        "home"
+      ],
+      "details": {
+        "home": {
+          "fourColumnGrid": true,
+          "addAppRetainsSelection": true,
+          "newPresetEntry": true,
+          "customDefaultOneMinute": true,
+          "quickLaunch": true,
+          "helpAndLicensesInSettings": true,
+          "contextualOverlayPermission": true,
+          "icons": "screenshots require visual review",
+          "tabIsolation": true,
+          "sharedSelection": true,
+          "longPressReorderAndColdStart": true,
+          "cancelledDragNotSaved": true,
+          "selectionRestoredOnReturnAndRotation": true,
+          "largeFontTargetsAndScrollRestore": true,
+          "activeSessionSharedGuards": true
+        }
+      },
+      "app_data_restored": true
+    },
+    {
+      "path": ".tools/device-checks/20261102-171508/results.json",
+      "sha256": "3dff800c2fc4aee5d7eddfc2de174ad3914a0fc39f5461bea2c6fcd21608a5a5",
+      "apk_sha256": "ca57617bbc0ff956db78c8b57ebfc1e2ad703a0bc12fc51886d67c6f27a23fa8",
+      "source": {
+        "commit": "008276bf3ae6d9d05dc18ba7bc0e17562f66ff1f",
+        "fingerprint": "8b73ce55e34a9bad59f073e01418aced54fde68bb010f6bc76c06d964ac5b694",
+        "dirty": true
+      },
+      "suites": [
+        "home_swipe"
+      ],
+      "details": {
+        "home_swipe": {
+          "realSwipesAndClickSync": true,
+          "customOrderRespected": true,
+          "scrollAndSelectionRetained": true,
+          "verticalScrollDoesNotSwitch": true,
+          "coldFirstEntry": true
+        }
+      },
+      "app_data_restored": true
+    },
+    {
+      "path": ".tools/device-checks/20261102-172827/results.json",
+      "sha256": "d431f1c7675578d7fa97c9c5299fedb7996aefcabb7f258e808328391a2c5102",
+      "apk_sha256": "ca57617bbc0ff956db78c8b57ebfc1e2ad703a0bc12fc51886d67c6f27a23fa8",
+      "source": {
+        "commit": "008276bf3ae6d9d05dc18ba7bc0e17562f66ff1f",
+        "fingerprint": "19328c76a65761d9c69380b2917a0ce6ecb7be96e815368173ae8360092c318a",
+        "dirty": true
+      },
+      "suites": [
+        "startup"
+      ],
+      "details": {
+        "startup": {
+          "firstUseCountdown900": true,
+          "savedCountdown125": true,
+          "slotsIndependent": true,
+          "noAutomaticStart": true,
+          "existingChoicePreserved": true,
+          "recreationPreserved": true,
+          "activeSessionRecovered": true,
+          "stopwatchRetainsCountdown": true,
+          "slotResetPreservesStartup": true,
+          "actualCountdown": {
+            "id": "5f300a55-7f16-48e7-a571-3d0012e051f7",
+            "appName": "手动计时",
+            "packageName": "",
+            "mode": "COUNTDOWN",
+            "plannedMillis": 125000,
+            "startedWallMillis": 1793611796272,
+            "elapsedMillis": 153,
+            "status": "RUNNING",
+            "overtimeMillis": 0
+          },
+          "actualStopwatch": {
+            "id": "d67f7e4e-63da-4ae2-8f76-6d841cae7167",
+            "appName": "手动计时",
+            "packageName": "",
+            "mode": "STOPWATCH",
+            "plannedMillis": 0,
+            "startedWallMillis": 1793611892128,
+            "elapsedMillis": 137,
+            "status": "RUNNING",
+            "overtimeMillis": 0
+          }
+        }
+      },
+      "app_data_restored": true
+    },
+    {
+      "path": ".tools/device-checks/20261102-172453/results.json",
+      "sha256": "ae45aff55bf88aca3b083354ecbaf578068eae0a0b4d2684653804b8014a81e5",
+      "apk_sha256": "ca57617bbc0ff956db78c8b57ebfc1e2ad703a0bc12fc51886d67c6f27a23fa8",
+      "source": {
+        "commit": "008276bf3ae6d9d05dc18ba7bc0e17562f66ff1f",
+        "fingerprint": "19328c76a65761d9c69380b2917a0ce6ecb7be96e815368173ae8360092c318a",
+        "dirty": true
+      },
+      "suites": [
+        "preferences"
+      ],
+      "details": {
+        "preferences": {
+          "nativeWheelSwipe": true,
+          "secondsRoundTrip": true,
+          "shortcutMigration": true,
+          "timelineDrag": true,
+          "independentTypes": true,
+          "threeStartPathsRejectConflict": true,
+          "presetSecondsPersistedAndStarted": true
+        }
+      },
+      "app_data_restored": true
+    }
+  ],
+  "device_environment": {
+    "model": "Android SDK built for x86_64",
+    "android": "16",
+    "sdk": "36",
+    "build": "Android/sdk_phone64_x86_64/emu64x:16/BE2A.250530.026.D1/13818094:userdebug/test-keys",
+    "avd": "FloatingFocus_API_36",
+    "launcher_package": "com.android.launcher3",
+    "launcher_version_observation": [
+      "versionName=16"
+    ],
+    "observation_note": "2026-11-02 independent live metadata read; original device runner does not embed this metadata. Headless no-audio dedicated AVD."
+  },
+  "review": {
+    "independent": true,
+    "findings": "一处preferences旧App栏元组已修正；复核无新增P0/P1/P2；无实际失败执行，不能伪造失败批次"
+  },
+  "scope": "本轮实际执行相关套件；未重跑完整C4/桌面/额度业务。未执行真机；模拟器不证明厂商手势、后台或音频听感。",
+  "scope_reuse": "全部采用相同ca57617b应用APK；后续仅调整startup浮窗停靠夹具及home非首栏恢复断言，未改应用或重建APK，各原始source指纹仍保留，资料变化不改写检查身份。",
+  "visual_review": {
+    "observer": "AI实际查看原始截图；非真机人工验收",
+    "paths": [
+      ".tools/device-checks/20261102-170202/unified-timer-countdown.png",
+      ".tools/device-checks/20261102-170915/home-tabs-dark-0.png",
+      ".tools/device-checks/20261102-170915/home-tabs-large-0.png"
+    ],
+    "observations": "一块连续面板，浅深主题读数/说明可辨；自定义选中值不重复；2倍字号模式及手动设置换行，App名称允许两行。此393dp截图不替代所有窄屏/字号组合。"
+  },
+  "retained_failures": [
+    {
+      "path": ".tools/device-checks/20261102-171634/results.json",
+      "sha256": "42d7f7030cb2aaf3d3da7950ed44baf6b67fc7e54478ca9fce43f7c93def16da",
+      "reason": "startup旧停靠坐标使测试浮窗遮挡手动设置或结束按钮；实际截图与UI层级确认，未改应用逻辑，原失败不覆盖"
+    },
+    {
+      "path": ".tools/device-checks/20261102-172036/results.json",
+      "sha256": "25cecb3ce55abe4d85aff3f30d55b5866b34b833256084bf150375aad75537b6",
+      "reason": "startup旧停靠坐标使测试浮窗遮挡手动设置或结束按钮；实际截图与UI层级确认，未改应用逻辑，原失败不覆盖"
+    }
+  ],
+  "script_tests": {
+    "log": ".tools/checks/script-tests-20261102-unified-final.log",
+    "sha256": "3810e902cb8bd2474cafc76e5c4e61c8a099d48f98d470d35835d656b9671e33",
+    "tests": 38,
+    "result": "通过"
+  },
+  "not_executed": [
+    "真机手势与厂商兼容",
+    "本轮Release安装与真实启动",
+    "旧apps ActivityBundle的实机升级恢复（ID解析由JVM验证）"
+  ]
+}

@@ -51,7 +51,7 @@ def preset_c4(d, extensions_only=False):
                     d.shot('preset-c4-desktop-icon'); x,y,r,b=d.bounds(nodes[0]); d.tapxy((x+r)/2,(y+b)/2); break
             else: raise AssertionError('Actual desktop icon missing')
         elif kind=='quick':
-            d.home_tab('App'); d.tap('打开 Gallery 并计时',scroll=True)
+            d.home_tab('计时'); d.tap('打开 Gallery 并计时',scroll=True)
         else:
             d.home_tab('计时'); top(); d.tap('开始正计时' if mode=='STOPWATCH' else '开始倒计时')
         wait(lambda: d.overlay() is not None and len(d.records())>count,'No timer/record')
