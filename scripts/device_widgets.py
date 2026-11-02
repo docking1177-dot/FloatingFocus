@@ -222,7 +222,12 @@ def widgets(d):
         assert d.overlay() and d.records()[-1]['id']==before and d.records()[-1]['status']=='RUNNING'
         log=d.shell('logcat','-d','-s','FloatingFocus:*')
         assert log.count('C4 clock paused=true')==pauses
-        d.shot('widgets-c4-locked');d.stop()
+        d.shot('widgets-c4-locked')
+        wait(lambda:d.records()[-1].get('overtimeMillis',0)>6500,'C4 did not reach persistent overtime',30)
+        press('widget_primary')
+        assert d.overlay() and d.records()[-1]['id']==before, 'C4 overtime primary ended or replaced the session'
+        home();d.shot('widgets-c4-overtime');end()
+        results['c4OvertimeOpenAndEnd']=True
         results['overtimeAndC4Guards']=True
 
         seed(mode='STOPWATCH');controls=capture_controls();count=len(d.records());press('widget_primary');started(count,'STOPWATCH',0);end()

@@ -62,7 +62,7 @@ class SettingsActivity : ComponentActivity() {
                 PreferencePage("使用与提醒说明", back) {
                     Text("预设使用保存的配置；快捷 App 使用首页当前时长与外观。")
                     Text("离开 App 后计时仍继续。点击悬浮窗展开操作，拖动可调整位置。")
-                    Text("变色、变尺寸可在设置中独立开启。倒计时归零后提醒一次并继续显示超时，可在悬浮窗加时或结束。")
+                    Text("变色、变尺寸可独立开启。普通倒计时到时后显示超时与本次累计，可加时或结束；C4 到时后保留专属外观，只可结束。")
                 }
                 return@FocusTheme
             }
@@ -213,6 +213,8 @@ private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onReminders:
                         if (index > 0) HorizontalDivider(Modifier.padding(horizontal = FocusSpacing.page))
                         SettingsEntry(label, action)
                     }
+                    HorizontalDivider(Modifier.padding(horizontal = FocusSpacing.page))
+                    QuickSettingsTileEntry()
                     DeveloperEntry()
                 }
             }
@@ -243,7 +245,7 @@ internal fun EffectSwitch(label: String, enabled: Boolean, onChange: (Boolean) -
 private fun SettingsPreview(settings: ReminderSettings, height: Dp, durationMillis: Long, mode: TimerMode) {
     var progress by rememberSaveable { mutableFloatStateOf(0f) }
     val snapshot = if (mode == TimerMode.STOPWATCH) ReminderSnapshot(0, 0f, mode = mode, elapsedMillis = (progress * durationMillis).toLong())
-        else ReminderSnapshot(((1f - progress) * durationMillis).toLong(), progress, durationMillis = durationMillis)
+        else ReminderSnapshot.at(Countdown(durationMillis, 0), (progress * durationMillis).toLong())
     Column(Modifier.fillMaxWidth().padding(horizontal = FocusSpacing.page)) {
         // Measure at natural height before fitting: a short landscape preview must not
         // squeeze the real overlay's text measurement into a tiny circle.

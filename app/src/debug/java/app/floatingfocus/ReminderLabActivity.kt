@@ -149,6 +149,8 @@ class ReminderLabActivity : ComponentActivity() {
                 }) { Text("重置模拟状态") }
                 HorizontalDivider()
                 PresetStylePicker()
+                HorizontalDivider()
+                OvertimeStylePicker(sharedSettings)
                 Spacer(Modifier.height(16.dp))
             }
         }

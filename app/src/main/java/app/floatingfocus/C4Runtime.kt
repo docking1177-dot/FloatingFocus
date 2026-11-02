@@ -25,8 +25,13 @@ class C4Runtime(private val context: Context, private val timer: () -> Countdown
     private val callback = Runnable { refresh() }
     init { scope.launch { store.settings.collect { refresh() } } }
     private fun remaining(): Long = timer()?.let { val moment = now(); it.remainingAt(moment) - it.overtimeAt(moment) } ?: Long.MAX_VALUE
-    fun locked(): Boolean = !closed && enabledForSession && timer()?.mode == TimerMode.COUNTDOWN &&
-        (input.defused || timeline.phase(remaining()) != C4Phase.OFF)
+    private fun phase(remaining: Long = remaining()): C4Phase = when {
+        closed || !enabledForSession || timer()?.mode != TimerMode.COUNTDOWN -> C4Phase.OFF
+        input.defused -> C4Phase.DEFUSED
+        else -> timeline.phase(remaining)
+    }
+    fun locked(): Boolean = C4Frame(phase()).requiresCode
+    fun stageActive(): Boolean = phase() != C4Phase.OFF
 
     private fun playback(): C4Playback? {
         if (closed || input.defused || !enabledForSession || !store.settings.value.sound || paused() || timer()?.mode != TimerMode.COUNTDOWN) return null
@@ -48,9 +53,9 @@ class C4Runtime(private val context: Context, private val timer: () -> Countdown
             audio = if (enabledForSession && timer.mode == TimerMode.COUNTDOWN && C4Audio.available(context)) C4Audio(context, ::playback) else null
         }
         val remaining = remaining()
-        val phase = if (!enabledForSession || timer.mode != TimerMode.COUNTDOWN) C4Phase.OFF
-            else if (input.defused) C4Phase.DEFUSED else timeline.phase(remaining)
-        val frame = C4Frame(phase, timeline.led(remaining) && !input.defused, remaining.coerceAtLeast(0), input.digits, input.error(remaining))
+        val phase = phase(remaining)
+        val frame = C4Frame(phase, timeline.led(remaining) && !input.defused, remaining.coerceAtLeast(0), input.digits, input.error(remaining),
+            overtimeMillis = if (remaining < 0) -remaining else 0)
         if (frame != lastFrame) {
             if (phase != lastFrame.phase) Log.d(TAG, "C4 phase=$phase remaining=$remaining offset=${C4Timeline.WINDOW_MILLIS - remaining}")
             lastFrame = frame; onFrame(frame)

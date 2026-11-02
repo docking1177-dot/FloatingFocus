@@ -45,21 +45,22 @@ fun FocusOverlay(
     paused: Boolean = false,
     onTogglePause: (() -> Unit)? = null,
     onContentMeasured: ((OverlayContentGeometry) -> OverlayContentPlacement)? = null,
+    initialExpanded: Boolean? = null,
     onStop: () -> Unit
 ) {
     if (c4.active && c4Expanded) {
-        C4DevicePanel(c4, onC4Key, onC4Toggle)
+        C4DevicePanel(c4, onC4Key, onC4Toggle, onStop)
         return
     }
     val finished = !c4.active && appearance.finished
-    var expanded by remember(finished) { mutableStateOf(false) }
+    var expanded by remember(finished, initialExpanded) { mutableStateOf(initialExpanded ?: finished) }
     var addingTime by remember(finished) { mutableStateOf(false) }
     var extraSeconds by remember(finished) { mutableIntStateOf(120) }
     LaunchedEffect(extensionRequest) {
-        if (extensionRequest > 0 && finished && onExtend != null) addingTime = true
+        if (extensionRequest > 0 && finished && onExtend != null) { addingTime = true; expanded = true }
     }
     val size = appearance.size
-    val showingControls = !c4.active && (expanded || finished || appearance.confirmationRequired)
+    val showingControls = !c4.active && (expanded || appearance.confirmationRequired)
     val manualPulse = remember { Animatable(0f) }
     LaunchedEffect(animationRequest, interactive, appearance.animationStrength) {
         manualPulse.snapTo(0f)
@@ -101,7 +102,12 @@ fun FocusOverlay(
                     fontSize = 18.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.Monospace,
                     maxLines = 1, softWrap = false)
             }
-            if (vertical) Column(header, horizontalAlignment = Alignment.CenterHorizontally,
+            if (c4.expired) Column(header, horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("超时", style = textStyle, fontSize = 12.sp)
+                Text("+${formatUsageTime(c4.overtimeMillis)}", style = textStyle, fontSize = 18.sp,
+                    fontFamily = FontFamily.Monospace, maxLines = 1, softWrap = false)
+            } else if (!c4.active && appearance.overtime != null) OvertimeHeader(appearance.overtime, textStyle, header)
+            else if (vertical) Column(header, horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)) { title() }
             else Row(header, verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)) { title() }

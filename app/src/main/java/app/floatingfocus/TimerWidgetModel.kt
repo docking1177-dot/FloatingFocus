@@ -27,20 +27,20 @@ object TimerWidgetModel {
         val remaining = (s.remainingMillis - delay).coerceAtLeast(0)
         val overtime = if (s.remainingMillis > 0) (delay - s.remainingMillis).coerceAtLeast(0) else s.overtimeMillis + delay
         return TimerWidgetPresentation(
-            status = when { s.c4Locked -> "C4 计时中"; s.paused -> "已暂停"; stopwatch -> "正计时"; over -> "超时"; else -> "倒计时" },
+            status = when { s.c4Locked -> "C4 计时中"; s.c4Active && over -> "C4 超时"; s.paused -> "已暂停"; stopwatch -> "正计时"; over -> "超时"; else -> "倒计时" },
             time = when { stopwatch -> formatElapsed(elapsed); over -> "+${formatElapsed(overtime)}"; else -> formatRemaining(remaining) },
             base = when { stopwatch -> now - elapsed; over -> now - overtime; else -> now + remaining },
             running = !s.paused, countDown = !stopwatch && !over, overtime = over,
-            primary = when { s.c4Locked || s.automatic || over -> WidgetCommand.OPEN; s.paused -> WidgetCommand.RESUME; else -> WidgetCommand.PAUSE },
-            canEnd = !s.c4Locked && !s.automatic)
+            primary = when { s.c4Locked || s.c4Active || s.automatic || over -> WidgetCommand.OPEN; s.paused -> WidgetCommand.RESUME; else -> WidgetCommand.PAUSE },
+            canEnd = SessionControls.canEnd(s))
     }
 
     fun accepts(s: SessionState, command: WidgetCommand, request: String?, leg: Long): Boolean {
-        if (!s.active || s.automatic || s.c4Locked || request == null || request != s.startRequestId || leg != s.timerStartedAt) return false
+        if (request == null || request != s.startRequestId || leg != s.timerStartedAt) return false
         return when (command) {
-            WidgetCommand.END -> true
-            WidgetCommand.PAUSE -> !s.paused && (s.mode == TimerMode.STOPWATCH || s.remainingMillis > 0)
-            WidgetCommand.RESUME -> s.paused
+            WidgetCommand.END -> SessionControls.canEnd(s)
+            WidgetCommand.PAUSE -> SessionControls.canPause(s)
+            WidgetCommand.RESUME -> SessionControls.canResume(s)
             else -> false
         }
     }

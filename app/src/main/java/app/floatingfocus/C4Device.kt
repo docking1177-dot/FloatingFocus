@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.sp
 
 /** Original native rendition of the supplied proportions; no photo, backing card or modal mask. */
 @Composable
-internal fun C4DevicePanel(frame: C4Frame, onKey: (Char) -> Unit, onToggle: () -> Unit) {
+internal fun C4DevicePanel(frame: C4Frame, onKey: (Char) -> Unit, onToggle: () -> Unit, onStop: () -> Unit) {
     val fontScale = LocalDensity.current.fontScale
     BoxWithConstraints(Modifier.padding(2.dp)) {
         val width = minOf(maxWidth, C4Theme.WIDTH.dp)
@@ -75,19 +75,20 @@ internal fun C4DevicePanel(frame: C4Frame, onKey: (Char) -> Unit, onToggle: () -
             }
             val screen = geometry.display
             val displayColor = when { frame.phase == C4Phase.DEFUSED -> Color(0xFF9ED07A)
-                frame.error -> Color(0xFFD56D57); frame.phase == C4Phase.EXPLODING -> Color(0xFF8E4839)
+                frame.error -> Color(0xFFD56D57); frame.expired -> Color(0xFF8E4839)
                 else -> Color(0xFF555B31) }
             val displayInk = if (frame.phase == C4Phase.DEFUSED || frame.error) Color(0xFF14210E) else Color(0xFFEDF1CD)
             Column(Modifier.offset(screen.x.dp, screen.y.dp).size(screen.width.dp, screen.height.dp)
                 .background(displayColor, RoundedCornerShape(2.dp)).semantics(mergeDescendants = true) {
-                    contentDescription = "C4 ${frame.phase}，剩余 ${formatRemaining(frame.remainingMillis)}，已输入 ${frame.input.length} 位${if (frame.error) "，输入错误" else ""}"
+                    contentDescription = if (frame.expired) "C4 超时 ${formatUsageTime(frame.overtimeMillis)}，可正常结束，不可加时"
+                        else "C4 ${frame.phase}，剩余 ${formatRemaining(frame.remainingMillis)}，已输入 ${frame.input.length} 位${if (frame.error) "，输入错误" else ""}"
                 }, horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(C4Theme.DISPLAY_LINE_GAP.dp, Alignment.CenterVertically)) {
-                Text(formatRemaining(frame.remainingMillis), color = displayInk, fontFamily = FontFamily.Monospace,
+                Text(if (frame.expired) "+${formatUsageTime(frame.overtimeMillis)}" else formatRemaining(frame.remainingMillis), color = displayInk, fontFamily = FontFamily.Monospace,
                     fontSize = (21f / fontScale).sp, lineHeight = (C4Theme.TIME_LINE_HEIGHT / fontScale).sp,
                     fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false,
                     onTextLayout = c4TextLayoutProbe("time", frame.input.length))
-                Text(frame.input.padEnd(7, '·'), color = displayInk, fontFamily = FontFamily.Monospace,
+                Text(if (frame.expired) "超时" else frame.input.padEnd(7, '·'), color = displayInk, fontFamily = FontFamily.Monospace,
                     fontSize = (16f / fontScale).sp, lineHeight = (C4Theme.INPUT_LINE_HEIGHT / fontScale).sp,
                     maxLines = 1, softWrap = false,
                     onTextLayout = c4TextLayoutProbe("input", frame.input.length))
@@ -104,7 +105,9 @@ internal fun C4DevicePanel(frame: C4Frame, onKey: (Char) -> Unit, onToggle: () -
                     Row(horizontalArrangement = Arrangement.spacedBy(geometry.gap.dp)) {
                         repeat(3) { col ->
                             val char = C4Geometry.keys[row * 3 + col]
-                            C4Key(char, frame.inputEnabled, geometry.keyWidth, geometry.keyHeight, onKey)
+                            val ending = frame.expired && char == '#'
+                            C4Key(char, frame.inputEnabled || ending, geometry.keyWidth, geometry.keyHeight,
+                                ending = ending, onKey = { if (ending) onStop() else onKey(it) })
                         }
                     }
                 }
@@ -114,7 +117,7 @@ internal fun C4DevicePanel(frame: C4Frame, onKey: (Char) -> Unit, onToggle: () -
 }
 
 @Composable
-private fun C4Key(key: Char, enabled: Boolean, width: Float, height: Float, onKey: (Char) -> Unit) {
+private fun C4Key(key: Char, enabled: Boolean, width: Float, height: Float, ending: Boolean = false, onKey: (Char) -> Unit) {
     var pressed by remember { mutableStateOf(false) }
     val currentEnabled by rememberUpdatedState(enabled)
     val send by rememberUpdatedState(onKey)
@@ -123,23 +126,24 @@ private fun C4Key(key: Char, enabled: Boolean, width: Float, height: Float, onKe
 
         .semantics(mergeDescendants = true) {
             role = Role.Button
-            contentDescription = when (key) { '*' -> "退格 *"; '#' -> "清空 #"; else -> "数字 $key" }
+            contentDescription = if (ending) "结束 C4 计时" else when (key) { '*' -> "退格 *"; '#' -> "清空 #"; else -> "数字 $key" }
             if (!enabled) disabled() else onClick { send(key); true }
-        }.pointerInput(key) {
+        }.pointerInput(key, ending) {
             awaitEachGesture {
                 val down = awaitFirstDown()
                 val allowedAtDown = currentEnabled
                 down.consume(); pressed = allowedAtDown
-                val up = waitForUpOrCancellation()
-                pressed = false
+                // # changes meaning at zero. Re-keying this pointer scope cancels
+                // a pre-zero clear press rather than turning its UP into End.
+                val up = try { waitForUpOrCancellation() } finally { pressed = false }
                 if (up != null && allowedAtDown && currentEnabled) { up.consume(); send(key) }
             }
         }, contentAlignment = Alignment.Center) {
         Box(Modifier.fillMaxSize().padding(6.dp).clip(RoundedCornerShape(3.dp))
             .background(Color(if (pressed) C4Theme.KEY_PRESSED_COLOR else C4Theme.KEY_COLOR)),
             contentAlignment = Alignment.Center) {
-        Text(key.toString(), fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold,
-            fontSize = (21 / fontScale).sp, lineHeight = (24 / fontScale).sp, maxLines = 1, softWrap = false,
+        Text(if (ending) "结束" else key.toString(), fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold,
+            fontSize = ((if (ending) 13 else 21) / fontScale).sp, lineHeight = (24 / fontScale).sp, maxLines = 1, softWrap = false,
             color = Color(C4Theme.KEY_INK), onTextLayout = c4TextLayoutProbe("key-$key", 0))
         }
     }

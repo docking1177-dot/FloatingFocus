@@ -260,5 +260,116 @@
       "docs/validation/20261101-overlay-anchor.json"
     ],
     "status": "原APK模拟器已复现；当前Debug三形状四边同点连点与展开连续拖动复测通过，真机未测"
+  },
+  {
+    "id": "FF-ISSUE-TILE-OPEN-TASK",
+    "type": "本轮应用缺陷",
+    "description": "已有FF设置页在栈顶时，NEW_TASK/SINGLE_TOP只把该任务带回前台，超时磁贴未显示控制首页；现对Main使用REORDER_TO_FRONT，保留设置/草稿。",
+    "affected_cases": [
+      "FF-TILE-003",
+      "FF-GATE-DEVICE"
+    ],
+    "failed_records": [
+      "DEVICE-20261102-095820-results-936c2b51b2d1:FF-GATE-DEVICE:0"
+    ],
+    "retests": [
+      {
+        "of": "DEVICE-20261102-095820-results-936c2b51b2d1:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261102-100334-results-2e7808775496:FF-GATE-DEVICE:7"
+      }
+    ],
+    "evidence": [
+      ".tools/device-checks/20261102-095820/results.json",
+      ".tools/device-checks/20261102-100334/results.json",
+      "app/src/main/java/app/floatingfocus/FocusTileService.kt"
+    ],
+    "status": "1410381d实际复测通过；之后仅Debug预览控件换行，按范围复用，不改写旧APK身份"
+  },
+  {
+    "id": "FF-ISSUE-C4-NOTIFICATION-INIT",
+    "type": "独立审查发现",
+    "description": "C4Runtime构造同步publish时字段尚未赋值，短计时通知可能显示无效结束；使用frame.requiresCode后备，归零仍立即解锁正常结束。",
+    "affected_cases": [
+      "FF-TILE-004"
+    ],
+    "failed_records": [],
+    "retests": [],
+    "evidence": [
+      "app/src/main/java/app/floatingfocus/FloatingService.kt",
+      ".tools/device-checks/20261102-100334/tile-c4-notification.txt"
+    ],
+    "status": "修复后真实30秒C4通知验证通过；原问题来自只读审查，不虚构一条执行失败"
+  },
+  {
+    "id": "FF-ISSUE-OVERTIME-PREVIEW-FONT",
+    "type": "截图视觉发现",
+    "description": "2倍字号下预览控件Row把长时长挤成竖排。改为FlowRow整项换行，未改变普通浮窗或C4。",
+    "affected_cases": [
+      "FF-OVERTIME-PREVIEW-001"
+    ],
+    "failed_records": [],
+    "retests": [],
+    "evidence": [
+      ".tools/device-checks/20261102-102852/overtime-long-0-font-2.0.png",
+      ".tools/device-checks/20261102-104257/overtime-long-0-font-2.0.png"
+    ],
+    "status": "当前包三形状2倍字号原图复核已换行、读数完整；语义脚本原本通过，不把它伪造成视觉失败记录"
+  },
+  {
+    "id": "FF-ISSUE-CONTROLS-REORDER-DESTINATION",
+    "type": "待定位的单次注入手势偏差",
+    "description": "首轮App拖动只到中间槽，原测试误以为已到首槽。未修改应用；之后补存储顺序断言，同流程、双向排序及完整首页通过。",
+    "affected_cases": [
+      "FF-HOME-SWIPE-002"
+    ],
+    "failed_records": [
+      "DEVICE-20261101-230324-results-f54d445b440c:FF-GATE-DEVICE:0"
+    ],
+    "retests": [],
+    "evidence": [
+      ".tools/device-checks/20261101-230324/results.json",
+      ".tools/device-checks/20261101-230715/results.json",
+      ".tools/device-checks/20261102-100706/results.json"
+    ],
+    "status": "首次原因未确认，不宣称专门修复；后续实际顺序通过，真机手感建议补充"
+  },
+  {
+    "id": "FF-ISSUE-QS-REGRESSION-FIXTURE",
+    "type": "测试脚本识别与异步等待",
+    "description": "原脚本未完整展开/翻到新增磁贴页，且计时字幕阻止UIAutomator静止；又在原生异步状态未更新时立即断言。现在核验系统面板、空闲实际几何与最终页、等待系统状态，仍核对真实会话与截图。",
+    "affected_cases": [
+      "FF-SUITE-TILE"
+    ],
+    "failed_records": [],
+    "retests": [],
+    "evidence": [
+      ".tools/device-checks/20261101-231217/results.json",
+      ".tools/device-checks/20261101-231604/results.json",
+      ".tools/device-checks/20261101-232124/results.json",
+      ".tools/device-checks/20261102-100334/results.json"
+    ],
+    "status": "真实添加和点击回归通过；失败记录保留，非应用功能绕过"
+  },
+  {
+    "id": "FF-ISSUE-PRESET-EXTENSION-FIXTURE",
+    "type": "测试夹具坐标过时",
+    "description": "旧加时脚本停靠底边后仍使用下置滚轮的坐标；当前锚点按空间把控件放到时间上方。改用中部夹具后，真实滚轮加时与C4禁止加时专项通过。",
+    "affected_cases": [
+      "FF-SUITE-PRESET_C4_EXTENSIONS"
+    ],
+    "failed_records": [
+      "DEVICE-20261102-102457-results-9565c9a9ec90:FF-GATE-DEVICE:0"
+    ],
+    "retests": [
+      {
+        "of": "DEVICE-20261102-102457-results-9565c9a9ec90:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261102-102734-results-ab972f14e2d3:FF-GATE-DEVICE:3"
+      }
+    ],
+    "evidence": [
+      ".tools/device-checks/20261102-102457/results.json",
+      ".tools/device-checks/20261102-102734/results.json"
+    ],
+    "status": "夹具已修复，没有改应用定位规则"
   }
 ]

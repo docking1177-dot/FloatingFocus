@@ -44,9 +44,11 @@ import androidx.compose.ui.zIndex
 /** Persist only a completed drag. Selection stays attached to the entry ID. */
 @Composable
 internal fun HomeEntryTabs(order: List<HomeEntry>, selected: HomeEntry, enabled: Boolean,
-                           onSelect: (HomeEntry) -> Unit, onReorder: (List<HomeEntry>) -> Unit) {
+                           onSelect: (HomeEntry) -> Unit, onReorder: (List<HomeEntry>) -> Unit,
+                           onReorderingChange: (Boolean) -> Unit = {}) {
     val latestOrder by rememberUpdatedState(order)
     val saveOrder by rememberUpdatedState(onReorder)
+    val reportSorting by rememberUpdatedState(onReorderingChange)
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     var dragging by remember { mutableStateOf<HomeEntry?>(null) }
     var draft by remember { mutableStateOf<List<HomeEntry>?>(null) }
@@ -74,6 +76,7 @@ internal fun HomeEntryTabs(order: List<HomeEntry>, selected: HomeEntry, enabled:
                     val press = awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
                     try {
                         dragging = entry
+                        reportSorting(true)
                         grabOffsetX = offset
                         pointerX = press.position.x.coerceIn(0f, width)
                         draft = HomeEntries.move(startOrder, entry, slot(pointerX))
@@ -89,6 +92,7 @@ internal fun HomeEntryTabs(order: List<HomeEntry>, selected: HomeEntry, enabled:
                     } finally {
                         dragging = null
                         draft = null
+                        reportSorting(false)
                     }
                 }
             }) {

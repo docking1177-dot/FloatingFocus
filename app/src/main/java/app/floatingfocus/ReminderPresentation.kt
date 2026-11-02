@@ -59,7 +59,8 @@ data class ReminderPresentation(
     val pulseDepth: Float,
     val confirmationRequired: Boolean,
     val shape: OverlayShape = OverlayShape.ROUNDED_RECTANGLE,
-    val animationStrength: Float = 1f
+    val animationStrength: Float = 1f,
+    val overtime: OvertimeReadout? = null
 )
 
 object ReminderPresenter {
@@ -113,13 +114,15 @@ object ReminderPresenter {
             confirmationRequired = settings.style == ReminderStyle.CONFIRM &&
                 stage != ReminderStage.QUIET && stage != acknowledgedStage,
             shape = settings.shape,
-            animationStrength = settings.intensity
+            animationStrength = settings.intensity,
+            overtime = if (finished && snapshot.mode == TimerMode.COUNTDOWN)
+                OvertimeReadout(snapshot.elapsedMillis, snapshot.overtimeMillis) else null
         )
     }
 
     /** Only the compact contour follows ordinary settings; C4 paint and scale stay independent. */
     fun forC4(frame: C4Frame, shape: OverlayShape = C4Theme.COMPACT_SHAPE) = ReminderPresentation(
-        title = "◷  ${formatRemaining(frame.remainingMillis)}", finished = false,
+        title = if (frame.expired) "C4 超时 +${formatUsageTime(frame.overtimeMillis)}" else "◷  ${formatRemaining(frame.remainingMillis)}", finished = false,
         colorArgb = C4Theme.COMPACT_COLOR, size = 1f, opacity = C4Theme.OPACITY,
         pulseDepth = 0f, confirmationRequired = false, shape = shape, animationStrength = 0f)
 

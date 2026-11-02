@@ -47,6 +47,7 @@ data class SessionState(
     val overtimeMillis: Long = 0,
     val timerStartedAt: Long = 0,
     val c4Locked: Boolean = false,
+    val c4Active: Boolean = false,
     val startRequestId: String? = null,
     val durationMillis: Long = 0,
     val sampledAt: Long = 0
@@ -138,7 +139,7 @@ class FloatingService : Service() {
             val previousStage = overlayState.stage
             overlayState = SessionState(true, remaining, progress, stage, mode = timer.mode,
                 elapsedMillis = timer.elapsedAt(now), overtimeMillis = timer.overtimeAt(now), timerStartedAt = timer.startedAt,
-                paused = manualClock.paused, c4Locked = c4Frame.active, startRequestId = activeStartRequestId,
+                paused = manualClock.paused, c4Locked = c4Frame.requiresCode, c4Active = c4Frame.active, startRequestId = activeStartRequestId,
                 durationMillis = timer.durationMillis, sampledAt = physicalNow)
             checkpointRecord(physicalNow)
             record?.let { recordStore.save(it, checkpoint = true) }
@@ -172,7 +173,7 @@ class FloatingService : Service() {
             return START_NOT_STICKY
         }
         if (intent?.action == ACTION_EXTENSION_EDITOR) {
-            if (c4Runtime?.locked() == true) return START_NOT_STICKY
+            if (c4Runtime?.stageActive() == true) return START_NOT_STICKY
             val timer = countdown
             if (timer == null) { if (monitor == null) stopSelf(startId); return START_NOT_STICKY }
             if (!stopping && timer.mode == TimerMode.COUNTDOWN &&
@@ -310,7 +311,7 @@ class FloatingService : Service() {
                 onTogglePause = if (!overlayState.automatic &&
                     ((overlayState.mode == TimerMode.COUNTDOWN && c4Runtime?.enabledForSession == true) || overlayState.paused))
                     ({ togglePause(timerStart) }) else null,
-                onExtend = if (countdown != null) ({ seconds -> extendTimer(timerStart, seconds) }) else null) {
+                onExtend = if (countdown != null && !c4Frame.active) ({ seconds -> extendTimer(timerStart, seconds) }) else null) {
                 if (c4Runtime?.locked() != true) finishSession()
             }
         } }
@@ -318,11 +319,12 @@ class FloatingService : Service() {
 
     private fun publishC4Frame(frame: C4Frame) {
         val changed = frame.active != c4Frame.active
+        val phaseChanged = frame.phase != c4Frame.phase
         if (changed) c4Expanded = false
         c4Frame = frame
-        overlayState = overlayState.copy(c4Locked = frame.active)
+        overlayState = overlayState.copy(c4Locked = frame.requiresCode, c4Active = frame.active)
         if (window != null && !stopping) mutableSession.value = overlayState
-        if (changed && !stopping) getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification())
+        if (phaseChanged && !stopping) getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification())
     }
 
     private fun completeCountdown() {
@@ -344,7 +346,7 @@ class FloatingService : Service() {
     }
 
     private fun setPaused(expectedStart: Long, paused: Boolean) {
-        if (c4Runtime?.locked() == true) return
+        if (c4Runtime?.stageActive() == true) return
         val timer = countdown ?: return
         val physicalNow = SystemClock.elapsedRealtime()
         if (stopping || timer.startedAt != expectedStart || manualClock.paused == paused ||
@@ -357,7 +359,7 @@ class FloatingService : Service() {
     }
 
     private fun extendTimer(expectedStart: Long, seconds: Int) {
-        if (c4Runtime?.locked() == true) return
+        if (c4Runtime?.stageActive() == true) return
         val timer = countdown ?: return
         if (stopping || timer.startedAt != expectedStart || seconds !in 60..10800) return
         if (ReminderSettingsStore.get(this).settings.value.strategy.validationError(seconds * 1000L) != null) return
@@ -430,10 +432,11 @@ class FloatingService : Service() {
         val stop = PendingIntent.getService(this, 1, Intent(this, FloatingService::class.java).setAction(ACTION_STOP),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         val finished = overlayState.stage == ReminderStage.FINISHED
-        val c4Locked = c4Runtime?.locked() == true || c4Frame.active
+        // Runtime construction can publish its first frame before the property is assigned.
+        val c4Locked = c4Runtime?.locked() ?: c4Frame.requiresCode
         return NotificationCompat.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_notification).setContentTitle(if (automatic) "指定 App 监测 · ${if (mutableMonitor.value.running) "计时中" else "已暂停/等待"}" else if (overlayState.paused) "Floating Focus · 已暂停" else if (finished) "Floating Focus · 超时计时" else "Floating Focus · 正在计时")
-            .setContentText(if (c4Locked) "C4 · ${formatRemaining(overlayState.remainingMillis)}" else if (automatic) "${mutableMonitor.value.reason} · 点击管理；可随时停止" else if (overlayState.paused) "${if (overlayState.mode == TimerMode.STOPWATCH) formatElapsed(overlayState.elapsedMillis) else formatRemaining(overlayState.remainingMillis)} · 点击浮窗继续或结束" else if (finished) "正在记录超时时长，可随时结束" else "点击悬浮胶囊可展开操作")
+            .setContentText(if (c4Locked) "C4 · ${formatRemaining(overlayState.remainingMillis)}" else if (c4Frame.expired) "C4 超时 +${formatElapsed(c4Frame.overtimeMillis)} · 可结束，不可加时" else if (automatic) "${mutableMonitor.value.reason} · 点击管理；可随时停止" else if (overlayState.paused) "${if (overlayState.mode == TimerMode.STOPWATCH) formatElapsed(overlayState.elapsedMillis) else formatRemaining(overlayState.remainingMillis)} · 点击浮窗继续或结束" else if (finished) "正在记录超时时长，可随时结束" else "点击悬浮胶囊可展开操作")
             .setContentIntent(open).apply { if (!c4Locked) addAction(0, if (automatic) "停止监测" else "结束计时", stop) }
             .setWhen(if (overlayState.mode == TimerMode.STOPWATCH || finished)
                 System.currentTimeMillis() - (if (finished) overlayState.overtimeMillis else overlayState.elapsedMillis)
@@ -559,6 +562,7 @@ class FloatingService : Service() {
         private const val ACTION_START = "app.floatingfocus.START"
         private const val EXTRA_REQUEST_ID = "start_request_id"
         private val startAdmission = TimerStartAdmission()
+        val pendingStarts = startAdmission.pending
         val startPending: Boolean get() = startAdmission.pendingId != null
         private const val ACTION_EXTENSION_EDITOR = "app.floatingfocus.EXTENSION_EDITOR"
         private const val ACTION_APP_OPENED = "app.floatingfocus.APP_OPENED"

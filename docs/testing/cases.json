@@ -357,7 +357,7 @@
       "kind": "模型类汇总",
       "preconditions": "现有JUnit夹具，无需设备",
       "steps": "运行 TimerWidgetTest 的全部@Test；查看独立JUnit XML",
-      "expected": "暂停冻结；单调采样补偿；旧会话/旧加时段拒绝；C4不能暂停结束；该类失败/错误=0，跳过项单独标记",
+      "expected": "暂停冻结；单调采样补偿；旧会话/旧加时段拒绝；C4归零前不能结束，阶段含超时不能暂停，归零后允许结束；该类失败/错误=0，跳过项单独标记",
       "builds": [
         "Debug",
         "Release"
@@ -1458,7 +1458,7 @@
       "kind": "功能场景",
       "preconditions": "组件已添加；2秒普通及20秒C4夹具",
       "steps": "普通等待超时结束；C4中点查看/结束",
-      "expected": "普通同记录进入超时；C4不暂停、不结束、不替换，且无新增暂停日志",
+      "expected": "普通同记录进入超时；C4归零前不暂停、不结束、不替换，且无新增暂停日志；归零后结束见FF-WIDGET-007",
       "builds": [
         "Debug",
         "Release"
@@ -2297,8 +2297,8 @@
       "priority": "P1",
       "kind": "功能场景",
       "preconditions": "沿用上项音频条件；另起C4会话",
-      "steps": "不输口令；听最后10秒、归零、尾音与恢复超时",
-      "expected": "无明显空隙、双声或重播；爆炸一次；约5.9秒尾音后恢复超时",
+      "steps": "不输口令；听最后10秒、归零及尾音；核对保留C4超时，再通过结束键结束",
+      "expected": "无明显空隙、双声或重播；爆炸一次；尾音后仍是专属超时，明确结束有效",
       "builds": [
         "Debug本地音频"
       ],
@@ -3982,6 +3982,880 @@
         "会话",
         "存储"
       ]
+    },
+    {
+      "id": "FF-JVM-C4OVERTIMECONTROLS",
+      "module": "C4",
+      "scenario": "C4OvertimeControls模型类",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行C4OvertimeControlsTest全部@Test并查看独立JUnit XML",
+      "expected": "持续主题与口令锁分离，归零边界、暂停/加时/结束及旧请求；该类失败/错误为0，跳过另记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/C4OvertimeControlsTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-JVM-OVERTIMEREADOUT",
+      "module": "超时读数",
+      "scenario": "OvertimeReadout模型类",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行OvertimeReadoutTest全部@Test并查看独立JUnit XML",
+      "expected": "15+5=20、多段加时不重复、暂停冻结、正计时/C4隔离和小时格式；该类失败/错误为0，跳过另记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/OvertimeReadoutTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时读数"
+      ]
+    },
+    {
+      "id": "FF-JVM-TIMERTILEMODEL",
+      "module": "系统磁贴",
+      "scenario": "TimerTileModel模型类",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行TimerTileModelTest全部@Test并查看独立JUnit XML",
+      "expected": "空闲默认、启动忙、暂停/继续、超时/C4只查看和解锁延迟旧会话拒绝；该类失败/错误为0，跳过另记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/TimerTileModelTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "系统磁贴"
+      ]
+    },
+    {
+      "id": "FF-JVM-STARTADMISSIONOBSERVABLE",
+      "module": "启动互斥",
+      "scenario": "StartAdmissionObservable模型类",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行StartAdmissionObservableTest全部@Test并查看独立JUnit XML",
+      "expected": "同一启动门禁的真实StateFlow只发合法占用/完成，不因错误所有者释放；该类失败/错误为0，跳过另记",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/StartAdmissionObservableTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "启动互斥"
+      ]
+    },
+    {
+      "id": "FF-SUITE-HOME_SWIPE",
+      "module": "首页",
+      "scenario": "滑动、排序顺序与滚动恢复（局部套件）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "运行scripts/test-device.ps1 -Suite home_swipe -AllowTestDataChanges",
+      "expected": "该版本passedSuites明确包含本组，数据还原和源码/APK检查通过；不拆成未声明细项或真机通过",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite home_swipe -AllowTestDataChanges"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "首页"
+      ]
+    },
+    {
+      "id": "FF-SUITE-OVERTIME",
+      "module": "超时读数",
+      "scenario": "真实三候选与普通/C4超时（局部套件）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "运行scripts/test-device.ps1 -Suite overtime -AllowTestDataChanges",
+      "expected": "该版本passedSuites明确包含本组，数据还原和源码/APK检查通过；不拆成未声明细项或真机通过",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite overtime -AllowTestDataChanges"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时读数"
+      ]
+    },
+    {
+      "id": "FF-SUITE-OVERTIME_PREVIEW",
+      "module": "超时读数",
+      "scenario": "三形状长时长及两倍字号预览（局部套件）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "运行scripts/test-device.ps1 -Suite overtime_preview -AllowTestDataChanges",
+      "expected": "该版本passedSuites明确包含本组，数据还原和源码/APK检查通过；不拆成未声明细项或真机通过",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite overtime_preview -AllowTestDataChanges"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时读数"
+      ]
+    },
+    {
+      "id": "FF-SUITE-TILE",
+      "module": "系统磁贴",
+      "scenario": "原生添加与实际共享会话控制（局部套件）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "运行scripts/test-device.ps1 -Suite tile -AllowTestDataChanges",
+      "expected": "该版本passedSuites明确包含本组，数据还原和源码/APK检查通过；不拆成未声明细项或真机通过",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite tile -AllowTestDataChanges"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "系统磁贴"
+      ]
+    },
+    {
+      "id": "FF-SUITE-PRESET_C4_EXTENSIONS",
+      "module": "C4",
+      "scenario": "关闭快照加时与开启快照禁加时（局部套件）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "运行scripts/test-device.ps1 -Suite preset_c4_extensions -AllowTestDataChanges",
+      "expected": "该版本passedSuites明确包含本组，数据还原和源码/APK检查通过；不拆成未声明细项或真机通过",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_preset_c4.py",
+        "./scripts/test-device.ps1 -Suite preset_c4_extensions -AllowTestDataChanges"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-HOME-SWIPE-001",
+      "module": "首页",
+      "scenario": "真实左右滑动与状态保持",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "选择10分，滑到预设并纵向滚动，滑App再返回；长按排序再滑动；重开首页",
+      "expected": "内容区双向滑动后标签与唯一可见栏目一致；点击与滑动保持同步",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite home_swipe -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "首页"
+      ]
+    },
+    {
+      "id": "FF-OVERTIME-001",
+      "module": "超时读数",
+      "scenario": "三候选和无副作用预览",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "开发者模式切换三个布局，保存同数据预览，重启，核对配置和记录",
+      "expected": "三候选预览不启动浮窗/会话，不改变正式预设、外观、C4配置或记录；截图视觉另查",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite overtime -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时读数"
+      ]
+    },
+    {
+      "id": "FF-OVERTIME-002",
+      "module": "超时读数",
+      "scenario": "三形状实际到时展开收起",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "各形状启动1秒普通计时，归零后点时间折叠、再次展开并结束",
+      "expected": "同窗口发生折叠/展开；只结束该会话；真实样式可见，数字值由对应模型测试与截图分别核对",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite overtime -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时读数"
+      ]
+    },
+    {
+      "id": "FF-C4-OVERTIME-001",
+      "module": "C4",
+      "scenario": "尾音后专属形态与拖动结束",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "C4自然到时，等待尾音后；两形态切换、拖动，点原#位置结束",
+      "expected": "仅一次爆炸事件；同窗口仍为C4，开合/拖动有效，记录同ID且MANUAL结束，无加时",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite overtime -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-C4-OVERTIME-002",
+      "module": "C4",
+      "scenario": "跨零按压与尾音中结束",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "归零前按住#并跨零松开；另一会话归零后尾音内点结束",
+      "expected": "归零前按住#跨零松开仍保留原窗口，不误触结束",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite overtime -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-OVERTIME-PREVIEW-001",
+      "module": "超时读数",
+      "scenario": "三形状长时长和大字号",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "只读预览累计8小时/超时5小时，展开；三形状分别在1倍和2倍字号截图",
+      "expected": "三形状的真实预览语义树均有8:00:00和+5:00:00；文字无截断须另外看原图",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite overtime_preview -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时读数"
+      ]
+    },
+    {
+      "id": "FF-TILE-001",
+      "module": "系统磁贴",
+      "scenario": "实际磁贴使用保存默认开始",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "在设置请求添加并系统确认；下拉到实际FF磁贴，点击开始",
+      "expected": "点击真实磁贴新建且仅一条默认倒计时记录，时长为已保存值，不打开第三方App",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite tile -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "系统磁贴"
+      ]
+    },
+    {
+      "id": "FF-TILE-002",
+      "module": "系统磁贴",
+      "scenario": "暂停继续保留同一会话",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "实际磁贴开始后点暂停，再点继续；检查系统状态与记录",
+      "expected": "暂停后显示继续，继续后显示暂停；始终同ID且不新增记录，实际读数/状态与点击相符",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite tile -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "系统磁贴"
+      ]
+    },
+    {
+      "id": "FF-TILE-003",
+      "module": "系统磁贴",
+      "scenario": "超时从设置页打开控制首页",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "普通到时后进入设置，点磁贴",
+      "expected": "MainActivity在前台且原计时/记录ID不变；不直接结束，不只回到设置页",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite tile -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "系统磁贴"
+      ]
+    },
+    {
+      "id": "FF-TILE-004",
+      "module": "系统磁贴",
+      "scenario": "短时C4通知门禁",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "30秒C4启动后点磁贴，检查实际前台与通知，再口令解除",
+      "expected": "新建30秒C4后通知没有结束计时动作，不等待提醒节点变化才隐藏",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite tile -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "系统磁贴"
+      ]
+    },
+    {
+      "id": "FF-WIDGET-007",
+      "module": "桌面组件",
+      "scenario": "C4超时可结束但不暂停",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "真实组件启动C4，归零前点原控制；尾音后点查看再结束",
+      "expected": "C4超时主操作只打开FF，结束按钮正常MANUAL结算同一会话；归零前守卫另见FF-WIDGET-004",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_widgets.py",
+        "./scripts/test-device.ps1 -Suite widgets -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "桌面组件"
+      ]
+    },
+    {
+      "id": "FF-PRESET-C4-EXTEND-001",
+      "module": "C4",
+      "scenario": "关闭快照加时不读取当前开启值",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "保存关闭C4，当前开启；1秒归零后加1分钟并跨过C4触发点",
+      "expected": "原ID计划变61000ms，仍无C4调度；全局开关和声音不被预设改写",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_preset_c4.py",
+        "./scripts/test-device.ps1 -Suite preset_c4_extensions -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-PRESET-C4-EXTEND-002",
+      "module": "C4",
+      "scenario": "开启快照超时禁止加时",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "保存开启C4，当前关闭；1秒到时并等尾音后，从首页检查并结束",
+      "expected": "C4持续OVERTIME，无加时入口或事件，计划仍1000ms；可正常结束，当前配置不变",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_preset_c4.py",
+        "./scripts/test-device.ps1 -Suite preset_c4_extensions -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-TILE-PHONE-001",
+      "module": "系统磁贴",
+      "scenario": "HyperOS添加、真实锁屏与控制",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "本轮相同SHA的APK、已有悬浮权限；沿用手机原屏幕锁和日常省电设置，不额外设置密码",
+      "steps": "在FF设置请求添加并确认；从控制中心开始/暂停/继续；沿用手机现有屏幕锁，锁屏后点磁贴再解锁",
+      "expected": "厂商面板实际有FF磁贴；开始/暂停/继续同一会话；未解锁不执行，解锁后只处理仍有效的会话；拒绝或取消不假报成功",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "设置 → 控制中心快捷开关",
+        "docs/SYSTEM_CONTROLS.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 1,
+      "gap": "AOSP无安全锁模拟器不证明HyperOS面板、指纹解锁及厂商后台规则",
+      "impact_tags": [
+        "系统磁贴"
+      ]
+    },
+    {
+      "id": "FF-C4-OVERTIME-PHONE-001",
+      "module": "C4",
+      "scenario": "真实超时触摸及尾音中正常结束",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "已保存C4开启的倒计时；仅本机Debug三录音测试听感，正常媒体音量，Release不以无声判错",
+      "steps": "已明确开启C4的短倒计时自然归零；常态/装置切换和拖动，尾音中点结束；下轮从首页或组件结束",
+      "expected": "两形态显示超时，不能暂停/加时；明确结束关闭同一会话；本地有录音时尾音停止，无拆除成功语音或重复爆炸",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "docs/SYSTEM_CONTROLS.md",
+        "完整C4原#键 → 结束"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 3,
+      "gap": "模拟器只验证触摸注入和状态，不能证明真实手指/厂商入口或尾音实际停止；Release声音项不适用",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-HOME-SWIPE-PHONE-001",
+      "module": "首页",
+      "scenario": "真实手指滑动和纵向操作区分",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "本轮同SHA，空闲；不需要额外权限",
+      "steps": "各栏左右滑动并上下滚动；长按拖动标签排序；在时长滚轮上下滑动后返回",
+      "expected": "页签与内容同步且顺序正确；纵向操作不误换栏，不触发启动，返回保留选择与滚动",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "真机按需补充",
+      "entry_points": [
+        "首页 → 计时／预设／App"
+      ],
+      "scope": "单例",
+      "manual_tier": "建议真机",
+      "manual_group": 7,
+      "gap": "模拟器已覆盖注入手势、旋转和滚动恢复，真实手感仍是补充",
+      "impact_tags": [
+        "首页"
+      ]
+    },
+    {
+      "id": "FF-HOME-SWIPE-002",
+      "module": "首页",
+      "scenario": "排序后滑动遵循新顺序",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "选择10分，滑到预设并纵向滚动，滑App再返回；长按排序再滑动；重开首页",
+      "expected": "长按将App拖到首位，当前计时栏目ID不变；向左滑到预设，重开开首栏",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite home_swipe -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "首页"
+      ]
+    },
+    {
+      "id": "FF-HOME-SWIPE-003",
+      "module": "首页",
+      "scenario": "滑动保留选择与滚动",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "选择10分，滑到预设并纵向滚动，滑App再返回；长按排序再滑动；重开首页",
+      "expected": "App摘要仍10分钟；预设返回后可见项及位置与离开前一致",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite home_swipe -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "首页"
+      ]
+    },
+    {
+      "id": "FF-OVERTIME-003",
+      "module": "超时读数",
+      "scenario": "Debug选择重启恢复",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "开发者模式切换三个布局，保存同数据预览，重启，核对配置和记录",
+      "expected": "本机Debug重启后保持最后选择SIDE_BY_SIDE，不需重开服务",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite overtime -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时读数"
+      ]
+    },
+    {
+      "id": "FF-C4-OVERTIME-003",
+      "module": "C4",
+      "scenario": "尾音期间明确结束",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "归零前按住#并跨零松开；另一会话归零后尾音内点结束",
+      "expected": "归零后尾音中点原#位置的结束可关闭窗口，未走成功语音；实际听感另测",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite overtime -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-TILE-005",
+      "module": "系统磁贴",
+      "scenario": "原生系统确认和实际磁贴",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "在设置请求添加并系统确认；下拉到实际FF磁贴，点击开始",
+      "expected": "系统确认实际出现且确认后在真实控制中心找到可点击FF磁贴；仅请求返回不算通过",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite tile -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "系统磁贴"
+      ]
+    },
+    {
+      "id": "FF-TILE-006",
+      "module": "系统磁贴",
+      "scenario": "C4磁贴只打开控制首页",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36；使用统一runner备份还原私有数据，不在手机运行脚本",
+      "steps": "30秒C4启动后点磁贴，检查实际前台与通知，再口令解除",
+      "expected": "点C4磁贴后MainActivity在前台且浮窗仍存在；随后正确口令可解除",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "专用模拟器自动回归",
+      "entry_points": [
+        "scripts/device_controls.py",
+        "./scripts/test-device.ps1 -Suite tile -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "系统磁贴"
+      ]
     }
   ],
   "junit_classes": {
@@ -4017,7 +4891,11 @@
     "HomeNavigationTest": "FF-JVM-HOMENAVIGATION",
     "DailyAppQuotaTest": "FF-JVM-DAILYAPPQUOTA",
     "QuotaPersistenceTest": "FF-JVM-QUOTAPERSISTENCE",
-    "PresetQuotaTest": "FF-JVM-PRESETQUOTA"
+    "PresetQuotaTest": "FF-JVM-PRESETQUOTA",
+    "C4OvertimeControlsTest": "FF-JVM-C4OVERTIMECONTROLS",
+    "OvertimeReadoutTest": "FF-JVM-OVERTIMEREADOUT",
+    "TimerTileModelTest": "FF-JVM-TIMERTILEMODEL",
+    "StartAdmissionObservableTest": "FF-JVM-STARTADMISSIONOBSERVABLE"
   },
   "device_details": {
     "widgets": {
@@ -4027,7 +4905,8 @@
       "overtimeAndC4Guards": "FF-WIDGET-004",
       "savedStopwatchAndColdStart": "FF-WIDGET-005",
       "realLauncherResize": "FF-WIDGET-006",
-      "quotaLatestBalanceAndPause": "FF-QUOTA-WIDGET-001"
+      "quotaLatestBalanceAndPause": "FF-QUOTA-WIDGET-001",
+      "c4OvertimeOpenAndEnd": "FF-WIDGET-007"
     },
     "home": {
       "tabIsolation": "FF-HOME-001",
@@ -4046,6 +4925,34 @@
       "interruptedNoBackfill": "FF-QUOTA-005",
       "exhaustedNoStart": "FF-QUOTA-006",
       "readFailureNoRefill": "FF-QUOTA-007"
+    },
+    "home_swipe": {
+      "realSwipesAndClickSync": "FF-HOME-SWIPE-001",
+      "customOrderRespected": "FF-HOME-SWIPE-002",
+      "scrollAndSelectionRetained": "FF-HOME-SWIPE-003"
+    },
+    "overtime": {
+      "previewInert": "FF-OVERTIME-001",
+      "normalShapesFoldExpand": "FF-OVERTIME-002",
+      "c4OvertimeToggleDragEnd": "FF-C4-OVERTIME-001",
+      "zeroCrossingPressCancelled": "FF-C4-OVERTIME-002",
+      "styleRestored": "FF-OVERTIME-003",
+      "endDuringTail": "FF-C4-OVERTIME-003"
+    },
+    "overtime_preview": {
+      "longTextsExposed": "FF-OVERTIME-PREVIEW-001"
+    },
+    "tile": {
+      "idleUsesSavedDefaults": "FF-TILE-001",
+      "pauseResumeSameSession": "FF-TILE-002",
+      "overtimeOpenWithoutEnding": "FF-TILE-003",
+      "shortC4NotificationLocked": "FF-TILE-004",
+      "nativeConfirmationAndActualTile": "FF-TILE-005",
+      "c4OpenOnly": "FF-TILE-006"
+    },
+    "preset_c4_extensions": {
+      "normalExtensionSnapshotStable": "FF-PRESET-C4-EXTEND-001",
+      "c4OvertimeNoExtension": "FF-PRESET-C4-EXTEND-002"
     }
   }
 }

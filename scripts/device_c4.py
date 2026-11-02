@@ -13,6 +13,23 @@ def has_timer_service(dump):
     return bool(re.search(r'(?m)^\s*\*\s+ServiceRecord\{[^\n]*\bapp\.floatingfocus/(?:\.|app\.floatingfocus\.)FloatingService(?:\s|\})', dump))
 
 
+def c4_device_geometry(d):
+    """Physical-key fixture derived from the shared C4Geometry contract."""
+    x,y,r,b = d.frame()
+    w,h = (r-x)/d.density-4, (b-y)/d.density-4
+    bw=min(w,max(w*.8,164)); bx=w*.14 if w*.8>=164 else (w-bw)/2
+    tight=h-18<286 or bw<210
+    gap=4 if tight else 6; padding=5 if tight else 6
+    pw=min(188,bw-12); ph=44*4+gap*3+padding*2
+    sh=50 if tight else 64; fh=sh+10
+    bottom=h-8; edge=min(8,max(0,(h-18-fh-gap-ph)/2))
+    sy=max(10+edge,min(43,bottom-edge-ph-gap-fh))+5
+    px=min(max(bx+6,bx+bw-pw-6),max(bx+6,(w-pw)/2+6))
+    py=max(sy+sh+5+gap,min(126,bottom-edge-ph))
+    return dict(x=x,y=y,w=w,h=h,gap=gap,kw=(pw-padding*2-gap*2)/3,kh=44,
+                left=px+padding,top=py+padding,screenY=sy,screenHeight=sh)
+
+
 def c4(d, focus=None):
     row_centers = {}
     snapshot_seconds = []
@@ -109,19 +126,7 @@ def c4(d, focus=None):
         raise AssertionError(('C4 expansion not stable', old, previous))
 
     def device_geometry():
-        x,y,r,b = d.frame()
-        w,h = (r-x)/d.density-4, (b-y)/d.density-4
-        bw=min(w,max(w*.8,164)); bx=w*.14 if w*.8>=164 else (w-bw)/2
-        tight=h-18<286 or bw<210
-        gap=4 if tight else 6; padding=5 if tight else 6
-        pw=min(188,bw-12); ph=44*4+gap*3+padding*2
-        sh=50 if tight else 64; fh=sh+10
-        bottom=h-8; edge=min(8,max(0,(h-18-fh-gap-ph)/2))
-        sy=max(10+edge,min(43,bottom-edge-ph-gap-fh))+5
-        px=min(max(bx+6,bx+bw-pw-6),max(bx+6,(w-pw)/2+6))
-        py=max(sy+sh+5+gap,min(126,bottom-edge-ph))
-        return dict(x=x,y=y,w=w,h=h,gap=gap,kw=(pw-padding*2-gap*2)/3,kh=44,
-                    left=px+padding,top=py+padding,screenY=sy,screenHeight=sh)
+        return c4_device_geometry(d)
 
     def key_rect(char):
         g=device_geometry(); gap=g['gap']; kw=g['kw']; kh=g['kh']
@@ -466,7 +471,7 @@ def c4(d, focus=None):
             d.shot(f'c4-explosion-{seconds}-{sound}')
             assert logs().count('Timer completed:') == 1 and logs().count('C4 explosion consumed') == 1
             assert d.overlay()[0] == wid
-            wait_for(lambda: 'C4 phase=OFF' in logs(), 9)
+            wait_for(lambda: 'C4 phase=OVERTIME' in logs(), 9)
             d.shot(f'c4-overtime-{seconds}-{sound}')
             text = logs()
             if sound:
@@ -522,7 +527,7 @@ def c4(d, focus=None):
         return dict(defaultsAndDisclosure=True, inputDroppedBeforePlanting=True, realKeysAndWrongRetry=True,
                     backspaceAndClear=True, keyDragCancelled=True, bodyDragSameWindow=True, noReplayOnNavigation=True,
                     homeAndNotificationStopRemoved=True, switchNextSession=True, defuseStopsWithoutExplosion=True,
-                    naturalExpirySingleExplosion=True, tailRestoresOvertime=True, shortStartsSeekToCurrentOffset=True, lockUnlockNoReplay=True,
+                    naturalExpirySingleExplosion=True, tailKeepsC4Overtime=True, shortStartsSeekToCurrentOffset=True, lockUnlockNoReplay=True,
                     mutedVisualAndInput=True, landscapeKeysAndRotation=True, forceStopAndRevocation=True,
                     keyGapNoAction=True, last20StableAcrossForms=True, minimumBaseKeypad=True, partialInputSurvivesToggle=True, defaultCompact=True, successVoiceSingleAndRecordFrozen=True,
                     newSessionPreemptsVoice=True, revokeDuringSuccessCleansService=True,

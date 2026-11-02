@@ -7,7 +7,7 @@ from device_preset_shortcuts import require_empty_pins, PINNED_MATCH_FLAGS
 PACKAGE = 'app.floatingfocus'
 
 
-def preset_c4(d):
+def preset_c4(d, extensions_only=False):
     def texts(): return [n.get('text', '') for n in d.dump().iter('node')]
     def logs(): return d.shell('logcat', '-d', '-s', 'FloatingFocus:*')
     def wait(check, message, seconds=10):
@@ -91,8 +91,41 @@ def preset_c4(d):
         d.start()
         if '管理预设方案' in texts(): d.tap('完成')
 
+    def extension_checks():
+        for saved in (False,True):
+            setup(not saved,saved,seconds=1); row=launch('home',saved)
+            time.sleep(8)
+            d.start()
+            # Keep home controls clear while leaving room BELOW the time for
+            # the wheel fixture. A bottom anchor deliberately puts controls
+            # above it, so the former fixed wheel fractions no longer apply.
+            d.shell('input','swipe',*d.center(),int(d.width*.28),int(d.height*.5),450)
+            top()
+            if saved:
+                # Persistent C4 overtime supersedes the former tail→ordinary
+                # extension path. Its saved-on session must never gain time.
+                assert '加时' not in texts() and '结束计时' in texts()
+                assert 'C4 phase=OVERTIME' in logs()
+                assert d.records()[-1]['id']==row['id'] and d.records()[-1]['plannedMillis']==1000
+                assert 'Timer extended:' not in logs()
+                d.shot('preset-c4-overtime-no-extension');d.tap('结束计时');d.wait_stopped()
+            else:
+                d.tap('加时');time.sleep(.7);d.shot('preset-c4-extension-editor')
+                x,y,r,b=d.frame()
+                d.shell('input','swipe',int(x+(r-x)*.35),int(y+(b-y)*.36),int(x+(r-x)*.35),int(y+(b-y)*.68),650)
+                d.shot('preset-c4-extension-wheel')
+                d.overlay_tap('确认加时',.65,.82)
+                wait(lambda:d.records()[-1]['plannedMillis']==61000,'Extension did not apply exactly one minute')
+                assert d.records()[-1]['id']==row['id']
+                d.shell('logcat','-c');time.sleep(18)
+                assert 'C4 phase=' not in logs(), 'Saved-off extension re-read current C4 enable'
+                d.shot('preset-c4-extension-False');d.stop()
+            assert current()['enabled']==(not saved) and current()['sound'] is False
+        return dict(normalExtensionSnapshotStable=True,c4OvertimeNoExtension=True)
+
     require_empty_pins(d.shell('cmd','shortcut','get-shortcuts','--user','0','--flags',PINNED_MATCH_FLAGS,PACKAGE))
     try:
+        if extensions_only: return extension_checks()
         print('Preset C4: legacy off/current on, real desktop identity, draft cancel/save...',flush=True)
         setup(True)  # No field: legacy must never follow current.
         pin(); launch('home',False); d.stop(); d.start(); launch('desktop',False); d.stop(); d.start()
@@ -123,25 +156,16 @@ def preset_c4(d):
         launch('home',False,mode='STOPWATCH'); time.sleep(1)
         assert 'C4 media' not in logs() and 'C4 event=' not in logs(); d.stop()
 
-        print('Preset C4: extension keeps both explicit session states...',flush=True)
-        extensions=[]
-        for saved in (False,True):
-            setup(not saved,saved,seconds=1); row=launch('home',saved)
-            time.sleep(8)  # Includes the unchanged explosion tail; then add time in the original window.
-            d.start(); park(); top(); d.tap('加时'); time.sleep(.5)
-            x,y,r,b=d.frame()
-            d.shell('input','swipe',int(x+(r-x)*.35),int(y+(b-y)*.36),int(x+(r-x)*.35),int(y+(b-y)*.68),650)
-            d.overlay_tap('确认加时',.65,.82)
-            wait(lambda: d.records()[-1]['plannedMillis']==61000,'Extension did not apply exactly one minute')
-            assert d.records()[-1]['id']==row['id']
-            d.shell('logcat','-c'); time.sleep(18)
-            assert ('C4 phase=' in logs())==saved, 'Extension re-read current C4 enable'
-            assert current()['enabled']==(not saved) and current()['sound'] is False
-            d.shot('preset-c4-extension-'+str(saved)); extensions.append(saved); d.stop()
+        print('Preset C4: saved-off extension and C4 overtime guard...',flush=True)
+        extension_results=extension_checks()
         return dict(legacyOff=True,oppositeCurrentStates=True,homeAndActualDesktopMatch=True,desktopReadsEditedPreset=True,
                     draftCancelNoWrites=True,savedDraftSurvivesRestart=True,saveCurrentIncludesEnable=True,
                     twoPresetsIndependent=True,currentManualAndQuick=True,activeSnapshotStable=True,
-                    extensionStates=extensions,globalSoundNotRestored=True,stopwatchHasNoC4Media=True,
+                    **extension_results,globalSoundNotRestored=True,stopwatchHasNoC4Media=True,
                     realAudioListening='not performed; muted playback requests checked')
     finally:
         d.stop(); d.shell('cmd','shortcut','clear-shortcuts','--user','0',PACKAGE)
+
+
+def preset_c4_extensions(d):
+    return preset_c4(d,extensions_only=True)

@@ -43,7 +43,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -98,10 +97,11 @@ class MainActivity : ComponentActivity() {
         var permissionMessage by rememberSaveable { mutableStateOf<String?>(null) }
         var permissionHelp by rememberSaveable { mutableStateOf(false) }
         var quickStarting by remember { mutableStateOf(false) }
+        val pendingStartId by FloatingService.pendingStarts.collectAsStateWithLifecycle()
+        val starting = quickStarting || pendingStartId != null
         val navigation = remember { HomeNavigationStore(this@MainActivity) }
         val entryOrder by navigation.order.collectAsStateWithLifecycle()
         var selectedEntryId by rememberSaveable { mutableStateOf(entryOrder.first().id) }
-        val selectedEntry = HomeEntries.selected(entryOrder, selectedEntryId)
         val entryStates = rememberSaveableStateHolder()
         // Result never auto-starts a timer: start must happen while this activity is visible.
         val notificationRequest = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -133,8 +133,8 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     Spacer(Modifier.height(12.dp))
-                    HomeEntryTabs(entryOrder, selectedEntry, enabled = !quickStarting,
-                        onSelect = { selectedEntryId = it.id }, onReorder = navigation::save)
+                    HomeEntryPager(entryOrder, selectedEntryId, enabled = !starting, states = entryStates,
+                        onSelected = { selectedEntryId = it }, onReorder = navigation::save, betweenTabsAndPage = {
                     if (session.active || monitor.enabled) {
                         Spacer(Modifier.height(8.dp))
                         HomeSection {
@@ -143,10 +143,11 @@ class MainActivity : ComponentActivity() {
                                     monitor.enabled -> monitor.reason
                                     session.paused -> "已暂停 · ${if (session.mode == TimerMode.STOPWATCH) formatElapsed(session.elapsedMillis) else formatRemaining(session.remainingMillis)}"
                                     session.mode == TimerMode.STOPWATCH -> "正计时 · ${formatElapsed(session.elapsedMillis)}"
+                                    session.c4Active && session.stage == ReminderStage.FINISHED -> "C4 超时 +${formatUsageTime(session.overtimeMillis)}"
                                     session.stage == ReminderStage.FINISHED -> "超时 +${formatElapsed(session.overtimeMillis)}"
                                     else -> "计时中 · ${formatRemaining(session.remainingMillis)}"
                                 }, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-                                if (session.mode == TimerMode.COUNTDOWN && session.stage == ReminderStage.FINISHED && !session.automatic && !session.c4Locked)
+                                if (SessionControls.canExtend(session))
                                     TextButton(onClick = { FloatingService.requestExtension(this@MainActivity, session.timerStartedAt) }) { Text("加时") }
                                 if (!session.c4Locked) TextButton(onClick = { FloatingService.stop(this@MainActivity) },
                                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) {
@@ -156,12 +157,9 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     Spacer(Modifier.height(12.dp))
-                    // Compose 1.8.2 can retain a stale scroll layer when ReusableContent
-                    // swaps branches. Separate layout lifetimes, retain saved state by ID.
-                    key(selectedEntry.id) {
-                    entryStates.SaveableStateProvider(selectedEntry.id) {
-                        Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())) {
-                            when (selectedEntry) {
+                    }) { entry ->
+                        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                            when (entry) {
                                 HomeEntry.TIMER -> {
                                     HomeSection {
                                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -172,13 +170,13 @@ class MainActivity : ComponentActivity() {
                                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                             TimerMode.entries.forEach { option ->
                                                 FilterChip(mode == option, { selection = selection.copy(mode = option) }, label = { Text(option.label) },
-                                                    enabled = !session.active && !monitor.enabled && !quickStarting)
+                                                    enabled = !session.active && !monitor.enabled && !starting)
                                             }
                                         }
                                         if (mode == TimerMode.COUNTDOWN) {
                                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                                 quickDurations.forEach { value ->
-                                                    FilterChip(selected = seconds == value, enabled = !session.active && !monitor.enabled && !quickStarting,
+                                                    FilterChip(selected = seconds == value, enabled = !session.active && !monitor.enabled && !starting,
                                                         onClick = { selection = selection.copy(durationSeconds = value) }, modifier = Modifier.weight(1f),
                                                         label = { Text(if (value % 60 == 0) "${value / 60}分" else "%d:%02d".format(java.util.Locale.ROOT, value / 60, value % 60),
                                                             modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center,
@@ -186,13 +184,13 @@ class MainActivity : ComponentActivity() {
                                                 }
                                             }
                                             DurationEntry("自定义时长", customSeconds, { customSeconds = it; selection = selection.copy(durationSeconds = it) },
-                                                enabled = !session.active && !monitor.enabled && !quickStarting, minSeconds = 1)
+                                                enabled = !session.active && !monitor.enabled && !starting, minSeconds = 1)
                                             if (seconds !in quickDurations) Text("已选时长 · ${durationLabel(seconds)}",
                                                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }
                                         Spacer(Modifier.height(4.dp))
                                         if (!session.active && !monitor.enabled) {
-                                            Button(enabled = !quickStarting, onClick = {
+                                            Button(enabled = !starting, onClick = {
                                                 if (!OverlayPermission.granted(this@MainActivity)) permissionHelp = true
                                                 else {
                                                     strategyError = ReminderSettingsStore.get(this@MainActivity).settings.value.strategy.validationError(seconds * 1000L, mode)
@@ -204,7 +202,7 @@ class MainActivity : ComponentActivity() {
                                 }
                                 HomeEntry.PRESETS -> {
                                     HomeSection {
-                                        TimerPresetsCard(seconds, mode = mode, enabled = !session.active && !monitor.enabled && !quickStarting,
+                                        TimerPresetsCard(seconds, mode = mode, enabled = !session.active && !monitor.enabled && !starting,
                                             onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true },
                                             onApplied = { selectedSeconds, selectedMode ->
                                                 selection = TimerStartupDefaults(selectedMode, selectedSeconds)
@@ -214,7 +212,7 @@ class MainActivity : ComponentActivity() {
                                 }
                                 HomeEntry.APPS -> {
                                     HomeSection {
-                                        QuickLaunchCard(seconds, mode = mode, enabled = !session.active && !monitor.enabled && !quickStarting,
+                                        QuickLaunchCard(seconds, mode = mode, enabled = !session.active && !monitor.enabled && !starting,
                                             onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true })
                                     }
                                 }
@@ -240,7 +238,6 @@ class MainActivity : ComponentActivity() {
                             }
                             (session.error ?: permissionMessage)?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(vertical = 12.dp)) }
                         }
-                    }
                     }
                 }
             }

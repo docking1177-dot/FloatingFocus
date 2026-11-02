@@ -5,17 +5,21 @@ data class C4Event(val index: Int, val atMillis: Long, val text: String) {
     val lightsLed: Boolean get() = text.contains("滴") || text.contains("快速连响") || text.contains("下包完成")
     val pulseMillis: Long get() = if (text.contains("快速连响")) 45 else 80
 }
-enum class C4Phase { OFF, PLANTING, ARMED, EXPLODING, DEFUSED }
+enum class C4Phase { OFF, PLANTING, ARMED, EXPLODING, DEFUSED, OVERTIME }
 data class C4Frame(val phase: C4Phase = C4Phase.OFF, val led: Boolean = false,
-                   val remainingMillis: Long = 0, val input: String = "", val error: Boolean = false) {
+                   val remainingMillis: Long = 0, val input: String = "", val error: Boolean = false,
+                   val overtimeMillis: Long = 0) {
     val active: Boolean get() = phase != C4Phase.OFF
     val inputEnabled: Boolean get() = phase == C4Phase.ARMED
+    val expired: Boolean get() = phase == C4Phase.EXPLODING || phase == C4Phase.OVERTIME
+    val requiresCode: Boolean get() = phase == C4Phase.PLANTING || phase == C4Phase.ARMED || phase == C4Phase.DEFUSED
 }
 
 class C4Timeline(val events: List<C4Event>) {
     init { require(events.isNotEmpty() && events.zipWithNext().all { (a, b) -> a.atMillis <= b.atMillis }) }
     fun phase(signedRemaining: Long): C4Phase = when {
-        signedRemaining > WINDOW_MILLIS || signedRemaining <= -TAIL_MILLIS -> C4Phase.OFF
+        signedRemaining > WINDOW_MILLIS -> C4Phase.OFF
+        signedRemaining <= -TAIL_MILLIS -> C4Phase.OVERTIME
         signedRemaining <= 0 -> C4Phase.EXPLODING
         WINDOW_MILLIS - signedRemaining < INPUT_AT_MILLIS -> C4Phase.PLANTING
         else -> C4Phase.ARMED

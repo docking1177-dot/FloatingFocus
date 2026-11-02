@@ -64,11 +64,13 @@ class C4TimelineTest {
         assertEquals(C4KeyResult.DEFUSED, early.key('8', 1))
         assertEquals(C4KeyResult.IGNORED, early.key('8', 0))
     }
-    @Test fun `tail is one continuous phase and restores ordinary overtime at the actual tail boundary`() {
+    @Test fun `tail is one continuous phase followed by persistent C4 overtime`() {
         val t = timeline()
         assertEquals(C4Phase.EXPLODING, t.phase(0))
         assertEquals(C4Phase.EXPLODING, t.phase(-5901))
-        assertEquals(C4Phase.OFF, t.phase(-5902))
+        assertEquals("OVERTIME", t.phase(-5902).name)
+        assertTrue(C4Frame(t.phase(-5902)).active)
+        assertEquals("OVERTIME", t.phase(-3_600_000).name)
         assertNull(t.nextDelay(-5902))
     }
     @Test fun `LED uses supplied cue positions and never catches up a missed flash`() {

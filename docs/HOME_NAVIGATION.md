@@ -1,6 +1,6 @@
 # 首页入口分栏
 
-首页顶部保留「计时／预设／App」三个入口，一次只展示当前栏目。
+首页顶部保留「计时／预设／App」三个入口，一次只展示当前栏目。点击标签与内容区左右滑动共用原生HorizontalPager状态，切换顺序遵循用户已保存的栏目顺序。
 
 - 计时：临时选择模式与时长，再手动开始；「手动设置」仍在此管理四个常用时长与启动默认值。
 - 预设：使用保存的计时、外观、目标 App 及 C4 状态，一键启动；保存当前、管理与新建保留。
@@ -16,15 +16,15 @@
 
 ## 会话与权限边界
 
-活跃会话状态和原有结束／到时加时操作位于共同区域，切换栏目不重启或替换会话；C4 的正常结束限制保持。预设和快捷 App 启动请求处理期间暂时禁用标签点击、排序，避免切栏取消启动协程。没有悬浮权限时，各栏在当前操作下提供授权入口；授权后仍需主动启动。
+活跃会话状态和原有结束／到时加时操作位于共同区域，切换栏目不重启或替换会话。C4归零前仅口令结束，归零后可正常结束，C4全阶段不暂停/加时。所有启动请求复用可观察门禁，期间暂时禁用标签点击、滑动、排序，避免切栏取消启动协程。排序中禁分页，分页中禁排序；各栏纵向滚动及内部控件保留原有手势。没有悬浮权限时，各栏在当前操作下提供授权入口；授权后仍需主动启动。
 
 Debug 与 Release 共用分栏；Debug 的三个预设卡片候选仅改变预设栏内部显示。计时服务、启动校验、预设草稿、桌面快捷方式及组件没有新增平行实现。
 
-源码：`HomeNavigation.kt`（稳定 ID／顺序）、`HomeNavigationStore.kt`（偏好）、`HomeEntryTabs.kt`（选择／手势）、`MainActivity.kt`（共同状态与栏目组合）。
+源码：`HomeNavigation.kt`（稳定ID／顺序）、`HomeNavigationStore.kt`（偏好）、`HomeEntryPager.kt`（点击/滑动同步及ID分页）、`HomeEntryTabs.kt`（排序）、`MainActivity.kt`（共同状态与栏目组合）。SaveableStateHolder位于按顺序重建的Pager外，各页滚动仍按ID恢复。系统磁贴和超时读数见[SYSTEM_CONTROLS.md](SYSTEM_CONTROLS.md)。
 
 验证入口：`HomeNavigationTest`；`scripts/test-device.ps1 -Suite home -AllowTestDataChanges`。设备结果中的结构化细项只证明其明确断言；深浅主题及大字体截图另行检查，不能代替真机手感。
 
-## 本轮验证（2026-11-01）
+## 分栏初版验证（2026-11-01，历史）
 
 - Debug完整检查173项、Release完整检查165项，失败/错误为0，Lint错误/警告为0。原摘要为`.tools/checks/check-full-debug-20261101-101634-760.json`和`check-full-release-20261101-102215-219.json`。
 - 脚本回归36项通过，日志`.tools/checks/script-tests-20261101-home-tabs-final.log`。

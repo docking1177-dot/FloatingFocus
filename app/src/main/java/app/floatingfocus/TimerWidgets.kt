@@ -47,7 +47,7 @@ object TimerWidgets {
             }.collect { (state, defaults, presets) ->
                 val p = TimerWidgetModel.present(state, defaults, SystemClock.elapsedRealtime())
                 // Exclude per-second samples and draggable positions. Rebase only at real state changes.
-                val key = listOf(state.active, state.paused, state.mode, state.c4Locked, state.startRequestId,
+                val key = listOf(state.active, state.paused, state.mode, state.c4Locked, state.c4Active, state.startRequestId,
                     state.timerStartedAt, state.durationMillis, state.error, p.primary, p.overtime, defaults,
                     presets.map { listOf(it.id, it.name, it.durationSeconds, it.mode, it.targetApp, it.timeSource) })
                 if (key != lastKey) { lastKey = key; refresh(app) }

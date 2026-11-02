@@ -279,7 +279,7 @@ def report(catalog,out):
         '- 除组件结构化细项白名单外，历史套件只记汇总，不拆成全部功能通过；截图生成不等于视觉通过。',
         '- 读旧schema的验收JSON保留索引和原声明；缺统一结果/身份的不自动判整批通过。',
         '- 音频焦点、连续听感、真实震动与HyperOS桌面/后台策略仍需真机；不向用户转交可由单测/ADB完成的矩阵。',
-        '- 本轮未执行应用测试；只整理既有记录。后续可在原check/runner旁保存JUnit文件哈希、设备build和launcher版本，另立改进任务，不更改本轮判定。','']
+        '- 本整理器不执行应用测试，只引用真实原始记录。后续可在原check/runner旁保存JUnit文件哈希、设备build和launcher版本，不改变原判定。','']
     (DATA/'STATUS.md').write_text('\n'.join(lines),encoding='utf-8')
     generate_phone(views,target)
     print(json.dumps(stats,ensure_ascii=False,default=str))
@@ -291,7 +291,7 @@ def generate_phone(views,target):
         '这是用例库派生视图，只在cases.json维护步骤；执行结果另记manual_runs.jsonl。已有同SHA/同机/同系统通过的项可跳过，不凭同名版本号要求重测。',
         '本地Debug已含前段/爆炸/成功三录音；Release无本地录音且当前为未签名检查包，不要求安装或把无声当故障。不卸载清数据。',
         '沿用悬浮/通知及Redmi桌面快捷方式权限，保持日常省电设置，不新增无障碍、使用情况或保活权限。用普通60秒(C4关)和C4 60秒预设；组件显示原顺序前两个，不要求重排。',
-        f"先做分组1–6的{sum(c['manual_tier']=='必须真机' for c in views)}个可独立判定项，可连续操作；分组7为建议补充。普通计时不要求结束铃声。C4口令7355608，下包4.92秒后可输入；归零尾音后恢复超时。",'']
+        f"分组1–6有{sum(c['manual_tier']=='必须真机' for c in views)}个可独立判定项，可连续操作；按本轮影响选择，分组7为建议补充。普通计时不要求结束铃声。C4口令7355608，下包4.92秒后可输入；归零后保持专属超时并可正常结束，禁止暂停和加时。本轮最小新增差异见docs/SYSTEM_CONTROLS.md。",'']
     for c in sorted([c for c in views if c['manual_tier']!='自动化优先'],key=lambda c:(c['manual_group'],c['id'])):
         lines.extend([f"## {c['id']} {c['scenario']}（{c['priority']}，{c['manual_tier']}，分组{c['manual_group']}）",'',
             '- 目的：'+c['scenario'],'- 前置：'+c['preconditions'],'- 操作：'+c['steps'],'- 预期：'+c['expected'],
