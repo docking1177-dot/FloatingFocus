@@ -50,7 +50,9 @@ data class SessionState(
     val c4Active: Boolean = false,
     val startRequestId: String? = null,
     val durationMillis: Long = 0,
-    val sampledAt: Long = 0
+    val sampledAt: Long = 0,
+    /** Effective countdown setting captured at admission, including the ordinary pre-C4 stage. */
+    val c4Enabled: Boolean = false
 )
 
 class FloatingService : Service() {
@@ -140,7 +142,8 @@ class FloatingService : Service() {
             overlayState = SessionState(true, remaining, progress, stage, mode = timer.mode,
                 elapsedMillis = timer.elapsedAt(now), overtimeMillis = timer.overtimeAt(now), timerStartedAt = timer.startedAt,
                 paused = manualClock.paused, c4Locked = c4Frame.requiresCode, c4Active = c4Frame.active, startRequestId = activeStartRequestId,
-                durationMillis = timer.durationMillis, sampledAt = physicalNow)
+                durationMillis = timer.durationMillis, sampledAt = physicalNow,
+                c4Enabled = overlayState.c4Enabled)
             checkpointRecord(physicalNow)
             record?.let { recordStore.save(it, checkpoint = true) }
             mutableSession.value = overlayState
@@ -246,7 +249,7 @@ class FloatingService : Service() {
         }
         completionReminder.reset()
         overlayState = SessionState(true, duration, mode = mode, timerStartedAt = countdown!!.startedAt, startRequestId = requested,
-            durationMillis = countdown!!.durationMillis, sampledAt = SystemClock.elapsedRealtime())
+            durationMillis = countdown!!.durationMillis, sampledAt = SystemClock.elapsedRealtime(), c4Enabled = sessionC4Enabled)
         interactive = getSystemService(PowerManager::class.java).isInteractive
         val nm = getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(NotificationChannel(CHANNEL, "悬浮计时", NotificationManager.IMPORTANCE_LOW).apply {
@@ -308,9 +311,10 @@ class FloatingService : Service() {
                 onC4Key = { key ->
                     if (!stopping && c4Runtime?.key(key) == C4KeyResult.DEFUSED) finishSession(defusedFeedback = true)
                 },
-                onTogglePause = if (!overlayState.automatic &&
-                    ((overlayState.mode == TimerMode.COUNTDOWN && c4Runtime?.enabledForSession == true) || overlayState.paused))
-                    ({ togglePause(timerStart) }) else null,
+                // Preserve the ordinary overlay's existing resume affordance;
+                // starting a pause remains on the established widget/tile controls.
+                onTogglePause = if (SessionControls.canResume(overlayState))
+                    ({ setPaused(timerStart, false) }) else null,
                 onExtend = if (countdown != null && !c4Frame.active) ({ seconds -> extendTimer(timerStart, seconds) }) else null) {
                 if (c4Runtime?.locked() != true) finishSession()
             }
@@ -340,13 +344,8 @@ class FloatingService : Service() {
         ReminderVibration.once(this, settingsStore.settings.value.intensity)
     }
 
-    private fun togglePause(expectedStart: Long) {
-        if (c4Runtime?.enabledForSession != true && !manualClock.paused) return
-        setPaused(expectedStart, !manualClock.paused)
-    }
-
     private fun setPaused(expectedStart: Long, paused: Boolean) {
-        if (c4Runtime?.stageActive() == true) return
+        if (if (paused) !SessionControls.canPause(overlayState) else !SessionControls.canResume(overlayState)) return
         val timer = countdown ?: return
         val physicalNow = SystemClock.elapsedRealtime()
         if (stopping || timer.startedAt != expectedStart || manualClock.paused == paused ||
@@ -354,7 +353,7 @@ class FloatingService : Service() {
         if (paused) manualClock.pause(physicalNow) else manualClock.resume(physicalNow)
         handler.removeCallbacks(tick)
         tick.run()
-        Log.d(TAG, "C4 clock paused=${manualClock.paused} remaining=${overlayState.remainingMillis}")
+        Log.d(TAG, "Timer paused=${manualClock.paused} remaining=${overlayState.remainingMillis}")
         getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification())
     }
 

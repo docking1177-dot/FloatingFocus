@@ -83,7 +83,7 @@ class C4Input {
     }
 }
 
-/** Preserve existing pre-C4 pause behavior; no new clock or parallel timer. */
+/** Shared ordinary-session pause clock; SessionControls decides which sessions may pause. */
 class SessionClock {
     private var pausedAt: Long? = null
     private var pausedMillis = 0L

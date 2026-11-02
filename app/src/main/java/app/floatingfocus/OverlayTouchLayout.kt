@@ -7,6 +7,7 @@ import android.view.MotionEvent
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
 import android.graphics.Path
+import android.graphics.Point
 import android.graphics.RectF
 import android.graphics.Region
 import android.os.Build
@@ -19,7 +20,8 @@ internal class OverlayTouchLayout(
     private val onDragStart: () -> Unit,
     private val onDrag: (Float, Float) -> Unit,
     private val onDragEnd: () -> Unit = {},
-    private val onMeasured: (Int, Int) -> Unit = { _, _ -> }
+    private val onMeasured: (Int, Int) -> Unit = { _, _ -> },
+    private val measureBounds: (() -> Point)? = null
 ) : FrameLayout(context) {
     private val debug = context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
     private val gesture = OverlayDragGesture(ViewConfiguration.get(context).scaledTouchSlop)
@@ -33,7 +35,14 @@ internal class OverlayTouchLayout(
     private val touchRegion = Region()
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        // A fixed native window must not cap its next content measurement to the
+        // previous frame. Measure against the same safe display on every traversal,
+        // then publish the actual content size to WindowManager (as AndroidX Popup does).
+        val available = measureBounds?.invoke()
+        super.onMeasure(
+            available?.let { MeasureSpec.makeMeasureSpec(it.x.coerceAtLeast(1), MeasureSpec.AT_MOST) } ?: widthMeasureSpec,
+            available?.let { MeasureSpec.makeMeasureSpec(it.y.coerceAtLeast(1), MeasureSpec.AT_MOST) } ?: heightMeasureSpec)
+        if (debug) Log.d("FloatingFocus", "Overlay measure spec=${MeasureSpec.toString(widthMeasureSpec)},${MeasureSpec.toString(heightMeasureSpec)} measured=${measuredWidth}x$measuredHeight")
         // ViewRoot submits the measured size after this returns. Update the anchor
         // offset in that same traversal, before the new content can be drawn.
         onMeasured(measuredWidth, measuredHeight)

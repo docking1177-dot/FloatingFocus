@@ -216,18 +216,27 @@ def tile(d):
             # while startActivityAndCollapse is still completing its transition.
             d.shell('input','swipe',int(d.width*.76),1,int(d.width*.76),int(d.height*.82),450)
             time.sleep(.6)
-        raise AssertionError('SystemUI never fully expanded; refusing to swipe/click an underlying app')
+        # After a rotation this API36 SystemUI can retain its compact/split
+        # shade. Use its public shell navigation, then require real QS state;
+        # confirmation and tile clicks still go through actual SystemUI controls.
+        d.shell('cmd','statusbar','expand-settings')
+        wait_for(lambda:re.search(r'(?m)^\s+mQsExpanded: true\s*$',system_ui()),
+                 'SystemUI did not open QS after expand-settings',5)
+        return
     def click(live=False):
         nonlocal cached_point,click_count
         panel(live)
         if live:
             assert cached_point is not None
-            # Native tile clocks/marquees prevent UIAutomator's one-second idle.
-            # Our newly added, last-position tile stays on the final real page;
-            # tap its geometry captured from the actual idle SystemUI control.
+            # Ticking labels prevent UIAutomator idle; cached coordinates alone
+            # cannot prove the pager reached the tile's page. Route through the
+            # documented SystemUI click command, never an app-private Intent.
             assert d.shell('settings','get','secure','sysui_qs_tiles').strip().endswith('FocusTileService)')
-            for _ in range(3): d.shell('input','swipe',int(d.width*.85),int(d.height*.43),int(d.width*.15),int(d.height*.43),250)
             assert 'label=FF计时' in tile_state()
+            click_count+=1
+            d.shot('tile-before-click-'+str(click_count))
+            d.shell('cmd','statusbar','click-tile',TILE)
+            return
         else:
             n=tile_node(); x,y,r,b=d.bounds(n); cached_point=((x+r)/2,(y+b)/2)
         click_count+=1
@@ -261,6 +270,20 @@ def tile(d):
         click(live=True); panel(live=True); wait_for(lambda:'暂停' in tile_state(), 'Tile did not offer pause after resume',5)
         assert d.records()[-1]['id']==record['id'] and len(d.records())==before+1
         d.shot('tile-running'); finish_from_settings_if_needed()
+        # The immutable session flag applies before the final 44.439 seconds too.
+        start_preset(d,120,c4=True)
+        record=d.records()[-1]
+        panel(live=True)
+        assert '查看' in tile_state() and '暂停' not in tile_state(), 'Pre-stage C4 tile offers pause'
+        click(live=True);collapse()
+        assert '.MainActivity' in d.foreground() and d.records()[-1]['id']==record['id']
+        # Global settings changing mid-session must not restore a Pause command.
+        d.shell('input','swipe',*d.center(),int(d.width*.8),int(d.height*.78),450)
+        d.tap('设置');d.tap('提醒');d.tap('C4 倒计时')
+        panel(live=True)
+        assert '查看' in tile_state() and '暂停' not in tile_state(), 'Global switch changed active C4 policy'
+        click(live=True);collapse()
+        d.tap('结束计时');d.wait_stopped()
         start_preset(d,1); wait_for(lambda:d.records()[-1].get('overtimeMillis',0)>0,'No overtime')
         d.shell('input','swipe',*d.center(),int(d.width*.8),int(d.height*.78),450)
         d.start();d.tap('设置')
@@ -281,7 +304,8 @@ def tile(d):
         d.wait_stopped()
         return dict(nativeConfirmationAndActualTile=True,idleUsesSavedDefaults=True,pauseResumeSameSession=True,
                     overtimeOpenWithoutEnding=True,c4OpenOnly=True,shortC4NotificationLocked=True,
-                    liveTouchEvidence='Physical taps at idle-captured native tile geometry, final QS page; native dumpsys state and actual session checked',
+                    preStageC4OpenOnly=True,globalChangeKeepsSessionPausePolicy=True,
+                    liveTouchEvidence='Real SystemUI add confirmation and idle tile touch; live commands use public cmd statusbar click-tile, native tile state and actual session checked; live physical paging not accepted',
                     lockscreen='not tested; no secure credential configured',launcher='SystemUI AOSP API36')
     finally:
         (d.output/'tile-actions.log').write_text(logs(d),encoding='utf-8')

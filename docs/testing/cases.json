@@ -5109,6 +5109,299 @@
       "impact_tags": [
         "首页"
       ]
+    },
+    {
+      "id": "FF-JVM-C4SESSIONCONTROLS",
+      "module": "C4",
+      "scenario": "从会话开始的暂停快照策略（模型类）",
+      "priority": "P0",
+      "kind": "模型类汇总",
+      "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
+      "steps": "./scripts/check.ps1 -Mode Unit -Offline",
+      "expected": "C4尚未进入专属阶段时不可暂停/继续、可结束；磁贴/组件只打开控制；普通会话仍可暂停恢复；本类失败/错误=0",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "自动化优先",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/C4SessionControlsTest.kt"
+      ],
+      "scope": "模型类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "悬浮窗",
+        "C4",
+        "会话控制"
+      ]
+    },
+    {
+      "id": "FF-SUITE-OVERLAY_STABILITY",
+      "module": "悬浮窗",
+      "scenario": "逐秒测量、锚点与小时进位（套件）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
+      "steps": "./scripts/test-device.ps1 -Suite overlay_stability -AllowTestDataChanges",
+      "expected": "passedSuites明确包含overlay_stability且数据还原成功；未声称通过未执行细项",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "自动化优先",
+      "entry_points": [
+        "scripts/device_overlay_stability.py"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "悬浮窗",
+        "C4",
+        "会话控制"
+      ]
+    },
+    {
+      "id": "FF-OVERLAY-STABILITY-001",
+      "module": "悬浮窗",
+      "scenario": "专项采样区间的窗口帧稳定（不推断场景覆盖）",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
+      "steps": "运行overlay_stability，核对独立结果及逐秒坐标/视频",
+      "expected": "该版本脚本实际采样区间内窗口边界不改变；不据此推断采样前已展开、覆盖小时进位或全部C4阶段。具体场景、时钟推进和窗口ID以对应批次原始数据及新增专项用例为准",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "自动化优先",
+      "entry_points": [
+        "scripts/device_overlay_stability.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "悬浮窗",
+        "C4",
+        "会话控制"
+      ]
+    },
+    {
+      "id": "FF-OVERLAY-STABILITY-002",
+      "module": "悬浮窗",
+      "scenario": "C4阶段前原时间区域双击",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
+      "steps": "运行overlay_stability，核对独立结果及逐秒坐标/视频",
+      "expected": "上下边缘展开时原时间区域位置和字号不变；同一点再点击收起，仍为原运行会话，不误结束",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "自动化优先",
+      "entry_points": [
+        "scripts/device_overlay_stability.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "悬浮窗",
+        "C4",
+        "会话控制"
+      ]
+    },
+    {
+      "id": "FF-OVERLAY-STABILITY-003",
+      "module": "悬浮窗",
+      "scenario": "超时小时格式进位",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
+      "steps": "运行overlay_stability，核对独立结果及逐秒坐标/视频",
+      "expected": "隔离Lab连续走过小时边界，窗口和按钮不变位，读数完整；正式记录未修改",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "自动化优先",
+      "entry_points": [
+        "scripts/device_overlay_stability.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "悬浮窗",
+        "C4",
+        "会话控制"
+      ]
+    },
+    {
+      "id": "FF-OVERLAY-STABILITY-004",
+      "module": "悬浮窗",
+      "scenario": "新测量路径旋转与收起",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
+      "steps": "运行overlay_stability，核对独立结果及逐秒坐标/视频",
+      "expected": "横屏重测后仍可按时间区展开收起，时间锚点误差不超过2px；恢复原系统旋转设置",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "自动化优先",
+      "entry_points": [
+        "scripts/device_overlay_stability.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "悬浮窗",
+        "C4",
+        "会话控制"
+      ]
+    },
+    {
+      "id": "FF-TILE-007",
+      "module": "系统控制",
+      "scenario": "C4阶段前磁贴不暂停",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
+      "steps": "运行tile套件并核对SystemUI和会话记录",
+      "expected": "120秒C4会话尚未进入专属阶段，真实磁贴显示查看且只打开FF；同一会话保持运行，阶段前仍可从首页结束",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "自动化优先",
+      "entry_points": [
+        "scripts/device_controls.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "悬浮窗",
+        "C4",
+        "会话控制"
+      ]
+    },
+    {
+      "id": "FF-TILE-008",
+      "module": "系统控制",
+      "scenario": "修改全局C4不改变活跃会话暂停策略",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
+      "steps": "运行tile套件并核对SystemUI和会话记录",
+      "expected": "120秒C4会话尚未进入专属阶段，真实磁贴显示查看且只打开FF；同一会话保持运行，阶段前仍可从首页结束",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "自动化优先",
+      "entry_points": [
+        "scripts/device_controls.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "悬浮窗",
+        "C4",
+        "会话控制"
+      ]
+    },
+    {
+      "id": "FF-PHONE-OVERLAY-OVERTIME-JITTER",
+      "module": "悬浮窗",
+      "scenario": "Redmi普通累计主显展开逐秒闪动",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
+      "steps": "Debug中选累计主显，C4关闭，倒计时2秒；到时后展开观察10秒，再在上下边缘反复点击原时间区。",
+      "expected": "时间持续更新，整窗不闪下回弹，按钮不逐秒换位；原时间点击只展开/收起；C4从开始没有暂停入口，阶段前仍可结束；不把模拟器稳定当真机通过",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "必须真机",
+      "entry_points": [
+        "docs/validation/20261102-overlay-stability.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 0,
+      "gap": "用户报告0.3.0整窗每秒闪下回位，APK身份未核验；本轮修正后需同SHA真机复测。",
+      "impact_tags": [
+        "悬浮窗",
+        "C4",
+        "会话控制"
+      ]
+    },
+    {
+      "id": "FF-PHONE-OVERLAY-C4-JITTER",
+      "module": "悬浮窗",
+      "scenario": "Redmi启用C4会话展开闪动及阶段前锚点",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
+      "steps": "C4开启，以普通60秒倒计时启动；末段前双击原时间区，再在C4阶段展开观察10秒并拖动；输入7355608结束。",
+      "expected": "时间持续更新，整窗不闪下回弹，按钮不逐秒换位；原时间点击只展开/收起；C4从开始没有暂停入口，阶段前仍可结束；不把模拟器稳定当真机通过",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "必须真机",
+      "entry_points": [
+        "docs/validation/20261102-overlay-stability.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 0,
+      "gap": "用户报告0.3.0整窗每秒闪下回位，APK身份未核验；本轮修正后需同SHA真机复测。",
+      "impact_tags": [
+        "悬浮窗",
+        "C4",
+        "会话控制"
+      ]
     }
   ],
   "junit_classes": {
@@ -5148,7 +5441,8 @@
     "C4OvertimeControlsTest": "FF-JVM-C4OVERTIMECONTROLS",
     "OvertimeReadoutTest": "FF-JVM-OVERTIMEREADOUT",
     "TimerTileModelTest": "FF-JVM-TIMERTILEMODEL",
-    "StartAdmissionObservableTest": "FF-JVM-STARTADMISSIONOBSERVABLE"
+    "StartAdmissionObservableTest": "FF-JVM-STARTADMISSIONOBSERVABLE",
+    "C4SessionControlsTest": "FF-JVM-C4SESSIONCONTROLS"
   },
   "device_details": {
     "widgets": {
@@ -5201,7 +5495,9 @@
       "overtimeOpenWithoutEnding": "FF-TILE-003",
       "shortC4NotificationLocked": "FF-TILE-004",
       "nativeConfirmationAndActualTile": "FF-TILE-005",
-      "c4OpenOnly": "FF-TILE-006"
+      "c4OpenOnly": "FF-TILE-006",
+      "preStageC4OpenOnly": "FF-TILE-007",
+      "globalChangeKeepsSessionPausePolicy": "FF-TILE-008"
     },
     "preset_c4_extensions": {
       "normalExtensionSnapshotStable": "FF-PRESET-C4-EXTEND-001",
@@ -5216,6 +5512,12 @@
       "missingAppNoRecordAndCanRetry": "FF-HOME-MERGE-005",
       "permissionsGuardBothEntries": "FF-HOME-MERGE-006",
       "quotaManagementReachable": "FF-HOME-MERGE-007"
+    },
+    "overlay_stability": {
+      "temporalWindowFramesStable": "FF-OVERLAY-STABILITY-001",
+      "originalTimeTapAtBothEdges": "FF-OVERLAY-STABILITY-002",
+      "totalHourRollover": "FF-OVERLAY-STABILITY-003",
+      "preStageRotationAndCollapse": "FF-OVERLAY-STABILITY-004"
     }
   }
 }

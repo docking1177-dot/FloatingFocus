@@ -414,5 +414,95 @@
       "docs/validation/20261102-unified-timer.json"
     ],
     "status": "夹具已修正，原失败保留；新完整startup通过"
+  },
+  {
+    "id": "FF-ISSUE-REDMI-OVERLAY-JITTER",
+    "type": "真机窗口闪动，原构建身份不足",
+    "description": "启用C4的浮窗和普通累计主显展开时逐秒整窗向下闪回；API36模拟器未复现同类瞬态。已修正宿主WRAP测量路径和小时格式实际宽度变化，不能据此关闭厂商问题。",
+    "affected_cases": [
+      "FF-PHONE-OVERLAY-OVERTIME-JITTER",
+      "FF-PHONE-OVERLAY-C4-JITTER"
+    ],
+    "failed_records": [
+      "USER-20261102-REDMI-OVERLAY-JITTER:FF-PHONE-OVERLAY-OVERTIME-JITTER:0",
+      "USER-20261102-REDMI-OVERLAY-JITTER:FF-PHONE-OVERLAY-C4-JITTER:1"
+    ],
+    "retests": [],
+    "evidence": [
+      "docs/validation/20261102-overlay-stability.md"
+    ],
+    "status": "等待修正后同SHA的REDMI K80真机复测，尚未关闭"
+  },
+  {
+    "id": "FF-ISSUE-OVERTIME-HOUR-WIDTH",
+    "type": "应用布局缺陷",
+    "description": "旧Lab连续视频/窗口帧显示小时格式切换使宽度449变464px。相同字号稳定占位后，最终包实际跨累计和超时一小时均保持484px，未改变计时口径。",
+    "affected_cases": [
+      "FF-OVERLAY-STABILITY-003"
+    ],
+    "failed_records": [
+      "DEVICE-20261102-202908-results-d9e1d60f09b0:FF-GATE-DEVICE:0"
+    ],
+    "retests": [
+      {
+        "of": "DEVICE-20261102-202908-results-d9e1d60f09b0:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261102-213730-results-9e1d06656f58:FF-GATE-DEVICE:5"
+      }
+    ],
+    "evidence": [
+      ".tools/device-checks/20261102-202908/results.json",
+      ".tools/device-checks/20261102-213730/results.json"
+    ],
+    "status": "已按对应范围复测；不关闭Redmi厂商闪动待验项"
+  },
+  {
+    "id": "FF-ISSUE-OVERLAY-EXTRA-PAUSE-WIDTH",
+    "type": "本轮引入后已回退的界面回归",
+    "description": "统一策略时意外给普通未暂停浮窗增加Pause，1.5基础大小下撑满宽度，右缘展开拖动失败。恢复普通既有操作组合，仅暂停时提供明确继续，最终包三形状四边缘复测通过。",
+    "affected_cases": [
+      "FF-SUITE-EDGES"
+    ],
+    "failed_records": [
+      "DEVICE-20261102-211026-results-ea4c5848ceec:FF-GATE-DEVICE:0"
+    ],
+    "retests": [
+      {
+        "of": "DEVICE-20261102-211026-results-ea4c5848ceec:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261102-212813-results-bf6fe522652e:FF-GATE-DEVICE:1"
+      }
+    ],
+    "evidence": [
+      ".tools/device-checks/20261102-211026/results.json",
+      ".tools/device-checks/20261102-212813/results.json"
+    ],
+    "status": "已按对应范围复测；不关闭Redmi厂商闪动待验项"
+  },
+  {
+    "id": "FF-ISSUE-TILE-NAVIGATION-FIXTURE",
+    "type": "系统面板测试导航缺陷",
+    "description": "先为通知栏未完全展开，后为缓存坐标不在FF所在QS页，日志无暂停动作。改用公开expand-settings和click-tile路由验证；添加确认/空闲首次启动仍为真实UI。未把live命令当成手指翻页验收。",
+    "affected_cases": [
+      "FF-SUITE-TILE"
+    ],
+    "failed_records": [
+      "DEVICE-20261102-210104-results-50caded3673e:FF-GATE-DEVICE:0",
+      "DEVICE-20261102-210405-results-680ea84658a0:FF-GATE-DEVICE:0"
+    ],
+    "retests": [
+      {
+        "of": "DEVICE-20261102-210104-results-50caded3673e:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261102-214249-results-40d37fb76f0d:FF-GATE-DEVICE:9"
+      },
+      {
+        "of": "DEVICE-20261102-210405-results-680ea84658a0:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261102-214249-results-40d37fb76f0d:FF-GATE-DEVICE:9"
+      }
+    ],
+    "evidence": [
+      ".tools/device-checks/20261102-210104/results.json",
+      ".tools/device-checks/20261102-210405/results.json",
+      ".tools/device-checks/20261102-214249/results.json"
+    ],
+    "status": "已按对应范围复测；不关闭Redmi厂商闪动待验项"
   }
 ]

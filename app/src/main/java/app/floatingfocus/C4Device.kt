@@ -38,7 +38,7 @@ internal fun C4DevicePanel(frame: C4Frame, onKey: (Char) -> Unit, onToggle: () -
         val width = minOf(maxWidth, C4Theme.WIDTH.dp)
         val height = minOf(maxHeight, C4Theme.HEIGHT.dp)
         val geometry = C4Geometry(width.value, height.value)
-        Box(Modifier.size(width, height)
+        Box(Modifier.size(width, height).overlayLayoutProbe("c4-body")
             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onToggle)) {
             Canvas(Modifier.fillMaxSize()) {
                 val w = size.width; val h = size.height
@@ -78,7 +78,7 @@ internal fun C4DevicePanel(frame: C4Frame, onKey: (Char) -> Unit, onToggle: () -
                 frame.error -> Color(0xFFD56D57); frame.expired -> Color(0xFF8E4839)
                 else -> Color(0xFF555B31) }
             val displayInk = if (frame.phase == C4Phase.DEFUSED || frame.error) Color(0xFF14210E) else Color(0xFFEDF1CD)
-            Column(Modifier.offset(screen.x.dp, screen.y.dp).size(screen.width.dp, screen.height.dp)
+            Column(Modifier.offset(screen.x.dp, screen.y.dp).size(screen.width.dp, screen.height.dp).overlayLayoutProbe("c4-display")
                 .background(displayColor, RoundedCornerShape(2.dp)).semantics(mergeDescendants = true) {
                     contentDescription = if (frame.expired) "C4 超时 ${formatUsageTime(frame.overtimeMillis)}，可正常结束，不可加时"
                         else "C4 ${frame.phase}，剩余 ${formatRemaining(frame.remainingMillis)}，已输入 ${frame.input.length} 位${if (frame.error) "，输入错误" else ""}"
@@ -97,7 +97,7 @@ internal fun C4DevicePanel(frame: C4Frame, onKey: (Char) -> Unit, onToggle: () -
             Box(Modifier.offset(panel.x.dp, panel.y.dp).size(panel.width.dp, panel.height.dp)
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {})
             val grid = geometry.keypad
-            Column(Modifier.offset(grid.x.dp, grid.y.dp).width(grid.width.dp)
+            Column(Modifier.offset(grid.x.dp, grid.y.dp).width(grid.width.dp).overlayLayoutProbe("c4-keypad")
                 .height(geometry.keypadViewportHeight.dp)
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {}.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(geometry.rowGap.dp)) {

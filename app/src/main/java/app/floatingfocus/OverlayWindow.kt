@@ -66,7 +66,7 @@ class OverlayWindow(private val context: Context,
     private var dragStartY = 0
     private val view = OverlayTouchLayout(context,
         onDragStart = ::beginDrag,
-        onDrag = ::dragTo, onDragEnd = ::persistPosition, onMeasured = ::placeMeasured)
+        onDrag = ::dragTo, onDragEnd = ::persistPosition, onMeasured = ::placeMeasured, measureBounds = ::safeSize)
     private var attached = false
     private var closed = false
     private var positioned = false
@@ -163,7 +163,12 @@ class OverlayWindow(private val context: Context,
         val placed = contentPlacement?.takeIf { content != null }
         val (x, y) = position.place(width, height, size.x, size.y,
             placed?.headerX ?: width / 2f, placed?.headerY ?: height / 2f)
-        if (params.x == x && params.y == y) return
+        // Do not leave a content-sized window in WRAP_CONTENT across text ticks:
+        // system relayout can otherwise re-resolve its frame before anchoring it.
+        // Size and position are submitted together, only when either really changes.
+        if (params.x == x && params.y == y && params.width == width && params.height == height) return
+        params.width = width
+        params.height = height
         params.x = x
         params.y = y
         update()
@@ -171,6 +176,8 @@ class OverlayWindow(private val context: Context,
 
     private fun update() {
         if (!attached || closed) return
+        if (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0)
+            Log.d("FloatingFocus", "Overlay window xy=${params.x},${params.y} measured=${view.measuredWidth}x${view.measuredHeight} c4=$c4Active")
         try { manager.updateViewLayout(view, params) }
         catch (e: RuntimeException) { onFailure(e) }
     }

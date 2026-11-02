@@ -35,6 +35,8 @@ Release暂采用双行的超时主显，不包含其他候选、选择器或实�
 
 ## C4归零后的控制
 
+有效C4启用状态由`SessionState.c4Enabled`在开始时固定，与专属外观`c4Active`及口令限制`c4Locked`分开。启用C4的倒计时从第一秒起禁止暂停/继续，阶段前磁贴和组件也只打开控制页；服务拒绝旧暂停请求。阶段前仍允许直接结束，全局开关修改不改变本次规则。正计时的有效C4关闭，普通暂停保留。
+
 C4将主题激活`c4Active`与口令限制`c4Locked`分开。归零前仍只有7355608正常解除；归零及之后可直接结束，不再校验口令。爆炸只触发一次，尾音之后进入持续`OVERTIME`，不恢复普通浮窗。
 
 常态和完整装置都显示专属超时读数，可以展开、收起、拖动。完整装置的`#`位置改为「结束」，其他数字输入停用；归零前按住`#`再跨零松开不会变成结束。首页、通知与组件也可结束，主动结束立即停止剩余尾音。整个C4阶段及其超时均禁止暂停和加时，正式服务再次校验，不能只靠隐藏按钮。
@@ -42,6 +44,8 @@ C4将主题激活`c4Active`与口令限制`c4Locked`分开。归零前仍只有7
 时间轴、口令、整体主题和音量规则不变，音频仍仅本机Debug，Release无本地录音。详见[C4说明](C4_COUNTDOWN.md)。
 
 ## 检查与真机最小集
+
+2026-11-02补充：`overlay_stability`记录逐秒原生窗口帧、真实浮窗内部坐标与录屏，覆盖普通累计主显、完整C4及专属阶段前的普通展开。安全范围统一测量后向系统提交明确像素尺寸，避免旧WRAP_CONTENT测量约束参与下一帧；参考[AndroidX Popup实现](https://raw.githubusercontent.com/androidx/androidx/androidx-main/compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/window/AndroidPopup.android.kt)。文字仍逐秒更新，等宽读数预留小时空间，不改累计口径。跨小时通过现有隔离Lab时钟测真实浮窗，不改变系统时间或正式记录。详情、原始失败与真机限制见[本轮记录](validation/20261102-overlay-stability.md)。
 
 逻辑：`TimerTileModelTest`、`C4OvertimeControlsTest`、`OvertimeReadoutTest`、`StartAdmissionObservableTest`。
 

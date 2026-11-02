@@ -31,7 +31,7 @@ object TimerWidgetModel {
             time = when { stopwatch -> formatElapsed(elapsed); over -> "+${formatElapsed(overtime)}"; else -> formatRemaining(remaining) },
             base = when { stopwatch -> now - elapsed; over -> now - overtime; else -> now + remaining },
             running = !s.paused, countDown = !stopwatch && !over, overtime = over,
-            primary = when { s.c4Locked || s.c4Active || s.automatic || over -> WidgetCommand.OPEN; s.paused -> WidgetCommand.RESUME; else -> WidgetCommand.PAUSE },
+            primary = when { s.c4Enabled || s.c4Locked || s.c4Active || s.automatic || over -> WidgetCommand.OPEN; s.paused -> WidgetCommand.RESUME; else -> WidgetCommand.PAUSE },
             canEnd = SessionControls.canEnd(s))
     }
 

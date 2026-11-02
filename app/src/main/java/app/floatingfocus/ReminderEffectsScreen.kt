@@ -37,7 +37,7 @@ internal fun ReminderEffectsScreen(settings: C4Settings, onChange: (C4Settings) 
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         if (settings.enabled) {
             Text("仅倒计时最后 44.439 秒生效。归零前下包完成后输入 7355608 提前结束；归零后可正常结束，不可加时。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text("C4 阶段不提供暂停或加时。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("C4 阶段不提供加时。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (!mediaAvailable) Text("本构建未包含 C4 音轨，视觉与键盘仍可使用。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         if (session.active) Text("本次会话不受启用状态修改影响。", style = MaterialTheme.typography.bodySmall,
@@ -54,9 +54,11 @@ internal fun C4EnabledSetting(enabled: Boolean, onChange: (Boolean) -> Unit) {
     C4Switch("C4 倒计时", enabled) {
         if (it && !store.noticeAcknowledged) notice = true else onChange(it)
     }
+    if (enabled) Text("启用 C4 的会话从开始就不可暂停。", style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant)
     if (notice) AlertDialog(onDismissRequest = { notice = false }, title = { Text("开启 C4 倒计时") }, text = {
         Text("C4 阶段点击浮窗展开装置，需输入 7355608 结束计时。下包完成（音轨 4.92 秒）后可输入；* 退格，# 清空，第七位自动校验。\n\n" +
-            "轻触显示屏可收起，键盘区域不切换形态。归零前首页与通知也不能正常结束；C4 阶段不能暂停或加时。到时播放一次爆炸并保留专属超时外观，# 键改为结束，首页、通知和组件也可结束。主动结束会停止尾音。系统强停、划掉 FF 或撤权仍会停止。\n\n" +
+            "轻触显示屏可收起，键盘区域不切换形态。本次会话从开始就不能暂停；进入 C4 阶段前仍可直接结束。C4 阶段归零前，首页与通知也不能正常结束，且不能加时。到时播放一次爆炸并保留专属超时外观，# 键改为结束，首页、通知和组件也可结束。主动结束会停止尾音。系统强停、划掉 FF 或撤权仍会停止。\n\n" +
             "启用状态在会话开始时确定；全局音效开关可即时静音。", modifier = Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState()))
     }, confirmButton = { TextButton(onClick = {
         onChange(true); notice = false

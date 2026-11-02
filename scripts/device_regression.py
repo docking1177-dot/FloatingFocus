@@ -29,6 +29,7 @@ from device_preset_shortcuts import preset_shortcuts, require_empty_pins, PINNED
 from device_widgets import widgets, require_empty_widgets
 from device_home_navigation import home_navigation, home_reorder
 from device_unified_timer import home_unified
+from device_overlay_stability import overlay_stability
 from device_quota import quota
 from device_controls import home_swipe, overtime, overtime_preview, tile
 
@@ -464,7 +465,7 @@ def inline(d):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--serial', default='emulator-5554')
-    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'settings', 'home', 'home_unified', 'home_reorder', 'home_swipe', 'overtime', 'overtime_preview', 'tile', 'preferences', 'startup', 'theme', 'c4', 'c4_keypad', 'c4_compact', 'onboarding', 'developer', 'history', 'preset_styles', 'preset_shortcuts', 'preset_c4', 'preset_c4_extensions', 'widgets', 'quota', 'all'], default='all')
+    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'settings', 'home', 'home_unified', 'home_reorder', 'home_swipe', 'overlay_stability', 'overtime', 'overtime_preview', 'tile', 'preferences', 'startup', 'theme', 'c4', 'c4_keypad', 'c4_compact', 'onboarding', 'developer', 'history', 'preset_styles', 'preset_shortcuts', 'preset_c4', 'preset_c4_extensions', 'widgets', 'quota', 'all'], default='all')
     p.add_argument('--apk', type=Path, default=ROOT / 'app/build/outputs/apk/debug/app-debug.apk')
     p.add_argument('--allow-test-data-changes', action='store_true')
     args = p.parse_args()

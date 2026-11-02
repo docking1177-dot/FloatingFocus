@@ -91,7 +91,8 @@ fun FocusOverlay(
     Surface(color = Color(background), shape = CircleShape,
         modifier = Modifier.padding(2.dp).graphicsLayer { this.alpha = appearance.opacity }) {
         Layout(content = {
-            val header = toggleControls
+            val probePrefix = if (onContentMeasured == null) "preview-" else ""
+            val header = toggleControls.overlayLayoutProbe(probePrefix + "time", appearance.overtime)
                 .semantics { contentDescription = if (c4.active) "${appearance.title}，点击展开 C4，可拖动" else if (controlsEnabled)
                     "${appearance.title}，点击${if (expanded) "收起" else "展开"}操作，可拖动" else appearance.title }
                 .padding(4.dp)
@@ -111,7 +112,7 @@ fun FocusOverlay(
                 verticalArrangement = Arrangement.spacedBy(8.dp)) { title() }
             else Row(header, verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)) { title() }
-            if (showingControls) Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            if (showingControls) Column(Modifier.overlayLayoutProbe(probePrefix + "controls"), horizontalAlignment = Alignment.CenterHorizontally) {
                 if (!c4.active && appearance.confirmationRequired) {
                     Text("确认提醒", style = textStyle)
                     TextButton(onClick = onConfirm, enabled = controlsEnabled) { Text("已看到提醒", style = textStyle) }

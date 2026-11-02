@@ -83,7 +83,7 @@ class C4TimelineTest {
         assertFalse(t.led(0))
         assertTrue(t.nextDelay(44_439 - 40_000)!! > 0)
     }
-    @Test fun `pre stage pause continues using the existing monotonic countdown`() {
+    @Test fun `ordinary pause continues using the existing monotonic countdown`() {
         val clock = SessionClock()
         val timer = Countdown(60_000, 1000)
         clock.pause(1100)

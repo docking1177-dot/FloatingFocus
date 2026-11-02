@@ -1,0 +1,684 @@
+{
+  "date": "2026-11-02",
+  "local_branch": "codex/overlay-stability",
+  "sync_branch": "codex/overlay-stability-fix",
+  "baseline": "1973707",
+  "version_changed": false,
+  "merged": false,
+  "release_published": false,
+  "builds": {
+    "Debug": {
+      "path": ".tools/checks/check-full-debug-20261102-212339-637.json",
+      "evidence_sha256": "c0640428018e1b48bd4cd655b37ad9eaf3c69ec88db1c7fe4c9a0c80a9858617",
+      "source": {
+        "commit": "1973707bdfc1ad7890bf588ecd30c50613d0b3db",
+        "fingerprint": "8ad01bdb2ab873a7d4af12f2341f3fb1b7421517bd53b484fd21d4a39db29bbb",
+        "dirty": true
+      },
+      "tests": 215,
+      "lint_errors": 0,
+      "lint_warnings": 0,
+      "apk_sha256": "5e4622f42851a8d0c700fa5d1aaa351db946fb2fc0fedfb869cbbf5f10544b29"
+    },
+    "Release": {
+      "path": ".tools/checks/check-full-release-20261102-212813-179.json",
+      "evidence_sha256": "27eb6dc7d686f13dd82a0f651cc6039c8e8c704316f5c1ddc909b92415c3420f",
+      "source": {
+        "commit": "1973707bdfc1ad7890bf588ecd30c50613d0b3db",
+        "fingerprint": "8ad01bdb2ab873a7d4af12f2341f3fb1b7421517bd53b484fd21d4a39db29bbb",
+        "dirty": true
+      },
+      "tests": 207,
+      "lint_errors": 0,
+      "lint_warnings": 0,
+      "apk_sha256": "a73e5b99a00b06ae0a6944b92d5e6ffdbccc987db4c0cbf45ae8681a43687aea"
+    }
+  },
+  "device_evidence": [
+    {
+      "suite": "edges",
+      "path": ".tools/device-checks/20261102-212813/results.json",
+      "evidence_sha256": "bf6fe522652e2f6d2e85340b9c39e443e8bfded42e1d14658e904b0400b3dfe6",
+      "source": {
+        "commit": "1973707bdfc1ad7890bf588ecd30c50613d0b3db",
+        "fingerprint": "8ad01bdb2ab873a7d4af12f2341f3fb1b7421517bd53b484fd21d4a39db29bbb",
+        "dirty": true
+      },
+      "apk_sha256": "5e4622f42851a8d0c700fa5d1aaa351db946fb2fc0fedfb869cbbf5f10544b29",
+      "device": "emulator-5556",
+      "status": "passed",
+      "details": [
+        {
+          "shape": "ROUNDED_RECTANGLE",
+          "edge": "left",
+          "initial": [
+            0,
+            1049,
+            609,
+            1292
+          ],
+          "expanded": [
+            0,
+            1072,
+            797,
+            1468
+          ],
+          "collapsed": [
+            0,
+            1049,
+            609,
+            1292
+          ]
+        },
+        {
+          "shape": "ROUNDED_RECTANGLE",
+          "edge": "right",
+          "initial": [
+            471,
+            1049,
+            1080,
+            1292
+          ],
+          "expanded": [
+            283,
+            1073,
+            1080,
+            1469
+          ],
+          "collapsed": [
+            471,
+            1050,
+            1080,
+            1293
+          ]
+        },
+        {
+          "shape": "ROUNDED_RECTANGLE",
+          "edge": "top",
+          "initial": [
+            236,
+            136,
+            845,
+            379
+          ],
+          "expanded": [
+            142,
+            159,
+            939,
+            555
+          ],
+          "collapsed": [
+            236,
+            136,
+            845,
+            379
+          ]
+        },
+        {
+          "shape": "ROUNDED_RECTANGLE",
+          "edge": "bottom",
+          "initial": [
+            236,
+            1965,
+            845,
+            2208
+          ],
+          "expanded": [
+            142,
+            1790,
+            939,
+            2186
+          ],
+          "collapsed": [
+            236,
+            1965,
+            845,
+            2208
+          ]
+        },
+        {
+          "shape": "VERTICAL_CAPSULE",
+          "edge": "left",
+          "initial": [
+            0,
+            851,
+            392,
+            1490
+          ],
+          "expanded": [
+            0,
+            864,
+            678,
+            1676
+          ],
+          "collapsed": [
+            0,
+            851,
+            392,
+            1490
+          ]
+        },
+        {
+          "shape": "VERTICAL_CAPSULE",
+          "edge": "right",
+          "initial": [
+            688,
+            851,
+            1080,
+            1490
+          ],
+          "expanded": [
+            402,
+            865,
+            1080,
+            1677
+          ],
+          "collapsed": [
+            688,
+            852,
+            1080,
+            1491
+          ]
+        },
+        {
+          "shape": "VERTICAL_CAPSULE",
+          "edge": "top",
+          "initial": [
+            344,
+            136,
+            736,
+            775
+          ],
+          "expanded": [
+            201,
+            149,
+            879,
+            961
+          ],
+          "collapsed": [
+            344,
+            136,
+            736,
+            775
+          ]
+        },
+        {
+          "shape": "VERTICAL_CAPSULE",
+          "edge": "bottom",
+          "initial": [
+            344,
+            1569,
+            736,
+            2208
+          ],
+          "expanded": [
+            201,
+            1384,
+            879,
+            2196
+          ],
+          "collapsed": [
+            344,
+            1569,
+            736,
+            2208
+          ]
+        },
+        {
+          "shape": "CIRCLE",
+          "edge": "left",
+          "initial": [
+            0,
+            907,
+            526,
+            1433
+          ],
+          "expanded": [
+            0,
+            870,
+            798,
+            1668
+          ],
+          "collapsed": [
+            0,
+            907,
+            526,
+            1433
+          ]
+        },
+        {
+          "shape": "CIRCLE",
+          "edge": "right",
+          "initial": [
+            554,
+            907,
+            1080,
+            1433
+          ],
+          "expanded": [
+            282,
+            870,
+            1080,
+            1668
+          ],
+          "collapsed": [
+            554,
+            907,
+            1080,
+            1433
+          ]
+        },
+        {
+          "shape": "CIRCLE",
+          "edge": "top",
+          "initial": [
+            277,
+            136,
+            803,
+            662
+          ],
+          "expanded": [
+            141,
+            136,
+            939,
+            934
+          ],
+          "collapsed": [
+            277,
+            136,
+            803,
+            662
+          ]
+        },
+        {
+          "shape": "CIRCLE",
+          "edge": "bottom",
+          "initial": [
+            277,
+            1682,
+            803,
+            2208
+          ],
+          "expanded": [
+            141,
+            1410,
+            939,
+            2208
+          ],
+          "collapsed": [
+            277,
+            1682,
+            803,
+            2208
+          ]
+        }
+      ]
+    },
+    {
+      "suite": "inline",
+      "path": ".tools/device-checks/20261102-213424/results.json",
+      "evidence_sha256": "27ebb96f144849f98298564d41461570896fd673686d93620f438d0f46ce69da",
+      "source": {
+        "commit": "1973707bdfc1ad7890bf588ecd30c50613d0b3db",
+        "fingerprint": "8ad01bdb2ab873a7d4af12f2341f3fb1b7421517bd53b484fd21d4a39db29bbb",
+        "dirty": true
+      },
+      "apk_sha256": "5e4622f42851a8d0c700fa5d1aaa351db946fb2fc0fedfb869cbbf5f10544b29",
+      "device": "emulator-5556",
+      "status": "passed",
+      "details": {
+        "sameWindow": true,
+        "sameForeground": true,
+        "original": {
+          "id": "f9e4dbb9-7550-4753-8dff-05fc0069f1e6",
+          "appName": "Gallery",
+          "packageName": "com.android.gallery3d",
+          "mode": "COUNTDOWN",
+          "plannedMillis": 60000,
+          "startedWallMillis": 1793626492765,
+          "elapsedMillis": 4804,
+          "status": "RUNNING",
+          "overtimeMillis": 0
+        },
+        "added": {
+          "id": "f9e4dbb9-7550-4753-8dff-05fc0069f1e6",
+          "appName": "Gallery",
+          "packageName": "com.android.gallery3d",
+          "mode": "COUNTDOWN",
+          "plannedMillis": 120000,
+          "startedWallMillis": 1793626492765,
+          "elapsedMillis": 88805,
+          "status": "RUNNING",
+          "overtimeMillis": 28658
+        },
+        "final": {
+          "id": "f9e4dbb9-7550-4753-8dff-05fc0069f1e6",
+          "appName": "Gallery",
+          "packageName": "com.android.gallery3d",
+          "mode": "COUNTDOWN",
+          "plannedMillis": 120000,
+          "startedWallMillis": 1793626492765,
+          "elapsedMillis": 153161,
+          "status": "MANUAL",
+          "overtimeMillis": 34291
+        },
+        "initialFrame": [
+          427,
+          235,
+          1036,
+          478
+        ],
+        "extendedFrame": [
+          427,
+          235,
+          1036,
+          478
+        ],
+        "grownFrame": [
+          386,
+          219,
+          1078,
+          494
+        ]
+      }
+    },
+    {
+      "suite": "overlay_stability",
+      "path": ".tools/device-checks/20261102-213730/results.json",
+      "evidence_sha256": "9e1d06656f58e9191c3be0651aa4ce8e9ecbc5dc0e858f99608d2fe0e5e78548",
+      "source": {
+        "commit": "1973707bdfc1ad7890bf588ecd30c50613d0b3db",
+        "fingerprint": "8ad01bdb2ab873a7d4af12f2341f3fb1b7421517bd53b484fd21d4a39db29bbb",
+        "dirty": true
+      },
+      "apk_sha256": "5e4622f42851a8d0c700fa5d1aaa351db946fb2fc0fedfb869cbbf5f10544b29",
+      "device": "emulator-5556",
+      "status": "passed",
+      "details": {
+        "temporalWindowFramesStable": true,
+        "temporalContentBoundsStable": true,
+        "scenarios": [
+          "ordinary-overtime-expanded",
+          "c4-device-expanded",
+          "c4-enabled-before-stage-expanded",
+          "ordinary-total-hour-rollover"
+        ],
+        "beforeStageFrames": {
+          "compact": [
+            626,
+            235,
+            1036,
+            401
+          ],
+          "expanded": [
+            544,
+            250,
+            1080,
+            518
+          ]
+        },
+        "originalTimeTapAtBothEdges": true,
+        "preStageRotationAndCollapse": true,
+        "anchors": [
+          {
+            "edge": 0.01,
+            "compact": [
+              313,
+              136,
+              723,
+              302
+            ],
+            "expanded": [
+              250,
+              151,
+              786,
+              419
+            ],
+            "timeBefore": [
+              396.0,
+              179.0,
+              640.0,
+              259.0
+            ],
+            "timeExpanded": [
+              396.0,
+              179.0,
+              640.0,
+              259.0
+            ]
+          },
+          {
+            "edge": 0.99,
+            "compact": [
+              313,
+              2042,
+              723,
+              2208
+            ],
+            "expanded": [
+              250,
+              1925,
+              786,
+              2193
+            ],
+            "timeBefore": [
+              396.0,
+              2085.0,
+              640.0,
+              2165.0
+            ],
+            "timeExpanded": [
+              396.0,
+              2085.0,
+              640.0,
+              2165.0
+            ]
+          },
+          {
+            "edge": 0.35,
+            "compact": [
+              918,
+              295,
+              1328,
+              461
+            ],
+            "expanded": [
+              855,
+              310,
+              1391,
+              578
+            ],
+            "timeBefore": [
+              1001.0,
+              338.0,
+              1245.0,
+              418.0
+            ],
+            "timeExpanded": [
+              1001.0,
+              338.0,
+              1245.0,
+              418.0
+            ]
+          }
+        ],
+        "totalHourRollover": true,
+        "samples": "overlay-stability-samples.json",
+        "note": "Seven-second runtime traces per scenario, not static screenshot acceptance"
+      }
+    },
+    {
+      "suite": "tile",
+      "path": ".tools/device-checks/20261102-214249/results.json",
+      "evidence_sha256": "40d37fb76f0db767aa2b2d274cb4d03cf8dd3df02e8b092182a2d0d168c9706d",
+      "source": {
+        "commit": "1973707bdfc1ad7890bf588ecd30c50613d0b3db",
+        "fingerprint": "8ad01bdb2ab873a7d4af12f2341f3fb1b7421517bd53b484fd21d4a39db29bbb",
+        "dirty": true
+      },
+      "apk_sha256": "5e4622f42851a8d0c700fa5d1aaa351db946fb2fc0fedfb869cbbf5f10544b29",
+      "device": "emulator-5556",
+      "status": "passed",
+      "details": {
+        "nativeConfirmationAndActualTile": true,
+        "idleUsesSavedDefaults": true,
+        "pauseResumeSameSession": true,
+        "overtimeOpenWithoutEnding": true,
+        "c4OpenOnly": true,
+        "shortC4NotificationLocked": true,
+        "preStageC4OpenOnly": true,
+        "globalChangeKeepsSessionPausePolicy": true,
+        "liveTouchEvidence": "Real SystemUI add confirmation and idle tile touch; live commands use public cmd statusbar click-tile, native tile state and actual session checked; live physical paging not accepted",
+        "lockscreen": "not tested; no secure credential configured",
+        "launcher": "SystemUI AOSP API36"
+      }
+    }
+  ],
+  "runtime_samples": [
+    {
+      "scenario": "ordinary-overtime-expanded",
+      "samples": 16,
+      "frames": [
+        [
+          506,
+          223,
+          1080,
+          545
+        ]
+      ],
+      "window_ids": [
+        "27f74f8"
+      ],
+      "window_updates": 0,
+      "bounds": {
+        "time": [
+          "181.0,28.0,469.0,162.0"
+        ],
+        "controls": [
+          "98.0,162.0,476.0,294.0"
+        ]
+      },
+      "total_range": [
+        4013,
+        12013
+      ],
+      "overtime_range": [
+        2013,
+        10013
+      ],
+      "movie": ".tools/device-checks/20261102-213730/ordinary-overtime-expanded.mp4"
+    },
+    {
+      "scenario": "c4-device-expanded",
+      "samples": 14,
+      "frames": [
+        [
+          265,
+          136,
+          1080,
+          1138
+        ]
+      ],
+      "window_ids": [
+        "70ce242"
+      ],
+      "window_updates": 0,
+      "bounds": {
+        "c4-body": [
+          "6.0,6.0,809.0,996.0"
+        ],
+        "c4-display": [
+          "191.0,138.0,721.0,314.0"
+        ],
+        "c4-keypad": [
+          "182.0,369.0,666.0,903.0"
+        ]
+      },
+      "total_range": null,
+      "overtime_range": null,
+      "movie": ".tools/device-checks/20261102-213730/c4-device-expanded.mp4"
+    },
+    {
+      "scenario": "c4-enabled-before-stage-expanded",
+      "samples": 39,
+      "frames": [
+        [
+          544,
+          250,
+          1080,
+          518
+        ]
+      ],
+      "window_ids": [
+        "2100938"
+      ],
+      "window_updates": 0,
+      "bounds": {
+        "time": [
+          "165.0,28.0,409.0,108.0"
+        ],
+        "controls": [
+          "79.0,108.0,457.0,240.0"
+        ]
+      },
+      "total_range": null,
+      "overtime_range": null,
+      "movie": ".tools/device-checks/20261102-213730/c4-enabled-before-stage-expanded.mp4"
+    },
+    {
+      "scenario": "ordinary-total-hour-rollover",
+      "samples": 23,
+      "frames": [
+        [
+          596,
+          143,
+          1080,
+          465
+        ]
+      ],
+      "window_ids": [
+        "846352e"
+      ],
+      "window_updates": 0,
+      "bounds": {
+        "time": [
+          "98.0,28.0,386.0,162.0"
+        ],
+        "controls": [
+          "133.0,162.0,351.0,294.0"
+        ]
+      },
+      "total_range": [
+        3594439,
+        3609382
+      ],
+      "overtime_range": [
+        3593439,
+        3608382
+      ],
+      "movie": ".tools/device-checks/20261102-213730/ordinary-total-hour-rollover.mp4"
+    }
+  ],
+  "application_files_fingerprint": "94dc8cf9a5440f5bc2233743820de703dc427408626765d6997403bbcc88035e",
+  "application_files_unchanged_since_final_build": 172,
+  "delivery": {
+    "path": "dist/FloatingFocus-0.3.0-overlay-fix-debug.apk",
+    "sha256": "5e4622f42851a8d0c700fa5d1aaa351db946fb2fc0fedfb869cbbf5f10544b29",
+    "local_audio": true
+  },
+  "audio": {
+    "debug_assets": [
+      "assets/c4/defused.m4a",
+      "assets/c4/explosion.m4a",
+      "assets/c4/pre_explosion.m4a"
+    ],
+    "release_assets": [],
+    "listening_test": false
+  },
+  "review": "Independent read-only review: no blocking code issue; hourly-sampling evidence gap corrected before final run",
+  "unverified": [
+    "REDMI K80 / HyperOS整窗每秒闪下回位：本轮模拟器未复现，不宣称真机已修复",
+    "磁贴活跃会话操作通过公开SystemUI click-tile命令；实际手指翻页和厂商面板/锁屏未验",
+    "本轮未试听声音、不核验真机振感；C4音轨与振动机制未修改"
+  ]
+}

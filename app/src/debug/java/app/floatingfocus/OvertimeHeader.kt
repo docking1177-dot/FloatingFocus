@@ -11,7 +11,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,11 +44,8 @@ internal fun OvertimeHeader(readout: OvertimeReadout, style: TextStyle, modifier
         OvertimeStyle.TOTAL_FIRST -> Column(modifier.semantics(mergeDescendants = true) {
             contentDescription = "本次累计 ${readout.totalText}，超时 ${readout.overtimeText}"
         }, horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("本次累计", style = style, fontSize = 10.sp)
-            Text(readout.totalText, style = style, fontSize = 20.sp, fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.SemiBold, maxLines = 1, softWrap = false)
-            Text("超时 ${readout.overtimeText}", style = style, fontSize = 12.sp,
-                fontFamily = FontFamily.Monospace, maxLines = 1, softWrap = false)
+            OvertimeDigits(readout.totalText, style, 20.sp, FontWeight.SemiBold)
+            OvertimeDigits("超时 ${readout.overtimeText}", style, 12.sp, prefix = "超时 +")
         }
         OvertimeStyle.SIDE_BY_SIDE -> FlowRow(modifier.semantics(mergeDescendants = true) {
             contentDescription = "超时 ${readout.overtimeText}，本次累计 ${readout.totalText}"
@@ -57,8 +53,7 @@ internal fun OvertimeHeader(readout: OvertimeReadout, style: TextStyle, modifier
             listOf("超时" to readout.overtimeText, "累计" to readout.totalText).forEach { (label, time) ->
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(label, style = style, fontSize = 11.sp)
-                    Text(time, style = style, fontSize = 16.sp, fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Medium, maxLines = 1, softWrap = false)
+                    OvertimeDigits(time, style, 16.sp, FontWeight.Medium, prefix = if (label == "超时") "+" else "")
                 }
             }
         }

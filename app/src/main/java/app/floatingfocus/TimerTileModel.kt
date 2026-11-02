@@ -10,7 +10,7 @@ object TimerTileModel {
         val clock = TimerWidgetModel.present(s, defaults, now)
         val command = when {
             !s.active -> WidgetCommand.START
-            s.c4Active || s.c4Locked || s.automatic || clock.overtime -> WidgetCommand.OPEN
+            s.c4Enabled || s.c4Active || s.c4Locked || s.automatic || clock.overtime -> WidgetCommand.OPEN
             s.paused -> WidgetCommand.RESUME
             else -> WidgetCommand.PAUSE
         }
@@ -18,6 +18,7 @@ object TimerTileModel {
             !s.active -> "${defaults.mode.label} ${clock.time} · 开始"
             s.c4Locked -> "C4 口令阶段 · 查看"
             s.c4Active -> "C4 超时 ${clock.time} · 查看"
+            s.c4Enabled -> "C4 ${clock.time} · 查看"
             clock.overtime -> "超时 ${clock.time} · 查看"
             s.paused -> "${clock.time} · 继续"
             s.automatic -> "计时中 · 查看"
