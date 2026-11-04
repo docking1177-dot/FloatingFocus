@@ -16,6 +16,7 @@ data class C4Playback(val clip: String, val offsetMillis: Long)
 
 /** Long local tracks. The monotonic timer remains authoritative; player completion never ends a timer. */
 class C4Audio(context: Context, private val desired: () -> C4Playback?) : AutoCloseable {
+    val busy: Boolean get() = !closed && (successAt != null || slots.values.any { it.playing || it.seeking })
     private val manager = context.getSystemService(AudioManager::class.java)
     private val notifications = context.getSystemService(NotificationManager::class.java)
     private val attributes = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA)

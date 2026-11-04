@@ -32,6 +32,7 @@ class C4Runtime(private val context: Context, private val timer: () -> Countdown
     }
     fun locked(): Boolean = C4Frame(phase()).requiresCode
     fun stageActive(): Boolean = phase() != C4Phase.OFF
+    fun audioBusy(): Boolean = audio?.busy == true || phase() == C4Phase.EXPLODING
 
     private fun playback(): C4Playback? {
         if (closed || input.defused || !enabledForSession || !store.settings.value.sound || paused() || timer()?.mode != TimerMode.COUNTDOWN) return null

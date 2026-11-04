@@ -1,0 +1,23 @@
+{
+  "log": "overtime-first-visual.log",
+  "afterElapsedRealtime": 1509302,
+  "bounds": {
+    "time": [
+      [
+        306.0,
+        28.0,
+        713.0,
+        169.0
+      ]
+    ],
+    "controls": [
+      [
+        101.0,
+        169.0,
+        697.0,
+        301.0
+      ]
+    ]
+  },
+  "passed": true
+}

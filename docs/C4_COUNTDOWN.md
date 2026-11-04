@@ -72,3 +72,7 @@ API33+ 使用 AttachedSurfaceControl.setTouchableRegion 裁剪实体触摸区域
 设备脚本复用统一备份还原与源码/APK 绑定；覆盖折叠/下包/开放/错误/解除/归零尾音，真实键盘与拖动、首页/通知限制、短起点、关音效、旋转、撤权/强停和普通模式。运行证据在 `.tools/checks/` 和 `.tools/device-checks/`。模拟器无扬声器听感证明，真机与音频衔接未执行的项目不能写成通过。
 
 官方约束：[SoundPool 单样本长度限制](https://developer.android.com/reference/android/media/SoundPool)、[MediaPlayer seek](https://developer.android.com/reference/android/media/MediaPlayer#seekTo(long,int))、[音频焦点](https://developer.android.com/media/optimize/audio-focus)、[公开触摸区域 API33](https://developer.android.com/reference/android/view/AttachedSurfaceControl#setTouchableRegion(android.graphics.Region))、[窗口遮挡限制](https://developer.android.com/reference/android/view/WindowManager.LayoutParams#FLAG_NOT_TOUCHABLE)。
+
+## 超时周期提醒兼容
+
+可选的超时周期提醒只从自然归零后开始。折叠态应用允许的兼容视觉，完整装置布局不变，展开清除旧cue且不补播；音轨忙时跳过短音。C4的下一次提醒从首页选择，不新增键盘动作，不改变不可暂停/加时和归零后可结束的规则。见 [OVERTIME_REMINDERS.md](OVERTIME_REMINDERS.md)。

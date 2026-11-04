@@ -54,7 +54,7 @@ class SettingsActivity : ComponentActivity() {
             BackHandler(enabled = page != "home" && page != "tutorial" && (!editing || page != "appearance"), onBack = back)
             if (!editing && page == "home") {
                 SettingsHome(onBack = { finish() }, onOverlay = { page = "appearance" },
-                    onReminders = { page = "reminders" }, onTutorial = { page = "tutorial" },
+                    onReminders = { page = "reminders" }, onOvertime = { page = "overtime" }, onTutorial = { page = "tutorial" },
                     onHelp = { page = "help" }, onLicenses = { page = "licenses" })
                 return@FocusTheme
             }
@@ -82,6 +82,12 @@ class SettingsActivity : ComponentActivity() {
             if (!editing && page == "reminders") {
                 val c4 by C4SettingsStore.get(this).settings.collectAsStateWithLifecycle()
                 ReminderEffectsScreen(c4, { C4SettingsStore.get(this).update(it) }, { page = "strategy" }, back)
+                return@FocusTheme
+            }
+            if (!editing && page == "overtime") {
+                val overtimeStore = remember { OvertimeReminderSettingsStore.get(this) }
+                val overtimeSettings by overtimeStore.settings.collectAsStateWithLifecycle()
+                OvertimeReminderScreen(overtimeSettings, overtimeStore::update, back)
                 return@FocusTheme
             }
             if (!editing && page == "durations") {
@@ -195,7 +201,7 @@ class SettingsActivity : ComponentActivity() {
 }
 
 @Composable
-private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onReminders: () -> Unit,
+private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onReminders: () -> Unit, onOvertime: () -> Unit,
                          onTutorial: () -> Unit, onHelp: () -> Unit, onLicenses: () -> Unit) {
     Scaffold { insets ->
         Column(Modifier.fillMaxSize().padding(insets).verticalScroll(rememberScrollState())) {
@@ -208,7 +214,7 @@ private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onReminders:
             Spacer(Modifier.height(16.dp))
             Surface(color = MaterialTheme.colorScheme.surface) {
                 Column {
-                    listOf("悬浮窗" to onOverlay, "提醒" to onReminders, "使用教程" to onTutorial,
+                    listOf("悬浮窗" to onOverlay, "提醒" to onReminders, "超时提醒" to onOvertime, "使用教程" to onTutorial,
                         "使用与提醒说明" to onHelp, "开源许可" to onLicenses).forEachIndexed { index, (label, action) ->
                         if (index > 0) HorizontalDivider(Modifier.padding(horizontal = FocusSpacing.page))
                         SettingsEntry(label, action)

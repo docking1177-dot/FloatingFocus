@@ -5402,6 +5402,684 @@
         "C4",
         "会话控制"
       ]
+    },
+    {
+      "id": "FF-PHONE-DOUYIN-OVERLAY-001",
+      "module": "浮窗",
+      "scenario": "抖音前台的一分钟普通浮窗可见性",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "真机抖音已安装；FF无会话、C4关闭、悬浮授权已允许；测试配置和APK身份有原始证据",
+      "steps": "普通倒计时60秒开始后切抖音；在5秒、第二级、第三级和归零后截图并保存窗口状态",
+      "expected": "抖音真实前台画面内可见FF浮窗；采样中FF窗口仅一个且可见，同窗口跨阶段继续存在",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "真机ADB操作与截图/录屏人工核对",
+      "entry_points": [
+        "docs/validation/20261104-redmi-douyin-one-minute.md",
+        "app/src/main/java/app/floatingfocus/FloatingService.kt",
+        "app/src/main/java/app/floatingfocus/ReminderPresentation.kt"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 5,
+      "gap": "仅此60秒前台跨App流程；不覆盖锁屏、长时省电、真实振感/听感或C4",
+      "impact_tags": [
+        "浮窗",
+        "生命周期"
+      ]
+    },
+    {
+      "id": "FF-PHONE-DOUYIN-CLOCK-001",
+      "module": "计时",
+      "scenario": "抖音前台的一分钟倒计时连续性",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "真机抖音已安装；FF无会话、C4关闭、悬浮授权已允许；测试配置和APK身份有原始证据",
+      "steps": "保存开始、5秒、15秒、两节点前后、归零及超时的截图和同一会话检查点",
+      "expected": "计划60000毫秒；截图读数随时间递减，检查点累计单调且会话ID一致；切抖音不重置或暂停",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "真机ADB操作与截图/录屏人工核对",
+      "entry_points": [
+        "docs/validation/20261104-redmi-douyin-one-minute.md",
+        "app/src/main/java/app/floatingfocus/FloatingService.kt",
+        "app/src/main/java/app/floatingfocus/ReminderPresentation.kt"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 5,
+      "gap": "仅此60秒前台跨App流程；不覆盖锁屏、长时省电、真实振感/听感或C4",
+      "impact_tags": [
+        "计时",
+        "生命周期"
+      ]
+    },
+    {
+      "id": "FF-PHONE-DOUYIN-STAGES-001",
+      "module": "提醒",
+      "scenario": "抖音前台的50%和80%阶梯提醒",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "真机抖音已安装；FF无会话、C4关闭、悬浮授权已允许；测试配置和APK身份有原始证据",
+      "steps": "普通60秒、50%/80%、阶梯变色；核对30秒/48秒两侧截图、日志及紧急阶段短录屏",
+      "expected": "第二级约30秒变橙，第三级约48秒变红并提亮；约60秒归零；日志与实际画面一致，不把振动请求当真实触感",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "真机ADB操作与截图/录屏人工核对",
+      "entry_points": [
+        "docs/validation/20261104-redmi-douyin-one-minute.md",
+        "app/src/main/java/app/floatingfocus/FloatingService.kt",
+        "app/src/main/java/app/floatingfocus/ReminderPresentation.kt"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 5,
+      "gap": "仅此60秒前台跨App流程；不覆盖锁屏、长时省电、真实振感/听感或C4",
+      "impact_tags": [
+        "提醒",
+        "生命周期"
+      ]
+    },
+    {
+      "id": "FF-JVM-OVERTIMEREMINDER",
+      "module": "超时提醒",
+      "scenario": "浮动排期、轮换、分级与主动延后纯策略",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
+      "steps": "执行 scripts/check.ps1 -Mode Unit -Offline；读取绑定源码的本类JUnit结果。",
+      "expected": "对应类全部实际执行的断言通过；不推断设备声震或界面已通过。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM自动化",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/OvertimeReminderTest.kt"
+      ],
+      "scope": "类测试",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-JVM-OVERTIMEREMINDERREQUEST",
+      "module": "超时提醒",
+      "scenario": "当前会话/段请求与即时效果收紧策略",
+      "priority": "P0",
+      "kind": "模型类汇总",
+      "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
+      "steps": "执行 scripts/check.ps1 -Mode Unit -Offline；读取本类JUnit结果。",
+      "expected": "旧会话、旧段、非超时、暂停及非法间隔不能被接受；关闭/降上限只移除效果，C4完整形态及忙音轨正确过滤。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM自动化",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/OvertimeReminderRequestTest.kt"
+      ],
+      "scope": "类测试",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-SUITE-OVERTIME_REMINDERS",
+      "module": "超时提醒",
+      "scenario": "周期提醒正式服务与滚轮专项套件",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
+      "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
+      "expected": "对应版本脚本全部断言通过且数据恢复；具体场景只认该批实际范围，不自动包含真机听感或全部设置组合。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "已有ADB回归",
+      "entry_points": [
+        "scripts/device_overtime_reminders.py",
+        "scripts/test-device.ps1"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-OT-SETTINGS-001",
+      "module": "超时提醒",
+      "scenario": "新设置持久化与原设置独立",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
+      "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
+      "expected": "通过真实滚轮/开关保存指定间隔、允许效果、上限和交互方式，进程重启后逐字段一致。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "已有ADB回归",
+      "entry_points": [
+        "scripts/device_overtime_reminders.py",
+        "app/src/main/java/app/floatingfocus/OvertimeReminderScreen.kt"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-OT-FIRST-001",
+      "module": "超时提醒",
+      "scenario": "真实首轮仅允许视觉",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
+      "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
+      "expected": "1分钟基准首轮排定在48000—72000毫秒；首轮仅选允许视觉，未请求短音，不重复消费归零事件。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "已有ADB回归",
+      "entry_points": [
+        "scripts/device_overtime_reminders.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-OT-SNOOZE-001",
+      "module": "超时提醒",
+      "scenario": "浮窗确认下一次不构成加时",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
+      "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
+      "expected": "取消不计次数；三次明确确认各增加一次延后；同一会话与计划值保留，下一轮不提前于选择间隔，未出现加时事件。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "已有ADB回归",
+      "entry_points": [
+        "scripts/device_overtime_reminders.py",
+        "app/src/main/java/app/floatingfocus/FloatingService.kt"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-OT-HOME-001",
+      "module": "超时提醒",
+      "scenario": "首页滚轮取消与旋转草稿",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
+      "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
+      "expected": "首页滚轮旋转后仍显示当前草稿；取消不增加次数；不会因重建提交一次新提醒请求。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "已有ADB回归",
+      "entry_points": [
+        "scripts/device_overtime_reminders.py",
+        "app/src/main/java/app/floatingfocus/OvertimeReminderScreen.kt"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-OT-STALE-001",
+      "module": "超时提醒",
+      "scenario": "加时换段后旧提醒草稿不可提交",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
+      "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
+      "expected": "浮窗明确加时后保留会话并增加相应计划，旧段首页滚轮自动关闭，延后次数不再增加。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "已有ADB回归",
+      "entry_points": [
+        "scripts/device_overtime_reminders.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-OT-BASE-001",
+      "module": "超时提醒",
+      "scenario": "明确截止不被基准编辑提前",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
+      "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
+      "expected": "C4首页选定下一次间隔后编辑基准，已排定的单次截止完全不变；该轮后恢复新基准浮动。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "已有ADB回归",
+      "entry_points": [
+        "scripts/device_overtime_reminders.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-OT-LAYOUT-001",
+      "module": "超时提醒",
+      "scenario": "真实STATUS与描边期间内容和窗口稳定",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
+      "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
+      "expected": "专项实际采样区间的窗口ID、窗口框以及对应时间/操作或C4内容坐标只有一个值；不以低频框采样或截图替代内容坐标和录屏。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "已有ADB回归",
+      "entry_points": [
+        "scripts/device_overtime_reminders.py",
+        "app/src/main/java/app/floatingfocus/OvertimeTimeHeader.kt"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-OT-C4-001",
+      "module": "超时提醒",
+      "scenario": "C4完整跳过视觉、折叠使用允许效果",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
+      "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
+      "expected": "完整装置到期不应用视觉且不重建窗口；收起不补发旧cue，后续折叠轮次使用允许视觉；原爆炸仅消费一次，暂停/加时未出现。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "已有ADB回归",
+      "entry_points": [
+        "scripts/device_overtime_reminders.py",
+        "app/src/main/java/app/floatingfocus/C4Runtime.kt"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-SUITE-OVERTIME_REMINDERS_LIFECYCLE",
+      "module": "超时提醒",
+      "scenario": "超时周期生命周期专项套件",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
+      "steps": "运行 overtime_reminders_lifecycle 并核对独立结果。",
+      "expected": "对应版本生命周期脚本的实际断言全部通过且测试数据还原，不等同于真机后台或深度休眠通过。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "已有ADB回归",
+      "entry_points": [
+        "scripts/device_overtime_reminders.py",
+        "scripts/test-device.ps1"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-OT-RECONFIG-001",
+      "module": "超时提醒",
+      "scenario": "总关闭取消排期、重新开启只排一轮",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
+      "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
+      "expected": "活动超时会话关闭总开关后下一截止为null；重新开启只有一个新的48—72秒截止，不补发已超时周期。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "已有ADB回归",
+      "entry_points": [
+        "scripts/device_overtime_reminders.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-OT-PROCESS-001",
+      "module": "超时提醒",
+      "scenario": "强停后重新打开不恢复旧提醒",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
+      "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
+      "expected": "设置保留，但没有旧浮窗、活动计时服务、周期截止或补发事件。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "已有ADB回归",
+      "entry_points": [
+        "scripts/device_overtime_reminders.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-OT-PERMISSION-001",
+      "module": "超时提醒",
+      "scenario": "撤销悬浮权限清理活动周期",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
+      "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
+      "expected": "权限撤销后浮窗与计时服务消失，不留下周期提醒；测试结束恢复原授权。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "已有ADB回归",
+      "entry_points": [
+        "scripts/device_overtime_reminders.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-OT-STOPWATCH-001",
+      "module": "超时提醒",
+      "scenario": "正计时不创建C4或超时调度",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
+      "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
+      "expected": "即使两类设置都开启，独立正计时仍无C4阶段/音轨请求及超时周期截止，正常结束。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "已有ADB回归",
+      "entry_points": [
+        "scripts/device_overtime_reminders.py"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-PHONE-OT-VISUAL",
+      "module": "超时提醒",
+      "scenario": "厂商跨App浮窗的周期视觉与触摸",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "本轮相同SHA的本地Debug、REDMI K80/Android16、原悬浮/通知权限及日常省电设置；周期提醒主动开启。先完成视觉项，再沿同一超时会话检查声震；C4项需要本机录音。无需模拟器。",
+      "steps": "使用本轮Debug，间隔1分钟、轻量上限、仅状态或描边；启动短倒计时并切视频App，观察一次真实周期，再展开/收起/拖动；同一会话可继续后两项。",
+      "expected": "状态出现/消失时数字、操作区和外框不闪跳；提亮或描边后恢复既有透明度；展开/收起/拖动/下层触摸保持原语义。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "用户人工真机观察",
+      "entry_points": [
+        "docs/OVERTIME_REMINDERS.md",
+        "docs/validation/20261104-overtime-reminders.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 0,
+      "gap": "AOSP坐标和录屏不能证明Redmi整窗闪动、厂商透明角落触摸规则。",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-PHONE-OT-AUDIO",
+      "module": "超时提醒",
+      "scenario": "周期短音、两段短震与系统限制",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "本轮相同SHA的本地Debug、REDMI K80/Android16、原悬浮/通知权限及日常省电设置；周期提醒主动开启。先完成视觉项，再沿同一超时会话检查声震；C4项需要本机录音。无需模拟器。",
+      "steps": "沿用已有超时会话，选明显上限并主动延后3次；依次仅开震动、仅开声音，各选择1分钟后提醒。用日常静音/勿扰/媒体播放状态再核对代表组合。只观察周期，不把原归零震动混入。",
+      "expected": "开启单独效果后可感知短音或两短震；关闭某项不影响其他允许效果；静音/勿扰/媒体静音/焦点限制被尊重，未强制调高音量。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "用户人工真机观察",
+      "entry_points": [
+        "docs/OVERTIME_REMINDERS.md",
+        "docs/validation/20261104-overtime-reminders.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 0,
+      "gap": "播放或震动请求日志不代表实际听感、触感和第三方音频焦点恢复。",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
+    },
+    {
+      "id": "FF-PHONE-OT-C4-BACKGROUND",
+      "module": "超时提醒",
+      "scenario": "C4尾音与锁屏/后台清理",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "本轮相同SHA的本地Debug、REDMI K80/Android16、原悬浮/通知权限及日常省电设置；周期提醒主动开启。先完成视觉项，再沿同一超时会话检查声震；C4项需要本机录音。无需模拟器。",
+      "steps": "含本机C4音轨Debug启动10秒C4，归零听尾音；展开观察第一轮，再收起观察后续。锁屏跨过一次排期后解锁，最后结束或划除FF。",
+      "expected": "C4原声与周期短音不重叠；完整装置不被提醒改形/自动切换；锁屏回来最多一轮不连发，结束或划除FF后没有残留提醒。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "用户人工真机观察",
+      "entry_points": [
+        "docs/OVERTIME_REMINDERS.md",
+        "docs/validation/20261104-overtime-reminders.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 0,
+      "gap": "Release不含C4录音，不能用无声判故障；模拟器不代表HyperOS休眠和真实声衔接。",
+      "impact_tags": [
+        "超时提醒",
+        "悬浮窗",
+        "会话控制",
+        "C4"
+      ]
     }
   ],
   "junit_classes": {
@@ -5442,7 +6120,9 @@
     "OvertimeReadoutTest": "FF-JVM-OVERTIMEREADOUT",
     "TimerTileModelTest": "FF-JVM-TIMERTILEMODEL",
     "StartAdmissionObservableTest": "FF-JVM-STARTADMISSIONOBSERVABLE",
-    "C4SessionControlsTest": "FF-JVM-C4SESSIONCONTROLS"
+    "C4SessionControlsTest": "FF-JVM-C4SESSIONCONTROLS",
+    "OvertimeReminderTest": "FF-JVM-OVERTIMEREMINDER",
+    "OvertimeReminderRequestTest": "FF-JVM-OVERTIMEREMINDERREQUEST"
   },
   "device_details": {
     "widgets": {
@@ -5518,6 +6198,22 @@
       "originalTimeTapAtBothEdges": "FF-OVERLAY-STABILITY-002",
       "totalHourRollover": "FF-OVERLAY-STABILITY-003",
       "preStageRotationAndCollapse": "FF-OVERLAY-STABILITY-004"
+    },
+    "overtime_reminders": {
+      "uiPreferencesPersisted": "FF-OT-SETTINGS-001",
+      "firstVisualOnly": "FF-OT-FIRST-001",
+      "exactChoiceNoExtension": "FF-OT-SNOOZE-001",
+      "homeCancelAndRotation": "FF-OT-HOME-001",
+      "oldLegDialogDismissed": "FF-OT-STALE-001",
+      "explicitDeadlineSurvivesBaseEdit": "FF-OT-BASE-001",
+      "contentBoundsStable": "FF-OT-LAYOUT-001",
+      "c4WindowNotRecreated": "FF-OT-C4-001"
+    },
+    "overtime_reminders_lifecycle": {
+      "masterToggleReschedulesOnce": "FF-OT-RECONFIG-001",
+      "processReopenDoesNotResume": "FF-OT-PROCESS-001",
+      "permissionRevocationCleansUp": "FF-OT-PERMISSION-001",
+      "stopwatchNoC4OrPeriodicSchedule": "FF-OT-STOPWATCH-001"
     }
   }
 }

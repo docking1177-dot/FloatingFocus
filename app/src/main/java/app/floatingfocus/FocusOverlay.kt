@@ -46,6 +46,10 @@ fun FocusOverlay(
     onTogglePause: (() -> Unit)? = null,
     onContentMeasured: ((OverlayContentGeometry) -> OverlayContentPlacement)? = null,
     initialExpanded: Boolean? = null,
+    overtimeCue: OvertimeCue? = null,
+    reserveOvertimeStatus: Boolean = false,
+    overtimeInfo: OvertimeReminderInfo? = null,
+    onSnooze: ((Int, String) -> Unit)? = null,
     onStop: () -> Unit
 ) {
     if (c4.active && c4Expanded) {
@@ -56,8 +60,12 @@ fun FocusOverlay(
     var expanded by remember(finished, initialExpanded) { mutableStateOf(initialExpanded ?: finished) }
     var addingTime by remember(finished) { mutableStateOf(false) }
     var extraSeconds by remember(finished) { mutableIntStateOf(120) }
+    var snoozing by remember(finished) { mutableStateOf(false) }
+    var snoozeSeconds by remember(finished) { mutableIntStateOf(300) }
+    var snoozeOperation by remember(finished) { mutableStateOf("") }
+    LaunchedEffect(onSnooze != null) { if (onSnooze == null) snoozing = false }
     LaunchedEffect(extensionRequest) {
-        if (extensionRequest > 0 && finished && onExtend != null) { addingTime = true; expanded = true }
+        if (extensionRequest > 0 && finished && onExtend != null) { addingTime = true; snoozing = false; expanded = true }
     }
     val size = appearance.size
     val showingControls = !c4.active && (expanded || appearance.confirmationRequired)
@@ -79,7 +87,9 @@ fun FocusOverlay(
     } else 0f
 
     val vertical = appearance.shape == OverlayShape.VERTICAL_CAPSULE
-    val background = ReminderPresenter.highlight(appearance.colorArgb, maxOf(automaticHighlight, manualPulse.value))
+    val overtimeVisual = overtimeVisual(overtimeCue, interactive)
+    val background = ReminderPresenter.highlight(appearance.colorArgb,
+        maxOf(automaticHighlight, manualPulse.value, overtimeVisual.brightening))
     val foreground = Color(ReminderPresenter.contentColor(background))
     val textStyle = TextStyle(color = foreground,
         shadow = if (foreground == Color.White) Shadow(Color.Black, blurRadius = 2f) else null)
@@ -89,7 +99,8 @@ fun FocusOverlay(
         interactionSource = remember { MutableInteractionSource() }, indication = null) { if (c4.active) onC4Toggle() else expanded = !expanded }
     // One alpha layer for the whole window. No glyph backgrounds or independent opaque children.
     Surface(color = Color(background), shape = CircleShape,
-        modifier = Modifier.padding(2.dp).graphicsLayer { this.alpha = appearance.opacity }) {
+        modifier = Modifier.padding(2.dp).graphicsLayer { this.alpha = appearance.opacity }
+            .overtimeOutline(overtimeVisual.outline, foreground)) {
         Layout(content = {
             val probePrefix = if (onContentMeasured == null) "preview-" else ""
             val header = toggleControls.overlayLayoutProbe(probePrefix + "time", appearance.overtime)
@@ -104,10 +115,11 @@ fun FocusOverlay(
                     maxLines = 1, softWrap = false)
             }
             if (c4.expired) Column(header, horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("超时", style = textStyle, fontSize = 12.sp)
+                Text(if (overtimeVisual.status) "已超时" else "超时", style = textStyle, fontSize = 12.sp)
                 Text("+${formatUsageTime(c4.overtimeMillis)}", style = textStyle, fontSize = 18.sp,
                     fontFamily = FontFamily.Monospace, maxLines = 1, softWrap = false)
-            } else if (!c4.active && appearance.overtime != null) OvertimeHeader(appearance.overtime, textStyle, header)
+            } else if (!c4.active && appearance.overtime != null) OvertimeHeader(appearance.overtime, textStyle, header,
+                overtimeVisual.status, reserveOvertimeStatus)
             else if (vertical) Column(header, horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)) { title() }
             else Row(header, verticalAlignment = Alignment.CenterVertically,
@@ -117,13 +129,27 @@ fun FocusOverlay(
                     Text("确认提醒", style = textStyle)
                     TextButton(onClick = onConfirm, enabled = controlsEnabled) { Text("已看到提醒", style = textStyle) }
                 }
-                if (finished && addingTime && onExtend != null) {
+                if (finished && snoozing && onSnooze != null) {
+                    Text("多久后再提醒", style = textStyle, fontSize = 12.sp)
+                    Box(Modifier.overlayLayoutProbe(probePrefix + "snooze-wheels")) {
+                        DurationWheels(snoozeSeconds, { snoozeSeconds = it }, color = foreground, compact = true)
+                    }
+                    Row {
+                        TextButton(onClick = { snoozing = false }, enabled = controlsEnabled,
+                            modifier = Modifier.overlayLayoutProbe(probePrefix + "snooze-cancel")) { Text("取消", style = textStyle) }
+                        TextButton(onClick = { onSnooze(snoozeSeconds, snoozeOperation); snoozing = false }, enabled = controlsEnabled,
+                            modifier = Modifier.overlayLayoutProbe(probePrefix + "snooze-confirm")) {
+                            Text("确认提醒", style = textStyle)
+                        }
+                    }
+                } else if (finished && addingTime && onExtend != null) {
                     DurationWheels(extraSeconds, { extraSeconds = it }, color = foreground, compact = true)
                     val extensionError = extensionStrategy.validationError(extraSeconds * 1000L)
                     extensionError?.let { Text(it, style = textStyle, fontSize = 12.sp, modifier = Modifier.widthIn(max = 210.dp)) }
                     Row {
                         TextButton(onClick = { addingTime = false }, enabled = controlsEnabled) { Text("取消", style = textStyle) }
                         Button(onClick = { onExtend(extraSeconds); addingTime = false }, enabled = controlsEnabled && extensionError == null,
+                            modifier = Modifier.overlayLayoutProbe(probePrefix + "extension-confirm"),
                             colors = ButtonDefaults.buttonColors(containerColor = foreground, contentColor = Color(background)),
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)) {
                             Text("确认加时", style = textStyle.copy(color = Color(background), shadow = null), fontWeight = FontWeight.SemiBold)
@@ -131,9 +157,18 @@ fun FocusOverlay(
                     }
                 } else if (finished) {
                     FlowRow(horizontalArrangement = Arrangement.Center) {
-                        if (onExtend != null) TextButton(onClick = { extraSeconds = 120; addingTime = true }, enabled = controlsEnabled) { Text("加时", style = textStyle) }
+                        if (onExtend != null) TextButton(onClick = { extraSeconds = 120; snoozing = false; addingTime = true }, enabled = controlsEnabled,
+                            modifier = Modifier.overlayLayoutProbe(probePrefix + "extension-open")) { Text("加时", style = textStyle) }
                         TextButton(onClick = onStop, enabled = controlsEnabled) { Text("结束计时", style = textStyle) }
+                        if (onSnooze != null) TextButton(onClick = {
+                            snoozeSeconds = overtimeInfo?.pickerSeconds ?: 300
+                            snoozeOperation = java.util.UUID.randomUUID().toString()
+                            addingTime = false; snoozing = true
+                        }, enabled = controlsEnabled, modifier = Modifier.overlayLayoutProbe(probePrefix + "snooze-open")) { Text("稍后提醒", style = textStyle) }
                     }
+                    if (onSnooze != null && (overtimeInfo?.snoozeCount ?: 0) >= 3) Text(
+                        "计划 ${formatUsageTime(overtimeInfo!!.plannedMillis)} · 已用 ${appearance.overtime?.totalText}\n已延后 ${overtimeInfo.snoozeCount} 次",
+                        style = textStyle, fontSize = 11.sp, modifier = Modifier.widthIn(max = 230.dp))
                 } else if (expanded && !c4.active) {
                     FlowRow(horizontalArrangement = Arrangement.Center) {
                         if (onTogglePause != null) TextButton(onClick = onTogglePause, enabled = controlsEnabled) {

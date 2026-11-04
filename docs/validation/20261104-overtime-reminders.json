@@ -1,0 +1,422 @@
+{
+  "schemaVersion": 1,
+  "task": "overtime-reminders",
+  "date": "2026-11-04",
+  "versionName": "0.3.0",
+  "versionCode": 4,
+  "checks": [
+    {
+      "evidence": ".tools/checks/check-full-debug-20261104-202223-802.json",
+      "evidenceSha256": "7e18066d64ebc5d0680027df857f4ca55067155d6f41da696083a4a7a5476f48",
+      "variant": "Debug",
+      "startedUtc": "2026-11-04T12:22:23.8107922Z",
+      "finishedUtc": "2026-11-04T12:25:38.1523262Z",
+      "status": "passed",
+      "tests": 239,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "lintErrors": 0,
+      "lintWarnings": 0,
+      "lintHints": 0,
+      "apk": {
+        "sha256": "f21c7ccf7950aa9022556a396a7bafb9faf3f22aa5c89a0b525e30bf1420536b",
+        "path": "E:\\Countdown\\app\\build\\outputs\\apk\\debug\\app-debug.apk"
+      },
+      "source": {
+        "commit": "6a42cf4c556369e386714be5cfe9433427882193",
+        "dirty": true,
+        "fingerprint": "70e10e4e8e2e0c7cf014e4ae4647f29c5ab400725bb3e44cfa12c3b1aa014693"
+      }
+    },
+    {
+      "evidence": ".tools/checks/check-full-release-20261104-202812-196.json",
+      "evidenceSha256": "52b2765dd99d2039ba089274763cdf01bb718adc03acebf7f6557d396f117b4d",
+      "variant": "Release",
+      "startedUtc": "2026-11-04T12:28:12.2042576Z",
+      "finishedUtc": "2026-11-04T12:29:42.1977174Z",
+      "status": "passed",
+      "tests": 231,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "lintErrors": 0,
+      "lintWarnings": 0,
+      "lintHints": 0,
+      "apk": {
+        "path": "E:\\Countdown\\app\\build\\outputs\\apk\\release\\app-release-unsigned.apk",
+        "sha256": "dbd10b059cb9129c6a1c38eda0bcdd2d9cffd0f6d6e97a8f48eca6ecbd889217"
+      },
+      "source": {
+        "commit": "6a42cf4c556369e386714be5cfe9433427882193",
+        "dirty": true,
+        "fingerprint": "70e10e4e8e2e0c7cf014e4ae4647f29c5ab400725bb3e44cfa12c3b1aa014693"
+      }
+    }
+  ],
+  "deviceRuns": [
+    {
+      "evidence": ".tools/device-checks/20261104-202534/results.json",
+      "evidenceSha256": "4623021c8e4c26eb7f6390f46c4c3809bd17d15f48101f607537118c47a242ef",
+      "status": "passed",
+      "apkSha256": "f21c7ccf7950aa9022556a396a7bafb9faf3f22aa5c89a0b525e30bf1420536b",
+      "device": "emulator-5556",
+      "passedSuites": [
+        "overtime_reminders"
+      ],
+      "details": {
+        "overtime_reminders": {
+          "missingDefaultsOptIn": true,
+          "uiPreferencesPersisted": true,
+          "firstVisualOnly": true,
+          "initialIntervalMillis": 58840,
+          "cancelDoesNotSnooze": true,
+          "inlineWheelDoesNotDrag": true,
+          "explicitChoiceCount": 3,
+          "exactChoiceNoExtension": true,
+          "first": {
+            "round": 1,
+            "effects": [
+              "STATUS"
+            ],
+            "level": "LIGHT",
+            "overtime": 58847,
+            "elapsed": 59847,
+            "planned": 1000,
+            "next": 1635053
+          },
+          "afterChoices": {
+            "round": 2,
+            "effects": [
+              "VIBRATION",
+              "SOUND"
+            ],
+            "level": "NOTICEABLE",
+            "overtime": 132699,
+            "elapsed": 133699,
+            "planned": 1000,
+            "next": 1701565
+          },
+          "endCancels": true,
+          "c4FullSkipped": {
+            "round": 1,
+            "effects": [],
+            "level": "LIGHT",
+            "overtime": 67586,
+            "elapsed": 77586,
+            "planned": 10000,
+            "next": 1829580
+          },
+          "c4Compact": {
+            "round": 2,
+            "effects": [
+              "OUTLINE"
+            ],
+            "level": "LIGHT",
+            "overtime": 152756,
+            "elapsed": 162756,
+            "planned": 10000,
+            "next": 1966415
+          },
+          "c4WindowNotRecreated": true,
+          "c4NoPauseOrExtension": true,
+          "homeCancelAndRotation": true,
+          "oldLegDialogDismissed": true,
+          "c4HomeSnooze": true,
+          "contentBoundsStable": true,
+          "explicitDeadlineSurvivesBaseEdit": true,
+          "c4AudioEvidence": "original C4 sound enabled; requests do not verify actual listening or tail continuity",
+          "audioEvidence": "only selected request logs, not actual sound/vibration acceptance",
+          "screenshotReview": "dark/large-font screenshots require visual review"
+        }
+      },
+      "appDataRestored": true,
+      "source": {
+        "commit": "6a42cf4c556369e386714be5cfe9433427882193",
+        "dirty": true,
+        "fingerprint": "70e10e4e8e2e0c7cf014e4ae4647f29c5ab400725bb3e44cfa12c3b1aa014693"
+      }
+    },
+    {
+      "evidence": ".tools/device-checks/20261104-203357/results.json",
+      "evidenceSha256": "fa99cdf6c880d7ed55e63918b455430d38a7cabf7ef1f62076386e86545f823e",
+      "status": "passed",
+      "apkSha256": "f21c7ccf7950aa9022556a396a7bafb9faf3f22aa5c89a0b525e30bf1420536b",
+      "device": "emulator-5556",
+      "passedSuites": [
+        "overlay_stability"
+      ],
+      "details": {
+        "overlay_stability": {
+          "temporalWindowFramesStable": true,
+          "temporalContentBoundsStable": true,
+          "scenarios": [
+            "ordinary-overtime-expanded",
+            "c4-device-expanded",
+            "c4-enabled-before-stage-expanded",
+            "ordinary-total-hour-rollover"
+          ],
+          "beforeStageFrames": {
+            "compact": [
+              626,
+              235,
+              1036,
+              401
+            ],
+            "expanded": [
+              544,
+              250,
+              1080,
+              518
+            ]
+          },
+          "originalTimeTapAtBothEdges": true,
+          "preStageRotationAndCollapse": true,
+          "anchors": [
+            {
+              "edge": 0.01,
+              "compact": [
+                313,
+                136,
+                723,
+                302
+              ],
+              "expanded": [
+                250,
+                151,
+                786,
+                419
+              ],
+              "timeBefore": [
+                396.0,
+                179.0,
+                640.0,
+                259.0
+              ],
+              "timeExpanded": [
+                396.0,
+                179.0,
+                640.0,
+                259.0
+              ]
+            },
+            {
+              "edge": 0.99,
+              "compact": [
+                313,
+                2042,
+                723,
+                2208
+              ],
+              "expanded": [
+                250,
+                1925,
+                786,
+                2193
+              ],
+              "timeBefore": [
+                396.0,
+                2085.0,
+                640.0,
+                2165.0
+              ],
+              "timeExpanded": [
+                396.0,
+                2085.0,
+                640.0,
+                2165.0
+              ]
+            },
+            {
+              "edge": 0.35,
+              "compact": [
+                918,
+                295,
+                1328,
+                461
+              ],
+              "expanded": [
+                855,
+                310,
+                1391,
+                578
+              ],
+              "timeBefore": [
+                1001.0,
+                338.0,
+                1245.0,
+                418.0
+              ],
+              "timeExpanded": [
+                1001.0,
+                338.0,
+                1245.0,
+                418.0
+              ]
+            }
+          ],
+          "totalHourRollover": true,
+          "samples": "overlay-stability-samples.json",
+          "note": "Seven-second runtime traces per scenario, not static screenshot acceptance"
+        }
+      },
+      "appDataRestored": true,
+      "source": {
+        "commit": "6a42cf4c556369e386714be5cfe9433427882193",
+        "dirty": true,
+        "fingerprint": "70e10e4e8e2e0c7cf014e4ae4647f29c5ab400725bb3e44cfa12c3b1aa014693"
+      }
+    },
+    {
+      "evidence": ".tools/device-checks/20261104-203716/results.json",
+      "evidenceSha256": "347b16fa3cf821566623b72cd8ca30c93db3f5ca8cbce9ac90db177215f80375",
+      "status": "passed",
+      "apkSha256": "f21c7ccf7950aa9022556a396a7bafb9faf3f22aa5c89a0b525e30bf1420536b",
+      "device": "emulator-5556",
+      "passedSuites": [
+        "inline"
+      ],
+      "details": {
+        "inline": {
+          "sameWindow": true,
+          "sameForeground": true,
+          "original": {
+            "id": "dc188c92-f672-41ee-8db8-2254a6c86461",
+            "appName": "Gallery",
+            "packageName": "com.android.gallery3d",
+            "mode": "COUNTDOWN",
+            "plannedMillis": 60000,
+            "startedWallMillis": 1793795847333,
+            "elapsedMillis": 852,
+            "status": "RUNNING",
+            "overtimeMillis": 0
+          },
+          "added": {
+            "id": "dc188c92-f672-41ee-8db8-2254a6c86461",
+            "appName": "Gallery",
+            "packageName": "com.android.gallery3d",
+            "mode": "COUNTDOWN",
+            "plannedMillis": 120000,
+            "startedWallMillis": 1793795847333,
+            "elapsedMillis": 77834,
+            "status": "RUNNING",
+            "overtimeMillis": 16570
+          },
+          "final": {
+            "id": "dc188c92-f672-41ee-8db8-2254a6c86461",
+            "appName": "Gallery",
+            "packageName": "com.android.gallery3d",
+            "mode": "COUNTDOWN",
+            "plannedMillis": 120000,
+            "startedWallMillis": 1793795847333,
+            "elapsedMillis": 139985,
+            "status": "MANUAL",
+            "overtimeMillis": 20144
+          },
+          "initialFrame": [
+            427,
+            235,
+            1036,
+            478
+          ],
+          "extendedFrame": [
+            427,
+            235,
+            1036,
+            478
+          ],
+          "grownFrame": [
+            395,
+            223,
+            1068,
+            491
+          ]
+        }
+      },
+      "appDataRestored": true,
+      "source": {
+        "commit": "6a42cf4c556369e386714be5cfe9433427882193",
+        "dirty": true,
+        "fingerprint": "70e10e4e8e2e0c7cf014e4ae4647f29c5ab400725bb3e44cfa12c3b1aa014693"
+      }
+    },
+    {
+      "evidence": ".tools/device-checks/20261104-204110/results.json",
+      "evidenceSha256": "9388832537466cd0154bef88109658b6c0bc1073a25d0ce91aa335c78e57f5c1",
+      "status": "passed",
+      "apkSha256": "f21c7ccf7950aa9022556a396a7bafb9faf3f22aa5c89a0b525e30bf1420536b",
+      "device": "emulator-5556",
+      "passedSuites": [
+        "overtime_reminders_lifecycle"
+      ],
+      "details": {
+        "overtime_reminders_lifecycle": {
+          "masterToggleReschedulesOnce": true,
+          "processReopenDoesNotResume": true,
+          "permissionRevocationCleansUp": true,
+          "stopwatchNoC4OrPeriodicSchedule": true
+        }
+      },
+      "appDataRestored": true,
+      "source": {
+        "commit": "6a42cf4c556369e386714be5cfe9433427882193",
+        "dirty": true,
+        "fingerprint": "025eb9117d18cb2dd256b0b7061802a60e329801d6243658b97d63e65e6f610b"
+      }
+    }
+  ],
+  "appInputs": {
+    "path": "docs/validation/20261104-overtime-reminders/app-inputs.json",
+    "count": 179,
+    "unchangedSinceFinalBuild": true
+  },
+  "emulator": {
+    "serial": "emulator-5556",
+    "avd": "FloatingFocus_API_36",
+    "model": "Android SDK built for x86_64",
+    "android": "16",
+    "sdk": 36,
+    "launcher": "com.android.launcher3/.uioverrides.QuickstepLauncher",
+    "observation": "Read from live device at delivery; original runner does not capture full OS/launcher versions",
+    "isolation": "fresh explicit data/cache/sdcard images; original AVD data not cleared"
+  },
+  "signingCertificateSha256": "2119d9676b8cbf5a1efee1f01b74d0846cd5573d4f18f6faf64a73146158d11a",
+  "debugAudioLocalOnly": [
+    "assets/c4/defused.m4a",
+    "assets/c4/explosion.m4a",
+    "assets/c4/pre_explosion.m4a"
+  ],
+  "releaseAudioPresent": false,
+  "scopeNote": "Lifecycle suite has same APK and 179 identical application inputs; full-workspace fingerprint differs after test-script edits. Ledger conservatively retains historical identity for that batch.",
+  "visualReview": [
+    "dark settings readable",
+    "dark 1.5-font duration wheel readable",
+    "STATUS before/during/after uses stable measured roles"
+  ],
+  "physicalDeviceExecuted": false,
+  "actualListeningExecuted": false,
+  "actualVibrationFeelingExecuted": false,
+  "artifactHashes": {
+    "overtime-settings-default.png": "57d256cce45b3f0a1e05871197c97125f0dc14e73c2eeaa8cedb0bfa7387b00b",
+    "overtime-settings-choice.png": "32f7fd19b9657ba50683f3c7486502eceb9400ec1e4ca400aeb2a521f6ca8051",
+    "overtime-settings-dark.png": "8c873168e98a2528eedef4535d496be405f446d8e1d1bd2901029582fad1aa23",
+    "overtime-wheel-dark-large.png": "d5a89209b194293932599d353aa67dd373f300e72c95d36f6b063a1922a0f30d",
+    "overtime-first-visual-during.png": "ef263290dd88f6d900280080d37e711081267c559f71a38a8cc5c4157f9c6de7",
+    "overtime-first-visual-after.png": "ff3749b7c1408c2fa750ae32f92da44104ca35772deb736e4411065da0037612",
+    "overtime-first-visual.mp4": "3cce67191670747be7ec37ad3b521016becb640548150de1580842fd0440ff9d",
+    "c4-full-before-periodic.png": "f1e0a8e005816bac0cc10ce5ae8995265f0438e0b2d971e7f91eed0dc3c377d5",
+    "c4-full-skips-visual-during.png": "1d1e127b75c6be39a0262ea355c48439514709885ec9c413c3b05bf5c36ca900",
+    "c4-compact-next-round-during.png": "f6cfd794ee492f079af98662e0be42cc44a88a7524a6e0cd2c9e190c863a5694",
+    "status-layout-diagnostic.json": "4b963cf748b3d907c9aee8332ec219387c9e071517168aadc3d4350eaf6c5db6"
+  },
+  "automatedGaps": [
+    "live cancellation within 120ms tone or 240ms vibration",
+    "animator scale zero",
+    "STATUS x every Debug layout x hour rollover x all shapes cross-product"
+  ],
+  "physicalCaseIds": [
+    "FF-PHONE-OT-VISUAL",
+    "FF-PHONE-OT-AUDIO",
+    "FF-PHONE-OT-C4-BACKGROUND"
+  ]
+}

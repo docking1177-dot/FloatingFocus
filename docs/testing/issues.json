@@ -504,5 +504,28 @@
       ".tools/device-checks/20261102-214249/results.json"
     ],
     "status": "已按对应范围复测；不关闭Redmi厂商闪动待验项"
+  },
+  {
+    "id": "FF-ISSUE-OT-STATUS-LINEHEIGHT",
+    "type": "新增状态文字测量缺陷",
+    "description": "STATUS中文字体回退使原单行时间区增高13px，低频外框采样曾漏检。数字和固定前缀槽分离，预留最大文字宽高；补内容坐标及录屏诊断。",
+    "affected_cases": [
+      "FF-OT-LAYOUT-001"
+    ],
+    "failed_records": [
+      "ANALYSIS-20261104-OT-STATUS-LINEHEIGHT:FF-OT-LAYOUT-001:0"
+    ],
+    "retests": [
+      {
+        "of": "ANALYSIS-20261104-OT-STATUS-LINEHEIGHT:FF-OT-LAYOUT-001:0",
+        "record": "ANALYSIS-20261104-OT-STATUS-LINEHEIGHT-RETEST:FF-OT-LAYOUT-001:0"
+      }
+    ],
+    "evidence": [
+      ".tools/device-checks/20261104-201121/status-layout-diagnostic.json",
+      ".tools/device-checks/20261104-202534/status-layout-diagnostic.json",
+      ".tools/device-checks/20261104-202534/overtime-first-visual.mp4"
+    ],
+    "status": "本轮同模拟器/同诊断范围已复测通过；原Redmi厂商闪动仍独立待验"
   }
 ]

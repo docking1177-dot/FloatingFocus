@@ -1,31 +1,31 @@
 {
-  "id": "FF-20261102-overlay-fix-5e4622f4",
-  "source_commit": "1973707bdfc1ad7890bf588ecd30c50613d0b3db",
+  "id": "FF-20261104-overtime-f21c7ccf",
+  "source_commit": "6a42cf4c556369e386714be5cfe9433427882193",
   "builds": {
     "Debug": {
-      "sha256": "5e4622f42851a8d0c700fa5d1aaa351db946fb2fc0fedfb869cbbf5f10544b29",
-      "fingerprint": "8ad01bdb2ab873a7d4af12f2341f3fb1b7421517bd53b484fd21d4a39db29bbb",
-      "reported_commit": "1973707bdfc1ad7890bf588ecd30c50613d0b3db",
+      "sha256": "f21c7ccf7950aa9022556a396a7bafb9faf3f22aa5c89a0b525e30bf1420536b",
+      "fingerprint": "70e10e4e8e2e0c7cf014e4ae4647f29c5ab400725bb3e44cfa12c3b1aa014693",
+      "reported_commit": "6a42cf4c556369e386714be5cfe9433427882193",
       "reported_dirty": true,
       "version_name": "0.3.0",
       "version_code": 4,
-      "check": ".tools/checks/check-full-debug-20261102-212339-637.json",
+      "check": ".tools/checks/check-full-debug-20261104-202223-802.json",
       "apk": "app/build/outputs/apk/debug/app-debug.apk",
       "audio_local": true,
       "installable": true
     },
     "Release": {
-      "sha256": "a73e5b99a00b06ae0a6944b92d5e6ffdbccc987db4c0cbf45ae8681a43687aea",
-      "fingerprint": "8ad01bdb2ab873a7d4af12f2341f3fb1b7421517bd53b484fd21d4a39db29bbb",
-      "reported_commit": "1973707bdfc1ad7890bf588ecd30c50613d0b3db",
+      "sha256": "dbd10b059cb9129c6a1c38eda0bcdd2d9cffd0f6d6e97a8f48eca6ecbd889217",
+      "fingerprint": "70e10e4e8e2e0c7cf014e4ae4647f29c5ab400725bb3e44cfa12c3b1aa014693",
+      "reported_commit": "6a42cf4c556369e386714be5cfe9433427882193",
       "reported_dirty": true,
       "version_name": "0.3.0",
       "version_code": 4,
-      "check": ".tools/checks/check-full-release-20261102-212813-179.json",
+      "check": ".tools/checks/check-full-release-20261104-202812-196.json",
       "apk": "app/build/outputs/apk/release/app-release-unsigned.apk",
       "audio_local": false,
       "installable": false
     }
   },
-  "note": "0.3.0/4未变。Debug为本机含C4录音包，Release无录音且未签名。原始源码指纹保留；设备回归中只改磁贴脚本导航，应用文件172项逐项核对未变，不把脚本不同指纹改写为相同。Redmi整窗闪动仍待真机复测。"
+  "note": "0.3.0/4未变。超时提醒任务开发构建，原检查commit/dirty/指纹保留。后续设备脚本完善及文档/测试库整理，179项应用输入逐项核对；Debug含本机C4录音，不公开，Release无录音且未签名。设备结果不替代真机。"
 }

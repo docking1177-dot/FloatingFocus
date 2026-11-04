@@ -33,6 +33,11 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 data class SessionState(
     val active: Boolean = false,
@@ -52,7 +57,8 @@ data class SessionState(
     val durationMillis: Long = 0,
     val sampledAt: Long = 0,
     /** Effective countdown setting captured at admission, including the ordinary pre-C4 stage. */
-    val c4Enabled: Boolean = false
+    val c4Enabled: Boolean = false,
+    val overtimeReminder: OvertimeReminderInfo? = null
 )
 
 class FloatingService : Service() {
@@ -104,6 +110,14 @@ class FloatingService : Service() {
     private var overlayState by mutableStateOf(SessionState())
     private var interactive by mutableStateOf(true)
     private val completionReminder = CompletionReminder()
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private val overtimeStore by lazy { OvertimeReminderSettingsStore.get(this) }
+    private val overtimeEngine = OvertimeReminderEngine()
+    private var overtimeFeedback: OvertimeReminderFeedback? = null
+    private var overtimeCue by mutableStateOf<OvertimeCue?>(null)
+    private var scheduledOvertimeAt: Long? = null
+    private val clearOvertimeCue = Runnable { overtimeCue = null }
+    private val overtimeDue = Runnable { scheduledOvertimeAt = null; refreshOvertime() }
     private val settingsStore by lazy { ReminderSettingsStore.get(this) }
     private var receiverRegistered = false
     private var watchingOps = false
@@ -120,6 +134,7 @@ class FloatingService : Service() {
     private val screenReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             interactive = getSystemService(PowerManager::class.java).isInteractive
+            overtimeCue = null // Do not replay an old visual cue when the screen becomes visible again.
             monitor?.screenChanged()
             handler.removeCallbacks(tick)
             handler.post(tick)
@@ -143,12 +158,13 @@ class FloatingService : Service() {
                 elapsedMillis = timer.elapsedAt(now), overtimeMillis = timer.overtimeAt(now), timerStartedAt = timer.startedAt,
                 paused = manualClock.paused, c4Locked = c4Frame.requiresCode, c4Active = c4Frame.active, startRequestId = activeStartRequestId,
                 durationMillis = timer.durationMillis, sampledAt = physicalNow,
-                c4Enabled = overlayState.c4Enabled)
+                c4Enabled = overlayState.c4Enabled, overtimeReminder = overlayState.overtimeReminder)
             checkpointRecord(physicalNow)
             record?.let { recordStore.save(it, checkpoint = true) }
             mutableSession.value = overlayState
             completeCountdown()
             c4Runtime?.refresh()
+            refreshOvertime()
             if (stage != previousStage) {
                 Log.d(TAG, "Reminder stage: $previousStage -> $stage")
                 getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification())
@@ -160,7 +176,26 @@ class FloatingService : Service() {
 
     override fun onBind(intent: Intent): IBinder? = null
 
+    override fun onCreate() {
+        super.onCreate()
+        serviceScope.launch {
+            overtimeStore.settings.collect { settings ->
+                overtimeFeedback?.restrict(settings)
+                overtimeCue = overtimeCue?.let { OvertimeFeedbackPolicy.filter(it, overtimeContext(), settings) }
+                refreshOvertime()
+            }
+        }
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_OVERTIME_SNOOZE) {
+            val id = intent.getStringExtra(EXTRA_REQUEST_ID)
+            if (id != null) snoozeOvertime(OvertimeSnoozeRequest(
+                OvertimeKey(id, intent.getLongExtra("timer_start", -1L)), intent.getIntExtra("seconds", 0),
+                intent.getStringExtra("operation_id").orEmpty()))
+            if (countdown == null && monitor == null && !successPending && !startPending) stopSelf(startId)
+            return START_NOT_STICKY
+        }
         if (intent?.action == ACTION_WIDGET_CONTROL) {
             val command = intent.getStringExtra("widget_command")?.let { name -> WidgetCommand.entries.firstOrNull { it.name == name } }
             if (command != null && c4Runtime?.locked() != true && TimerWidgetModel.accepts(overlayState, command,
@@ -298,16 +333,29 @@ class FloatingService : Service() {
         window = overlay
         overlay.show { FocusTheme {
             val settings by settingsStore.settings.collectAsState()
+            val overtimeSettings by overtimeStore.settings.collectAsState()
             val normal = ReminderPresenter.present(ReminderSnapshot(overlayState.remainingMillis, overlayState.progress,
                 overlayState.overtimeMillis, overlayState.mode, overlayState.elapsedMillis, countdown?.durationMillis ?: 0), settings)
             val appearance = if (c4Frame.active) ReminderPresenter.forC4(c4Frame, settings.shape)
                 else if (manualClock.paused) normal.copy(pulseDepth = 0f, animationStrength = 0f) else normal
             SideEffect { overlay.setGeometry(appearance.shape, appearance.size, c4Frame.active && c4Expanded, appearance.opacity, c4Frame.active) }
             val timerStart = overlayState.timerStartedAt
+            val requestId = overlayState.startRequestId
             FocusOverlay(if (c4Frame.active) appearance.copy(opacity = 1f) else appearance, interactive, extensionRequest = extensionRequest,
                 onContentMeasured = overlay::measureContent,
+                overtimeCue = overtimeCue,
+                reserveOvertimeStatus = overtimeSettings.enabled && OvertimeEffect.STATUS in overtimeSettings.effects,
+                overtimeInfo = overlayState.overtimeReminder,
+                onSnooze = if (overtimeSettings.enabled && overtimeSettings.interaction == OvertimeInteraction.CHOICE &&
+                    !c4Frame.active && overlayState.overtimeReminder != null) ({ seconds, operationId ->
+                    requestId?.let { id -> snoozeOvertime(OvertimeSnoozeRequest(OvertimeKey(id, timerStart), seconds, operationId)) }
+                }) else null,
                 extensionStrategy = settings.strategy, c4 = c4Frame, c4Expanded = c4Expanded,
-                onC4Toggle = { if (!stopping) c4Expanded = !c4Expanded }, paused = overlayState.paused,
+                onC4Toggle = { if (!stopping) {
+                    c4Expanded = !c4Expanded
+                    // A skipped compact effect must not reappear when the device is collapsed later.
+                    if (c4Expanded) overtimeCue = null
+                } }, paused = overlayState.paused,
                 onC4Key = { key ->
                     if (!stopping && c4Runtime?.key(key) == C4KeyResult.DEFUSED) finishSession(defusedFeedback = true)
                 },
@@ -342,6 +390,76 @@ class FloatingService : Service() {
         c4Runtime?.completed()
         Log.d(TAG, "Timer completed: remaining=0")
         ReminderVibration.once(this, settingsStore.settings.value.intensity)
+        refreshOvertime()
+    }
+
+    private fun overtimeContext(physicalNow: Long = SystemClock.elapsedRealtime()): OvertimeContext {
+        val timer = countdown
+        val now = manualClock.at(physicalNow)
+        return OvertimeContext(activeStartRequestId?.let { id -> timer?.let { OvertimeKey(id, it.startedAt) } },
+            inOvertime = !stopping && monitor == null && timer?.mode == TimerMode.COUNTDOWN && timer.remainingAt(now) == 0L,
+            paused = manualClock.paused, overtimeMillis = timer?.overtimeAt(now) ?: 0,
+            elapsedMillis = timer?.elapsedAt(now) ?: 0, plannedMillis = timer?.totalPlannedMillis ?: 0,
+            c4 = c4Frame.active, c4Expanded = c4Expanded, c4AudioBusy = successPending || c4Runtime?.audioBusy() == true)
+    }
+
+    private fun refreshOvertime() {
+        if (stopping) return
+        val now = manualClock.at(SystemClock.elapsedRealtime())
+        val context = overtimeContext()
+        val settings = overtimeStore.settings.value
+        val cue = overtimeEngine.update(now, context, settings)
+        if (!context.inOvertime || !settings.enabled || context.paused) {
+            overtimeCue = null
+            overtimeFeedback?.close(); overtimeFeedback = null
+        }
+        if (cue != null) {
+            Log.d(TAG, "Overtime reminder round=${cue.round} effects=${cue.effects} level=${cue.level} overtime=${context.overtimeMillis} elapsed=${context.elapsedMillis} planned=${context.plannedMillis} next=${overtimeEngine.state.nextAt}")
+            if (cue.effects.isNotEmpty()) {
+                overtimeCue = cue
+                handler.removeCallbacks(clearOvertimeCue)
+                handler.postDelayed(clearOvertimeCue, 2200)
+                val feedback = overtimeFeedback ?: OvertimeReminderFeedback(this).also { overtimeFeedback = it }
+                feedback.play(cue)
+            }
+        }
+        val state = overtimeEngine.state
+        val next = state.nextAt.takeUnless { context.paused }
+        if (scheduledOvertimeAt != next) {
+            handler.removeCallbacks(overtimeDue)
+            scheduledOvertimeAt = next
+            Log.d(TAG, "Overtime schedule next=$next now=$now exact=${state.exact} count=${state.snoozeCount}")
+            next?.let { handler.postDelayed(overtimeDue, (it - now).coerceAtLeast(1L)) }
+        }
+        val info = if (settings.enabled && context.inOvertime && state.nextAt != null)
+            OvertimeReminderInfo((state.nextAt!! - now).coerceAtLeast(0), state.snoozeCount,
+                state.lastSnoozeSeconds ?: settings.intervalSeconds, settings.interaction == OvertimeInteraction.CHOICE,
+                context.plannedMillis) else null
+        if (overlayState.overtimeReminder != info) {
+            overlayState = overlayState.copy(overtimeReminder = info)
+            if (overlayState.active) mutableSession.value = overlayState
+        }
+    }
+
+    private fun snoozeOvertime(request: OvertimeSnoozeRequest) {
+        if (stopping) return
+        val context = overtimeContext()
+        val settings = overtimeStore.settings.value
+        val now = manualClock.at(SystemClock.elapsedRealtime())
+        if (!request.accepts(context, settings) || !overtimeEngine.snooze(now, context, settings, request.seconds, request.operationId)) {
+            Log.d(TAG, "Overtime snooze rejected: stale, duplicate or inactive request")
+            return
+        }
+        overtimeCue = null
+        overtimeFeedback?.close(); overtimeFeedback = null
+        Log.d(TAG, "Overtime snoozed seconds=${request.seconds} count=${overtimeEngine.state.snoozeCount} timerStart=${countdown?.startedAt} elapsed=${context.elapsedMillis} planned=${context.plannedMillis}")
+        refreshOvertime()
+    }
+
+    private fun cancelOvertime() {
+        handler.removeCallbacks(overtimeDue); handler.removeCallbacks(clearOvertimeCue)
+        scheduledOvertimeAt = null; overtimeCue = null; overtimeEngine.clear()
+        overtimeFeedback?.close(); overtimeFeedback = null
     }
 
     private fun setPaused(expectedStart: Long, paused: Boolean) {
@@ -364,6 +482,7 @@ class FloatingService : Service() {
         if (ReminderSettingsStore.get(this).settings.value.strategy.validationError(seconds * 1000L) != null) return
         val next = timer.extendAt(manualClock.at(SystemClock.elapsedRealtime()), seconds * 1000L) ?: return
         countdown = next
+        cancelOvertime()
         completionReminder.reset()
         handler.removeCallbacks(tick)
         tick.run()
@@ -481,6 +600,7 @@ class FloatingService : Service() {
         if (successPending && !defusedFeedback) { cancelSuccessAndStop(); return }
         if (stopping) return
         stopping = true
+        cancelOvertime()
         checkpointRecord(SystemClock.elapsedRealtime())
         record?.takeIf { it.packageName.isNotBlank() }?.let { quotaStore.checkpoint(it.id, false, SystemClock.elapsedRealtime(), finish = true) }
         mutableMonitor.value = AutoMonitorStatus(reason = if (preserveError) mutableSession.value.error ?: "已停止" else "未开启")
@@ -518,6 +638,7 @@ class FloatingService : Service() {
     }
 
     private fun cleanup() {
+        cancelOvertime()
         c4Runtime?.close(); c4Runtime = null
         c4Frame = C4Frame()
         handler.removeCallbacksAndMessages(null)
@@ -538,6 +659,7 @@ class FloatingService : Service() {
     }
 
     override fun onDestroy() {
+        serviceScope.cancel()
         startAdmission.complete(activeStartRequestId)
         cancelSuccessAudio()
         completeRecord(RecordStatus.SERVICE_STOPPED)
@@ -564,6 +686,7 @@ class FloatingService : Service() {
         val pendingStarts = startAdmission.pending
         val startPending: Boolean get() = startAdmission.pendingId != null
         private const val ACTION_EXTENSION_EDITOR = "app.floatingfocus.EXTENSION_EDITOR"
+        private const val ACTION_OVERTIME_SNOOZE = "app.floatingfocus.OVERTIME_SNOOZE"
         private const val ACTION_APP_OPENED = "app.floatingfocus.APP_OPENED"
         private const val ACTION_STOP = "app.floatingfocus.STOP"
         private const val ACTION_WIDGET_CONTROL = "app.floatingfocus.WIDGET_CONTROL"
@@ -611,6 +734,13 @@ class FloatingService : Service() {
             if (!session.value.active) return
             context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_EXTENSION_EDITOR)
                 .putExtra("timer_start", expectedStart))
+        }
+        fun requestOvertimeSnooze(context: Context, expectedSessionId: String, expectedStart: Long,
+                                  seconds: Int, operationId: String) {
+            if (!session.value.active) return
+            context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_OVERTIME_SNOOZE)
+                .putExtra(EXTRA_REQUEST_ID, expectedSessionId).putExtra("timer_start", expectedStart)
+                .putExtra("seconds", seconds).putExtra("operation_id", operationId))
         }
         fun appOpened(context: Context, app: LaunchableApp, requestId: String) {
             context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_APP_OPENED)

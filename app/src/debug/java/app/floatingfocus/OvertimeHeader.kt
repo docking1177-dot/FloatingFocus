@@ -37,22 +37,24 @@ internal class OvertimeStyleStore private constructor(context: Context) {
 }
 
 @Composable
-internal fun OvertimeHeader(readout: OvertimeReadout, style: TextStyle, modifier: Modifier) {
+internal fun OvertimeHeader(readout: OvertimeReadout, style: TextStyle, modifier: Modifier,
+                           showStatus: Boolean = false, reserveStatus: Boolean = false) {
     val selected by OvertimeStyleStore.get(LocalContext.current).style.collectAsState()
     when (selected) {
-        OvertimeStyle.OVERTIME_FIRST -> OvertimeTimeHeader(readout, style, modifier)
+        OvertimeStyle.OVERTIME_FIRST -> OvertimeTimeHeader(readout, style, modifier, showStatus, reserveStatus)
         OvertimeStyle.TOTAL_FIRST -> Column(modifier.semantics(mergeDescendants = true) {
             contentDescription = "本次累计 ${readout.totalText}，超时 ${readout.overtimeText}"
         }, horizontalAlignment = Alignment.CenterHorizontally) {
             OvertimeDigits(readout.totalText, style, 20.sp, FontWeight.SemiBold)
-            OvertimeDigits("超时 ${readout.overtimeText}", style, 12.sp, prefix = "超时 +")
+            OvertimeStatusDigits(readout, style, 12.sp, normalPrefix = "超时 +",
+                showStatus = showStatus, reserveStatus = reserveStatus)
         }
         OvertimeStyle.SIDE_BY_SIDE -> FlowRow(modifier.semantics(mergeDescendants = true) {
             contentDescription = "超时 ${readout.overtimeText}，本次累计 ${readout.totalText}"
         }, horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             listOf("超时" to readout.overtimeText, "累计" to readout.totalText).forEach { (label, time) ->
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(label, style = style, fontSize = 11.sp)
+                    Text(if (label == "超时" && showStatus) "已超时" else label, style = style, fontSize = 11.sp)
                     OvertimeDigits(time, style, 16.sp, FontWeight.Medium, prefix = if (label == "超时") "+" else "")
                 }
             }

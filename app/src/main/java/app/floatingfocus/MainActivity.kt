@@ -158,6 +158,9 @@ class MainActivity : ComponentActivity() {
                                     Text(if (monitor.enabled) "停止 App 监测" else "结束计时")
                                 }
                             }
+                            OvertimeHomeControls(session) { id, leg, duration, operation ->
+                                FloatingService.requestOvertimeSnooze(this@MainActivity, id, leg, duration, operation)
+                            }
                         }
                     }
                     Spacer(Modifier.height(12.dp))

@@ -266,7 +266,7 @@ def report(catalog,out):
     lines=['# 测试覆盖与证据摘要','',f"目标：{target['id']}。Excel是导出报告；维护源见README。",'',
         f"用例 {len(views)}；执行记录 {len(rows)}；批次 {len(batches)}。这些是条目数量，不是功能覆盖率。",'',
         f"用例粒度：{stats['case_kinds']}。",f"执行原结果：{stats['outcomes']}（跨版本/环境，不相加当成当前通过）。",'',
-        f"本包真机通过记录：{stats['current_phone_passes']}；最小真机待验用例：{len(stats['required_phone_cases'])}。",'',
+        f"本包真机通过记录：{stats['current_phone_passes']}；尚无本包真机通过的必须真机分类：{len(stats['required_phone_cases'])}。这是全库分类，本轮最小集与合并操作见REAL_DEVICE.md。",'',
         '## 当前身份可核对的执行范围','', '| 用例 | 环境 | 构建 | 原结果 | 证据粒度 |','|---|---|---|---|---|']
     for r in stats['current_evidence']:lines.append('| '+' | '.join(str(r[k]) for k in ['case_id','environment','variant','status','scope'])+' |')
     lines+=['','## 各模块尚未取得逐例当前结果的条目','', '| 模块 | 用例数 | 当前自动通过 | 当前真机通过 | 必须真机待验 |','|---|---:|---:|---:|---:|']
@@ -291,7 +291,7 @@ def generate_phone(views,target):
         '这是用例库派生视图，只在cases.json维护步骤；执行结果另记manual_runs.jsonl。已有同SHA/同机/同系统通过的项可跳过，不凭同名版本号要求重测。',
         '本地Debug已含前段/爆炸/成功三录音；Release无本地录音且当前为未签名检查包，不要求安装或把无声当故障。不卸载清数据。',
         '沿用悬浮/通知及Redmi桌面快捷方式权限，保持日常省电设置，不新增无障碍、使用情况或保活权限。用普通60秒(C4关)和C4 60秒预设；组件显示原顺序前两个，不要求重排。',
-        f"共有{sum(c['manual_tier']=='必须真机' for c in views)}项必须真机分类，不要求每轮全部重测；分组0为本轮浮窗修正的两项最小复测，分组1–6保留既有分类，分组7为建议补充。普通计时不要求结束铃声。C4口令7355608，下包4.92秒后可输入；启用C4的本次会话从开始不可暂停，归零后可正常结束，不可加时。本轮重点见docs/validation/20261102-overlay-stability.md。",'']
+        f"共有{sum(c['manual_tier']=='必须真机' for c in views)}项必须真机分类，不要求每轮全部重测。本轮最小集为FF-PHONE-OT-VISUAL、FF-PHONE-OT-AUDIO、FF-PHONE-OT-C4-BACKGROUND，可连续完成；同组既有Redmi闪动项可合并观察。其他分组保留历史范围，按变更影响选择。普通计时不要求结束铃声。C4口令7355608，下包4.92秒后可输入；启用C4的本次会话从开始不可暂停，归零后可正常结束，不可加时。本轮重点见docs/validation/20261104-overtime-reminders.md。",'']
     for c in sorted([c for c in views if c['manual_tier']!='自动化优先'],key=lambda c:(c['manual_group'],c['id'])):
         lines.extend([f"## {c['id']} {c['scenario']}（{c['priority']}，{c['manual_tier']}，分组{c['manual_group']}）",'',
             '- 目的：'+c['scenario'],'- 前置：'+c['preconditions'],'- 操作：'+c['steps'],'- 预期：'+c['expected'],
