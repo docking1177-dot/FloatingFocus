@@ -80,17 +80,21 @@ object HistoryStatistics {
         val cutoff = minOf(period.end, now.toEpochMilli())
         for (record in records) {
             if (packageFilter != null && record.packageName != packageFilter) continue
-            val start = maxOf(record.startedWallMillis, period.start)
-            val savedEnd = saturatedSum(record.startedWallMillis.coerceAtLeast(0), record.elapsedMillis.coerceAtLeast(0))
-            val end = minOf(savedEnd, cutoff)
-            if (end > start) {
-                val elapsed = end - start
-                entries += HistoryEntry(record, elapsed)
+            val intervals = record.screenTime?.intervals ?: if (record.elapsedMillis > 0)
+                listOf(ActiveInterval(0, record.elapsedMillis)) else emptyList()
+            var inRange = 0L
+            for (interval in intervals) {
+                val start = maxOf(saturatedSum(record.startedWallMillis.coerceAtLeast(0), interval.startOffsetMillis), period.start)
+                val end = minOf(saturatedSum(record.startedWallMillis.coerceAtLeast(0), interval.endOffsetMillis), cutoff)
+                if (end <= start) continue
+                inRange = saturatedSum(inRange, end - start)
                 period.buckets.forEachIndexed { i, bucket ->
                     val overlap = (minOf(end, bucket.end) - maxOf(start, bucket.start)).coerceAtLeast(0)
                     totals[i] = saturatedSum(totals[i], overlap)
                 }
-            } else if (record.elapsedMillis == 0L && record.startedWallMillis >= period.start &&
+            }
+            if (inRange > 0) entries += HistoryEntry(record, inRange)
+            else if (record.elapsedMillis == 0L && record.startedWallMillis >= period.start &&
                 record.startedWallMillis < period.end && record.startedWallMillis <= cutoff) {
                 // Keep a newly started, zero-length session visible without inventing elapsed time.
                 entries += HistoryEntry(record, 0)

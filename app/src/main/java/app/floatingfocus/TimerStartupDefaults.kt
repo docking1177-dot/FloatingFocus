@@ -17,7 +17,7 @@ data class TimerStartupDefaults(val mode: TimerMode = TimerMode.COUNTDOWN, val d
 
         /** Called only by a saveable initializer, so restored home choices always win. */
         fun initialHomeSelection(defaults: TimerStartupDefaults, session: SessionState): TimerStartupDefaults {
-            if (!session.active) return defaults
+            if (!session.active || session.screenDriven) return defaults
             val seconds = if (session.mode == TimerMode.COUNTDOWN && session.durationMillis > 0)
                 ((session.durationMillis.coerceAtMost(Countdown.MAX_DURATION_MILLIS) + 999) / 1000).toInt()
             else defaults.durationSeconds

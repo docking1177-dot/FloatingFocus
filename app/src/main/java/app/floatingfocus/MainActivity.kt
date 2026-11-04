@@ -145,6 +145,7 @@ class MainActivity : ComponentActivity() {
                             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                 Text(when {
                                     monitor.enabled -> monitor.reason
+                                    session.screenDriven -> "${if (session.paused) "等待亮屏" else "亮屏计时"} · ${formatUsageTime(session.elapsedMillis)}"
                                     session.paused -> "已暂停 · ${if (session.mode == TimerMode.STOPWATCH) formatElapsed(session.elapsedMillis) else formatRemaining(session.remainingMillis)}"
                                     session.mode == TimerMode.STOPWATCH -> "正计时 · ${formatElapsed(session.elapsedMillis)}"
                                     session.c4Active && session.stage == ReminderStage.FINISHED -> "C4 超时 +${formatUsageTime(session.overtimeMillis)}"
@@ -153,7 +154,10 @@ class MainActivity : ComponentActivity() {
                                 }, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
                                 if (SessionControls.canExtend(session))
                                     TextButton(onClick = { FloatingService.requestExtension(this@MainActivity, session.timerStartedAt) }) { Text("加时") }
-                                if (!session.c4Locked) TextButton(onClick = { FloatingService.stop(this@MainActivity) },
+                                if (!session.c4Locked) TextButton(onClick = {
+                                    if (session.screenDriven) startService(FloatingService.widgetControlIntent(this@MainActivity, WidgetCommand.END, session))
+                                    else FloatingService.stop(this@MainActivity)
+                                },
                                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) {
                                     Text(if (monitor.enabled) "停止 App 监测" else "结束计时")
                                 }

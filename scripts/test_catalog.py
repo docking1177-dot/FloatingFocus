@@ -287,12 +287,14 @@ def report(catalog,out):
 
 
 def generate_phone(views,target):
-    lines=['# 用户真机测试清单','',f"目标：{target['id']}，0.3.0 / code 4，本地Debug。APK SHA256：`{target['builds']['Debug']['sha256']}`。",'',
+    focus=target.get('manual_focus_ids',[])
+    focus_note=('本轮最小集为'+ '、'.join(focus)+'，可连续完成；其他分组保留历史范围，按变更影响选择。' if focus else '本轮范围按target.json和当前成果报告选择，不要求全库重测。')
+    lines=['# 用户真机测试清单','',f"目标：{target['id']}，{target['builds']['Debug'].get('version_name','未知版本')} / code {target['builds']['Debug'].get('version_code','未知')}，本地Debug。APK SHA256：`{target['builds']['Debug']['sha256']}`。",'',
         '这是用例库派生视图，只在cases.json维护步骤；执行结果另记manual_runs.jsonl。已有同SHA/同机/同系统通过的项可跳过，不凭同名版本号要求重测。',
         '本地Debug已含前段/爆炸/成功三录音；Release无本地录音且当前为未签名检查包，不要求安装或把无声当故障。不卸载清数据。',
-        '沿用悬浮/通知及Redmi桌面快捷方式权限，保持日常省电设置，不新增无障碍、使用情况或保活权限。用普通60秒(C4关)和C4 60秒预设；组件显示原顺序前两个，不要求重排。',
-        f"共有{sum(c['manual_tier']=='必须真机' for c in views)}项必须真机分类，不要求每轮全部重测。本轮最小集为FF-PHONE-OT-VISUAL、FF-PHONE-OT-AUDIO、FF-PHONE-OT-C4-BACKGROUND，可连续完成；同组既有Redmi闪动项可合并观察。其他分组保留历史范围，按变更影响选择。普通计时不要求结束铃声。C4口令7355608，下包4.92秒后可输入；启用C4的本次会话从开始不可暂停，归零后可正常结束，不可加时。本轮重点见docs/validation/20261104-overtime-reminders.md。",'']
-    for c in sorted([c for c in views if c['manual_tier']!='自动化优先'],key=lambda c:(c['manual_group'],c['id'])):
+        '沿用各用例需要的既有悬浮/通知或厂商桌面权限，保持日常省电设置，不新增无障碍、使用情况或保活权限。不为无关用例重配预设、组件或音效。',
+        f"共有{sum(c['manual_tier']=='必须真机' for c in views)}项必须真机分类，不要求每轮全部重测。{focus_note}普通计时不要求结束铃声。C4口令7355608，下包4.92秒后可输入；启用C4的本次会话从开始不可暂停，归零后可正常结束，不可加时。本轮重点见{target.get('validation_report','docs/testing/README.md')}。",'']
+    for c in sorted([c for c in views if c['manual_tier']!='自动化优先'],key=lambda c:(c['id'] not in focus,c['manual_group'],c['id'])):
         lines.extend([f"## {c['id']} {c['scenario']}（{c['priority']}，{c['manual_tier']}，分组{c['manual_group']}）",'',
             '- 目的：'+c['scenario'],'- 前置：'+c['preconditions'],'- 操作：'+c['steps'],'- 预期：'+c['expected'],
             '- 现有验证不足：'+c['gap'],'- 当前真机结果：'+c['phone_current'],''])

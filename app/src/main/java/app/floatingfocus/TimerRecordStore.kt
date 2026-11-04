@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONObject
+import org.json.JSONArray
 
 /** One atomic file per session. Only the current small record is checkpointed, never the full history. */
 class TimerRecordStore private constructor(context: Context) {
@@ -73,6 +74,12 @@ class TimerRecordStore private constructor(context: Context) {
                 put("startedWallMillis", record.startedWallMillis); put("elapsedMillis", record.elapsedMillis)
                 put("status", record.status.name)
                 record.savedOvertimeMillis?.let { put("overtimeMillis", it) }
+                record.screenTime?.let { screen ->
+                    put("source", "SCREEN_ON"); put("screenSpanMillis", screen.spanMillis)
+                    put("activeIntervals", JSONArray().apply { screen.intervals.forEach { interval ->
+                        put(JSONArray().put(interval.startOffsetMillis).put(interval.endOffsetMillis))
+                    } })
+                }
             }.toString().toByteArray(Charsets.UTF_8))
             file.finishWrite(stream)
         } catch (e: Exception) { file.failWrite(stream); throw e }
@@ -86,9 +93,21 @@ class TimerRecordStore private constructor(context: Context) {
         val started = row.getLong("startedWallMillis")
         val mode = TimerMode.valueOf(row.getString("mode"))
         require(duration >= 0 && elapsed >= 0 && started > 0)
+        val screenTime = if (row.has("source")) {
+            require(row.getString("source") == "SCREEN_ON")
+            val intervals = row.getJSONArray("activeIntervals")
+            ScreenTimeSnapshot(row.getLong("screenSpanMillis"), List(intervals.length()) { index ->
+                val pair = intervals.getJSONArray(index)
+                require(pair.length() == 2)
+                ActiveInterval(pair.getLong(0), pair.getLong(1))
+            })
+        } else {
+            require(!row.has("activeIntervals") && !row.has("screenSpanMillis"))
+            null
+        }
         return TimerRecord(id, row.getString("appName"), row.getString("packageName"), mode, duration,
             started, elapsed, RecordStatus.valueOf(row.getString("status")),
-            if (row.has("overtimeMillis")) row.getLong("overtimeMillis").also { require(it >= 0) } else null)
+            if (row.has("overtimeMillis")) row.getLong("overtimeMillis").also { require(it >= 0) } else null, screenTime)
     }
 
     private fun report(e: Exception) {

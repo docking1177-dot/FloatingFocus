@@ -27,11 +27,11 @@ object TimerWidgetModel {
         val remaining = (s.remainingMillis - delay).coerceAtLeast(0)
         val overtime = if (s.remainingMillis > 0) (delay - s.remainingMillis).coerceAtLeast(0) else s.overtimeMillis + delay
         return TimerWidgetPresentation(
-            status = when { s.c4Locked -> "C4 计时中"; s.c4Active && over -> "C4 超时"; s.paused -> "已暂停"; stopwatch -> "正计时"; over -> "超时"; else -> "倒计时" },
+            status = when { s.screenDriven -> if (s.paused) "等待亮屏" else "亮屏计时"; s.c4Locked -> "C4 计时中"; s.c4Active && over -> "C4 超时"; s.paused -> "已暂停"; stopwatch -> "正计时"; over -> "超时"; else -> "倒计时" },
             time = when { stopwatch -> formatElapsed(elapsed); over -> "+${formatElapsed(overtime)}"; else -> formatRemaining(remaining) },
             base = when { stopwatch -> now - elapsed; over -> now - overtime; else -> now + remaining },
             running = !s.paused, countDown = !stopwatch && !over, overtime = over,
-            primary = when { s.c4Enabled || s.c4Locked || s.c4Active || s.automatic || over -> WidgetCommand.OPEN; s.paused -> WidgetCommand.RESUME; else -> WidgetCommand.PAUSE },
+            primary = when { s.screenDriven || s.c4Enabled || s.c4Locked || s.c4Active || s.automatic || over -> WidgetCommand.OPEN; s.paused -> WidgetCommand.RESUME; else -> WidgetCommand.PAUSE },
             canEnd = SessionControls.canEnd(s))
     }
 

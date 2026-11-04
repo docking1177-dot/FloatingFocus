@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-04",
+  "versionName": "0.3.0",
+  "versionCode": 4,
+  "builds": [
+    {
+      "variant": "Debug",
+      "status": "passed",
+      "tests": 260,
+      "failures": 0,
+      "errors": 0,
+      "lintErrors": 0,
+      "lintWarnings": 0,
+      "apk": {
+        "path": "E:\\Countdown\\app\\build\\outputs\\apk\\debug\\app-debug.apk",
+        "sha256": "203256b93b8fc24045f359fe90d084ed760dba9d207b489398b5167c9c706f59"
+      },
+      "source": {
+        "commit": "9b214fd0b60807e248a3a87ee10eaa0fa04bc052",
+        "dirty": true,
+        "fingerprint": "39621d03c064a493eff691c33470d99886891babae73716dae7f01b4a10cfb60"
+      }
+    },
+    {
+      "variant": "Release",
+      "status": "passed",
+      "tests": 252,
+      "failures": 0,
+      "errors": 0,
+      "lintErrors": 0,
+      "lintWarnings": 0,
+      "apk": {
+        "path": "E:\\Countdown\\app\\build\\outputs\\apk\\release\\app-release-unsigned.apk",
+        "sha256": "27502a7b0e1c17059da02530565fa54ca5d692cfc1dd437a3be0e7b8f719c615"
+      },
+      "source": {
+        "commit": "9b214fd0b60807e248a3a87ee10eaa0fa04bc052",
+        "dirty": true,
+        "fingerprint": "39621d03c064a493eff691c33470d99886891babae73716dae7f01b4a10cfb60"
+      }
+    }
+  ],
+  "device": {
+    "evidence": ".tools/device-checks/20261104-225644/results.json",
+    "sha256": "4fa82a9fadae6f8905ca41aefbd4f3c383e8ccbe54dab884f4324df5a6c8187c",
+    "status": "passed",
+    "apkSha256": "203256b93b8fc24045f359fe90d084ed760dba9d207b489398b5167c9c706f59",
+    "serial": "emulator-5556",
+    "details": {
+      "permissionDeniedNoStart": true,
+      "sameSessionAcrossScreens": true,
+      "offGapExcluded": true,
+      "lockedScreenCounted": true,
+      "duplicateWakeNoNewSession": true,
+      "backgroundContinues": true,
+      "manualEndDisarms": true,
+      "ordinaryConflictPreserved": true,
+      "c4StageConflictPreserved": true,
+      "c4GlobalUnchanged": true,
+      "persistedIntervalsReloaded": true,
+      "csvActiveAndSpanVerified": true,
+      "processRecoveryDoesNotAddDowntime": true,
+      "permissionRevocationDisarms": true,
+      "configurationRebuildKeepsSession": true,
+      "malformedIntervalsShowError": true,
+      "record": {
+        "id": "52f8f2b2-beee-4e5a-9da5-11f7b4fbbec0",
+        "appName": "亮屏计时",
+        "packageName": "",
+        "mode": "STOPWATCH",
+        "plannedMillis": 0,
+        "startedWallMillis": 1793804236959,
+        "elapsedMillis": 37433,
+        "status": "MANUAL",
+        "overtimeMillis": 0,
+        "source": "SCREEN_ON",
+        "screenSpanMillis": 42592,
+        "activeIntervals": [
+          [
+            59,
+            3367
+          ],
+          [
+            8467,
+            42592
+          ]
+        ]
+      }
+    },
+    "appDataRestored": true,
+    "source": {
+      "commit": "9b214fd0b60807e248a3a87ee10eaa0fa04bc052",
+      "dirty": true,
+      "fingerprint": "c8cb6e98dc39fcd96b1fa2126247e55034d21c2b378bce35df357e262d05c8c1"
+    }
+  },
+  "applicationInputs": {
+    "path": "docs/validation/20261104-screen-on-timer/app-inputs.json",
+    "count": 185,
+    "unchangedSinceFinalBuild": true
+  },
+  "boundary": "Device script fixes after Full change whole-workspace fingerprint; the identical APK and185 unchanged application inputs are separately verified. Original fingerprints are never rewritten.",
+  "realDeviceExecuted": false,
+  "physicalAodExecuted": false,
+  "physicalFocus": [
+    "FF-PHONE-SCREEN-ON-001",
+    "FF-PHONE-SCREEN-ON-002"
+  ],
+  "historySuiteEvidence": {
+    "path": ".tools/device-checks/20261104-230534/results.json",
+    "sha256": "6f0c0aa03072f713f6dbae475681895316ee107b9fd85adf707050e331f681c7",
+    "status": "passed",
+    "details": {
+      "history": {
+        "todayWeekMonth": true,
+        "sameNamePackagesSeparate": true,
+        "searchHistoricalApps": true,
+        "uninstalledAppFallback": true,
+        "selectedBarAndBlankClear": true,
+        "exactPeriodPicker": true,
+        "csvParsedRows": 7,
+        "exportAllDespiteFilter": true,
+        "exportCancelPreservesFilter": true,
+        "originalRecordsUnchanged": true,
+        "readFailureAndRetry": true,
+        "retryKeepsLiveSession": true,
+        "emptyState": true,
+        "darkLargeTextAndLandscape": "screenshots require visual review"
+      }
+    }
+  },
+  "assets": {
+    "screen-on-disabled.png": "78fd70f4c5d09d28991b62dc16e4ce2cf426d1d9b14b9dbc7f1e2f6615456184",
+    "screen-on-running.png": "4ddde56a0531f50200246df6e1644c51339f06d718b27f842ef620bf645e942f",
+    "screen-on-locked-running.png": "24fb35e32b35224eb2d7a22d78a91df2ffb2151bcdadc4005704e0f1b9f5657c",
+    "screen-on-dark-large.png": "ccc3390d7b2d0f6fa78e1fbcfe6219a9f6d6f52379cf4fe42b73836eb03d885c",
+    "screen-on-landscape.png": "a3183746b45729fb69ca643ae96beb9258a6ef312cd79e4a655d64fa7316b60b",
+    "screen-on-history.png": "63339e03783cd9f096c8e184328f2cf903a0409a53137bb20c0c64f2470ca252",
+    "screen-on-c4-conflict.png": "09815bdda1c4ca70e547b6bf01ccb44596ddaeae4a749acc4fc1647dca305824",
+    "screen-on-malformed-intervals.png": "ece9951d4f155a3024e033ba4cd8ccedf94f938f265d1ae4885ad535b6abe2c9"
+  },
+  "environment": {
+    "serial": "emulator-5556",
+    "model": "Android SDK built for x86_64",
+    "android": "16",
+    "sdk": "36",
+    "launcher": "priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true\r\ncom.android.launcher3/.uioverrides.QuickstepLauncher",
+    "keyguardDisabledAfterRestore": "true",
+    "lockDelayAfterRestore": "null",
+    "observation": "Read at delivery; not retroactively inserted into raw runner results"
+  },
+  "visualReview": [
+    "Final dark/1.5-font settings screenshot inspected; text readable"
+  ]
+}

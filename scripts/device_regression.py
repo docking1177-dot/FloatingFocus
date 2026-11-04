@@ -31,6 +31,7 @@ from device_home_navigation import home_navigation, home_reorder
 from device_unified_timer import home_unified
 from device_overlay_stability import overlay_stability
 from device_overtime_reminders import overtime_reminders, overtime_reminders_lifecycle
+from device_screen_on_timer import screen_on
 from device_quota import quota
 from device_controls import home_swipe, overtime, overtime_preview, tile
 
@@ -50,8 +51,12 @@ class Device:
         self.hierarchy_retries = 0
 
     def adb(self, *args, data=None):
-        return subprocess.run([self.exe, '-s', self.serial, *map(str, args)], input=data,
-                              capture_output=True, check=True, timeout=45).stdout
+        try:
+            return subprocess.run([self.exe, '-s', self.serial, *map(str, args)], input=data,
+                                  capture_output=True, check=True, timeout=45).stdout
+        except subprocess.CalledProcessError as error:
+            detail = (error.stderr or error.stdout or b'').decode('utf-8', errors='replace')[-1200:]
+            raise RuntimeError(f'ADB {args[0] if args else "command"} failed ({error.returncode}): {detail}') from error
 
     def shell(self, *args):
         return self.adb('shell', *args).decode('utf-8')
@@ -466,7 +471,7 @@ def inline(d):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--serial', default='emulator-5554')
-    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'settings', 'home', 'home_unified', 'home_reorder', 'home_swipe', 'overlay_stability', 'overtime', 'overtime_reminders', 'overtime_reminders_lifecycle', 'overtime_preview', 'tile', 'preferences', 'startup', 'theme', 'c4', 'c4_keypad', 'c4_compact', 'onboarding', 'developer', 'history', 'preset_styles', 'preset_shortcuts', 'preset_c4', 'preset_c4_extensions', 'widgets', 'quota', 'all'], default='all')
+    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'settings', 'home', 'home_unified', 'home_reorder', 'home_swipe', 'overlay_stability', 'screen_on', 'overtime', 'overtime_reminders', 'overtime_reminders_lifecycle', 'overtime_preview', 'tile', 'preferences', 'startup', 'theme', 'c4', 'c4_keypad', 'c4_compact', 'onboarding', 'developer', 'history', 'preset_styles', 'preset_shortcuts', 'preset_c4', 'preset_c4_extensions', 'widgets', 'quota', 'all'], default='all')
     p.add_argument('--apk', type=Path, default=ROOT / 'app/build/outputs/apk/debug/app-debug.apk')
     p.add_argument('--allow-test-data-changes', action='store_true')
     args = p.parse_args()

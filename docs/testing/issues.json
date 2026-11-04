@@ -527,5 +527,21 @@
       ".tools/device-checks/20261104-202534/overtime-first-visual.mp4"
     ],
     "status": "本轮同模拟器/同诊断范围已复测通过；原Redmi厂商闪动仍独立待验"
+  },
+  {
+    "id": "FF-ISSUE-SCREEN-LEGACY-STOP",
+    "type": "静态审查发现的旧控制请求缺口",
+    "description": "旧普通通知无session/leg的STOP可能结束后来的亮屏会话。新模式服务端拒绝无身份STOP，首页/通知/设置END绑定会话与段，普通STOP兼容不变。",
+    "affected_cases": [
+      "FF-JVM-SCREENONCONTROLS"
+    ],
+    "failed_records": [],
+    "retests": [],
+    "evidence": [
+      "app/src/test/java/app/floatingfocus/ScreenOnControlsTest.kt",
+      ".tools/checks/check-full-debug-20261104-224809-460.json",
+      "docs/validation/20261104-screen-on-timer.md"
+    ],
+    "status": "模型与最终检查通过；真实旧PendingIntent跨会话投递未执行，无伪造设备失败或复测记录。"
   }
 ]

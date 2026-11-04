@@ -4,9 +4,12 @@ package app.floatingfocus
 data class TimerRecord(
     val id: String, val appName: String, val packageName: String,
     val mode: TimerMode, val plannedMillis: Long, val startedWallMillis: Long,
-    val elapsedMillis: Long = 0, val status: RecordStatus = RecordStatus.RUNNING, val savedOvertimeMillis: Long? = null
+    val elapsedMillis: Long = 0, val status: RecordStatus = RecordStatus.RUNNING, val savedOvertimeMillis: Long? = null,
+    val screenTime: ScreenTimeSnapshot? = null
 ) {
-    val endedWallMillis: Long get() = startedWallMillis + elapsedMillis
+    init { require(screenTime == null || (mode == TimerMode.STOPWATCH && plannedMillis == 0L &&
+        packageName.isBlank() && elapsedMillis == screenTime.activeMillis)) }
+    val endedWallMillis: Long get() = startedWallMillis + (screenTime?.spanMillis ?: elapsedMillis)
     val overtimeMillis: Long get() = if (mode == TimerMode.COUNTDOWN)
         savedOvertimeMillis ?: (elapsedMillis - plannedMillis).coerceAtLeast(0) else 0
     fun checkpoint(startedElapsed: Long, now: Long) = copy(elapsedMillis = (now - startedElapsed).coerceAtLeast(elapsedMillis))
@@ -26,11 +29,15 @@ object TimerRecordCsv {
         return "\"${safe.replace("\"", "\"\"")}\""
     }
     fun encode(records: List<TimerRecord>): String = "\uFEFF" +
-        (listOf(listOf("记录ID", "App", "包名", "模式", "开始时间UTC", "结束或最后记录时间UTC", "计划秒数", "累计秒数", "超时秒数", "结束方式")) +
+        (listOf(listOf("记录ID", "App", "包名", "模式", "开始时间UTC", "结束或最后记录时间UTC", "计划秒数", "累计秒数", "超时秒数", "结束方式", "计时口径", "会话跨度秒数", "亮屏活动区间毫秒偏移")) +
             records.map { listOf(it.id, it.appName, it.packageName, it.mode.label,
                 java.time.Instant.ofEpochMilli(it.startedWallMillis).toString(),
                 java.time.Instant.ofEpochMilli(it.endedWallMillis).toString(),
                 (it.plannedMillis / 1000).toString(), (it.elapsedMillis / 1000).toString(),
-                (it.overtimeMillis / 1000).toString(), it.status.label) })
+                (it.overtimeMillis / 1000).toString(), it.status.label,
+                if (it.screenTime != null) "亮屏有效时长" else "会话经过时长",
+                ((it.screenTime?.spanMillis ?: it.elapsedMillis) / 1000).toString(),
+                it.screenTime?.intervals?.joinToString(",", "[", "]") { interval ->
+                    "[${interval.startOffsetMillis},${interval.endOffsetMillis}]" }.orEmpty()) })
             .joinToString("\r\n", postfix = "\r\n") { row -> row.joinToString(",", transform = ::cell) }
 }

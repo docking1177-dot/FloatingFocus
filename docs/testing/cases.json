@@ -6080,6 +6080,584 @@
         "会话控制",
         "C4"
       ]
+    },
+    {
+      "id": "FF-JVM-SCREENONTIMER",
+      "module": "随亮屏计时",
+      "scenario": "纯亮屏状态、幂等事件与活动区间累计",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
+      "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
+      "expected": "对应测试类的全部实际JUnit断言通过；不得泛化为设备或真机通过。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM单测",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/ScreenOnTimerTest.kt"
+      ],
+      "scope": "模型类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "亮屏计时",
+        "会话",
+        "记录",
+        "生命周期",
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-JVM-SCREENONHISTORY",
+      "module": "随亮屏计时",
+      "scenario": "活动区间统计、CSV及旧记录口径兼容",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
+      "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
+      "expected": "对应测试类的全部实际JUnit断言通过；不得泛化为设备或真机通过。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM单测",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/ScreenOnHistoryTest.kt"
+      ],
+      "scope": "模型类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "亮屏计时",
+        "会话",
+        "记录",
+        "生命周期",
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-JVM-SCREENONCONTROLS",
+      "module": "随亮屏计时",
+      "scenario": "亮屏会话控制能力、旧STOP及原默认选择",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
+      "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
+      "expected": "对应测试类的全部实际JUnit断言通过；不得泛化为设备或真机通过。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM单测",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/ScreenOnControlsTest.kt"
+      ],
+      "scope": "模型类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "亮屏计时",
+        "会话",
+        "记录",
+        "生命周期",
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-SUITE-SCREEN_ON",
+      "module": "随亮屏计时",
+      "scenario": "随亮屏计时设备整套回归",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
+      "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
+      "expected": "该批次screen_on整套完成，设备数据及配置还原成功。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_screen_on_timer.py",
+        "docs/SCREEN_ON_TIMER.md"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "亮屏计时",
+        "会话",
+        "记录",
+        "生命周期",
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-SCREEN-001",
+      "module": "随亮屏计时",
+      "scenario": "缺少悬浮权限不开始",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
+      "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
+      "expected": "开关保持关闭，无新记录/浮窗；授权返回后不自动开始。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_screen_on_timer.py",
+        "docs/SCREEN_ON_TIMER.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "亮屏计时",
+        "会话",
+        "记录",
+        "生命周期",
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-SCREEN-002",
+      "module": "随亮屏计时",
+      "scenario": "重复亮灭屏同会话与息屏空档",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
+      "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
+      "expected": "多个亮屏区间仍一个ID，息屏落盘记录冻结，累计等于非重叠亮屏区间之和。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_screen_on_timer.py",
+        "docs/SCREEN_ON_TIMER.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "亮屏计时",
+        "会话",
+        "记录",
+        "生命周期",
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-SCREEN-003",
+      "module": "随亮屏计时",
+      "scenario": "锁屏未解锁亮起",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
+      "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
+      "expected": "实际Keyguard showing=true且正常亮屏时累计继续，不以解锁作为起点。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_screen_on_timer.py",
+        "docs/SCREEN_ON_TIMER.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "亮屏计时",
+        "会话",
+        "记录",
+        "生命周期",
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-SCREEN-004",
+      "module": "随亮屏计时",
+      "scenario": "主动结束解除本轮自动计时",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
+      "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
+      "expected": "结束保存MANUAL，后续息屏/亮屏不重开、不新增记录。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_screen_on_timer.py",
+        "docs/SCREEN_ON_TIMER.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "亮屏计时",
+        "会话",
+        "记录",
+        "生命周期",
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-SCREEN-005",
+      "module": "随亮屏计时",
+      "scenario": "普通会话冲突",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
+      "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
+      "expected": "已有普通正计时下新模式开关不可开启，原ID和会话不被替换。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_screen_on_timer.py",
+        "docs/SCREEN_ON_TIMER.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "亮屏计时",
+        "会话",
+        "记录",
+        "生命周期",
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-SCREEN-006",
+      "module": "随亮屏计时",
+      "scenario": "C4专属阶段冲突",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
+      "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
+      "expected": "现有C4口令阶段不被新模式替换，也不经新模式提供退出路径。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_screen_on_timer.py",
+        "docs/SCREEN_ON_TIMER.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "亮屏计时",
+        "会话",
+        "记录",
+        "生命周期",
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-SCREEN-007",
+      "module": "随亮屏计时",
+      "scenario": "强停后恢复最后检查点",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
+      "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
+      "expected": "重开仅把原记录改为INTERRUPTED，累计与区间保持强停后已落盘值，无自动监听/浮窗。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_screen_on_timer.py",
+        "docs/SCREEN_ON_TIMER.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "亮屏计时",
+        "会话",
+        "记录",
+        "生命周期",
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-SCREEN-008",
+      "module": "随亮屏计时",
+      "scenario": "真实文件选择器CSV导出",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
+      "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
+      "expected": "选中记录的累计/跨度/区间分别与保存值一致，前十列仍保留原定义。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_screen_on_timer.py",
+        "docs/SCREEN_ON_TIMER.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "亮屏计时",
+        "会话",
+        "记录",
+        "生命周期",
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-SCREEN-009",
+      "module": "随亮屏计时",
+      "scenario": "损坏新JSON不降级成连续时间",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
+      "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
+      "expected": "重启实际解码重叠活动区间后提示统计不完整，不默默把跨度计为有效时长。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_screen_on_timer.py",
+        "docs/SCREEN_ON_TIMER.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "亮屏计时",
+        "会话",
+        "记录",
+        "生命周期",
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-SCREEN-010",
+      "module": "随亮屏计时",
+      "scenario": "深色大字体与旋转重建",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
+      "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
+      "expected": "真实切换主题/1.5字号/横屏后仍为同一个活跃会话，开关保持开启。截图需另核图。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_screen_on_timer.py",
+        "docs/SCREEN_ON_TIMER.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "亮屏计时",
+        "会话",
+        "记录",
+        "生命周期",
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-SCREEN-011",
+      "module": "随亮屏计时",
+      "scenario": "撤销悬浮权限清理",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
+      "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
+      "expected": "活跃模式撤权后浮窗/服务结束，下次亮屏不自动重开。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_screen_on_timer.py",
+        "docs/SCREEN_ON_TIMER.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "亮屏计时",
+        "会话",
+        "记录",
+        "生命周期",
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-SCREEN-012",
+      "module": "随亮屏计时",
+      "scenario": "后台亮屏继续且不绑定前台App",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
+      "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
+      "expected": "Gallery实际前台时仍累计亮屏，不把该记录绑定Gallery。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_screen_on_timer.py",
+        "docs/SCREEN_ON_TIMER.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "亮屏计时",
+        "会话",
+        "记录",
+        "生命周期",
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-PHONE-SCREEN-ON-001",
+      "module": "随亮屏计时",
+      "scenario": "Redmi锁屏亮起/AOD的实际统计边界",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "同SHA本轮Debug，Redmi K80/Android16，已有悬浮权限与日常通知/省电设置。无需开启无障碍或使用情况权限。",
+      "steps": "设置→随亮屏计时开启；记累计，息屏约20秒；亮起但不解锁约10秒，再解锁查看。若日常已开AOD，再息屏显示约30秒后核对。结束后再亮灭一次。",
+      "expected": "正常锁屏亮起计入；AOD或息屏整段不增加累计；重新亮屏继续同一条记录。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "用户人工真机观察",
+      "entry_points": [
+        "docs/SCREEN_ON_TIMER.md",
+        "docs/validation/20261104-screen-on-timer.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 0,
+      "gap": "AOSP不代表HyperOS真实AOD/接近传感器及后台清理策略；本包没有手机验收。",
+      "impact_tags": [
+        "亮屏计时",
+        "会话",
+        "记录",
+        "生命周期",
+        "权限"
+      ]
+    },
+    {
+      "id": "FF-PHONE-SCREEN-ON-002",
+      "module": "随亮屏计时",
+      "scenario": "HyperOS后台亮灭与任务划除",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "同SHA本轮Debug，Redmi K80/Android16，已有悬浮权限与日常通知/省电设置。无需开启无障碍或使用情况权限。",
+      "steps": "沿用上一项模式，在视频App/桌面间使用2—3分钟，包含两次息屏。查看同一记录累计后，从最近任务划掉FF，再亮屏并重新打开FF核对。保持日常省电习惯。",
+      "expected": "后台多轮仅累计亮屏，结束或划掉FF后不自动重开。系统无回调强杀只能最后检查点约计，不补停机时间。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "用户人工真机观察",
+      "entry_points": [
+        "docs/SCREEN_ON_TIMER.md",
+        "docs/validation/20261104-screen-on-timer.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 0,
+      "gap": "AOSP不代表HyperOS真实AOD/接近传感器及后台清理策略；本包没有手机验收。",
+      "impact_tags": [
+        "亮屏计时",
+        "会话",
+        "记录",
+        "生命周期",
+        "权限"
+      ]
     }
   ],
   "junit_classes": {
@@ -6122,7 +6700,10 @@
     "StartAdmissionObservableTest": "FF-JVM-STARTADMISSIONOBSERVABLE",
     "C4SessionControlsTest": "FF-JVM-C4SESSIONCONTROLS",
     "OvertimeReminderTest": "FF-JVM-OVERTIMEREMINDER",
-    "OvertimeReminderRequestTest": "FF-JVM-OVERTIMEREMINDERREQUEST"
+    "OvertimeReminderRequestTest": "FF-JVM-OVERTIMEREMINDERREQUEST",
+    "ScreenOnTimerTest": "FF-JVM-SCREENONTIMER",
+    "ScreenOnHistoryTest": "FF-JVM-SCREENONHISTORY",
+    "ScreenOnControlsTest": "FF-JVM-SCREENONCONTROLS"
   },
   "device_details": {
     "widgets": {
@@ -6214,6 +6795,20 @@
       "processReopenDoesNotResume": "FF-OT-PROCESS-001",
       "permissionRevocationCleansUp": "FF-OT-PERMISSION-001",
       "stopwatchNoC4OrPeriodicSchedule": "FF-OT-STOPWATCH-001"
+    },
+    "screen_on": {
+      "permissionDeniedNoStart": "FF-SCREEN-001",
+      "offGapExcluded": "FF-SCREEN-002",
+      "lockedScreenCounted": "FF-SCREEN-003",
+      "manualEndDisarms": "FF-SCREEN-004",
+      "ordinaryConflictPreserved": "FF-SCREEN-005",
+      "c4StageConflictPreserved": "FF-SCREEN-006",
+      "processRecoveryDoesNotAddDowntime": "FF-SCREEN-007",
+      "csvActiveAndSpanVerified": "FF-SCREEN-008",
+      "malformedIntervalsShowError": "FF-SCREEN-009",
+      "configurationRebuildKeepsSession": "FF-SCREEN-010",
+      "permissionRevocationDisarms": "FF-SCREEN-011",
+      "backgroundContinues": "FF-SCREEN-012"
     }
   }
 }

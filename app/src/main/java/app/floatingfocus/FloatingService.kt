@@ -31,6 +31,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.SideEffect
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.CoroutineScope
@@ -58,13 +59,16 @@ data class SessionState(
     val sampledAt: Long = 0,
     /** Effective countdown setting captured at admission, including the ordinary pre-C4 stage. */
     val c4Enabled: Boolean = false,
-    val overtimeReminder: OvertimeReminderInfo? = null
+    val overtimeReminder: OvertimeReminderInfo? = null,
+    val screenDriven: Boolean = false
 )
 
 class FloatingService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     private var countdown: Countdown? = null
     private var manualClock = SessionClock()
+    private var screenTracker: ScreenOnTracker? = null
+    private var screenObserver: ScreenStateObserver? = null
     private var successAudio: C4Audio? = null
     private var successGeneration = 0L
     private var successPending = false
@@ -86,14 +90,19 @@ class FloatingService : Service() {
         val timer = countdown ?: return
         if (record != null) return
         recordStartedAt = elapsed
-        record = TimerRecord(java.util.UUID.randomUUID().toString(), appName, appPackage, timer.mode, timer.durationMillis, wall)
+        val screen = screenTracker?.snapshot(elapsed)
+        record = TimerRecord(java.util.UUID.randomUUID().toString(), if (screen != null) "亮屏计时" else appName,
+            if (screen != null) "" else appPackage, timer.mode, timer.durationMillis, wall,
+            elapsedMillis = screen?.activeMillis ?: 0, screenTime = screen)
         recordStore.save(record!!)
         if (appPackage.isNotBlank()) quotaStore.begin(record!!.id, appPackage, elapsed, wall)
     }
 
     private fun checkpointRecord(now: Long) {
         record?.takeIf { it.packageName.isNotBlank() }?.let { quotaStore.checkpoint(it.id, !manualClock.paused, now) }
-        record = record?.checkpoint(recordStartedAt, now)
+        val screen = screenTracker?.snapshot(now)
+        record = if (screen != null) record?.copy(elapsedMillis = screen.activeMillis, screenTime = screen)
+            else record?.checkpoint(recordStartedAt, now)
         countdown?.let { timer -> record = record?.copy(plannedMillis = timer.totalPlannedMillis,
             savedOvertimeMillis = timer.totalOvertimeAt(manualClock.at(now))) }
     }
@@ -103,6 +112,7 @@ class FloatingService : Service() {
         record?.takeIf { it.packageName.isNotBlank() }?.let { quotaStore.checkpoint(it.id, false, SystemClock.elapsedRealtime(), finish = true) }
         val ended = record?.copy(status = status)
         record = null
+        screenTracker = null
         if (ended != null) recordStore.save(ended, after = after) else after?.invoke()
     }
     private var monitor: UsageAppMonitor? = null
@@ -135,6 +145,7 @@ class FloatingService : Service() {
         override fun onReceive(context: Context, intent: Intent) {
             interactive = getSystemService(PowerManager::class.java).isInteractive
             overtimeCue = null // Do not replay an old visual cue when the screen becomes visible again.
+            if (overlayState.screenDriven) { screenObserver?.refresh(); return }
             monitor?.screenChanged()
             handler.removeCallbacks(tick)
             handler.post(tick)
@@ -158,7 +169,8 @@ class FloatingService : Service() {
                 elapsedMillis = timer.elapsedAt(now), overtimeMillis = timer.overtimeAt(now), timerStartedAt = timer.startedAt,
                 paused = manualClock.paused, c4Locked = c4Frame.requiresCode, c4Active = c4Frame.active, startRequestId = activeStartRequestId,
                 durationMillis = timer.durationMillis, sampledAt = physicalNow,
-                c4Enabled = overlayState.c4Enabled, overtimeReminder = overlayState.overtimeReminder)
+                c4Enabled = overlayState.c4Enabled, overtimeReminder = overlayState.overtimeReminder,
+                screenDriven = overlayState.screenDriven)
             checkpointRecord(physicalNow)
             record?.let { recordStore.save(it, checkpoint = true) }
             mutableSession.value = overlayState
@@ -221,8 +233,9 @@ class FloatingService : Service() {
             return START_NOT_STICKY
         }
         if (intent?.action == ACTION_STOP) {
-            if (c4Runtime?.locked() != true) finishSession()
-            else Log.d(TAG, "C4 normal stop rejected")
+            if (c4Runtime?.locked() != true && SessionControls.acceptsStop(overlayState,
+                    intent.getStringExtra(EXTRA_REQUEST_ID), intent.getLongExtra("timer_start", -1L))) finishSession()
+            else Log.d(TAG, "Stale or restricted normal stop rejected")
             return START_NOT_STICKY
         }
         if (intent?.action == ACTION_LAUNCH_FAILED) {
@@ -259,8 +272,9 @@ class FloatingService : Service() {
             return START_NOT_STICKY
         }
         activeStartRequestId = requested
-        val duration = intent?.getLongExtra(EXTRA_DURATION, 0L) ?: 0L
-        val mode = TimerMode.entries.firstOrNull { it.name == intent?.getStringExtra("mode") } ?: TimerMode.COUNTDOWN
+        val screenDriven = intent.getBooleanExtra(EXTRA_SCREEN_DRIVEN, false)
+        val duration = if (screenDriven) 0L else intent.getLongExtra(EXTRA_DURATION, 0L)
+        val mode = if (screenDriven) TimerMode.STOPWATCH else TimerMode.entries.firstOrNull { it.name == intent.getStringExtra("mode") } ?: TimerMode.COUNTDOWN
         val sessionC4Enabled = intent.getBooleanExtra(EXTRA_C4_ENABLED, false) && mode == TimerMode.COUNTDOWN
         if (if (mode == TimerMode.STOPWATCH) duration != 0L else duration !in 1..Countdown.MAX_DURATION_MILLIS) {
             fail("计时时长无效，请重新选择。"); return START_NOT_STICKY
@@ -276,15 +290,20 @@ class FloatingService : Service() {
         cancelSuccessAudio()
         stopping = false
         manualClock = SessionClock()
+        val physicalStart = SystemClock.elapsedRealtime()
+        val wallStart = System.currentTimeMillis()
+        screenTracker = if (screenDriven) ScreenOnTracker(physicalStart) else null
+        if (screenDriven) manualClock.pause(physicalStart)
         c4Frame = C4Frame()
-        countdown = Countdown(duration, manualClock.at(SystemClock.elapsedRealtime()), mode)
-        awaitingApp = intent.getStringExtra("app_package")
-        activePresetId = intent.getStringExtra("preset_id")?.takeIf { id ->
+        countdown = Countdown(duration, manualClock.at(physicalStart), mode)
+        awaitingApp = if (screenDriven) null else intent.getStringExtra("app_package")
+        activePresetId = intent.getStringExtra("preset_id")?.takeIf { id -> !screenDriven &&
             TimerPresetStore.get(this).presets.value.any { it.id == id && it.targetApp?.packageName == awaitingApp }
         }
         completionReminder.reset()
         overlayState = SessionState(true, duration, mode = mode, timerStartedAt = countdown!!.startedAt, startRequestId = requested,
-            durationMillis = countdown!!.durationMillis, sampledAt = SystemClock.elapsedRealtime(), c4Enabled = sessionC4Enabled)
+            durationMillis = countdown!!.durationMillis, sampledAt = SystemClock.elapsedRealtime(), c4Enabled = sessionC4Enabled,
+            screenDriven = screenDriven, paused = manualClock.paused)
         interactive = getSystemService(PowerManager::class.java).isInteractive
         val nm = getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(NotificationChannel(CHANNEL, "悬浮计时", NotificationManager.IMPORTANCE_LOW).apply {
@@ -310,10 +329,17 @@ class FloatingService : Service() {
             receiverRegistered = true
             appOps.startWatchingMode(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW, packageName, opsListener)
             watchingOps = true
-            if (awaitingApp == null) beginRecord()
+            if (awaitingApp == null) {
+                if (screenDriven) beginRecord(wall = wallStart, elapsed = physicalStart) else beginRecord()
+            }
+            if (screenDriven) {
+                screenObserver = ScreenStateObserver(this, handler, ::applyScreenState)
+                screenObserver!!.start()
+            }
             // Publish success only after the foreground service and overlay are ready.
             mutableSession.value = overlayState
             startAdmission.complete(requested)
+            handler.removeCallbacks(tick)
             handler.post(tick)
         } catch (e: RuntimeException) {
             fail("系统未允许启动悬浮计时，请返回主界面重试。", e)
@@ -462,6 +488,19 @@ class FloatingService : Service() {
         overtimeFeedback?.close(); overtimeFeedback = null
     }
 
+    private fun applyScreenState(lit: Boolean) {
+        if (stopping || !overlayState.screenDriven || countdown == null) return
+        val now = SystemClock.elapsedRealtime()
+        if (screenTracker?.update(now, lit) != true) return
+        if (lit) manualClock.resume(now) else manualClock.pause(now)
+        handler.removeCallbacks(tick)
+        tick.run()
+        // A transition checkpoint cannot be dropped behind an already queued periodic save.
+        record?.let { recordStore.save(it) }
+        getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification())
+        Log.d(TAG, "Screen timer lit=$lit session=$activeStartRequestId elapsed=${overlayState.elapsedMillis}")
+    }
+
     private fun setPaused(expectedStart: Long, paused: Boolean) {
         if (if (paused) !SessionControls.canPause(overlayState) else !SessionControls.canResume(overlayState)) return
         val timer = countdown ?: return
@@ -547,14 +586,17 @@ class FloatingService : Service() {
     private fun notification(): Notification {
         val automatic = mutableMonitor.value.enabled
         val open = PendingIntent.getActivity(this, 0, Intent(this, if (automatic) AutoTriggerActivity::class.java else MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
-        val stop = PendingIntent.getService(this, 1, Intent(this, FloatingService::class.java).setAction(ACTION_STOP),
+        val stopIntent = if (overlayState.screenDriven) widgetControlIntent(this, WidgetCommand.END, overlayState)
+            .setData("floatingfocus://screen-stop/${overlayState.startRequestId}/${overlayState.timerStartedAt}".toUri())
+            else Intent(this, FloatingService::class.java).setAction(ACTION_STOP)
+        val stop = PendingIntent.getService(this, 1, stopIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         val finished = overlayState.stage == ReminderStage.FINISHED
         // Runtime construction can publish its first frame before the property is assigned.
         val c4Locked = c4Runtime?.locked() ?: c4Frame.requiresCode
         return NotificationCompat.Builder(this, CHANNEL)
-            .setSmallIcon(R.drawable.ic_notification).setContentTitle(if (automatic) "指定 App 监测 · ${if (mutableMonitor.value.running) "计时中" else "已暂停/等待"}" else if (overlayState.paused) "Floating Focus · 已暂停" else if (finished) "Floating Focus · 超时计时" else "Floating Focus · 正在计时")
-            .setContentText(if (c4Locked) "C4 · ${formatRemaining(overlayState.remainingMillis)}" else if (c4Frame.expired) "C4 超时 +${formatElapsed(c4Frame.overtimeMillis)} · 可结束，不可加时" else if (automatic) "${mutableMonitor.value.reason} · 点击管理；可随时停止" else if (overlayState.paused) "${if (overlayState.mode == TimerMode.STOPWATCH) formatElapsed(overlayState.elapsedMillis) else formatRemaining(overlayState.remainingMillis)} · 点击浮窗继续或结束" else if (finished) "正在记录超时时长，可随时结束" else "点击悬浮胶囊可展开操作")
+            .setSmallIcon(R.drawable.ic_notification).setContentTitle(if (overlayState.screenDriven) "亮屏计时 · ${if (overlayState.paused) "等待亮屏" else "计时中"}" else if (automatic) "指定 App 监测 · ${if (mutableMonitor.value.running) "计时中" else "已暂停/等待"}" else if (overlayState.paused) "Floating Focus · 已暂停" else if (finished) "Floating Focus · 超时计时" else "Floating Focus · 正在计时")
+            .setContentText(if (overlayState.screenDriven) "累计 ${formatUsageTime(overlayState.elapsedMillis)} · 息屏暂停，可随时结束" else if (c4Locked) "C4 · ${formatRemaining(overlayState.remainingMillis)}" else if (c4Frame.expired) "C4 超时 +${formatElapsed(c4Frame.overtimeMillis)} · 可结束，不可加时" else if (automatic) "${mutableMonitor.value.reason} · 点击管理；可随时停止" else if (overlayState.paused) "${if (overlayState.mode == TimerMode.STOPWATCH) formatElapsed(overlayState.elapsedMillis) else formatRemaining(overlayState.remainingMillis)} · 点击浮窗继续或结束" else if (finished) "正在记录超时时长，可随时结束" else "点击悬浮胶囊可展开操作")
             .setContentIntent(open).apply { if (!c4Locked) addAction(0, if (automatic) "停止监测" else "结束计时", stop) }
             .setWhen(if (overlayState.mode == TimerMode.STOPWATCH || finished)
                 System.currentTimeMillis() - (if (finished) overlayState.overtimeMillis else overlayState.elapsedMillis)
@@ -600,6 +642,8 @@ class FloatingService : Service() {
         if (successPending && !defusedFeedback) { cancelSuccessAndStop(); return }
         if (stopping) return
         stopping = true
+        screenObserver?.close(); screenObserver = null
+        screenTracker?.finish(SystemClock.elapsedRealtime())
         cancelOvertime()
         checkpointRecord(SystemClock.elapsedRealtime())
         record?.takeIf { it.packageName.isNotBlank() }?.let { quotaStore.checkpoint(it.id, false, SystemClock.elapsedRealtime(), finish = true) }
@@ -638,6 +682,7 @@ class FloatingService : Service() {
     }
 
     private fun cleanup() {
+        screenObserver?.close(); screenObserver = null
         cancelOvertime()
         c4Runtime?.close(); c4Runtime = null
         c4Frame = C4Frame()
@@ -660,6 +705,8 @@ class FloatingService : Service() {
 
     override fun onDestroy() {
         serviceScope.cancel()
+        screenObserver?.close(); screenObserver = null
+        screenTracker?.finish(SystemClock.elapsedRealtime())
         startAdmission.complete(activeStartRequestId)
         cancelSuccessAudio()
         completeRecord(RecordStatus.SERVICE_STOPPED)
@@ -694,6 +741,7 @@ class FloatingService : Service() {
         private const val ACTION_MONITOR = "app.floatingfocus.MONITOR"
         private const val EXTRA_DURATION = "duration_millis"
         private const val EXTRA_C4_ENABLED = "c4_enabled_for_session"
+        private const val EXTRA_SCREEN_DRIVEN = "screen_driven"
         private val mutableSession = MutableStateFlow(SessionState())
         val session = mutableSession.asStateFlow()
         private val mutableMonitor = MutableStateFlow(AutoMonitorStatus())
@@ -709,7 +757,7 @@ class FloatingService : Service() {
         }
         fun start(context: Context, durationMillis: Long, mode: TimerMode = TimerMode.COUNTDOWN, targetPackage: String? = null,
                   presetId: String? = null, requestId: String = java.util.UUID.randomUUID().toString(),
-                  c4Enabled: Boolean? = null): Boolean {
+                  c4Enabled: Boolean? = null, screenDriven: Boolean = false): Boolean {
             if (mutableMonitor.value.enabled || mutableSession.value.active || startPending) return false
             ReminderSettingsStore.get(context).settings.value.strategy.validationError(durationMillis, mode)?.let {
                 mutableSession.value = SessionState(error = it); return false
@@ -721,7 +769,8 @@ class FloatingService : Service() {
                 ContextCompat.startForegroundService(context, Intent(context, FloatingService::class.java)
                     .setAction(ACTION_START).putExtra(EXTRA_DURATION, if (mode == TimerMode.STOPWATCH) 0L else durationMillis)
                     .putExtra("mode", mode.name).putExtra("app_package", targetPackage).putExtra("preset_id", presetId)
-                    .putExtra(EXTRA_REQUEST_ID, requestId).putExtra(EXTRA_C4_ENABLED, sessionC4Enabled))
+                    .putExtra(EXTRA_REQUEST_ID, requestId).putExtra(EXTRA_C4_ENABLED, sessionC4Enabled)
+                    .putExtra(EXTRA_SCREEN_DRIVEN, screenDriven))
                 return true
             } catch (e: RuntimeException) {
                 Log.w(TAG, "Foreground start rejected", e)
@@ -730,6 +779,8 @@ class FloatingService : Service() {
                 return false
             }
         }
+        fun startScreenTimer(context: Context): Boolean = start(context, 0, TimerMode.STOPWATCH,
+            c4Enabled = false, screenDriven = true)
         fun requestExtension(context: Context, expectedStart: Long) {
             if (!session.value.active) return
             context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_EXTENSION_EDITOR)

@@ -54,7 +54,7 @@ class SettingsActivity : ComponentActivity() {
             BackHandler(enabled = page != "home" && page != "tutorial" && (!editing || page != "appearance"), onBack = back)
             if (!editing && page == "home") {
                 SettingsHome(onBack = { finish() }, onOverlay = { page = "appearance" },
-                    onReminders = { page = "reminders" }, onOvertime = { page = "overtime" }, onTutorial = { page = "tutorial" },
+                    onReminders = { page = "reminders" }, onOvertime = { page = "overtime" }, onScreenTimer = { page = "screen_timer" }, onTutorial = { page = "tutorial" },
                     onHelp = { page = "help" }, onLicenses = { page = "licenses" })
                 return@FocusTheme
             }
@@ -88,6 +88,10 @@ class SettingsActivity : ComponentActivity() {
                 val overtimeStore = remember { OvertimeReminderSettingsStore.get(this) }
                 val overtimeSettings by overtimeStore.settings.collectAsStateWithLifecycle()
                 OvertimeReminderScreen(overtimeSettings, overtimeStore::update, back)
+                return@FocusTheme
+            }
+            if (!editing && page == "screen_timer") {
+                ScreenOnTimerScreen(back)
                 return@FocusTheme
             }
             if (!editing && page == "durations") {
@@ -201,7 +205,7 @@ class SettingsActivity : ComponentActivity() {
 }
 
 @Composable
-private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onReminders: () -> Unit, onOvertime: () -> Unit,
+private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onReminders: () -> Unit, onOvertime: () -> Unit, onScreenTimer: () -> Unit,
                          onTutorial: () -> Unit, onHelp: () -> Unit, onLicenses: () -> Unit) {
     Scaffold { insets ->
         Column(Modifier.fillMaxSize().padding(insets).verticalScroll(rememberScrollState())) {
@@ -214,7 +218,7 @@ private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onReminders:
             Spacer(Modifier.height(16.dp))
             Surface(color = MaterialTheme.colorScheme.surface) {
                 Column {
-                    listOf("悬浮窗" to onOverlay, "提醒" to onReminders, "超时提醒" to onOvertime, "使用教程" to onTutorial,
+                    listOf("悬浮窗" to onOverlay, "提醒" to onReminders, "超时提醒" to onOvertime, "随亮屏计时" to onScreenTimer, "使用教程" to onTutorial,
                         "使用与提醒说明" to onHelp, "开源许可" to onLicenses).forEachIndexed { index, (label, action) ->
                         if (index > 0) HorizontalDivider(Modifier.padding(horizontal = FocusSpacing.page))
                         SettingsEntry(label, action)
@@ -238,11 +242,11 @@ internal fun SettingsEntry(label: String, onClick: () -> Unit) {
 }
 
 @Composable
-internal fun EffectSwitch(label: String, enabled: Boolean, onChange: (Boolean) -> Unit) {
-    Row(Modifier.fillMaxWidth().toggleable(value = enabled, role = Role.Switch, onValueChange = onChange)
+internal fun EffectSwitch(label: String, enabled: Boolean, available: Boolean = true, onChange: (Boolean) -> Unit) {
+    Row(Modifier.fillMaxWidth().toggleable(value = enabled, enabled = available, role = Role.Switch, onValueChange = onChange)
         .heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(label, modifier = Modifier.weight(1f))
-        Switch(checked = enabled, onCheckedChange = null)
+        Switch(checked = enabled, enabled = available, onCheckedChange = null)
     }
 }
 

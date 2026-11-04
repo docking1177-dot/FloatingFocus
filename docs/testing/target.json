@@ -1,31 +1,36 @@
 {
-  "id": "FF-20261104-overtime-f21c7ccf",
-  "source_commit": "6a42cf4c556369e386714be5cfe9433427882193",
+  "id": "FF-20261104-screen-on-203256b9",
+  "source_commit": "9b214fd0b60807e248a3a87ee10eaa0fa04bc052",
   "builds": {
     "Debug": {
-      "sha256": "f21c7ccf7950aa9022556a396a7bafb9faf3f22aa5c89a0b525e30bf1420536b",
-      "fingerprint": "70e10e4e8e2e0c7cf014e4ae4647f29c5ab400725bb3e44cfa12c3b1aa014693",
-      "reported_commit": "6a42cf4c556369e386714be5cfe9433427882193",
+      "sha256": "203256b93b8fc24045f359fe90d084ed760dba9d207b489398b5167c9c706f59",
+      "fingerprint": "39621d03c064a493eff691c33470d99886891babae73716dae7f01b4a10cfb60",
+      "reported_commit": "9b214fd0b60807e248a3a87ee10eaa0fa04bc052",
       "reported_dirty": true,
       "version_name": "0.3.0",
       "version_code": 4,
-      "check": ".tools/checks/check-full-debug-20261104-202223-802.json",
+      "check": ".tools/checks/check-full-debug-20261104-224809-460.json",
       "apk": "app/build/outputs/apk/debug/app-debug.apk",
       "audio_local": true,
       "installable": true
     },
     "Release": {
-      "sha256": "dbd10b059cb9129c6a1c38eda0bcdd2d9cffd0f6d6e97a8f48eca6ecbd889217",
-      "fingerprint": "70e10e4e8e2e0c7cf014e4ae4647f29c5ab400725bb3e44cfa12c3b1aa014693",
-      "reported_commit": "6a42cf4c556369e386714be5cfe9433427882193",
+      "sha256": "27502a7b0e1c17059da02530565fa54ca5d692cfc1dd437a3be0e7b8f719c615",
+      "fingerprint": "39621d03c064a493eff691c33470d99886891babae73716dae7f01b4a10cfb60",
+      "reported_commit": "9b214fd0b60807e248a3a87ee10eaa0fa04bc052",
       "reported_dirty": true,
       "version_name": "0.3.0",
       "version_code": 4,
-      "check": ".tools/checks/check-full-release-20261104-202812-196.json",
+      "check": ".tools/checks/check-full-release-20261104-224942-800.json",
       "apk": "app/build/outputs/apk/release/app-release-unsigned.apk",
       "audio_local": false,
       "installable": false
     }
   },
-  "note": "0.3.0/4未变。超时提醒任务开发构建，原检查commit/dirty/指纹保留。后续设备脚本完善及文档/测试库整理，179项应用输入逐项核对；Debug含本机C4录音，不公开，Release无录音且未签名。设备结果不替代真机。"
+  "manual_focus_ids": [
+    "FF-PHONE-SCREEN-ON-001",
+    "FF-PHONE-SCREEN-ON-002"
+  ],
+  "validation_report": "docs/validation/20261104-screen-on-timer.md",
+  "note": "0.3.0/4未变；屏幕驱动会话；185项应用输入核对相同。Debug本机C4录音不公开，Release无录音且未签名；真机未执行。"
 }

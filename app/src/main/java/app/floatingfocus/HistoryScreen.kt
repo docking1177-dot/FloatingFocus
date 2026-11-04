@@ -143,7 +143,7 @@ internal fun HistoryScreen(records: List<TimerRecord>, loading: Boolean, storage
     if (showHelp) AlertDialog(onDismissRequest = { showHelp = false }, title = { Text("统计说明") }, text = {
         Text("记录 FF 会话时长，含手动计时；离开目标 App 后仍计时，不代表 App 实际前台使用时间。\n\n" +
             "按设备当前时区及已保存的会话时间轴拆分小时和日期；本周从周一开始。当前时区变化后，历史分布可能变化。\n\n" +
-            "现有累计口径包含暂停期间的会话经过时间；未保存暂停区间或系统改时轨迹，图表不推测这些区间。异常中断仅按最后检查点约计，不补入停机时间。\n\n" +
+            "普通会话累计包含暂停期间的经过时间；亮屏计时仅累计已保存的亮屏区间，息屏不计。旧记录不推测暂停区间或系统改时轨迹。异常中断仅按最后检查点约计，不补入停机时间。\n\n" +
             "导出包含全部原始会话，不受页面筛选影响。", modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()))
     }, confirmButton = { TextButton(onClick = { showHelp = false }) { Text("知道了") } })
 }
@@ -155,12 +155,12 @@ private fun HistoryRecordCard(entry: HistoryEntry, rangeLabel: String, timeForma
         Column(Modifier.padding(FocusSpacing.section), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(FocusSpacing.medium)) {
                 AppIcon(record.packageName, 32.dp)
-                Text(if (record.packageName.isEmpty()) "手动计时" else record.appName, style = MaterialTheme.typography.titleMedium,
+                Text(if (record.screenTime != null) "亮屏计时" else if (record.packageName.isEmpty()) "手动计时" else record.appName, style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f))
             }
             Text(timeFormat.format(Instant.ofEpochMilli(record.startedWallMillis)), style = MaterialTheme.typography.bodySmall)
             Text("${rangeLabel}计时 ${historyDurationLabel(entry.inRangeMillis)}")
-            Text("${record.mode.label} · 整次累计 ${historyDurationLabel(record.elapsedMillis)}", style = MaterialTheme.typography.bodySmall)
+            Text("${if (record.screenTime != null) "亮屏有效时长" else record.mode.label} · 整次累计 ${historyDurationLabel(record.elapsedMillis)}", style = MaterialTheme.typography.bodySmall)
             if (record.mode == TimerMode.COUNTDOWN) Text("计划 ${historyDurationLabel(record.plannedMillis)} · 超时 ${historyDurationLabel(record.overtimeMillis)}",
                 style = MaterialTheme.typography.bodySmall)
             Text(record.status.label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

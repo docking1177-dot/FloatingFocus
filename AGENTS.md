@@ -34,6 +34,8 @@
 
 ## 工程设计原则
 
+- 随亮屏计时在 `ScreenOnTimer.kt` / `ScreenStateObserver.kt` / `ScreenOnTimerScreen.kt`：设置内默认关闭，复用同一正计时/服务，交互唤醒且默认显示ON时累计（含未解锁），息屏/AOD不计；只由屏幕事件控制暂停，手动入口只查看/结束，旧无身份STOP不能结束新亮屏会话。结束/关闭/进程死亡解除本轮，不自动恢复；普通/C4不替换，不绑App、不扣额度、不改全局C4。新记录仅追加可校验活动区间及跨度，累计/图表/CSV排除息屏；旧记录口径保持，CSV前十列保留再追加口径/跨度/区间。无新权限、轮询、服务或保活，系统杀进程只保留最后检查点。见 `docs/SCREEN_ON_TIMER.md`。
+
 - 超时周期提醒在 `OvertimeReminders.kt` / `OvertimeReminderSettingsStore.kt` / `OvertimeReminderScreen.kt`，独立「超时提醒」页默认关闭，声震分别主动开启；同一 `FloatingService` 持有单调截止，每轮只抽一次±20%，明确延后一轮不浮动、不加时、不改累计/额度。按首轮、超时基准3倍与主动延后3次分级且受上限，近期效果降权而非强制不重复，不以未点击推断未察觉。设置收紧即时取消对应效果，明确截止不被基准编辑提前；结束/换段/异常清理，唤醒不补发。C4仅折叠态兼容视觉，完整装置不变，音轨忙跳过短音，延后仅首页；原声与归零链路独立。临时文字预留稳定测量，不改透明度或按钮位置。见 `docs/OVERTIME_REMINDERS.md`。
 
 - 控制中心磁贴在 `FocusTileService.kt` / `TimerTileModel.kt`：空闲用保存的启动默认值，经现有可见中转开始；普通运行暂停、暂停继续，超时/C4只打开控制首页，锁屏先系统解锁并重新检查会话ID/段。只在系统监听期间收集状态，不新增时钟/轮询/保活或运行时权限；系统确认添加，长按复用设置；打开控制页用REORDER_TO_FRONT保留草稿，不清空返回栈。`SessionControls`区分C4主题激活与口令锁定，服务最终校验。见 `docs/SYSTEM_CONTROLS.md`。
