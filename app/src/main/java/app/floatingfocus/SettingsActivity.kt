@@ -118,6 +118,7 @@ class SettingsActivity : ComponentActivity() {
             val target = targetPackage.takeIf { it.isNotBlank() }?.let { LaunchableApp(it, targetLabel) }
             var mode by rememberSaveable(presetId) { mutableStateOf(preset?.mode ?: TimerMode.COUNTDOWN) }
             var c4Enabled by rememberSaveable(presetId) { mutableStateOf(preset?.c4Enabled ?: false) }
+            var stopwatchBehavior by rememberSaveable(presetId) { mutableStateOf(preset?.stopwatchBehavior ?: StopwatchBehavior.CONTINUOUS) }
             var timeSource by rememberSaveable(presetId) { mutableStateOf(preset?.timeSource ?: PresetTimeSource.FIXED) }
             var seconds by rememberSaveable(presetId) { mutableIntStateOf(preset?.durationSeconds ?: intent.getIntExtra("duration_seconds", 900)) }
             val quotas = rememberAppQuotas()
@@ -141,7 +142,7 @@ class SettingsActivity : ComponentActivity() {
                             TextButton(onClick = { if (editing) finish() else back() }) { Text(if (editing) "取消" else "返回") }
                             if (editing) TextButton(enabled = isSavedShortcut(target) && name.isNotBlank() && (mode == TimerMode.STOPWATCH || seconds in 1..10800), onClick = {
                                 val saved = presetStore.save(preset!!.copy(name = name.trim(), minutes = (seconds / 60).coerceAtLeast(1), durationSeconds = seconds,
-                                    settings = draft, mode = mode, targetApp = target, c4Enabled = c4Enabled,
+                                    settings = draft, mode = mode, targetApp = target, c4Enabled = c4Enabled, stopwatchBehavior = stopwatchBehavior,
                                     timeSource = if (mode == TimerMode.STOPWATCH) PresetTimeSource.FIXED else timeSource))
                                 if (saved) {
                                     if (c4Enabled) C4SettingsStore.get(this@SettingsActivity).acknowledgeNotice()
@@ -168,7 +169,10 @@ class SettingsActivity : ComponentActivity() {
                                         Text(presetTimeLabel(preset!!.copy(targetApp = target, timeSource = timeSource, mode = mode), quotas))
                                         Text("启动时读取该 App 最新余额；在 App 管理中设置每日额度。", style = MaterialTheme.typography.bodySmall)
                                     }
-                                } else Text("正计时也计入该 App 已启用的每日额度。", style = MaterialTheme.typography.bodySmall)
+                                } else {
+                                    StopwatchBehaviorSetting(stopwatchBehavior) { stopwatchBehavior = it }
+                                    Text("仅修改此预设；运行时计入该 App 已启用的每日额度。", style = MaterialTheme.typography.bodySmall)
+                                }
                                 C4EnabledSetting(c4Enabled) { c4Enabled = it }
                                 Text("仅修改此预设；音效由当前设置控制。", style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -218,7 +222,7 @@ private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onReminders:
             Spacer(Modifier.height(16.dp))
             Surface(color = MaterialTheme.colorScheme.surface) {
                 Column {
-                    listOf("悬浮窗" to onOverlay, "提醒" to onReminders, "超时提醒" to onOvertime, "随亮屏计时" to onScreenTimer, "使用教程" to onTutorial,
+                    listOf("悬浮窗" to onOverlay, "提醒" to onReminders, "超时提醒" to onOvertime, "正计时方式" to onScreenTimer, "使用教程" to onTutorial,
                         "使用与提醒说明" to onHelp, "开源许可" to onLicenses).forEachIndexed { index, (label, action) ->
                         if (index > 0) HorizontalDivider(Modifier.padding(horizontal = FocusSpacing.page))
                         SettingsEntry(label, action)

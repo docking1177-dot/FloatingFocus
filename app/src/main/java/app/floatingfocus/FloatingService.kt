@@ -80,6 +80,10 @@ class FloatingService : Service() {
     private val quotaStore by lazy { AppQuotaStore.get(this) }
     private var record: TimerRecord? = null
     private var recordStartedAt = 0L
+    private var sessionPhysicalStart = 0L
+    private var sessionWallStart = 0L
+    private var recoverySource: TimerRecord? = null
+    private var initializing = false
     private var awaitingApp: String? = null
     private var activeStartRequestId: String? = null
     private var activePresetId: String? = null
@@ -89,19 +93,29 @@ class FloatingService : Service() {
                             wall: Long = System.currentTimeMillis(), elapsed: Long = SystemClock.elapsedRealtime()) {
         val timer = countdown ?: return
         if (record != null) return
-        recordStartedAt = elapsed
-        val screen = screenTracker?.snapshot(elapsed)
-        record = TimerRecord(java.util.UUID.randomUUID().toString(), if (screen != null) "亮屏计时" else appName,
-            if (screen != null) "" else appPackage, timer.mode, timer.durationMillis, wall,
-            elapsedMillis = screen?.activeMillis ?: 0, screenTime = screen)
+        recordStartedAt = if (timer.mode == TimerMode.STOPWATCH) sessionPhysicalStart else elapsed
+        val activity = screenTracker?.snapshot(SystemClock.elapsedRealtime())
+        val checkpoint = activity?.let { StopwatchCheckpoint(
+            if (overlayState.screenDriven) StopwatchBehavior.SCREEN_ON else StopwatchBehavior.CONTINUOUS, it,
+            carriedMillis = recoverySource?.displayElapsedMillis ?: 0,
+            continuationOf = recoverySource?.id,
+            rootId = recoverySource?.let { source -> source.stopwatch?.rootId ?: source.id },
+            presetId = recoverySource?.stopwatch?.presetId ?: activePresetId,
+            positions = window?.positionsSnapshot() ?: OverlayPositions()) }
+        record = TimerRecord(java.util.UUID.randomUUID().toString(), appName, appPackage, timer.mode, timer.durationMillis,
+            if (activity != null) sessionWallStart else wall, elapsedMillis = activity?.activeMillis ?: 0, stopwatch = checkpoint)
         recordStore.save(record!!)
-        if (appPackage.isNotBlank()) quotaStore.begin(record!!.id, appPackage, elapsed, wall)
+        if (appPackage.isNotBlank()) {
+            quotaStore.begin(record!!.id, appPackage, elapsed, wall)
+            quotaStore.checkpoint(record!!.id,!manualClock.paused,elapsed)
+        }
     }
 
     private fun checkpointRecord(now: Long) {
         record?.takeIf { it.packageName.isNotBlank() }?.let { quotaStore.checkpoint(it.id, !manualClock.paused, now) }
         val screen = screenTracker?.snapshot(now)
-        record = if (screen != null) record?.copy(elapsedMillis = screen.activeMillis, screenTime = screen)
+        record = if (screen != null) record?.let { row -> row.copy(elapsedMillis = screen.activeMillis,
+            stopwatch = row.stopwatch?.copy(activity=screen,positions=window?.positionsSnapshot() ?: row.stopwatch.positions)) }
             else record?.checkpoint(recordStartedAt, now)
         countdown?.let { timer -> record = record?.copy(plannedMillis = timer.totalPlannedMillis,
             savedOvertimeMillis = timer.totalOvertimeAt(manualClock.at(now))) }
@@ -173,7 +187,7 @@ class FloatingService : Service() {
                 screenDriven = overlayState.screenDriven)
             checkpointRecord(physicalNow)
             record?.let { recordStore.save(it, checkpoint = true) }
-            mutableSession.value = overlayState
+            if (!initializing) mutableSession.value = overlayState
             completeCountdown()
             c4Runtime?.refresh()
             refreshOvertime()
@@ -272,9 +286,15 @@ class FloatingService : Service() {
             return START_NOT_STICKY
         }
         activeStartRequestId = requested
-        val screenDriven = intent.getBooleanExtra(EXTRA_SCREEN_DRIVEN, false)
-        val duration = if (screenDriven) 0L else intent.getLongExtra(EXTRA_DURATION, 0L)
-        val mode = if (screenDriven) TimerMode.STOPWATCH else TimerMode.entries.firstOrNull { it.name == intent.getStringExtra("mode") } ?: TimerMode.COUNTDOWN
+        val recoveryId=intent.getStringExtra(EXTRA_RECOVERY_ID)
+        val source=recoveryId?.let(recordStore::recoverySource)
+        if (recoveryId!=null && source==null) {
+            fail("无法读取可续计的进度，记录可能已续计或读取失败，请重试。"); return START_NOT_STICKY
+        }
+        val mode = if (source!=null) TimerMode.STOPWATCH else TimerMode.entries.firstOrNull { it.name == intent.getStringExtra("mode") } ?: TimerMode.COUNTDOWN
+        val screenDriven = mode == TimerMode.STOPWATCH && (source?.stopwatchBehavior?.let { it==StopwatchBehavior.SCREEN_ON }
+            ?: intent.getBooleanExtra(EXTRA_SCREEN_DRIVEN, false))
+        val duration = if (mode == TimerMode.STOPWATCH) 0L else intent.getLongExtra(EXTRA_DURATION, 0L)
         val sessionC4Enabled = intent.getBooleanExtra(EXTRA_C4_ENABLED, false) && mode == TimerMode.COUNTDOWN
         if (if (mode == TimerMode.STOPWATCH) duration != 0L else duration !in 1..Countdown.MAX_DURATION_MILLIS) {
             fail("计时时长无效，请重新选择。"); return START_NOT_STICKY
@@ -289,19 +309,22 @@ class FloatingService : Service() {
         // A new explicit session takes priority over the old result voice.
         cancelSuccessAudio()
         stopping = false
+        initializing = true
         manualClock = SessionClock()
         val physicalStart = SystemClock.elapsedRealtime()
         val wallStart = System.currentTimeMillis()
-        screenTracker = if (screenDriven) ScreenOnTracker(physicalStart) else null
+        sessionPhysicalStart=physicalStart; sessionWallStart=wallStart; recoverySource=source
+        screenTracker = if (mode == TimerMode.STOPWATCH) ScreenOnTracker(physicalStart).apply { update(physicalStart,!screenDriven) } else null
         if (screenDriven) manualClock.pause(physicalStart)
         c4Frame = C4Frame()
-        countdown = Countdown(duration, manualClock.at(physicalStart), mode)
-        awaitingApp = if (screenDriven) null else intent.getStringExtra("app_package")
-        activePresetId = intent.getStringExtra("preset_id")?.takeIf { id -> !screenDriven &&
+        countdown = Countdown(duration, manualClock.at(physicalStart), mode, elapsedBeforeMillis=source?.displayElapsedMillis ?: 0)
+        awaitingApp = if (source!=null) null else intent.getStringExtra("app_package")
+        activePresetId = source?.stopwatch?.presetId ?: intent.getStringExtra("preset_id")?.takeIf { id ->
             TimerPresetStore.get(this).presets.value.any { it.id == id && it.targetApp?.packageName == awaitingApp }
         }
         completionReminder.reset()
         overlayState = SessionState(true, duration, mode = mode, timerStartedAt = countdown!!.startedAt, startRequestId = requested,
+            elapsedMillis = source?.displayElapsedMillis ?: 0,
             durationMillis = countdown!!.durationMillis, sampledAt = SystemClock.elapsedRealtime(), c4Enabled = sessionC4Enabled,
             screenDriven = screenDriven, paused = manualClock.paused)
         interactive = getSystemService(PowerManager::class.java).isInteractive
@@ -329,14 +352,23 @@ class FloatingService : Service() {
             receiverRegistered = true
             appOps.startWatchingMode(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW, packageName, opsListener)
             watchingOps = true
-            if (awaitingApp == null) {
-                if (screenDriven) beginRecord(wall = wallStart, elapsed = physicalStart) else beginRecord()
-            }
-            if (screenDriven) {
-                screenObserver = ScreenStateObserver(this, handler, ::applyScreenState)
-                screenObserver!!.start()
+            val ready=TimerStartupGate.initialize(prepare={
+                if (screenDriven) {
+                    screenObserver=ScreenStateObserver(this,handler,::applyScreenState)
+                    screenObserver!!.start()
+                }
+            },valid={ !stopping && Settings.canDrawOverlays(this) },commit={
+                if (awaitingApp==null) {
+                    if (source!=null) beginRecord(source.appName,source.packageName,wallStart,physicalStart)
+                    else if (screenDriven) beginRecord(appName="亮屏计时",wall=wallStart,elapsed=physicalStart) else beginRecord()
+                }
+            })
+            if (!ready) {
+                if (!stopping) fail("悬浮窗权限已撤销，启动已取消。")
+                return START_NOT_STICKY
             }
             // Publish success only after the foreground service and overlay are ready.
+            initializing=false
             mutableSession.value = overlayState
             startAdmission.complete(requested)
             handler.removeCallbacks(tick)
@@ -351,9 +383,17 @@ class FloatingService : Service() {
         if (window != null || stopping) return
         val presetStore = TimerPresetStore.get(this)
         val presetId = activePresetId
+        val preset=presetStore.presets.value.firstOrNull { it.id == presetId }
+        val ordinary=OverlayPositionStore.get(this)
+        val initial = if (preset!=null) preset.positions.copy(legacy=preset.positions.legacy ?: preset.lastPosition)
+            else if (presetId!=null) recoverySource?.stopwatch?.positions ?: OverlayPositions()
+            else ordinary.snapshot()
         val overlay = OverlayWindow(this,
-            initialPosition = presetStore.presets.value.firstOrNull { it.id == presetId }?.lastPosition,
-            onPositionChanged = { anchor -> presetId?.let { presetStore.rememberPosition(it, anchor) } }) {
+            initialPositions = initial, onPositionsChanged = { positions ->
+                if (presetId!=null) presetStore.rememberPositions(presetId,positions) else ordinary.save(positions)
+                checkpointRecord(SystemClock.elapsedRealtime())
+                record?.let { recordStore.save(it) }
+            }) {
             fail("悬浮窗不可用，计时已结束。", it)
         }
         window = overlay
@@ -401,7 +441,7 @@ class FloatingService : Service() {
         if (changed) c4Expanded = false
         c4Frame = frame
         overlayState = overlayState.copy(c4Locked = frame.requiresCode, c4Active = frame.active)
-        if (window != null && !stopping) mutableSession.value = overlayState
+        if (window != null && !stopping && !initializing) mutableSession.value = overlayState
         if (phaseChanged && !stopping) getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification())
     }
 
@@ -507,9 +547,11 @@ class FloatingService : Service() {
         val physicalNow = SystemClock.elapsedRealtime()
         if (stopping || timer.startedAt != expectedStart || manualClock.paused == paused ||
             (timer.mode == TimerMode.COUNTDOWN && timer.remainingAt(manualClock.at(physicalNow)) == 0L)) return
+        screenTracker?.update(physicalNow,!paused)
         if (paused) manualClock.pause(physicalNow) else manualClock.resume(physicalNow)
         handler.removeCallbacks(tick)
         tick.run()
+        record?.let { recordStore.save(it) }
         Log.d(TAG, "Timer paused=${manualClock.paused} remaining=${overlayState.remainingMillis}")
         getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification())
     }
@@ -682,6 +724,7 @@ class FloatingService : Service() {
     }
 
     private fun cleanup() {
+        initializing=false
         screenObserver?.close(); screenObserver = null
         cancelOvertime()
         c4Runtime?.close(); c4Runtime = null
@@ -700,6 +743,10 @@ class FloatingService : Service() {
         val ends = TimerTaskPolicy.endsSession(rootIntent?.component?.className)
         Log.d(TAG, "Task removed root=${rootIntent?.component?.className} endsSession=$ends")
         if (ends) finishSession(status = RecordStatus.TASK_REMOVED)
+        else {
+            checkpointRecord(SystemClock.elapsedRealtime())
+            record?.let { recordStore.save(it) }
+        }
         super.onTaskRemoved(rootIntent)
     }
 
@@ -742,6 +789,7 @@ class FloatingService : Service() {
         private const val EXTRA_DURATION = "duration_millis"
         private const val EXTRA_C4_ENABLED = "c4_enabled_for_session"
         private const val EXTRA_SCREEN_DRIVEN = "screen_driven"
+        private const val EXTRA_RECOVERY_ID = "recovery_record_id"
         private val mutableSession = MutableStateFlow(SessionState())
         val session = mutableSession.asStateFlow()
         private val mutableMonitor = MutableStateFlow(AutoMonitorStatus())
@@ -757,7 +805,8 @@ class FloatingService : Service() {
         }
         fun start(context: Context, durationMillis: Long, mode: TimerMode = TimerMode.COUNTDOWN, targetPackage: String? = null,
                   presetId: String? = null, requestId: String = java.util.UUID.randomUUID().toString(),
-                  c4Enabled: Boolean? = null, screenDriven: Boolean = false): Boolean {
+                  c4Enabled: Boolean? = null, stopwatchBehavior: StopwatchBehavior? = null,
+                  recoveryId: String? = null): Boolean {
             if (mutableMonitor.value.enabled || mutableSession.value.active || startPending) return false
             ReminderSettingsStore.get(context).settings.value.strategy.validationError(durationMillis, mode)?.let {
                 mutableSession.value = SessionState(error = it); return false
@@ -766,11 +815,13 @@ class FloatingService : Service() {
             mutableSession.value = SessionState()
             try {
                 val sessionC4Enabled = C4SettingsStore.get(context).settings.value.appliesTo(mode, c4Enabled)
+                val screenDriven = StopwatchBehavior.resolve(mode, StopwatchBehaviorStore.get(context).behavior.value,
+                    stopwatchBehavior) == StopwatchBehavior.SCREEN_ON
                 ContextCompat.startForegroundService(context, Intent(context, FloatingService::class.java)
                     .setAction(ACTION_START).putExtra(EXTRA_DURATION, if (mode == TimerMode.STOPWATCH) 0L else durationMillis)
                     .putExtra("mode", mode.name).putExtra("app_package", targetPackage).putExtra("preset_id", presetId)
                     .putExtra(EXTRA_REQUEST_ID, requestId).putExtra(EXTRA_C4_ENABLED, sessionC4Enabled)
-                    .putExtra(EXTRA_SCREEN_DRIVEN, screenDriven))
+                    .putExtra(EXTRA_SCREEN_DRIVEN, screenDriven).putExtra(EXTRA_RECOVERY_ID,recoveryId))
                 return true
             } catch (e: RuntimeException) {
                 Log.w(TAG, "Foreground start rejected", e)
@@ -780,7 +831,18 @@ class FloatingService : Service() {
             }
         }
         fun startScreenTimer(context: Context): Boolean = start(context, 0, TimerMode.STOPWATCH,
-            c4Enabled = false, screenDriven = true)
+            c4Enabled = false, stopwatchBehavior = StopwatchBehavior.SCREEN_ON)
+        fun resumeStopwatch(context: Context, recordId: String): Boolean {
+            if (session.value.active || startPending || monitoring.value.enabled || appTimerLaunchGate.busy) return false
+            val store=TimerRecordStore.get(context)
+            val source=store.recoverySource(recordId)
+            if (source==null || !OverlayPermission.granted(context)) {
+                mutableSession.value=SessionState(error=if (source==null) store.error.value ?: "进度正在读取或已续计，请重试。"
+                    else "请先授予悬浮窗权限，再点击继续计时。")
+                return false
+            }
+            return start(context,0,TimerMode.STOPWATCH,c4Enabled=false,stopwatchBehavior=source.stopwatchBehavior,recoveryId=recordId)
+        }
         fun requestExtension(context: Context, expectedStart: Long) {
             if (!session.value.active) return
             context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_EXTENSION_EDITOR)

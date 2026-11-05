@@ -58,8 +58,8 @@ class ScreenOnControlsTest {
         assertTrue(SessionControls.canResume(session(true).copy(screenDriven = false)))
     }
 
-    @Test fun screenSessionDoesNotBecomeTheOrdinaryHomeDefaultSelection() {
+    @Test fun activeScreenStopwatchRestoresItsActualHomeMode() {
         val defaults = TimerStartupDefaults(TimerMode.COUNTDOWN, 600)
-        assertEquals(defaults, TimerStartupDefaults.initialHomeSelection(defaults, session()))
+        assertEquals(defaults.copy(mode=TimerMode.STOPWATCH), TimerStartupDefaults.initialHomeSelection(defaults, session()))
     }
 }

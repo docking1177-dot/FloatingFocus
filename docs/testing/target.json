@@ -1,36 +1,38 @@
 {
-  "id": "FF-20261104-screen-on-203256b9",
-  "source_commit": "9b214fd0b60807e248a3a87ee10eaa0fa04bc052",
+  "id": "FF-20261105-lifecycle-0bb65568",
+  "source_commit": "fc2af84132475b21f4d4cbe9f68e4588a59aaae2",
   "builds": {
     "Debug": {
-      "sha256": "203256b93b8fc24045f359fe90d084ed760dba9d207b489398b5167c9c706f59",
-      "fingerprint": "39621d03c064a493eff691c33470d99886891babae73716dae7f01b4a10cfb60",
-      "reported_commit": "9b214fd0b60807e248a3a87ee10eaa0fa04bc052",
+      "sha256": "0bb65568353fbed6266e14718b6bfecd6d6f46bc4574df574dd26bf8624a209a",
+      "fingerprint": "940b19d2cd66f7a6c38285cddfb3c6a0c016193f10034d62e22400552afae2a6",
+      "reported_commit": "fc2af84132475b21f4d4cbe9f68e4588a59aaae2",
       "reported_dirty": true,
       "version_name": "0.3.0",
       "version_code": 4,
-      "check": ".tools/checks/check-full-debug-20261104-224809-460.json",
+      "check": ".tools/checks/check-full-debug-20261105-151350-051.json",
       "apk": "app/build/outputs/apk/debug/app-debug.apk",
       "audio_local": true,
       "installable": true
     },
     "Release": {
-      "sha256": "27502a7b0e1c17059da02530565fa54ca5d692cfc1dd437a3be0e7b8f719c615",
-      "fingerprint": "39621d03c064a493eff691c33470d99886891babae73716dae7f01b4a10cfb60",
-      "reported_commit": "9b214fd0b60807e248a3a87ee10eaa0fa04bc052",
+      "sha256": "be4a716c8e3bdf97ca6a238f1c915c5e20ea3f9c50ac01117f5097575034e3c4",
+      "fingerprint": "940b19d2cd66f7a6c38285cddfb3c6a0c016193f10034d62e22400552afae2a6",
+      "reported_commit": "fc2af84132475b21f4d4cbe9f68e4588a59aaae2",
       "reported_dirty": true,
       "version_name": "0.3.0",
       "version_code": 4,
-      "check": ".tools/checks/check-full-release-20261104-224942-800.json",
+      "check": ".tools/checks/check-full-release-20261105-151628-285.json",
       "apk": "app/build/outputs/apk/release/app-release-unsigned.apk",
       "audio_local": false,
       "installable": false
     }
   },
   "manual_focus_ids": [
-    "FF-PHONE-SCREEN-ON-001",
-    "FF-PHONE-SCREEN-ON-002"
+    "FF-PHONE-LIFECYCLE-001",
+    "FF-PHONE-RECOVERY-001",
+    "FF-PHONE-ROTATION-001",
+    "FF-PHONE-SCREEN-ON-001"
   ],
-  "validation_report": "docs/validation/20261104-screen-on-timer.md",
-  "note": "0.3.0/4未变；屏幕驱动会话；185项应用输入核对相同。Debug本机C4录音不公开，Release无录音且未签名；真机未执行。"
+  "validation_report": "docs/validation/20261105-timer-lifecycle.md",
+  "note": "版本0.3.0/4未变；记录原构建源码指纹，不因后续文档/脚本调整冒充新构建。194项app输入与APK另行核对；中间05f包的亮屏/历史结果仅按明确影响范围复用，保持历史APK身份；Debug本机C4素材不公开，Release无素材且未签名；本轮无真机验收。"
 }

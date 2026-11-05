@@ -543,5 +543,65 @@
       "docs/validation/20261104-screen-on-timer.md"
     ],
     "status": "模型与最终检查通过；真实旧PendingIntent跨会话投递未执行，无伪造设备失败或复测记录。"
+  },
+  {
+    "id": "FF-ISSUE-LIFECYCLE-DEFAULT-ANCHOR",
+    "type": "应用布局缺陷",
+    "description": "无拖动记录的方向按展开尺寸重建默认中心，收起后整窗偏移；修复为会话内分方向默认锚点缓存，不能持久化为假拖动。",
+    "affected_cases": [
+      "FF-ROTATION-002",
+      "FF-SUITE-OVERLAY_ROTATION"
+    ],
+    "failed_records": [
+      "DEVICE-20261105-151256-results-f20d12da12f4:FF-GATE-DEVICE:0"
+    ],
+    "retests": [
+      {
+        "of": "DEVICE-20261105-151256-results-f20d12da12f4:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261105-152732-results-182387305adb:FF-GATE-DEVICE:4"
+      }
+    ],
+    "evidence": [
+      ".tools/device-checks/20261105-151256/results.json",
+      ".tools/device-checks/20261105-152732/results.json",
+      "docs/validation/20261105-timer-lifecycle.md"
+    ],
+    "status": "最终APK模拟器完整复测通过；工作区脚本指纹不同仍按库规则保留影响评估；真机方向/闪动边界未结案"
+  },
+  {
+    "id": "FF-ISSUE-LIFECYCLE-ROTATION-SETUP",
+    "type": "测试前置条件",
+    "description": "测试在Launcher强制竖屏后未重新核实前台FF方向，实际横屏被当作竖屏。增加实际PNG尺寸断言并在FF进入前台后建立方向；原失败保留，不当作应用功能通过。",
+    "affected_cases": [
+      "FF-SUITE-OVERLAY_ROTATION",
+      "FF-ROTATION-001"
+    ],
+    "failed_records": [
+      "DEVICE-20261105-151628-results-dded5b13ea55:FF-GATE-DEVICE:0",
+      "DEVICE-20261105-151959-results-44fadc518d29:FF-GATE-DEVICE:0",
+      "DEVICE-20261105-152319-results-d1f1a4ecce60:FF-GATE-DEVICE:0"
+    ],
+    "retests": [
+      {
+        "of": "DEVICE-20261105-151628-results-dded5b13ea55:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261105-152732-results-182387305adb:FF-GATE-DEVICE:4"
+      },
+      {
+        "of": "DEVICE-20261105-151959-results-44fadc518d29:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261105-152732-results-182387305adb:FF-GATE-DEVICE:4"
+      },
+      {
+        "of": "DEVICE-20261105-152319-results-d1f1a4ecce60:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261105-152732-results-182387305adb:FF-GATE-DEVICE:4"
+      }
+    ],
+    "evidence": [
+      ".tools/device-checks/20261105-151628/results.json",
+      ".tools/device-checks/20261105-151959/results.json",
+      ".tools/device-checks/20261105-152319/results.json",
+      ".tools/device-checks/20261105-152732/results.json",
+      "docs/validation/20261105-timer-lifecycle.md"
+    ],
+    "status": "最终APK模拟器完整复测通过；工作区脚本指纹不同仍按库规则保留影响评估；真机方向/闪动边界未结案"
   }
 ]

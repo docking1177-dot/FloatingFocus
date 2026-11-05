@@ -80,7 +80,7 @@ object HistoryStatistics {
         val cutoff = minOf(period.end, now.toEpochMilli())
         for (record in records) {
             if (packageFilter != null && record.packageName != packageFilter) continue
-            val intervals = record.screenTime?.intervals ?: if (record.elapsedMillis > 0)
+            val intervals = record.activeTime?.intervals ?: if (record.elapsedMillis > 0)
                 listOf(ActiveInterval(0, record.elapsedMillis)) else emptyList()
             var inRange = 0L
             for (interval in intervals) {

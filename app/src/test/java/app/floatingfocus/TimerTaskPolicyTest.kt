@@ -9,9 +9,9 @@ class TimerTaskPolicyTest {
         assertFalse(TimerTaskPolicy.endsSession("app.floatingfocus.PresetShortcutActivity"))
     }
     @Test fun `removing the real app task or an unknown task keeps the existing stop rule`() {
-        assertTrue(TimerTaskPolicy.endsSession("app.floatingfocus.MainActivity"))
-        assertTrue(TimerTaskPolicy.endsSession("app.floatingfocus.SettingsActivity"))
-        assertTrue(TimerTaskPolicy.endsSession(null))
-        assertTrue(TimerTaskPolicy.endsSession("unknown.Activity"))
+        assertFalse(TimerTaskPolicy.endsSession("app.floatingfocus.MainActivity"))
+        assertFalse(TimerTaskPolicy.endsSession("app.floatingfocus.SettingsActivity"))
+        assertFalse(TimerTaskPolicy.endsSession(null))
+        assertFalse(TimerTaskPolicy.endsSession("unknown.Activity"))
     }
 }

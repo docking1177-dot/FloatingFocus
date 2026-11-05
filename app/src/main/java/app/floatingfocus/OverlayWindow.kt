@@ -58,6 +58,8 @@ private class FloatingLifecycleOwner : LifecycleOwner, ViewModelStoreOwner, Save
 class OverlayWindow(private val context: Context,
                     private val initialPosition: OverlayAnchor? = null,
                     private val onPositionChanged: (OverlayAnchor) -> Unit = {},
+                    initialPositions: OverlayPositions? = null,
+                    private val onPositionsChanged: (OverlayPositions) -> Unit = {},
                     private val onFailure: (RuntimeException) -> Unit) {
     private val manager = context.getSystemService(WindowManager::class.java)
     private val owner = FloatingLifecycleOwner()
@@ -66,7 +68,8 @@ class OverlayWindow(private val context: Context,
     private var dragStartY = 0
     private val view = OverlayTouchLayout(context,
         onDragStart = ::beginDrag,
-        onDrag = ::dragTo, onDragEnd = ::persistPosition, onMeasured = ::placeMeasured, measureBounds = ::safeSize)
+        onDrag = ::dragTo, onDragEnd = ::persistPosition, onDragCancel = ::cancelDrag,
+        onMeasured = ::placeMeasured, measureBounds = ::measureBounds)
     private var attached = false
     private var closed = false
     private var positioned = false
@@ -74,8 +77,13 @@ class OverlayWindow(private val context: Context,
     private var contentGeometry: OverlayContentGeometry? = null
     private var contentPlacement: OverlayContentPlacement? = null
     private var c4Active = false
-    private var rememberedAnchor = initialPosition
-    private var positionChanged = false
+    private var rememberedPositions = initialPositions ?: OverlayPositions(legacy=initialPosition)
+    // Session-only defaults are not user drags. Keep them across direction/size
+    // changes so returning while expanded cannot redefine the compact anchor.
+    private val defaultAnchors = mutableMapOf<OverlayOrientation, OverlayAnchor>()
+    private var viewport: Point? = null
+    private var direction = OverlayOrientation.PORTRAIT
+    private val dragCheckpoint=OverlayDragCheckpoint()
     private var ownerCreated = false
     // Raw drag coordinates use the physical left edge, also in RTL locales.
     @SuppressLint("RtlHardcoded")
@@ -132,19 +140,42 @@ class OverlayWindow(private val context: Context,
 
     fun clampPosition() {
         // Re-measure content as well as the frame after the safe area changes.
+        val size=safeSize()
+        if (viewport?.x!=size.x || viewport?.y!=size.y) {
+            view.cancelGesture();cancelDrag();position.releaseContent()
+            contentGeometry=null;contentPlacement=null
+        }
         view.requestLayout()
     }
 
+    private fun measureBounds(): Point = safeSize().also { size ->
+        if (viewport?.x != size.x || viewport?.y != size.y) {
+            view.cancelGesture()
+            cancelDrag()
+            position.releaseContent()
+            contentGeometry=null; contentPlacement=null; positioned=false
+            direction=OverlayOrientation.at(size.x,size.y)
+            viewport=Point(size)
+            val migrated=rememberedPositions.migrate(direction)
+            if (migrated!=rememberedPositions) { rememberedPositions=migrated; onPositionsChanged(migrated) }
+        }
+    }
+
+    fun positionsSnapshot(): OverlayPositions = rememberedPositions
+
     private fun restorePosition(width: Int, height: Int, size: Point) {
+        val preferred = dragCheckpoint.pending(OverlayViewport(size.x,size.y))
+            ?: rememberedPositions.anchor(direction) ?: defaultAnchors[direction]
         if (!positioned) {
             positioned = true
             position.anchor(size.x - width - dp(16), dp(36), width, height)
+            if (preferred == null) defaultAnchors[direction] = position.snapshot(size.x,size.y)
         }
-        rememberedAnchor?.let { position.restore(it, size.x, size.y) }
+        preferred?.let { position.restore(it,size.x,size.y) }
     }
 
     fun measureContent(content: OverlayContentGeometry): OverlayContentPlacement {
-        val size = safeSize()
+        val size = viewport ?: measureBounds()
         if (content.hasControls && contentGeometry?.hasControls == false) {
             currentContentPlacement()?.let { position.pinContent(params.x + it.headerX, params.y + it.headerY) }
         } else if (!content.hasControls) position.releaseContent()
@@ -155,7 +186,7 @@ class OverlayWindow(private val context: Context,
 
     private fun placeMeasured(width: Int, height: Int) {
         if (!attached || closed || width <= 0 || height <= 0) return
-        val size = safeSize()
+        val size = viewport ?: measureBounds()
         restorePosition(width, height, size)
         val content = contentGeometry?.takeIf { !c4Active && it.width == width && it.height == height }
         // Compose may reuse a same-constraint measurement. Position the header
@@ -184,7 +215,8 @@ class OverlayWindow(private val context: Context,
 
     fun close() {
         if (closed) return
-        persistPosition()
+        view.cancelGesture()
+        cancelDrag()
         closed = true
         composeView.disposeComposition()
         if (ownerCreated) owner.destroy()
@@ -195,6 +227,10 @@ class OverlayWindow(private val context: Context,
     }
 
     private fun beginDrag() {
+        cancelDrag()
+        val size=safeSize()
+        if (viewport?.x!=size.x || viewport?.y!=size.y) { clampPosition();return }
+        dragCheckpoint.begin(OverlayViewport(size.x,size.y))
         dragStartX = params.x
         dragStartY = params.y
         val content = currentContentPlacement()
@@ -208,22 +244,27 @@ class OverlayWindow(private val context: Context,
 
     private fun dragTo(dx: Float, dy: Float) {
         val size = safeSize()
+        if (!dragCheckpoint.accepts(OverlayViewport(size.x,size.y))) { view.cancelGesture();cancelDrag();view.requestLayout();return }
         val content = currentContentPlacement()
         val (x, y) = position.dragTo(dx, dy, view.width, view.height, size.x, size.y,
             content?.headerX ?: view.width / 2f, content?.headerY ?: view.height / 2f)
         params.x = x
         params.y = y
         if (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0) Log.d("FloatingFocus", "Overlay drag from=$dragStartX,$dragStartY delta=$dx,$dy placed=${params.x},${params.y} view=${view.width}x${view.height} safe=${size.x}x${size.y}")
-        rememberedAnchor = position.snapshot(size.x, size.y)
-        positionChanged = true
+        dragCheckpoint.move(OverlayViewport(size.x,size.y),position.snapshot(size.x,size.y))
         update()
     }
 
     private fun persistPosition() {
-        if (!positionChanged) return
-        positionChanged = false
-        rememberedAnchor?.let(onPositionChanged)
+        val size=safeSize()
+        val anchor=dragCheckpoint.finish(OverlayViewport(size.x,size.y)) ?: return
+        if (viewport?.x!=size.x || viewport?.y!=size.y) return
+        rememberedPositions=rememberedPositions.remember(direction,anchor)
+        onPositionsChanged(rememberedPositions)
+        onPositionChanged(anchor)
     }
+
+    private fun cancelDrag() { dragCheckpoint.cancel() }
 
     private fun dp(value: Int) = (value * context.resources.displayMetrics.density).roundToInt()
 

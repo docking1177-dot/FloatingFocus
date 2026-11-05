@@ -62,3 +62,9 @@ Debug 75 项、Release 69 项 JVM 测试及两种构建通过；Lint 无错误�
 `TimerPresetsCard.kt` 保留全部业务和页头；`app/src/debug/.../PresetItems.kt`、`PresetStyleStore.kt`、`PresetStylePicker.kt` 仅负责实验显示/选择。Release同名`PresetItems`逐项保留原有正式网格，不依赖Debug存储或候选。名称自然换行、适应内容高度，整项点击；列表时长右对齐、无详情箭头。候选去掉每项重复的点击启动提示，仅Debug生效。
 
 回归入口：`./scripts/test-device.ps1 -Suite preset_styles -Serial emulator-5556 -AllowTestDataChanges`。复用专用模拟器备份还原、源码指纹和APK绑定，覆盖三样式同数据截图、重启、数据数量、预览无副作用、独立偏好、四列快捷App、权限/失败/启动/禁用与小屏大字体。截图需要人工视觉复核，不替代交互断言。Debug/Release Full和Release DEX隔离另行核对。
+
+## 正计时方式与方向位置（2026-11-05）
+
+预设保存 stopwatchBehavior，旧字段缺失为 CONTINUOUS；保存当前采样当前偏好，独立草稿取消不写全局。按预设启动不受当前正计时方式覆盖，运行期间改设置只影响下一次。三种首页Debug展示及桌面/组件入口共用相同ID启动链。
+
+positions 分 portrait/landscape，按预设ID独立保存；旧单位置保留并由首次启动方向承接一次。只写完成拖动，编辑草稿不能覆盖期间更新的位置，删除后不复活。普通计时使用独立普通表。异常续计只承接计数及位置上下文，不重新执行被编辑后的预设；删除后不把位置写入其他表。见[正计时方式与恢复](SCREEN_ON_TIMER.md)。

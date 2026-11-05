@@ -33,6 +33,8 @@ internal fun HistoryScreen(records: List<TimerRecord>, loading: Boolean, storage
     var appPackage by rememberSaveable { mutableStateOf<String?>(null) }
     var showApps by rememberSaveable { mutableStateOf(false) }
     var showHelp by rememberSaveable { mutableStateOf(false) }
+    var showRecovery by rememberSaveable { mutableStateOf(false) }
+    val recoverableRecords=remember(records) { StopwatchRecovery.candidates(records) }
     val range = HistoryRange.valueOf(rangeName)
     val period = remember(range, clock.now.atZone(clock.zone).toLocalDate(), clock.zone) {
         HistoryStatistics.period(range, clock.now.atZone(clock.zone).toLocalDate(), clock.zone)
@@ -80,6 +82,9 @@ internal fun HistoryScreen(records: List<TimerRecord>, loading: Boolean, storage
                                 Text(appLabel, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
                                 Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, modifier = Modifier.size(20.dp))
                             }
+                        }
+                        if (recoverableRecords.isNotEmpty()) TextButton(onClick={ showRecovery=true }) {
+                            Text("全部中断正计时（${recoverableRecords.size}）")
                         }
                     }
                 }
@@ -129,7 +134,9 @@ internal fun HistoryScreen(records: List<TimerRecord>, loading: Boolean, storage
                             Text("会话记录 · ${current.entries.size}", style = MaterialTheme.typography.titleMedium)
                         }
                         items(current.entries, key = { it.record.id }) { entry ->
-                            HistoryRecordCard(entry, range.label, timeFormat)
+                            HistoryRecordCard(entry, range.label, timeFormat,
+                                StopwatchRecovery.source(records,entry.record.id)!=null,storageError==null,
+                                records.any { it.stopwatch?.continuationOf==entry.record.id })
                         }
                     }
                 }
@@ -140,30 +147,48 @@ internal fun HistoryScreen(records: List<TimerRecord>, loading: Boolean, storage
         }
     }
     if (showApps) HistoryAppPicker(apps, appPackage, { showApps = false }) { appPackage = it; showApps = false }
+    if (showRecovery) AlertDialog(onDismissRequest={ showRecovery=false },title={ Text("全部中断正计时") },text={
+        LazyColumn(Modifier.heightIn(max=440.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+            items(recoverableRecords,key={ it.id }) { row ->
+                Column { Text(row.appName,style=MaterialTheme.typography.titleSmall)
+                    StopwatchRecoveryAction(row,storageError==null)
+                    HorizontalDivider() }
+            }
+        }
+    },confirmButton={ TextButton(onClick={ showRecovery=false }) { Text("关闭") } })
     if (showHelp) AlertDialog(onDismissRequest = { showHelp = false }, title = { Text("统计说明") }, text = {
         Text("记录 FF 会话时长，含手动计时；离开目标 App 后仍计时，不代表 App 实际前台使用时间。\n\n" +
             "按设备当前时区及已保存的会话时间轴拆分小时和日期；本周从周一开始。当前时区变化后，历史分布可能变化。\n\n" +
-            "普通会话累计包含暂停期间的经过时间；亮屏计时仅累计已保存的亮屏区间，息屏不计。旧记录不推测暂停区间或系统改时轨迹。异常中断仅按最后检查点约计，不补入停机时间。\n\n" +
+            "新正计时按运行区间累计，暂停不计；续计段仅统计新增时长，不重复计算承接累计。旧普通记录保留经过时长口径，旧亮屏记录仅含已保存亮屏区间；不推测旧暂停或改时轨迹。异常中断按最后检查点约计，停机不计。\n\n" +
             "导出包含全部原始会话，不受页面筛选影响。", modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()))
     }, confirmButton = { TextButton(onClick = { showHelp = false }) { Text("知道了") } })
 }
 
 @Composable
-private fun HistoryRecordCard(entry: HistoryEntry, rangeLabel: String, timeFormat: DateTimeFormatter) {
+private fun HistoryRecordCard(entry: HistoryEntry, rangeLabel: String, timeFormat: DateTimeFormatter,
+                              recoverable: Boolean = false, readable: Boolean = true, continued: Boolean = false) {
     val record = entry.record
     OutlinedCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(FocusSpacing.section), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(FocusSpacing.medium)) {
                 AppIcon(record.packageName, 32.dp)
-                Text(if (record.screenTime != null) "亮屏计时" else if (record.packageName.isEmpty()) "手动计时" else record.appName, style = MaterialTheme.typography.titleMedium,
+                Text(if (record.packageName.isEmpty()) { if (record.stopwatchBehavior==StopwatchBehavior.SCREEN_ON) "亮屏计时" else "手动计时" } else record.appName, style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f))
             }
             Text(timeFormat.format(Instant.ofEpochMilli(record.startedWallMillis)), style = MaterialTheme.typography.bodySmall)
             Text("${rangeLabel}计时 ${historyDurationLabel(entry.inRangeMillis)}")
-            Text("${if (record.screenTime != null) "亮屏有效时长" else record.mode.label} · 整次累计 ${historyDurationLabel(record.elapsedMillis)}", style = MaterialTheme.typography.bodySmall)
+            Text("${if (record.activeTime != null) record.stopwatchBehavior.label else record.mode.label} · ${if (record.stopwatch?.continuationOf!=null) "本段累计" else "整次累计"} ${historyDurationLabel(record.elapsedMillis)}", style = MaterialTheme.typography.bodySmall)
+            record.stopwatch?.continuationOf?.let {
+                Text("续计记录 · 承接 ${historyDurationLabel(record.stopwatch.carriedMillis)}",style=MaterialTheme.typography.bodySmall)
+            }
             if (record.mode == TimerMode.COUNTDOWN) Text("计划 ${historyDurationLabel(record.plannedMillis)} · 超时 ${historyDurationLabel(record.overtimeMillis)}",
                 style = MaterialTheme.typography.bodySmall)
             Text(record.status.label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (continued) Text("已从此记录续计；后续段单独统计。",style=MaterialTheme.typography.bodySmall)
+            if (recoverable) StopwatchRecoveryAction(record,readable)
+            else if (record.mode==TimerMode.STOPWATCH && record.status==RecordStatus.INTERRUPTED && record.activeTime==null)
+                Text("旧记录缺少运行检查点，无法可靠续计。",style=MaterialTheme.typography.bodySmall,
+                    color=MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

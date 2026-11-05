@@ -45,6 +45,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -93,6 +94,9 @@ class MainActivity : ComponentActivity() {
                 QuickDurationsStore.get(this).startupDefaults.value, session))
         }
         val mode = selection.mode
+        LaunchedEffect(session.active,session.startRequestId) {
+            if (session.active && session.mode==TimerMode.STOPWATCH) selection=selection.copy(mode=TimerMode.STOPWATCH)
+        }
         val seconds = selection.durationSeconds
         var customSeconds by rememberSaveable { mutableIntStateOf(60) }
         var strategyError by rememberSaveable { mutableStateOf<String?>(null) }
@@ -166,7 +170,7 @@ class MainActivity : ComponentActivity() {
                                 FloatingService.requestOvertimeSnooze(this@MainActivity, id, leg, duration, operation)
                             }
                         }
-                    }
+                    } else HomeStopwatchRecovery()
                     Spacer(Modifier.height(12.dp))
                     }) { entry ->
                         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {

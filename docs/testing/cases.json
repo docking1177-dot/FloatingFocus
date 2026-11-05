@@ -381,12 +381,12 @@
     {
       "id": "FF-JVM-TIMERTASKPOLICY",
       "module": "生命周期",
-      "scenario": "中转关闭与主任务划除（模型类）",
+      "scenario": "最近任务划除保留正式会话（模型类）",
       "priority": "P1",
       "kind": "模型类汇总",
       "preconditions": "现有JUnit夹具，无需设备",
       "steps": "运行 TimerTaskPolicyTest 的全部@Test；查看独立JUnit XML",
-      "expected": "受控中转自行结束不停止新会话；主FF/未知任务仍执行清理；该类失败/错误=0，跳过项单独标记",
+      "expected": "主任务、中转和未知任务划除均不主动结束正式计时；原历史只代表对应旧版本。",
       "builds": [
         "Debug",
         "Release"
@@ -6217,7 +6217,7 @@
       "kind": "单例",
       "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
       "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
-      "expected": "开关保持关闭，无新记录/浮窗；授权返回后不自动开始。",
+      "expected": "选择计时方式本身不启动、不请求权限；明确开始时缺悬浮权限被阻止，授权后仍需明确开始。",
       "builds": [
         "Debug"
       ],
@@ -6345,7 +6345,7 @@
       "kind": "单例",
       "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
       "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
-      "expected": "已有普通正计时下新模式开关不可开启，原ID和会话不被替换。",
+      "expected": "已有会话不被替换；可以编辑下次计时方式，但本次ID和行为快照保持不变。",
       "builds": [
         "Debug"
       ],
@@ -6505,7 +6505,7 @@
       "kind": "单例",
       "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
       "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
-      "expected": "真实切换主题/1.5字号/横屏后仍为同一个活跃会话，开关保持开启。截图需另核图。",
+      "expected": "切换主题/1.5字号/横屏后仍为同一会话，本次方式保持；设置页是偏好选择，截图另核图。",
       "builds": [
         "Debug"
       ],
@@ -6600,7 +6600,7 @@
       "priority": "P1",
       "kind": "单例",
       "preconditions": "同SHA本轮Debug，Redmi K80/Android16，已有悬浮权限与日常通知/省电设置。无需开启无障碍或使用情况权限。",
-      "steps": "设置→随亮屏计时开启；记累计，息屏约20秒；亮起但不解锁约10秒，再解锁查看。若日常已开AOD，再息屏显示约30秒后核对。结束后再亮灭一次。",
+      "steps": "设置→正计时方式选随亮屏；回首页选正计时并明确开始。息屏20秒，锁屏点亮10秒，再解锁核对；若日常使用AOD，保持AOD30秒再核对。最后明确结束。",
       "expected": "正常锁屏亮起计入；AOD或息屏整段不增加累计；重新亮屏继续同一条记录。",
       "builds": [
         "Debug",
@@ -6612,7 +6612,7 @@
       "recommended_path": "用户人工真机观察",
       "entry_points": [
         "docs/SCREEN_ON_TIMER.md",
-        "docs/validation/20261104-screen-on-timer.md"
+        "docs/validation/20261105-timer-lifecycle.md"
       ],
       "scope": "单例",
       "manual_tier": "必须真机",
@@ -6634,7 +6634,7 @@
       "kind": "单例",
       "preconditions": "同SHA本轮Debug，Redmi K80/Android16，已有悬浮权限与日常通知/省电设置。无需开启无障碍或使用情况权限。",
       "steps": "沿用上一项模式，在视频App/桌面间使用2—3分钟，包含两次息屏。查看同一记录累计后，从最近任务划掉FF，再亮屏并重新打开FF核对。保持日常省电习惯。",
-      "expected": "后台多轮仅累计亮屏，结束或划掉FF后不自动重开。系统无回调强杀只能最后检查点约计，不补停机时间。",
+      "expected": "后台仍按当前屏幕状态累计；划掉任务应保留同会话。厂商若同时结束进程，停机不补且不自动拉活，重新进入可明确续计。",
       "builds": [
         "Debug",
         "Release"
@@ -6645,7 +6645,7 @@
       "recommended_path": "用户人工真机观察",
       "entry_points": [
         "docs/SCREEN_ON_TIMER.md",
-        "docs/validation/20261104-screen-on-timer.md"
+        "docs/validation/20261105-timer-lifecycle.md"
       ],
       "scope": "单例",
       "manual_tier": "必须真机",
@@ -6657,6 +6657,695 @@
         "记录",
         "生命周期",
         "权限"
+      ]
+    },
+    {
+      "id": "FF-JVM-STOPWATCHBEHAVIOR",
+      "module": "正计时与浮窗",
+      "scenario": "计时方式与预设快照",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备。",
+      "steps": "运行该JUnit类并检查独立XML。",
+      "expected": "断言全部执行，失败/错误=0；不证明设备交互。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/StopwatchBehaviorTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-JVM-STOPWATCHRECOVERY",
+      "module": "正计时与浮窗",
+      "scenario": "续计关联、区间与新段额度",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备。",
+      "steps": "运行该JUnit类并检查独立XML。",
+      "expected": "断言全部执行，失败/错误=0；不证明设备交互。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/StopwatchRecoveryTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-JVM-LIFECYCLEGUARDS",
+      "module": "正计时与浮窗",
+      "scenario": "启动失败、来源标记与孤立记录重试",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备。",
+      "steps": "运行该JUnit类并检查独立XML。",
+      "expected": "断言全部执行，失败/错误=0；不证明设备交互。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/LifecycleGuardsTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-JVM-OVERLAYPOSITIONS",
+      "module": "正计时与浮窗",
+      "scenario": "方向槽、迁移与手势提交",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备。",
+      "steps": "运行该JUnit类并检查独立XML。",
+      "expected": "断言全部执行，失败/错误=0；不证明设备交互。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/OverlayPositionsTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-SUITE-TIMER_LIFECYCLE",
+      "module": "正计时与浮窗",
+      "scenario": "最近任务、续计与持久化完整回归",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
+      "steps": "执行套件并检查原始results.json。",
+      "expected": "套件完整通过，数据还原成功；仅对应版本脚本断言。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_timer_lifecycle.py",
+        "./scripts/test-device.ps1 -Suite timer_lifecycle -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-SUITE-OVERLAY_ROTATION",
+      "module": "正计时与浮窗",
+      "scenario": "三形状双尺寸与方向位置回归",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
+      "steps": "执行套件并检查原始results.json。",
+      "expected": "套件完整通过，数据还原成功；仅对应版本脚本断言。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_timer_lifecycle.py",
+        "./scripts/test-device.ps1 -Suite overlay_rotation -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-LIFECYCLE-001",
+      "module": "正计时生命周期",
+      "scenario": "实际任务划除后同会话继续",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
+      "steps": "从Launcher最近任务真实上滑移除FF，再等待至少2秒。",
+      "expected": "FF任务已消失；浮窗与同ID运行记录仍在，累计增加。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_timer_lifecycle.py",
+        "./scripts/test-device.ps1 -Suite timer_lifecycle -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-BEHAVIOR-002",
+      "module": "正计时生命周期",
+      "scenario": "预设计时方式保存与取消",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
+      "steps": "预设编辑选亮屏，先取消再保存；再改回连续。",
+      "expected": "取消不写，保存只改该预设；全局不变。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_timer_lifecycle.py",
+        "./scripts/test-device.ps1 -Suite timer_lifecycle -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-RECOVERY-001",
+      "module": "正计时生命周期",
+      "scenario": "关联新段与重复点击",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
+      "steps": "强停后明确继续，快速连点两次，核对父子ID。",
+      "expected": "只产生一个后继；父记录不改；携带可靠累计。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_timer_lifecycle.py",
+        "./scripts/test-device.ps1 -Suite timer_lifecycle -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-RECOVERY-002",
+      "module": "正计时生命周期",
+      "scenario": "停机不计与不自动恢复",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
+      "steps": "强停等待，再打开但不点继续。",
+      "expected": "浮窗不自动出现，已保存累计及额度不补停机。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_timer_lifecycle.py",
+        "./scripts/test-device.ps1 -Suite timer_lifecycle -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-RECOVERY-003",
+      "module": "正计时生命周期",
+      "scenario": "缺权限不消费来源",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
+      "steps": "恢复前撤掉测试悬浮权限，再重新允许后明确继续。",
+      "expected": "无权限不启动、不产生后继；授权后仍需明确点击。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_timer_lifecycle.py",
+        "./scripts/test-device.ps1 -Suite timer_lifecycle -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-RECOVERY-004",
+      "module": "正计时生命周期",
+      "scenario": "续计额度与CSV只记新增",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
+      "steps": "核对原始记录、账本游标及系统文档选择器实际CSV。",
+      "expected": "新段累计/额度仅新增区间，CSV含来源/根ID和承接值。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_timer_lifecycle.py",
+        "./scripts/test-device.ps1 -Suite timer_lifecycle -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-RECOVERY-005",
+      "module": "正计时生命周期",
+      "scenario": "跨图表范围访问候选",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
+      "steps": "放置两条70天前中断记录，进入历史全部中断正计时。",
+      "expected": "两条候选均可见且可分别选择，不受图表日期过滤。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_timer_lifecycle.py",
+        "./scripts/test-device.ps1 -Suite timer_lifecycle -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-RECOVERY-006",
+      "module": "正计时生命周期",
+      "scenario": "损坏新检查点与重试",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
+      "steps": "损坏新格式区间，重新读取；删除该测试坏文件后重试。",
+      "expected": "显示读错且不放行；重试恢复真实数据，不降级旧格式。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_timer_lifecycle.py",
+        "./scripts/test-device.ps1 -Suite timer_lifecycle -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-RECOVERY-007",
+      "module": "正计时生命周期",
+      "scenario": "改绑后明确续计保留原归属",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
+      "steps": "原App正计时强停后修改原预设绑定，再明确继续。",
+      "expected": "续计仍属于原App，不启动原App或新App，不改回预设新绑定。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_timer_lifecycle.py",
+        "./scripts/test-device.ps1 -Suite timer_lifecycle -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-RECOVERY-008",
+      "module": "正计时生命周期",
+      "scenario": "删除来源不串写位置",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
+      "steps": "原预设正计时强停后删除预设，再继续并拖动。",
+      "expected": "预设仍删除，普通位置表不变，续计段保存新位置。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_timer_lifecycle.py",
+        "./scripts/test-device.ps1 -Suite timer_lifecycle -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-BEHAVIOR-001",
+      "module": "正计时方式",
+      "scenario": "设置不启动且仅下一次生效",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
+      "steps": "缺悬浮权限时选择亮屏；允许后明确开始；运行中修改为连续。",
+      "expected": "设置不启动也不请求权限；活跃会话仍按旧方式，下次按新方式。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_timer_lifecycle.py",
+        "./scripts/test-device.ps1 -Suite timer_lifecycle -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-ROTATION-001",
+      "module": "浮窗",
+      "scenario": "折叠居中与展开后方向恢复",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
+      "steps": "先不拖动竖屏，横屏展开后再回竖屏收起；再测三形状两大小和各方向独立拖动。",
+      "expected": "标题居中、双向分别恢复已拖动位置，窗口/内容实测一致。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_timer_lifecycle.py",
+        "./scripts/test-device.ps1 -Suite timer_lifecycle -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-PHONE-LIFECYCLE-001",
+      "module": "生命周期",
+      "scenario": "Redmi划除与一键清理的真实策略",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "安装本轮目标SHA的APK；Redmi K80/Android16/HyperOS，记录日常省电设置，已有悬浮与通知权限。此项无需C4本机音频，不新增授权。",
+      "steps": "先选连续正计时并开始，切其他App后划掉FF；看浮窗/通知仍计时。另起一轮用系统一键清理，再查看；记录是否开启厂商后台限制。",
+      "expected": "普通划除保持同会话。若一键清理杀进程，不能补停机或自动重开；重新进入提供可靠正计时续计。明确结束必须停止。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "用户人工真机观察",
+      "entry_points": [
+        "docs/SCREEN_ON_TIMER.md",
+        "docs/validation/20261105-timer-lifecycle.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 0,
+      "gap": "厂商清理、AOD及真实窗口/手势差异尚未在该手机验证。",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-PHONE-RECOVERY-001",
+      "module": "恢复",
+      "scenario": "手机强停后的明确续计",
+      "priority": "P0",
+      "kind": "单例",
+      "preconditions": "安装本轮目标SHA的APK；Redmi K80/Android16/HyperOS，记录日常省电设置，已有悬浮与通知权限。此项无需C4本机音频，不新增授权。",
+      "steps": "开始正计时约20秒；应用信息强行停止；等20秒再开FF，不点继续应保持停止。点继续后使用约10秒并结束。",
+      "expected": "显示最后保存累计并明确续计，结果约旧累计加10秒而非加30秒；只有一个续计段，不重复扣额度。误差为未保存检查点，日志由AI读取。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "用户人工真机观察",
+      "entry_points": [
+        "docs/SCREEN_ON_TIMER.md",
+        "docs/validation/20261105-timer-lifecycle.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 0,
+      "gap": "厂商清理、AOD及真实窗口/手势差异尚未在该手机验证。",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-PHONE-ROTATION-001",
+      "module": "浮窗",
+      "scenario": "常用形状下横竖屏位置与触摸",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "安装本轮目标SHA的APK；Redmi K80/Android16/HyperOS，记录日常省电设置，已有悬浮与通知权限。此项无需C4本机音频，不新增授权。",
+      "steps": "用常用形状启动；竖屏拖左上、横屏拖右上，展开后回竖屏再收起，反复两次。连续点原时间区域。",
+      "expected": "各方向恢复各自位置；数字不偏、不截断；点击只展开/收起，不误触结束。不以本项替代尚未关闭的HyperOS逐秒闪动历史问题。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "用户人工真机观察",
+      "entry_points": [
+        "docs/SCREEN_ON_TIMER.md",
+        "docs/validation/20261105-timer-lifecycle.md"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 0,
+      "gap": "厂商清理、AOD及真实窗口/手势差异尚未在该手机验证。",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
+      ]
+    },
+    {
+      "id": "FF-ROTATION-002",
+      "module": "浮窗",
+      "scenario": "未拖动方向的默认锚点稳定",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
+      "steps": "清空测试方向表，竖屏开始但不拖动；横屏展开并拖动，再回竖屏收起。",
+      "expected": "收起后的原竖屏frame与初始相同，误差不超过2px；方向表不伪造竖屏拖动记录。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "现有ADB回归",
+      "entry_points": [
+        "scripts/device_timer_lifecycle.py",
+        "./scripts/test-device.ps1 -Suite timer_lifecycle -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "生命周期",
+        "恢复",
+        "旋转"
       ]
     }
   ],
@@ -6703,7 +7392,11 @@
     "OvertimeReminderRequestTest": "FF-JVM-OVERTIMEREMINDERREQUEST",
     "ScreenOnTimerTest": "FF-JVM-SCREENONTIMER",
     "ScreenOnHistoryTest": "FF-JVM-SCREENONHISTORY",
-    "ScreenOnControlsTest": "FF-JVM-SCREENONCONTROLS"
+    "ScreenOnControlsTest": "FF-JVM-SCREENONCONTROLS",
+    "StopwatchBehaviorTest": "FF-JVM-STOPWATCHBEHAVIOR",
+    "StopwatchRecoveryTest": "FF-JVM-STOPWATCHRECOVERY",
+    "LifecycleGuardsTest": "FF-JVM-LIFECYCLEGUARDS",
+    "OverlayPositionsTest": "FF-JVM-OVERLAYPOSITIONS"
   },
   "device_details": {
     "widgets": {
@@ -6808,7 +7501,26 @@
       "malformedIntervalsShowError": "FF-SCREEN-009",
       "configurationRebuildKeepsSession": "FF-SCREEN-010",
       "permissionRevocationDisarms": "FF-SCREEN-011",
-      "backgroundContinues": "FF-SCREEN-012"
+      "backgroundContinues": "FF-SCREEN-012",
+      "preferenceDoesNotStart": "FF-BEHAVIOR-001",
+      "nextSessionOnly": "FF-BEHAVIOR-001"
+    },
+    "timer_lifecycle": {
+      "overlayAndSameSessionSurvive": "FF-LIFECYCLE-001",
+      "presetDraftSaveCancel": "FF-BEHAVIOR-002",
+      "oneChildAfterDoubleTap": "FF-RECOVERY-001",
+      "noDowntime": "FF-RECOVERY-002",
+      "missingPermissionNoConsumption": "FF-RECOVERY-003",
+      "quotaOnlyNewSegment": "FF-RECOVERY-004",
+      "olderCandidatesReachable": "FF-RECOVERY-005",
+      "malformedCheckpointShowsError": "FF-RECOVERY-006",
+      "editedOriginKeepsOriginalApp": "FF-RECOVERY-007",
+      "deletedOriginNoCrossWrite": "FF-RECOVERY-008"
+    },
+    "overlay_rotation": {
+      "compactCentered": "FF-ROTATION-001",
+      "independentPositions": "FF-ROTATION-001",
+      "unsavedDefaultStable": "FF-ROTATION-002"
     }
   }
 }

@@ -1,0 +1,660 @@
+{
+  "date": "2026-11-05",
+  "version": "0.3.0",
+  "versionCode": 4,
+  "builds": {
+    "Debug": {
+      "status": "passed",
+      "tests": 278,
+      "failures": 0,
+      "errors": 0,
+      "lintErrors": 0,
+      "lintWarnings": 0,
+      "apkSha256": "0bb65568353fbed6266e14718b6bfecd6d6f46bc4574df574dd26bf8624a209a",
+      "source": {
+        "commit": "fc2af84132475b21f4d4cbe9f68e4588a59aaae2",
+        "fingerprint": "940b19d2cd66f7a6c38285cddfb3c6a0c016193f10034d62e22400552afae2a6",
+        "dirty": true
+      },
+      "originalEvidence": ".tools/checks/check-full-debug-20261105-151350-051.json"
+    },
+    "Release": {
+      "status": "passed",
+      "tests": 270,
+      "failures": 0,
+      "errors": 0,
+      "lintErrors": 0,
+      "lintWarnings": 0,
+      "apkSha256": "be4a716c8e3bdf97ca6a238f1c915c5e20ea3f9c50ac01117f5097575034e3c4",
+      "source": {
+        "commit": "fc2af84132475b21f4d4cbe9f68e4588a59aaae2",
+        "fingerprint": "940b19d2cd66f7a6c38285cddfb3c6a0c016193f10034d62e22400552afae2a6",
+        "dirty": true
+      },
+      "originalEvidence": ".tools/checks/check-full-release-20261105-151628-285.json"
+    }
+  },
+  "device": {
+    "capturedAt": "2026-11-05T07:17:05.396160+00:00",
+    "serial": "emulator-5556",
+    "kind": "emulator",
+    "model": "Android SDK built for x86_64",
+    "android": "16",
+    "sdk": "36",
+    "fingerprint": "Android/sdk_phone64_x86_64/emu64x:16/BE2A.250530.026.D1/13818094:userdebug/test-keys",
+    "launcher": "priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true\ncom.android.launcher3/.uioverrides.QuickstepLauncher"
+  },
+  "suites": {
+    "timer_lifecycle": {
+      "status": "passed",
+      "apkSha256": "0bb65568353fbed6266e14718b6bfecd6d6f46bc4574df574dd26bf8624a209a",
+      "source": {
+        "commit": "fc2af84132475b21f4d4cbe9f68e4588a59aaae2",
+        "fingerprint": "33669d9065fb824b9f1f12dd0930abdfad3efce7604f903f7dff830427c8737e",
+        "dirty": true
+      },
+      "appDataRestored": true,
+      "originalEvidence": ".tools/device-checks/20261105-153717/results.json",
+      "evidenceSha256": "c5fb8e630e4b699552f6e87f9e33be8037202e6504447ce40abe752f993c69fa",
+      "reusedByImpactReview": false
+    },
+    "screen_on": {
+      "status": "passed",
+      "apkSha256": "05f0536601210e15b7845252cb57cdd5b78739a4d0f48d9bfc7e06e8adb98eac",
+      "source": {
+        "commit": "fc2af84132475b21f4d4cbe9f68e4588a59aaae2",
+        "fingerprint": "d5041d6b8fabcbc9fd9ad4cb5d1208c339ebfec909f54bafeccac7638b94f00d",
+        "dirty": true
+      },
+      "appDataRestored": true,
+      "originalEvidence": ".tools/device-checks/20261105-145309/results.json",
+      "evidenceSha256": "ae950b43001586daebe7786ef14583da939ec472bba225312b62b537fdd71408",
+      "reusedByImpactReview": true
+    },
+    "history": {
+      "status": "passed",
+      "apkSha256": "05f0536601210e15b7845252cb57cdd5b78739a4d0f48d9bfc7e06e8adb98eac",
+      "source": {
+        "commit": "fc2af84132475b21f4d4cbe9f68e4588a59aaae2",
+        "fingerprint": "d5041d6b8fabcbc9fd9ad4cb5d1208c339ebfec909f54bafeccac7638b94f00d",
+        "dirty": true
+      },
+      "appDataRestored": true,
+      "originalEvidence": ".tools/device-checks/20261105-150506/results.json",
+      "evidenceSha256": "acdbc470584de63ed2c16854856e769662557dea349c77200d8f1e6edcf693d9",
+      "reusedByImpactReview": true
+    },
+    "overlay_rotation": {
+      "status": "passed",
+      "apkSha256": "0bb65568353fbed6266e14718b6bfecd6d6f46bc4574df574dd26bf8624a209a",
+      "source": {
+        "commit": "fc2af84132475b21f4d4cbe9f68e4588a59aaae2",
+        "fingerprint": "bb43907f2119b2b5e1dca2dbd82fc2dd050d5fdc67b5759bb9548c4b6a5c2737",
+        "dirty": true
+      },
+      "appDataRestored": true,
+      "originalEvidence": ".tools/device-checks/20261105-152732/results.json",
+      "evidenceSha256": "182387305adbcb5ad5e7e009c9dec79fe544c90f41a81d43e25f94311833fec6",
+      "reusedByImpactReview": false
+    },
+    "overlay_stability": {
+      "status": "passed",
+      "apkSha256": "0bb65568353fbed6266e14718b6bfecd6d6f46bc4574df574dd26bf8624a209a",
+      "source": {
+        "commit": "fc2af84132475b21f4d4cbe9f68e4588a59aaae2",
+        "fingerprint": "bb43907f2119b2b5e1dca2dbd82fc2dd050d5fdc67b5759bb9548c4b6a5c2737",
+        "dirty": true
+      },
+      "appDataRestored": true,
+      "originalEvidence": ".tools/device-checks/20261105-153202/results.json",
+      "evidenceSha256": "348be9a6df6c1bc820e85af6b36ce6958dd1cbff749a12a30a2775ad0c7beb10",
+      "reusedByImpactReview": false
+    }
+  },
+  "inputsCompared": 194,
+  "intermediateDifference": [
+    "app/src/main/java/app/floatingfocus/OverlayWindow.kt"
+  ],
+  "screenshots": {
+    "before": {
+      "apkSha256": "203256b93b8fc24045f359fe90d084ed760dba9d207b489398b5167c9c706f59",
+      "sample": {
+        "name": "05-portrait-collapse",
+        "frame": [
+          670,
+          437,
+          1080,
+          603
+        ],
+        "timeBounds": [
+          148.0,
+          43.0,
+          392.0,
+          123.0
+        ]
+      }
+    },
+    "after": {
+      "apkSha256": "0bb65568353fbed6266e14718b6bfecd6d6f46bc4574df574dd26bf8624a209a",
+      "first": {
+        "name": "01-portrait-compact",
+        "frame": [
+          626,
+          235,
+          1036,
+          401
+        ],
+        "timeBounds": [
+          83.0,
+          43.0,
+          327.0,
+          123.0
+        ]
+      },
+      "last": {
+        "name": "05-portrait-collapse",
+        "frame": [
+          626,
+          235,
+          1036,
+          401
+        ],
+        "timeBounds": [
+          83.0,
+          43.0,
+          327.0,
+          123.0
+        ]
+      }
+    }
+  },
+  "rotationCases": {
+    "cases": [
+      {
+        "shape": "ROUNDED_RECTANGLE",
+        "size": 0.75,
+        "portrait": {
+          "name": "ROUNDED_RECTANGLE-0.75-portrait-before",
+          "frame": [
+            277,
+            638,
+            587,
+            766
+          ],
+          "time": [
+            64.0,
+            34.0,
+            247.0,
+            94.0
+          ]
+        },
+        "after": {
+          "name": "ROUNDED_RECTANGLE-0.75-portrait-after",
+          "frame": [
+            277,
+            638,
+            587,
+            766
+          ],
+          "time": [
+            64.0,
+            34.0,
+            247.0,
+            94.0
+          ]
+        },
+        "landscape": {
+          "name": "ROUNDED_RECTANGLE-0.75-landscape-before",
+          "frame": [
+            1623,
+            281,
+            1933,
+            409
+          ],
+          "time": [
+            64.0,
+            34.0,
+            247.0,
+            94.0
+          ]
+        },
+        "landscapeAfter": {
+          "name": "ROUNDED_RECTANGLE-0.75-landscape-after",
+          "frame": [
+            1623,
+            281,
+            1933,
+            409
+          ],
+          "time": [
+            64.0,
+            34.0,
+            247.0,
+            94.0
+          ]
+        },
+        "positions": {
+          "portrait": {
+            "x": 0.4,
+            "y": 0.27316603
+          },
+          "landscape": {
+            "x": 0.79247105,
+            "y": 0.2751479
+          }
+        }
+      },
+      {
+        "shape": "ROUNDED_RECTANGLE",
+        "size": 1.25,
+        "portrait": {
+          "name": "ROUNDED_RECTANGLE-1.25-portrait-before",
+          "frame": [
+            177,
+            600,
+            687,
+            805
+          ],
+          "time": [
+            103.0,
+            53.0,
+            408.0,
+            153.0
+          ]
+        },
+        "after": {
+          "name": "ROUNDED_RECTANGLE-1.25-portrait-after",
+          "frame": [
+            177,
+            600,
+            687,
+            805
+          ],
+          "time": [
+            103.0,
+            53.0,
+            408.0,
+            153.0
+          ]
+        },
+        "landscape": {
+          "name": "ROUNDED_RECTANGLE-1.25-landscape-before",
+          "frame": [
+            1523,
+            243,
+            2033,
+            448
+          ],
+          "time": [
+            103.0,
+            53.0,
+            408.0,
+            153.0
+          ]
+        },
+        "landscapeAfter": {
+          "name": "ROUNDED_RECTANGLE-1.25-landscape-after",
+          "frame": [
+            1523,
+            243,
+            2033,
+            448
+          ],
+          "time": [
+            103.0,
+            53.0,
+            408.0,
+            153.0
+          ]
+        },
+        "positions": {
+          "portrait": {
+            "x": 0.4,
+            "y": 0.27340734
+          },
+          "landscape": {
+            "x": 0.79247105,
+            "y": 0.27564102
+          }
+        }
+      },
+      {
+        "shape": "VERTICAL_CAPSULE",
+        "size": 0.75,
+        "portrait": {
+          "name": "VERTICAL_CAPSULE-0.75-portrait-before",
+          "frame": [
+            331,
+            539,
+            533,
+            865
+          ],
+          "time": [
+            38.0,
+            104.0,
+            163.25,
+            221.75
+          ]
+        },
+        "after": {
+          "name": "VERTICAL_CAPSULE-0.75-portrait-after",
+          "frame": [
+            331,
+            539,
+            533,
+            865
+          ],
+          "time": [
+            38.0,
+            104.0,
+            163.25,
+            221.75
+          ]
+        },
+        "landscape": {
+          "name": "VERTICAL_CAPSULE-0.75-landscape-before",
+          "frame": [
+            1677,
+            182,
+            1879,
+            508
+          ],
+          "time": [
+            38.0,
+            104.0,
+            163.25,
+            221.75
+          ]
+        },
+        "landscapeAfter": {
+          "name": "VERTICAL_CAPSULE-0.75-landscape-after",
+          "frame": [
+            1677,
+            182,
+            1879,
+            508
+          ],
+          "time": [
+            38.0,
+            104.0,
+            163.25,
+            221.75
+          ]
+        },
+        "positions": {
+          "portrait": {
+            "x": 0.4,
+            "y": 0.27316603
+          },
+          "landscape": {
+            "x": 0.79247105,
+            "y": 0.2751479
+          }
+        }
+      },
+      {
+        "shape": "VERTICAL_CAPSULE",
+        "size": 1.25,
+        "portrait": {
+          "name": "VERTICAL_CAPSULE-1.25-portrait-before",
+          "frame": [
+            268,
+            435,
+            596,
+            970
+          ],
+          "time": [
+            60.0,
+            169.0,
+            268.75,
+            365.25
+          ]
+        },
+        "after": {
+          "name": "VERTICAL_CAPSULE-1.25-portrait-after",
+          "frame": [
+            268,
+            435,
+            596,
+            970
+          ],
+          "time": [
+            60.0,
+            169.0,
+            268.75,
+            365.25
+          ]
+        },
+        "landscape": {
+          "name": "VERTICAL_CAPSULE-1.25-landscape-before",
+          "frame": [
+            1614,
+            78,
+            1942,
+            613
+          ],
+          "time": [
+            60.0,
+            169.0,
+            268.75,
+            365.25
+          ]
+        },
+        "landscapeAfter": {
+          "name": "VERTICAL_CAPSULE-1.25-landscape-after",
+          "frame": [
+            1614,
+            78,
+            1942,
+            613
+          ],
+          "time": [
+            60.0,
+            169.0,
+            268.75,
+            365.25
+          ]
+        },
+        "positions": {
+          "portrait": {
+            "x": 0.4,
+            "y": 0.27340734
+          },
+          "landscape": {
+            "x": 0.79247105,
+            "y": 0.27564102
+          }
+        }
+      },
+      {
+        "shape": "CIRCLE",
+        "size": 0.75,
+        "portrait": {
+          "name": "CIRCLE-0.75-portrait-before",
+          "frame": [
+            298,
+            568,
+            567,
+            837
+          ],
+          "time": [
+            43.0,
+            105.0,
+            226.0,
+            165.0
+          ]
+        },
+        "after": {
+          "name": "CIRCLE-0.75-portrait-after",
+          "frame": [
+            298,
+            568,
+            567,
+            837
+          ],
+          "time": [
+            43.0,
+            105.0,
+            226.0,
+            165.0
+          ]
+        },
+        "landscape": {
+          "name": "CIRCLE-0.75-landscape-before",
+          "frame": [
+            1644,
+            211,
+            1913,
+            480
+          ],
+          "time": [
+            43.0,
+            105.0,
+            226.0,
+            165.0
+          ]
+        },
+        "landscapeAfter": {
+          "name": "CIRCLE-0.75-landscape-after",
+          "frame": [
+            1644,
+            211,
+            1913,
+            480
+          ],
+          "time": [
+            43.0,
+            105.0,
+            226.0,
+            165.0
+          ]
+        },
+        "positions": {
+          "portrait": {
+            "x": 0.40046296,
+            "y": 0.27340734
+          },
+          "landscape": {
+            "x": 0.79271233,
+            "y": 0.27564102
+          }
+        }
+      },
+      {
+        "shape": "CIRCLE",
+        "size": 1.25,
+        "portrait": {
+          "name": "CIRCLE-1.25-portrait-before",
+          "frame": [
+            212,
+            482,
+            652,
+            922
+          ],
+          "time": [
+            68.0,
+            170.0,
+            373.0,
+            270.0
+          ]
+        },
+        "after": {
+          "name": "CIRCLE-1.25-portrait-after",
+          "frame": [
+            212,
+            482,
+            652,
+            922
+          ],
+          "time": [
+            68.0,
+            170.0,
+            373.0,
+            270.0
+          ]
+        },
+        "landscape": {
+          "name": "CIRCLE-1.25-landscape-before",
+          "frame": [
+            1558,
+            125,
+            1998,
+            565
+          ],
+          "time": [
+            68.0,
+            170.0,
+            373.0,
+            270.0
+          ]
+        },
+        "landscapeAfter": {
+          "name": "CIRCLE-1.25-landscape-after",
+          "frame": [
+            1558,
+            125,
+            1998,
+            565
+          ],
+          "time": [
+            68.0,
+            170.0,
+            373.0,
+            270.0
+          ]
+        },
+        "positions": {
+          "portrait": {
+            "x": 0.4,
+            "y": 0.27316603
+          },
+          "landscape": {
+            "x": 0.79247105,
+            "y": 0.2751479
+          }
+        }
+      }
+    ],
+    "compactCentered": true,
+    "expandedToCompactAfterRotation": true,
+    "independentPositions": true,
+    "unsavedDefaultStable": true,
+    "defaultBefore": {
+      "name": "default-portrait-before",
+      "frame": [
+        626,
+        235,
+        1036,
+        401
+      ],
+      "time": [
+        83.0,
+        43.0,
+        327.0,
+        123.0
+      ]
+    },
+    "defaultAfter": {
+      "name": "default-portrait-after",
+      "frame": [
+        626,
+        235,
+        1036,
+        401
+      ],
+      "time": [
+        83.0,
+        43.0,
+        327.0,
+        123.0
+      ]
+    },
+    "presetsIsolated": true,
+    "legacyMigrationOnce": true,
+    "ordinaryTableUnchanged": true,
+    "note": "Actual native frames and Compose bounds; not physical-device flicker/audio evidence"
+  },
+  "actualPhoneTestsExecuted": false,
+  "localC4Audio": "Debug only: 3 local clips; Release: none; not uploaded",
+  "note": "Raw batch identities and historical failures remain unchanged. Only the final anchor-cache change followed the intermediate screen/history tests; affected geometry and stability were rerun on final APK."
+}

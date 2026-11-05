@@ -18,8 +18,10 @@ class TimerPresetStore private constructor(private val context: Application) {
 
     @Synchronized fun save(preset: TimerPreset): Boolean {
         val before = read() ?: return false
-        write(TimerPresetCodec.upsert(before, preset))
         val old = before.firstOrNull { it.id == preset.id }
+        // Editing a saved draft must not overwrite a more recent user drag.
+        val saved = if (old == null) preset else preset.copy(lastPosition=old.lastPosition,positions=old.positions)
+        write(TimerPresetCodec.upsert(before, saved))
         if (old?.name != preset.name || old?.targetApp != preset.targetApp) PresetDesktopShortcuts.get(context).scheduleSync()
         return true
     }
@@ -33,7 +35,13 @@ class TimerPresetStore private constructor(private val context: Application) {
 
     @Synchronized fun rememberPosition(id: String, position: OverlayAnchor) {
         val preset = read()?.firstOrNull { it.id == id } ?: return // never resurrect a deleted preset
-        if (preset.lastPosition != position) save(preset.copy(lastPosition = position))
+        if (preset.lastPosition != position) write(TimerPresetCodec.upsert(read() ?: return,preset.copy(lastPosition = position)))
+    }
+
+    @Synchronized fun rememberPositions(id: String, positions: OverlayPositions) {
+        val before=read() ?: return
+        val preset=before.firstOrNull { it.id==id } ?: return
+        if (preset.positions!=positions) write(TimerPresetCodec.upsert(before,preset.copy(positions=positions)))
     }
 
     private fun write(items: List<TimerPreset>) {
@@ -53,10 +61,17 @@ class TimerPresetStore private constructor(private val context: Application) {
                     "targetPackage" to row.opt("targetPackage"), "targetLabel" to row.opt("targetLabel"),
                     "minutes" to row.opt("minutes"), "durationSeconds" to row.opt("durationSeconds"), "mode" to row.opt("mode"), "settings" to values,
                     "positionX" to row.opt("positionX"), "positionY" to row.opt("positionY"), "c4Enabled" to row.opt("c4Enabled"),
-                    "timeSource" to row.opt("timeSource"))) ?: return null
+                    "timeSource" to row.opt("timeSource"), "stopwatchBehavior" to row.opt("stopwatchBehavior"),
+                    "positions" to jsonValue(row.opt("positions")))) ?: return null
         }
         decoded.takeIf { it.distinctBy(TimerPreset::id).size == it.size }
     } catch (_: RuntimeException) { null } catch (_: org.json.JSONException) { null }
+    }
+
+    private fun jsonValue(value: Any?): Any? = when(value) {
+        is JSONObject -> value.keys().asSequence().associateWith { jsonValue(value.get(it)) }
+        JSONObject.NULL -> null
+        else -> value
     }
 
     companion object {

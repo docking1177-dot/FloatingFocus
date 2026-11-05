@@ -1,7 +1,6 @@
 package app.floatingfocus
 
-/** Transient, excluded entry tasks finish themselves; the real FF task still stops a session. */
+/** Task removal is a navigation event, never an explicit end of a foreground timer. */
 internal object TimerTaskPolicy {
-    fun endsSession(rootComponent: String?): Boolean = rootComponent !in setOf(
-        "app.floatingfocus.WidgetStartActivity", "app.floatingfocus.PresetShortcutActivity")
+    fun endsSession(@Suppress("UNUSED_PARAMETER") rootComponent: String?): Boolean = false
 }

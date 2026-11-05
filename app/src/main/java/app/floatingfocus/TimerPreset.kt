@@ -2,7 +2,9 @@ package app.floatingfocus
 
 data class TimerPreset(val id: String, val name: String, val minutes: Int, val settings: ReminderSettings, val mode: TimerMode = TimerMode.COUNTDOWN, val targetApp: LaunchableApp? = null,
                        val lastPosition: OverlayAnchor? = null, val durationSeconds: Int = minutes * 60,
-                       val c4Enabled: Boolean = false, val timeSource: PresetTimeSource = PresetTimeSource.FIXED) {
+                       val c4Enabled: Boolean = false, val timeSource: PresetTimeSource = PresetTimeSource.FIXED,
+                       val stopwatchBehavior: StopwatchBehavior = StopwatchBehavior.CONTINUOUS,
+                       val positions: OverlayPositions = OverlayPositions()) {
     init {
         require(id.isNotBlank())
         require(name.isNotBlank() && name.length <= 40)
@@ -17,7 +19,8 @@ object TimerPresetCodec {
     fun encode(preset: TimerPreset): Map<String, Any> = mapOf(
         "id" to preset.id, "name" to preset.name, "minutes" to preset.minutes, "durationSeconds" to preset.durationSeconds,
         "settings" to ReminderSettingsCodec.encode(preset.settings), "mode" to preset.mode.name, "c4Enabled" to preset.c4Enabled,
-        "timeSource" to preset.timeSource.name,
+        "timeSource" to preset.timeSource.name, "stopwatchBehavior" to preset.stopwatchBehavior.name,
+        "positions" to OverlayPositionsCodec.encode(preset.positions),
         "targetPackage" to preset.targetApp?.packageName.orEmpty(), "targetLabel" to preset.targetApp?.label.orEmpty()) +
         (preset.lastPosition?.let { mapOf("positionX" to it.xFraction, "positionY" to it.yFraction) } ?: emptyMap())
 
@@ -37,7 +40,8 @@ object TimerPresetCodec {
                 LaunchableApp(pkg, (row["targetLabel"] as? String)?.takeIf { it.isNotBlank() } ?: pkg)
             }, OverlayAnchor.decode(row["positionX"], row["positionY"]),
             (row["durationSeconds"] as? Number)?.toDouble()?.takeIf { it.isFinite() && it % 1.0 == 0.0 && it in 1.0..10800.0 }?.toInt() ?: minutes * 60,
-            row["c4Enabled"] as? Boolean ?: false, source)
+            row["c4Enabled"] as? Boolean ?: false, source, StopwatchBehavior.decode(row["stopwatchBehavior"]),
+            OverlayPositionsCodec.decode(row["positions"]) ?: return null)
     }
 
     fun upsert(items: List<TimerPreset>, preset: TimerPreset): List<TimerPreset> =

@@ -20,6 +20,7 @@ internal class OverlayTouchLayout(
     private val onDragStart: () -> Unit,
     private val onDrag: (Float, Float) -> Unit,
     private val onDragEnd: () -> Unit = {},
+    private val onDragCancel: () -> Unit = {},
     private val onMeasured: (Int, Int) -> Unit = { _, _ -> },
     private val measureBounds: (() -> Point)? = null
 ) : FrameLayout(context) {
@@ -33,6 +34,13 @@ internal class OverlayTouchLayout(
     private var c4Active = false
     private var keypadGesture = false
     private val touchRegion = Region()
+
+    fun cancelGesture() {
+        val cancel=MotionEvent.obtain(android.os.SystemClock.uptimeMillis(),android.os.SystemClock.uptimeMillis(),MotionEvent.ACTION_CANCEL,0f,0f,0)
+        try { super.dispatchTouchEvent(cancel) } finally { cancel.recycle() }
+        acceptingTouch=false; childScrolling=false; keypadGesture=false
+        gesture.cancel(); onDragCancel()
+    }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         // A fixed native window must not cap its next content measurement to the
@@ -136,14 +144,14 @@ internal class OverlayTouchLayout(
                 // Cancel the whole gesture when another finger joins; never turn it into a click.
                 gesture.cancel()
                 cancelChildTouch(event)
-                onDragEnd()
+                onDragCancel()
                 return true
             }
             MotionEvent.ACTION_CANCEL -> {
                 acceptingTouch = false
                 gesture.cancel()
                 super.dispatchTouchEvent(event)
-                onDragEnd()
+                onDragCancel()
                 return true
             }
         }

@@ -100,6 +100,9 @@ internal class OverlayPosition {
     }
 
     fun placeContent(content: OverlayContentGeometry, availableWidth: Int, availableHeight: Int): OverlayContentPlacement {
+        if (!content.hasControls) return OverlayContentPlacement(
+            place(content.width,content.height,availableWidth,availableHeight),
+            content.width / 2f,content.headerBelowY,false)
         val maxY = (availableHeight - content.height).coerceAtLeast(0)
         fun overflow(y: Float) = max(0f, -y) + max(0f, y - maxY)
         val above = overflow(renderedY - content.headerAboveY) < overflow(renderedY - content.headerBelowY)

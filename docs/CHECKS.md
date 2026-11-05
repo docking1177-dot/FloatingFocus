@@ -114,3 +114,11 @@ UIAutomator 每次先删除旧快照并确认新文件生成，短暂失败最�
 `overtime_reminders_lifecycle` 独立检查周期主开关重排、强停重开不续排、悬浮撤权清理和正计时不调度。沿用同一专用模拟器数据保护；仅改脚本/资料不重复构建应用，必须核对APK和应用输入。
 
 `screen_on`检查随亮屏正计时：真实亮灭屏、未解锁Keyguard、同ID活动区间、结束解除、普通/C4冲突、实际JSON重读与CSV、旋转重建、强停和撤权。仅专用模拟器，备份还原屏幕超时、无密码滑动锁屏、字号/主题/方向和应用数据；不会配置PIN或操作手机。原始结果与真机边界见`docs/validation/20261104-screen-on-timer.md`。
+
+## 2026-11-05：正计时生命周期与旋转
+
+./scripts/test-device.ps1 -Suite timer_lifecycle -Serial emulator-5556 -AllowTestDataChanges：实际最近任务划除、预设计时方式草稿、正计时明确续计、来源与新段额度/CSV、跨图表日期候选和错误重试。
+
+./scripts/test-device.ps1 -Suite screen_on -Serial emulator-5556 -AllowTestDataChanges：偏好不启动、下一次生效、锁屏亮起、息屏排除与连续模式、重建/背景及实际CSV。
+
+./scripts/test-device.ps1 -Suite overlay_rotation -Serial emulator-5556 -AllowTestDataChanges：三形状两尺寸横竖反复切换、第二次拖动重测、独立位置与实际时间/窗口坐标。均仍使用现有备份还原入口，真机厂商清理与AOD不由模拟器覆盖。

@@ -23,23 +23,32 @@ class TimerRecordStore private constructor(context: Context) {
     private val reading = MutableStateFlow(true)
     val isLoading = reading.asStateFlow()
 
-    init { readFiles(recoverInterrupted = true) }
+    private val ownership=RecordRecoveryOwnership()
+    private val failedWrites=mutableMapOf<String,TimerRecord>() // IO thread only
+
+    init { readFiles() }
 
     /** Retry reading without recovering a live session owned by this process. */
     fun reload() {
-        if (reading.compareAndSet(false, true)) readFiles(recoverInterrupted = false)
+        if (reading.compareAndSet(false, true)) readFiles()
     }
 
-    private fun readFiles(recoverInterrupted: Boolean) {
+    fun recoverySource(id: String): TimerRecord? = if (reading.value || problem.value != null) null else
+        StopwatchRecovery.source(current.value, id)
+
+    private fun readFiles() {
         io.execute {
             problem.value = null
             try {
                 check(directory.isDirectory || directory.mkdirs())
+                failedWrites.toMap().values.forEach { row ->
+                    write(row); ownership.written(row); failedWrites.remove(row.id)
+                }
                 val files = checkNotNull(directory.listFiles())
                 val restored = files.filter { it.name.endsWith(".json") }.mapNotNull { file ->
                     try {
                         val row = decode(JSONObject(AtomicFile(file).openRead().bufferedReader().use { it.readText() }))
-                        val recovered = if (recoverInterrupted) row.recover() else row
+                        val recovered = ownership.recover(row)
                         if (recovered != row) write(recovered)
                         recovered
                     } catch (e: Exception) { report(e); null }
@@ -54,11 +63,13 @@ class TimerRecordStore private constructor(context: Context) {
 
     fun save(record: TimerRecord, checkpoint: Boolean = false, after: (() -> Unit)? = null) {
         if (checkpoint && !checkpointQueued.compareAndSet(false, true)) return
+        ownership.submitted(record)
         io.execute {
             try {
                 write(record)
+                ownership.written(record); failedWrites.remove(record.id)
                 current.value = (current.value.filterNot { it.id == record.id } + record).sortedByDescending { it.startedWallMillis }
-            } catch (e: Exception) { report(e) }
+            } catch (e: Exception) { failedWrites[record.id]=record; report(e) }
             finally { if (checkpoint) checkpointQueued.set(false); after?.invoke() }
         }
     }
@@ -68,46 +79,19 @@ class TimerRecordStore private constructor(context: Context) {
         val file = AtomicFile(File(directory, "${record.id}.json"))
         val stream = file.startWrite()
         try {
-            stream.write(JSONObject().apply {
-                put("id", record.id); put("appName", record.appName); put("packageName", record.packageName)
-                put("mode", record.mode.name); put("plannedMillis", record.plannedMillis)
-                put("startedWallMillis", record.startedWallMillis); put("elapsedMillis", record.elapsedMillis)
-                put("status", record.status.name)
-                record.savedOvertimeMillis?.let { put("overtimeMillis", it) }
-                record.screenTime?.let { screen ->
-                    put("source", "SCREEN_ON"); put("screenSpanMillis", screen.spanMillis)
-                    put("activeIntervals", JSONArray().apply { screen.intervals.forEach { interval ->
-                        put(JSONArray().put(interval.startOffsetMillis).put(interval.endOffsetMillis))
-                    } })
-                }
-            }.toString().toByteArray(Charsets.UTF_8))
+            stream.write(JSONObject(TimerRecordCodec.encode(record)).toString().toByteArray(Charsets.UTF_8))
             file.finishWrite(stream)
         } catch (e: Exception) { file.failWrite(stream); throw e }
     }
 
-    private fun decode(row: JSONObject): TimerRecord {
-        val id = row.getString("id")
-        require(id.matches(Regex("[a-zA-Z0-9-]+")))
-        val duration = row.getLong("plannedMillis")
-        val elapsed = row.getLong("elapsedMillis")
-        val started = row.getLong("startedWallMillis")
-        val mode = TimerMode.valueOf(row.getString("mode"))
-        require(duration >= 0 && elapsed >= 0 && started > 0)
-        val screenTime = if (row.has("source")) {
-            require(row.getString("source") == "SCREEN_ON")
-            val intervals = row.getJSONArray("activeIntervals")
-            ScreenTimeSnapshot(row.getLong("screenSpanMillis"), List(intervals.length()) { index ->
-                val pair = intervals.getJSONArray(index)
-                require(pair.length() == 2)
-                ActiveInterval(pair.getLong(0), pair.getLong(1))
-            })
-        } else {
-            require(!row.has("activeIntervals") && !row.has("screenSpanMillis"))
-            null
-        }
-        return TimerRecord(id, row.getString("appName"), row.getString("packageName"), mode, duration,
-            started, elapsed, RecordStatus.valueOf(row.getString("status")),
-            if (row.has("overtimeMillis")) row.getLong("overtimeMillis").also { require(it >= 0) } else null, screenTime)
+    private fun decode(row: JSONObject): TimerRecord = TimerRecordCodec.decode(jsonValue(row))
+        ?: error("Invalid timer record")
+
+    private fun jsonValue(value: Any?): Any? = when (value) {
+        is JSONObject -> value.keys().asSequence().associateWith { jsonValue(value.get(it)) }
+        is JSONArray -> (0 until value.length()).map { jsonValue(value.get(it)) }
+        JSONObject.NULL -> null
+        else -> value
     }
 
     private fun report(e: Exception) {
