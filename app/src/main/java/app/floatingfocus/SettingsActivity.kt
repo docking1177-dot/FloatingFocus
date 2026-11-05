@@ -54,7 +54,8 @@ class SettingsActivity : ComponentActivity() {
             BackHandler(enabled = page != "home" && page != "tutorial" && (!editing || page != "appearance"), onBack = back)
             if (!editing && page == "home") {
                 SettingsHome(onBack = { finish() }, onOverlay = { page = "appearance" },
-                    onReminders = { page = "reminders" }, onOvertime = { page = "overtime" }, onScreenTimer = { page = "screen_timer" }, onTutorial = { page = "tutorial" },
+                    onReminders = { page = "reminders" }, onOvertime = { page = "overtime" }, onScreenTimer = { page = "screen_timer" },
+                    onStopwatchReminders = { page = "stopwatch_reminders" }, onTutorial = { page = "tutorial" },
                     onHelp = { page = "help" }, onLicenses = { page = "licenses" })
                 return@FocusTheme
             }
@@ -94,6 +95,10 @@ class SettingsActivity : ComponentActivity() {
                 ScreenOnTimerScreen(back)
                 return@FocusTheme
             }
+            if(!editing && page=="stopwatch_reminders") {
+                StopwatchReminderScreen(back)
+                return@FocusTheme
+            }
             if (!editing && page == "durations") {
                 val durationsStore = QuickDurationsStore.get(this)
                 val durations by durationsStore.durations.collectAsStateWithLifecycle()
@@ -119,6 +124,9 @@ class SettingsActivity : ComponentActivity() {
             var mode by rememberSaveable(presetId) { mutableStateOf(preset?.mode ?: TimerMode.COUNTDOWN) }
             var c4Enabled by rememberSaveable(presetId) { mutableStateOf(preset?.c4Enabled ?: false) }
             var stopwatchBehavior by rememberSaveable(presetId) { mutableStateOf(preset?.stopwatchBehavior ?: StopwatchBehavior.CONTINUOUS) }
+            var stopwatchRulesJson by rememberSaveable(presetId) { mutableStateOf(
+                StopwatchReminderSettingsStore.encodeSnapshot(preset?.stopwatchReminders ?: StopwatchReminderRules())) }
+            val stopwatchRules=remember(stopwatchRulesJson) { StopwatchReminderSettingsStore.decodeSnapshot(stopwatchRulesJson) ?: StopwatchReminderRules() }
             var timeSource by rememberSaveable(presetId) { mutableStateOf(preset?.timeSource ?: PresetTimeSource.FIXED) }
             var seconds by rememberSaveable(presetId) { mutableIntStateOf(preset?.durationSeconds ?: intent.getIntExtra("duration_seconds", 900)) }
             val quotas = rememberAppQuotas()
@@ -143,6 +151,7 @@ class SettingsActivity : ComponentActivity() {
                             if (editing) TextButton(enabled = isSavedShortcut(target) && name.isNotBlank() && (mode == TimerMode.STOPWATCH || seconds in 1..10800), onClick = {
                                 val saved = presetStore.save(preset!!.copy(name = name.trim(), minutes = (seconds / 60).coerceAtLeast(1), durationSeconds = seconds,
                                     settings = draft, mode = mode, targetApp = target, c4Enabled = c4Enabled, stopwatchBehavior = stopwatchBehavior,
+                                    stopwatchReminders = stopwatchRules,
                                     timeSource = if (mode == TimerMode.STOPWATCH) PresetTimeSource.FIXED else timeSource))
                                 if (saved) {
                                     if (c4Enabled) C4SettingsStore.get(this@SettingsActivity).acknowledgeNotice()
@@ -171,6 +180,9 @@ class SettingsActivity : ComponentActivity() {
                                     }
                                 } else {
                                     StopwatchBehaviorSetting(stopwatchBehavior) { stopwatchBehavior = it }
+                                    Text("周期提醒",style=MaterialTheme.typography.titleMedium)
+                                    StopwatchRulesEditor(stopwatchRules,{ stopwatchRulesJson=StopwatchReminderSettingsStore.encodeSnapshot(it) })
+                                    Text("仅修改此预设；声音/震动总许可在设置的正计时提醒中管理。",style=MaterialTheme.typography.bodySmall)
                                     Text("仅修改此预设；运行时计入该 App 已启用的每日额度。", style = MaterialTheme.typography.bodySmall)
                                 }
                                 C4EnabledSetting(c4Enabled) { c4Enabled = it }
@@ -195,7 +207,7 @@ class SettingsActivity : ComponentActivity() {
                             EffectSwitch("变尺寸", settings.sizeEnabled) { enabled -> updateSettings { it.copy(sizeEnabled = enabled) } }
                             if (settings.sizeEnabled) EffectModePicker("变尺寸方式", settings.sizeMode) { mode -> updateSettings { it.copy(sizeMode = mode) } }
                             EffectSlider("提醒强度", settings.intensity, 0f..1f) { v -> updateSettings { it.copy(intensity = v) } }
-                            Text("强度为 0 时不变色、不放大、不震动。震动遵循系统限制。", style = MaterialTheme.typography.bodySmall)
+                            Text("此强度控制渐进效果与归零震动；周期提醒在对应设置中管理。", style = MaterialTheme.typography.bodySmall)
                             EffectSlider("基础大小", settings.baseSize, 0.75f..1.5f) { v -> updateSettings { it.copy(baseSize = v) } }
                             EffectSlider("不透明度", settings.opacity, 0.3f..1f) { v -> updateSettings { it.copy(opacity = v) } }
                             Text("不透明度同时作用于背景、文字和图标。", style = MaterialTheme.typography.bodySmall)
@@ -210,7 +222,7 @@ class SettingsActivity : ComponentActivity() {
 
 @Composable
 private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onReminders: () -> Unit, onOvertime: () -> Unit, onScreenTimer: () -> Unit,
-                         onTutorial: () -> Unit, onHelp: () -> Unit, onLicenses: () -> Unit) {
+                         onStopwatchReminders: () -> Unit,onTutorial: () -> Unit, onHelp: () -> Unit, onLicenses: () -> Unit) {
     Scaffold { insets ->
         Column(Modifier.fillMaxSize().padding(insets).verticalScroll(rememberScrollState())) {
             Box(Modifier.fillMaxWidth().height(64.dp)) {
@@ -222,7 +234,8 @@ private fun SettingsHome(onBack: () -> Unit, onOverlay: () -> Unit, onReminders:
             Spacer(Modifier.height(16.dp))
             Surface(color = MaterialTheme.colorScheme.surface) {
                 Column {
-                    listOf("悬浮窗" to onOverlay, "提醒" to onReminders, "超时提醒" to onOvertime, "正计时方式" to onScreenTimer, "使用教程" to onTutorial,
+                    listOf("悬浮窗" to onOverlay, "提醒" to onReminders, "超时提醒" to onOvertime, "正计时提醒" to onStopwatchReminders,
+                        "正计时方式" to onScreenTimer, "使用教程" to onTutorial,
                         "使用与提醒说明" to onHelp, "开源许可" to onLicenses).forEachIndexed { index, (label, action) ->
                         if (index > 0) HorizontalDivider(Modifier.padding(horizontal = FocusSpacing.page))
                         SettingsEntry(label, action)
@@ -263,20 +276,8 @@ private fun SettingsPreview(settings: ReminderSettings, height: Dp, durationMill
     Column(Modifier.fillMaxWidth().padding(horizontal = FocusSpacing.page)) {
         // Measure at natural height before fitting: a short landscape preview must not
         // squeeze the real overlay's text measurement into a tiny circle.
-        Layout(modifier = Modifier.fillMaxWidth().height(height), content = {
+        OverlayPreview(height) {
             FocusOverlay(ReminderPresenter.present(snapshot, settings), interactive = true, controlsEnabled = false, onStop = {})
-        }) { measurables, constraints ->
-            val overlay = measurables.single().measure(Constraints(maxWidth = constraints.maxWidth))
-            val width = constraints.maxWidth
-            val heightPx = constraints.maxHeight
-            val fit = minOf(1f, width.toFloat() / overlay.width.coerceAtLeast(1),
-                heightPx.toFloat() / overlay.height.coerceAtLeast(1))
-            layout(width, heightPx) {
-                overlay.placeRelativeWithLayer((width - overlay.width) / 2, (heightPx - overlay.height) / 2) {
-                    scaleX = fit
-                    scaleY = fit
-                }
-            }
         }
         Text("预览进度 · ${(progress * 100).roundToInt()}%", style = MaterialTheme.typography.bodySmall)
         Slider(progress, { progress = it }, modifier = Modifier.semantics { contentDescription = "预览进度" })

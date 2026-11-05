@@ -7347,6 +7347,476 @@
         "恢复",
         "旋转"
       ]
+    },
+    {
+      "id": "FF-JVM-STOPWATCHREMINDERS",
+      "module": "正计时提醒",
+      "scenario": "独立周期、冲突、许可与暂停边界（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
+      "steps": "运行该类全部@Test并读取独立JUnit报告。",
+      "expected": "整数倍独立触发；同点最高级；暂停/续计不补发；Long上限不循环；声震许可独立；坏字段拒绝；倒计时不读取坏正计时规则；该类失败/错误=0",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JUnit或现有ADB回归",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/StopwatchRemindersTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "模型类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "周期提醒",
+        "预设快照",
+        "时间显示"
+      ]
+    },
+    {
+      "id": "FF-JVM-STOPWATCHREMINDERSNAPSHOT",
+      "module": "正计时提醒",
+      "scenario": "预设及恢复规则快照（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
+      "steps": "运行该类全部@Test并读取独立JUnit报告。",
+      "expected": "完整规则往返不变；旧字段缺失关闭；显式null或损坏不降级为旧格式；该类失败/错误=0",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JUnit或现有ADB回归",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/StopwatchReminderSnapshotTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "模型类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "周期提醒",
+        "预设快照",
+        "时间显示"
+      ]
+    },
+    {
+      "id": "FF-JVM-STOPWATCHTIME",
+      "module": "正计时提醒",
+      "scenario": "长小时格式与原生组件格式区间（模型类）",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
+      "steps": "运行该类全部@Test并读取独立JUnit报告。",
+      "expected": "59:59→01:00:00、24/99/100/1000小时及Long最大值不按天归零；组件1..9小时0%s，其余无额外0；该类失败/错误=0",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JUnit或现有ADB回归",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/StopwatchTimeTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "模型类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "周期提醒",
+        "预设快照",
+        "时间显示"
+      ]
+    },
+    {
+      "id": "FF-SUITE-STOPWATCH_REMINDERS",
+      "module": "正计时提醒",
+      "scenario": "stopwatch_reminders原生集成回归（套件）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
+      "steps": "执行现有test-device对应suite并保留results.json。",
+      "expected": "passedSuites明确列出此套件；只证明当次脚本断言，不证明听感、震感或厂商行为。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "JUnit或现有ADB回归",
+      "entry_points": [
+        "scripts/device_stopwatch_reminders.py",
+        "./scripts/test-device.ps1 -Suite stopwatch_reminders -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "周期提醒",
+        "预设快照",
+        "时间显示"
+      ]
+    },
+    {
+      "id": "FF-SUITE-STOPWATCH_HOURS",
+      "module": "正计时提醒",
+      "scenario": "stopwatch_hours原生集成回归（套件）",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
+      "steps": "执行现有test-device对应suite并保留results.json。",
+      "expected": "passedSuites明确列出此套件；只证明当次脚本断言，不证明听感、震感或厂商行为。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "JUnit或现有ADB回归",
+      "entry_points": [
+        "scripts/device_stopwatch_reminders.py",
+        "./scripts/test-device.ps1 -Suite stopwatch_hours -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "周期提醒",
+        "预设快照",
+        "时间显示"
+      ]
+    },
+    {
+      "id": "FF-SW-PREVIEW-001",
+      "module": "正计时提醒",
+      "scenario": "真实渲染预览不启动会话",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
+      "steps": "依次选择三级并预览视觉；修改间隔滚轮并重入。",
+      "expected": "不创建浮窗/记录；滚轮值持久保存。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "JUnit或现有ADB回归",
+      "entry_points": [
+        "scripts/device_stopwatch_reminders.py",
+        "./scripts/test-device.ps1 -Suite stopwatch_reminders -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "周期提醒",
+        "预设快照",
+        "时间显示"
+      ]
+    },
+    {
+      "id": "FF-SW-PRESET-001",
+      "module": "正计时提醒",
+      "scenario": "预设独立草稿与真实启动",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
+      "steps": "保存当前正计时为预设；先改后取消，再改后保存；当前规则与预设不同后点击该预设。",
+      "expected": "取消不改预设；保存只改该预设；实际Gallery会话读取预设规则，全局不变。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "JUnit或现有ADB回归",
+      "entry_points": [
+        "scripts/device_stopwatch_reminders.py",
+        "./scripts/test-device.ps1 -Suite stopwatch_reminders -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "周期提醒",
+        "预设快照",
+        "时间显示"
+      ]
+    },
+    {
+      "id": "FF-SW-ACTIVE-001",
+      "module": "正计时提醒",
+      "scenario": "本次会话配置固定",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
+      "steps": "普通正计时开始后修改当前规则。",
+      "expected": "运行记录中的规则快照保持开始值；只影响后续启动。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "JUnit或现有ADB回归",
+      "entry_points": [
+        "scripts/device_stopwatch_reminders.py",
+        "./scripts/test-device.ps1 -Suite stopwatch_reminders -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "周期提醒",
+        "预设快照",
+        "时间显示"
+      ]
+    },
+    {
+      "id": "FF-SW-CYCLES-001",
+      "module": "正计时提醒",
+      "scenario": "三周期真实触发与同点合并",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
+      "steps": "规则60/120/180秒，续计至58秒；实际等待180秒节点。",
+      "expected": "日志仅PRIMARY60、MIDDLE120、HIGH180，误差<2.5秒；同点不叠加，声震总许可关闭时效果集合无声震。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "JUnit或现有ADB回归",
+      "entry_points": [
+        "scripts/device_stopwatch_reminders.py",
+        "./scripts/test-device.ps1 -Suite stopwatch_reminders -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "周期提醒",
+        "预设快照",
+        "时间显示"
+      ]
+    },
+    {
+      "id": "FF-SW-PAUSE-001",
+      "module": "正计时提醒",
+      "scenario": "两种暂停与恢复周期",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
+      "steps": "通过实际桌面组件暂停/继续；随亮屏续计息屏5秒；从已到达180秒恢复。",
+      "expected": "暂停期间记录和节点冻结；亮屏继续下一节点；已到达节点不重播。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "JUnit或现有ADB回归",
+      "entry_points": [
+        "scripts/device_stopwatch_reminders.py",
+        "./scripts/test-device.ps1 -Suite stopwatch_reminders -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "周期提醒",
+        "预设快照",
+        "时间显示"
+      ]
+    },
+    {
+      "id": "FF-SW-HOURS-001",
+      "module": "正计时提醒",
+      "scenario": "实际小时进位与原生窗口稳定",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
+      "steps": "折叠/展开、三形状，跨59:59/1h及99h/100h，采集10秒录屏、连续frames及内容坐标；旋转。",
+      "expected": "显示跨小时；同场景窗口frame和时间区域坐标不变；文字无裁剪。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "JUnit或现有ADB回归",
+      "entry_points": [
+        "scripts/device_stopwatch_reminders.py",
+        "./scripts/test-device.ps1 -Suite stopwatch_hours -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "周期提醒",
+        "预设快照",
+        "时间显示"
+      ]
+    },
+    {
+      "id": "FF-SW-NATIVE-CLOCK-001",
+      "module": "正计时提醒",
+      "scenario": "真实通知与原生桌面读数",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
+      "steps": "1h/100h检查真实通知，1h和1000h添加真实Launcher组件。",
+      "expected": "通知和组件分别实际显示01:00或100/1000小时；不把纯字符串测试代替原生读数。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "JUnit或现有ADB回归",
+      "entry_points": [
+        "scripts/device_stopwatch_reminders.py",
+        "./scripts/test-device.ps1 -Suite stopwatch_hours -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "周期提醒",
+        "预设快照",
+        "时间显示"
+      ]
+    },
+    {
+      "id": "FF-SW-FONT-001",
+      "module": "正计时提醒",
+      "scenario": "大字体长小时无文字溢出",
+      "priority": "P1",
+      "kind": "单例",
+      "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
+      "steps": "字体2.0，恢复100000小时可靠测试夹具并查看真实Text布局和截图。",
+      "expected": "真实Text的hasVisualOverflow=false，完整时间可见，不靠缩字/裁剪。",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "JUnit或现有ADB回归",
+      "entry_points": [
+        "scripts/device_stopwatch_reminders.py",
+        "./scripts/test-device.ps1 -Suite stopwatch_hours -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时",
+        "周期提醒",
+        "预设快照",
+        "时间显示"
+      ]
+    },
+    {
+      "id": "FF-PHONE-SW-REMINDERS-001",
+      "module": "正计时提醒",
+      "scenario": "手机周期声震/焦点及静音策略",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "本轮报告同SHA的Debug、REDMI K80/Android16、已有悬浮/通知权限，保持日常省电与媒体设置；不安装未签名Release。",
+      "steps": "三级启用并设1/2/3分钟：初级提亮，中级描边，高级提亮+短音+震动；声震总许可关闭，正计时打开视频App等3分钟。结束后仅开高级1分钟且允许声震，再开始一轮；实际听短音/感受两段震动及媒体恢复。第二轮可选随亮屏，累计约45秒息屏10秒，亮起后再约15秒提醒。再用明确试听核对静音/勿扰例外，恢复系统设置。",
+      "expected": "1/2/3分钟相应视觉分别一次；关闭许可不响不震；允许且系统允许时短音与两段短震动清楚，媒体无持续异常压低；静音/勿扰受限制；息屏不消耗节点。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "真机人工观察",
+      "entry_points": [
+        "设置→正计时提醒",
+        "docs/validation/20261105-stopwatch-reminders.md"
+      ],
+      "scope": "功能场景",
+      "manual_tier": "必须真机",
+      "manual_group": 0,
+      "gap": "模拟器/API请求不证明Redmi实际可听、震感、焦点与后台限制；无本包真机结果。",
+      "impact_tags": [
+        "正计时",
+        "周期提醒",
+        "预设快照",
+        "时间显示"
+      ]
+    },
+    {
+      "id": "FF-PHONE-SW-HOST-001",
+      "module": "正计时提醒",
+      "scenario": "厂商通知、桌面时钟与旋转显示",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "本轮报告同SHA的Debug与已有悬浮/通知权限；日常已达到1小时的正计时或已有可靠长时长续计，实际HyperOS桌面及通知。无需专门等待1小时。",
+      "steps": "日常正计时达到1小时或使用已有可靠长时长续计后，检查FF浮窗、通知、桌面组件；展开/收起并旋转，切换系统大字体。无需专门等1小时，只在现有长会话时补看。",
+      "expected": "读数为01:xx:xx并继续计秒，24小时不归零；时间、按钮无逐秒位移或裁剪；厂商刷新限速如实反馈。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "真机人工观察",
+      "entry_points": [
+        "首页/浮窗/系统通知/桌面组件",
+        "docs/validation/20261105-stopwatch-reminders.md"
+      ],
+      "scope": "功能场景",
+      "manual_tier": "建议真机",
+      "manual_group": 1,
+      "gap": "AOSP Chronometer和通知证据不能代替HyperOS原生宿主；历史整窗闪动仍独立待验。",
+      "impact_tags": [
+        "正计时",
+        "周期提醒",
+        "预设快照",
+        "时间显示"
+      ]
     }
   ],
   "junit_classes": {
@@ -7396,7 +7866,10 @@
     "StopwatchBehaviorTest": "FF-JVM-STOPWATCHBEHAVIOR",
     "StopwatchRecoveryTest": "FF-JVM-STOPWATCHRECOVERY",
     "LifecycleGuardsTest": "FF-JVM-LIFECYCLEGUARDS",
-    "OverlayPositionsTest": "FF-JVM-OVERLAYPOSITIONS"
+    "OverlayPositionsTest": "FF-JVM-OVERLAYPOSITIONS",
+    "StopwatchRemindersTest": "FF-JVM-STOPWATCHREMINDERS",
+    "StopwatchReminderSnapshotTest": "FF-JVM-STOPWATCHREMINDERSNAPSHOT",
+    "StopwatchTimeTest": "FF-JVM-STOPWATCHTIME"
   },
   "device_details": {
     "widgets": {
@@ -7521,6 +7994,18 @@
       "compactCentered": "FF-ROTATION-001",
       "independentPositions": "FF-ROTATION-001",
       "unsavedDefaultStable": "FF-ROTATION-002"
+    },
+    "stopwatch_reminders": {
+      "previewNoSession": "FF-SW-PREVIEW-001",
+      "realPresetUsesSavedRules": "FF-SW-PRESET-001",
+      "activeRulesStable": "FF-SW-ACTIVE-001",
+      "actualIndependentCycles": "FF-SW-CYCLES-001",
+      "screenPauseFreezes": "FF-SW-PAUSE-001"
+    },
+    "stopwatch_hours": {
+      "stableNativeFrames": "FF-SW-HOURS-001",
+      "nativeWidgetPadded": "FF-SW-NATIVE-CLOCK-001",
+      "largeFontNoTextOverflow": "FF-SW-FONT-001"
     }
   }
 }

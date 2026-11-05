@@ -603,5 +603,83 @@
       "docs/validation/20261105-timer-lifecycle.md"
     ],
     "status": "最终APK模拟器完整复测通过；工作区脚本指纹不同仍按库规则保留影响评估；真机方向/闪动边界未结案"
+  },
+  {
+    "id": "FF-ISSUE-SW-LONG-TEXT",
+    "type": "应用缺陷",
+    "description": "原240dp标题上限在2倍字体/100000小时诊断中产生真实Text overflow；改为自然测量后统一安全区适配。同条件压力用例纳入完整小时套件复测，原失败保留。",
+    "affected_cases": [
+      "FF-SW-FONT-001",
+      "FF-SUITE-STOPWATCH_HOURS"
+    ],
+    "failed_records": [
+      "DEVICE-20261105-174442-results-1d442ec11d50:FF-GATE-DEVICE:0"
+    ],
+    "retests": [
+      {
+        "of": "DEVICE-20261105-174442-results-1d442ec11d50:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261105-201521-results-18c763203f56:FF-GATE-DEVICE:4"
+      }
+    ],
+    "evidence": [
+      ".tools/device-checks/20261105-174442/results.json",
+      ".tools/device-checks/20261105-201521/results.json",
+      "docs/validation/20261105-stopwatch-reminders.md"
+    ],
+    "status": "最终APK在专用模拟器完成原文字压力及完整套件复测；不覆盖历史HyperOS闪动"
+  },
+  {
+    "id": "FF-ISSUE-SW-TEST-VIEWPORT",
+    "type": "测试脚本",
+    "description": "固定预览缩短滚动区域：预览按钮需要滚动，编辑页原全屏幅度滑动会跳过开关；使用重叠短滑动后，真实草稿取消/保存及启动完整复测通过。200503为诊断wrapper，不是完整小时套件。",
+    "affected_cases": [
+      "FF-SW-PREVIEW-001",
+      "FF-SW-PRESET-001",
+      "FF-SUITE-STOPWATCH_REMINDERS"
+    ],
+    "failed_records": [
+      "DEVICE-20261105-195914-results-46db5ea0ccd9:FF-GATE-DEVICE:0",
+      "DEVICE-20261105-200104-results-f7075ba9a87e:FF-GATE-DEVICE:0",
+      "DEVICE-20261105-200503-results-1a202ade9b89:FF-GATE-DEVICE:0"
+    ],
+    "retests": [
+      {
+        "of": "DEVICE-20261105-195914-results-46db5ea0ccd9:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261105-200747-results-d7cb1bff8f1f:FF-GATE-DEVICE:6"
+      },
+      {
+        "of": "DEVICE-20261105-200104-results-f7075ba9a87e:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261105-200747-results-d7cb1bff8f1f:FF-GATE-DEVICE:6"
+      },
+      {
+        "of": "DEVICE-20261105-200503-results-1a202ade9b89:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261105-200747-results-d7cb1bff8f1f:FF-GATE-DEVICE:6"
+      }
+    ],
+    "evidence": [
+      ".tools/device-checks/20261105-200747/results.json",
+      "scripts/device_stopwatch_reminders.py"
+    ],
+    "status": "完整周期提醒原生套件通过，原失败不覆盖"
+  },
+  {
+    "id": "FF-ISSUE-SW-REVIEW-BOUNDARIES",
+    "type": "应用缺陷",
+    "description": "独立审查发现暂停到达节点后会在继续时补发，以及坏正计时规则阻止保存倒计时预设。新增两项JUnit先实际失败再修正。原failed check只记录门禁失败，不从汇总伪造逐测试执行。",
+    "affected_cases": [
+      "FF-JVM-STOPWATCHREMINDERS",
+      "FF-GATE-CHECK"
+    ],
+    "failed_records": [
+      "CHECK-checks-check-unit-debug-20261105-200425-931-de479fc9492c:FF-GATE-CHECK:0"
+    ],
+    "retests": [],
+    "evidence": [
+      ".tools/checks/check-unit-debug-20261105-200425-931.log",
+      ".tools/checks/check-full-debug-20261105-200627-508.json",
+      ".tools/checks/check-full-release-20261105-200747-260.json",
+      "app/src/test/java/app/floatingfocus/StopwatchRemindersTest.kt"
+    ],
+    "status": "两用例RED292/2失败→完整Debug292/0及Release284/0；原门禁与类汇总粒度不同，不伪造同粒度解除记录"
   }
 ]

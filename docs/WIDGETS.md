@@ -31,3 +31,7 @@ TimerTaskPolicy 对最近任务划除统一保留正式计时与通知，不再�
 设备入口为 `scripts/test-device.ps1 -Suite widgets -Serial emulator-5556 -AllowTestDataChanges`。从系统组件选择器添加，不用内部广播伪造点击；检查记录和目标App，再核对桌面显示。UIAutomator可能因多个运行中的Chronometer持续更新无法达到空闲，运行控制使用此前空闲状态新读取的组件ID位置，暂停后重新读取冻结数值；不把旧层级当成实时状态。结果、截图、源码指纹、APK校验和数据还原结果在 `.tools/device-checks/`。本轮不把模拟器结果宣称为Redmi/HyperOS实测。
 
 2026-10-30专用Android16 Launcher3已完成真实添加、默认倒计时/正计时、两个预设及目标App、最新预设读取、已有会话不替换、多个组件暂停/继续/结束、权限返回后明确继续、超时、C4禁止暂停/结束、缓存进程冷启动、深浅主题/1.5倍字体和拖动放大检查。数据最终比对还原，测试组件从桌面删除。JVM覆盖单调基准、C4守卫、重复/旧会话/旧加时段动作及受控任务清理。Release编译与静态检查独立执行，不以Debug桌面验证代替Release真机验证。Android29–30、Redmi/HyperOS、TalkBack和无回调强杀后的桌面缓存行为尚未设备验证。
+
+## 正计时小时格式
+
+系统Chronometer继续负责逐秒显示；模型仅在1小时及10小时的补零格式区间变化时更新RemoteViews，1—9小时采用0%s，其他区间不加0。原生组件和通知读数已单独采样，不能只用Kotlin格式单测证明宿主格式。见[本轮验收](validation/20261105-stopwatch-reminders.md)。

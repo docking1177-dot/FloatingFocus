@@ -149,7 +149,7 @@ class MainActivity : ComponentActivity() {
                             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                 Text(when {
                                     monitor.enabled -> monitor.reason
-                                    session.screenDriven -> "${if (session.paused) "等待亮屏" else "亮屏计时"} · ${formatUsageTime(session.elapsedMillis)}"
+                                    session.screenDriven -> "${if (session.paused) "等待亮屏" else "亮屏计时"} · ${formatElapsed(session.elapsedMillis)}"
                                     session.paused -> "已暂停 · ${if (session.mode == TimerMode.STOPWATCH) formatElapsed(session.elapsedMillis) else formatRemaining(session.remainingMillis)}"
                                     session.mode == TimerMode.STOPWATCH -> "正计时 · ${formatElapsed(session.elapsedMillis)}"
                                     session.c4Active && session.stage == ReminderStage.FINISHED -> "C4 超时 +${formatUsageTime(session.overtimeMillis)}"

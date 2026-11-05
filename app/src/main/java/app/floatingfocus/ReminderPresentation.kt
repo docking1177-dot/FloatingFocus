@@ -60,7 +60,8 @@ data class ReminderPresentation(
     val confirmationRequired: Boolean,
     val shape: OverlayShape = OverlayShape.ROUNDED_RECTANGLE,
     val animationStrength: Float = 1f,
-    val overtime: OvertimeReadout? = null
+    val overtime: OvertimeReadout? = null,
+    val stopwatchElapsedMillis: Long? = null
 )
 
 object ReminderPresenter {
@@ -116,7 +117,8 @@ object ReminderPresenter {
             shape = settings.shape,
             animationStrength = settings.intensity,
             overtime = if (finished && snapshot.mode == TimerMode.COUNTDOWN)
-                OvertimeReadout(snapshot.elapsedMillis, snapshot.overtimeMillis) else null
+                OvertimeReadout(snapshot.elapsedMillis, snapshot.overtimeMillis) else null,
+            stopwatchElapsedMillis = snapshot.elapsedMillis.takeIf { snapshot.mode == TimerMode.STOPWATCH }
         )
     }
 

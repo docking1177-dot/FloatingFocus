@@ -31,6 +31,42 @@ def find_desktop_widget(d):
     raise AssertionError('FF widget exists globally but was not found on inspected launcher pages; inspect remaining IDs before retrying.')
 
 
+def add_test_widget(d, height, expected_count):
+    """Actual Launcher3 confirmation; caller must own an initially empty FF host."""
+    d.shell('input','keyevent','KEYCODE_HOME');time.sleep(.7)
+    d.shell('input','swipe',d.width//2,int(d.height*.55),d.width//2,int(d.height*.55),1000)
+    d.tap('Widgets');d.tap('Floating Focus',scroll=True)
+    for _ in range(4):
+        nodes=[n for n in d.dump().iter('node') if f'2 wide by {height} high' in n.get('content-desc','')]
+        if nodes and d.bounds(nodes[0])[3]<d.height*.9:break
+        d.shell('input','swipe',d.width//2,int(d.height*.83),d.width//2,int(d.height*.45),450)
+    node=next(n for n in d.dump().iter('node') if f'2 wide by {height} high' in n.get('content-desc',''))
+    x,y,r,b=d.bounds(node);d.tapxy((x+r)/2,(y+b)/2);d.tap('ADD',scroll=True)
+    d.shell('input','keyevent','KEYCODE_HOME');time.sleep(.7)
+    from device_controls import wait_for
+    wait_for(lambda:len(widget_ids(d.shell('dumpsys','appwidget')))==expected_count,'Widget was not placed')
+
+
+def remove_test_widgets(d):
+    """Remove only FF instances created after the empty-host guard; never another provider."""
+    d.stop();d.start();d.shell('input','keyevent','KEYCODE_HOME');time.sleep(.7)
+    for _ in range(4):
+        if not widget_ids(d.shell('dumpsys','appwidget')):return
+        root=find_desktop_widget(d);x,y,r,b=d.bounds(root)
+        sx,sy=(x+r)//2,y+max(8,round(8*d.density));tx,ty=sx,sy
+        d.shell('input','motionevent','DOWN',sx,sy);time.sleep(.8)
+        d.shell('input','motionevent','MOVE',sx,sy+round(40*d.density));time.sleep(.4)
+        try:
+            node=next(n for n in d.dump().iter('node') if n.get('text')=='Remove')
+            a,c,e,f=d.bounds(node);tx,ty=(a+e)//2,(c+f)//2
+            d.shell('input','motionevent','MOVE',tx,ty);time.sleep(.4)
+        finally:
+            d.shell('input','motionevent','UP',tx,ty);time.sleep(.6)
+            d.shell('input','keyevent','KEYCODE_BACK')
+        d.shell('input','keyevent','KEYCODE_HOME');time.sleep(.7)
+    assert not widget_ids(d.shell('dumpsys','appwidget')),'Owned widgets were not removed'
+
+
 def widget_control_points(tree, bounds):
     def find(id, root):
         return [n for n in root.iter('node') if n.get('resource-id') == PACKAGE+':id/'+id]
@@ -67,18 +103,7 @@ def widgets(d):
         return (x+r)//2, (y+b)//2
 
     def add(size):
-        home()
-        d.shell('input','swipe',d.width//2,int(d.height*.55),d.width//2,int(d.height*.55),1000)
-        d.tap('Widgets')
-        d.tap('Floating Focus',scroll=True)
-        for _ in range(4):
-            candidates=[n for n in d.dump().iter('node') if f'2 wide by {size} high' in n.get('content-desc','')]
-            if candidates and d.bounds(candidates[0])[3] < d.height*.9:
-                break
-            d.shell('input','swipe',d.width//2,int(d.height*.83),d.width//2,int(d.height*.45),450)
-        node = next(n for n in d.dump().iter('node') if f'2 wide by {size} high' in n.get('content-desc',''))
-        d.tapxy(*point(node)); d.tap('ADD',scroll=True); home()
-        wait(lambda: len(widget_ids(d.shell('dumpsys','appwidget'))) == size, 'Widget not placed in real launcher')
+        add_test_widget(d,size,size)
 
     def capture_controls():
         # Capture fresh ID geometry while idle. Running Chronometers produce
@@ -125,25 +150,7 @@ def widgets(d):
         d.start();home()
 
     def remove_all():
-        # No pre-existing FF instance is permitted. Never delete other providers.
-        d.stop();d.start();home()
-        for _ in range(3):
-            if not widget_ids(d.shell('dumpsys','appwidget')):return
-            root=find_desktop_widget(d)
-            x,y,r,b=d.bounds(root)
-            # A label/non-action region starts the launcher's drag, not a button.
-            sx,sy=(x+r)//2,y+max(8,round(8*d.density))
-            d.shell('input','motionevent','DOWN',sx,sy);time.sleep(.8)
-            d.shell('input','motionevent','MOVE',sx,sy+round(40*d.density));time.sleep(.4)
-            try:
-                remove=next(n for n in d.dump().iter('node') if n.get('text')=='Remove')
-                tx,ty=point(remove)
-                d.shell('input','motionevent','MOVE',tx,ty);time.sleep(.4)
-                d.shell('input','motionevent','UP',tx,ty);time.sleep(.6)
-            finally:
-                d.shell('input','keyevent','KEYCODE_BACK')
-            home()
-        assert not widget_ids(d.shell('dumpsys','appwidget')), 'Test widgets not removed'
+        remove_test_widgets(d)
 
     require_empty_widgets(d.shell('dumpsys','appwidget'))
     appearance=dict(shape='ROUNDED_RECTANGLE',color='BLUE',baseSize=.75,opacity=.7,intensity=0.,colorEnabled=False,sizeEnabled=False)

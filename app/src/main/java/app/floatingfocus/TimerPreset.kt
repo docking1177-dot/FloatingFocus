@@ -4,7 +4,8 @@ data class TimerPreset(val id: String, val name: String, val minutes: Int, val s
                        val lastPosition: OverlayAnchor? = null, val durationSeconds: Int = minutes * 60,
                        val c4Enabled: Boolean = false, val timeSource: PresetTimeSource = PresetTimeSource.FIXED,
                        val stopwatchBehavior: StopwatchBehavior = StopwatchBehavior.CONTINUOUS,
-                       val positions: OverlayPositions = OverlayPositions()) {
+                       val positions: OverlayPositions = OverlayPositions(),
+                       val stopwatchReminders: StopwatchReminderRules = StopwatchReminderRules()) {
     init {
         require(id.isNotBlank())
         require(name.isNotBlank() && name.length <= 40)
@@ -21,6 +22,7 @@ object TimerPresetCodec {
         "settings" to ReminderSettingsCodec.encode(preset.settings), "mode" to preset.mode.name, "c4Enabled" to preset.c4Enabled,
         "timeSource" to preset.timeSource.name, "stopwatchBehavior" to preset.stopwatchBehavior.name,
         "positions" to OverlayPositionsCodec.encode(preset.positions),
+        "stopwatchReminders" to StopwatchReminderCodec.encode(preset.stopwatchReminders),
         "targetPackage" to preset.targetApp?.packageName.orEmpty(), "targetLabel" to preset.targetApp?.label.orEmpty()) +
         (preset.lastPosition?.let { mapOf("positionX" to it.xFraction, "positionY" to it.yFraction) } ?: emptyMap())
 
@@ -41,7 +43,8 @@ object TimerPresetCodec {
             }, OverlayAnchor.decode(row["positionX"], row["positionY"]),
             (row["durationSeconds"] as? Number)?.toDouble()?.takeIf { it.isFinite() && it % 1.0 == 0.0 && it in 1.0..10800.0 }?.toInt() ?: minutes * 60,
             row["c4Enabled"] as? Boolean ?: false, source, StopwatchBehavior.decode(row["stopwatchBehavior"]),
-            OverlayPositionsCodec.decode(row["positions"]) ?: return null)
+            OverlayPositionsCodec.decode(row["positions"]) ?: return null,
+            if(row.containsKey("stopwatchReminders")) StopwatchReminderCodec.decode(row["stopwatchReminders"]) ?: return null else StopwatchReminderRules())
     }
 
     fun upsert(items: List<TimerPreset>, preset: TimerPreset): List<TimerPreset> =

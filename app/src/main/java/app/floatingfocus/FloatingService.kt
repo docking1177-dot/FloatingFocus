@@ -101,7 +101,7 @@ class FloatingService : Service() {
             continuationOf = recoverySource?.id,
             rootId = recoverySource?.let { source -> source.stopwatch?.rootId ?: source.id },
             presetId = recoverySource?.stopwatch?.presetId ?: activePresetId,
-            positions = window?.positionsSnapshot() ?: OverlayPositions()) }
+            positions = window?.positionsSnapshot() ?: OverlayPositions(),stopwatchReminders = stopwatchRules) }
         record = TimerRecord(java.util.UUID.randomUUID().toString(), appName, appPackage, timer.mode, timer.durationMillis,
             if (activity != null) sessionWallStart else wall, elapsedMillis = activity?.activeMillis ?: 0, stopwatch = checkpoint)
         recordStore.save(record!!)
@@ -142,6 +142,14 @@ class FloatingService : Service() {
     private var scheduledOvertimeAt: Long? = null
     private val clearOvertimeCue = Runnable { overtimeCue = null }
     private val overtimeDue = Runnable { scheduledOvertimeAt = null; refreshOvertime() }
+    private val stopwatchStore by lazy { StopwatchReminderSettingsStore.get(this) }
+    private var stopwatchRules = StopwatchReminderRules()
+    private var stopwatchEngine: StopwatchReminderEngine? = null
+    private var stopwatchFeedback: OvertimeReminderFeedback? = null
+    private var stopwatchCue by mutableStateOf<StopwatchCue?>(null)
+    private var scheduledStopwatchElapsed: Long? = null
+    private val clearStopwatchCue = Runnable { stopwatchCue = null }
+    private val stopwatchDue = Runnable { scheduledStopwatchElapsed = null; refreshStopwatchReminders() }
     private val settingsStore by lazy { ReminderSettingsStore.get(this) }
     private var receiverRegistered = false
     private var watchingOps = false
@@ -159,6 +167,7 @@ class FloatingService : Service() {
         override fun onReceive(context: Context, intent: Intent) {
             interactive = getSystemService(PowerManager::class.java).isInteractive
             overtimeCue = null // Do not replay an old visual cue when the screen becomes visible again.
+            stopwatchCue = null
             if (overlayState.screenDriven) { screenObserver?.refresh(); return }
             monitor?.screenChanged()
             handler.removeCallbacks(tick)
@@ -191,7 +200,8 @@ class FloatingService : Service() {
             completeCountdown()
             c4Runtime?.refresh()
             refreshOvertime()
-            if (stage != previousStage) {
+            refreshStopwatchReminders()
+            if (stage != previousStage || (timer.mode == TimerMode.STOPWATCH && !initializing)) {
                 Log.d(TAG, "Reminder stage: $previousStage -> $stage")
                 getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification())
             }
@@ -209,6 +219,12 @@ class FloatingService : Service() {
                 overtimeFeedback?.restrict(settings)
                 overtimeCue = overtimeCue?.let { OvertimeFeedbackPolicy.filter(it, overtimeContext(), settings) }
                 refreshOvertime()
+            }
+        }
+        serviceScope.launch {
+            stopwatchStore.permissions.collect { permission ->
+                stopwatchFeedback?.restrict(permission)
+                stopwatchCue=stopwatchCue?.allowed(permission)
             }
         }
     }
@@ -296,6 +312,13 @@ class FloatingService : Service() {
             ?: intent.getBooleanExtra(EXTRA_SCREEN_DRIVEN, false))
         val duration = if (mode == TimerMode.STOPWATCH) 0L else intent.getLongExtra(EXTRA_DURATION, 0L)
         val sessionC4Enabled = intent.getBooleanExtra(EXTRA_C4_ENABLED, false) && mode == TimerMode.COUNTDOWN
+        val reminders=when {
+            mode!=TimerMode.STOPWATCH -> StopwatchReminderRules()
+            source!=null -> source.stopwatch?.stopwatchReminders ?: StopwatchReminderRules()
+            !intent.hasExtra(EXTRA_STOPWATCH_REMINDERS) -> StopwatchReminderRules()
+            else -> StopwatchReminderSettingsStore.decodeSnapshot(intent.getStringExtra(EXTRA_STOPWATCH_REMINDERS).orEmpty())
+        }
+        if(reminders==null) { fail("正计时提醒配置无效，请检查后重试。");return START_NOT_STICKY }
         if (if (mode == TimerMode.STOPWATCH) duration != 0L else duration !in 1..Countdown.MAX_DURATION_MILLIS) {
             fail("计时时长无效，请重新选择。"); return START_NOT_STICKY
         }
@@ -318,6 +341,8 @@ class FloatingService : Service() {
         if (screenDriven) manualClock.pause(physicalStart)
         c4Frame = C4Frame()
         countdown = Countdown(duration, manualClock.at(physicalStart), mode, elapsedBeforeMillis=source?.displayElapsedMillis ?: 0)
+        stopwatchRules=reminders
+        stopwatchEngine=if(mode==TimerMode.STOPWATCH) StopwatchReminderEngine(reminders,source?.displayElapsedMillis ?: 0) else null
         awaitingApp = if (source!=null) null else intent.getStringExtra("app_package")
         activePresetId = source?.stopwatch?.presetId ?: intent.getStringExtra("preset_id")?.takeIf { id ->
             TimerPresetStore.get(this).presets.value.any { it.id == id && it.targetApp?.packageName == awaitingApp }
@@ -410,6 +435,7 @@ class FloatingService : Service() {
             FocusOverlay(if (c4Frame.active) appearance.copy(opacity = 1f) else appearance, interactive, extensionRequest = extensionRequest,
                 onContentMeasured = overlay::measureContent,
                 overtimeCue = overtimeCue,
+                stopwatchCue = stopwatchCue, reserveStopwatchStatus = stopwatchRules.reserveStatus,
                 reserveOvertimeStatus = overtimeSettings.enabled && OvertimeEffect.STATUS in overtimeSettings.effects,
                 overtimeInfo = overlayState.overtimeReminder,
                 onSnooze = if (overtimeSettings.enabled && overtimeSettings.interaction == OvertimeInteraction.CHOICE &&
@@ -528,6 +554,40 @@ class FloatingService : Service() {
         overtimeFeedback?.close(); overtimeFeedback = null
     }
 
+    private fun refreshStopwatchReminders() {
+        if(stopping || initializing) return
+        val timer=countdown?.takeIf { it.mode==TimerMode.STOPWATCH } ?: return
+        val engine=stopwatchEngine ?: return
+        val elapsed=timer.elapsedAt(manualClock.at(SystemClock.elapsedRealtime()))
+        if(manualClock.paused) {
+            stopwatchCue=null;handler.removeCallbacks(clearStopwatchCue)
+            stopwatchFeedback?.close();stopwatchFeedback=null
+        }
+        engine.update(elapsed,manualClock.paused)?.let { raw ->
+            val cue=raw.allowed(stopwatchStore.permissions.value)
+            Log.d(TAG,"Stopwatch reminder level=${cue.level} elapsed=$elapsed effects=${cue.effects} next=${engine.nextElapsed}")
+            if(cue.effects.isNotEmpty()) {
+                stopwatchCue=cue
+                handler.removeCallbacks(clearStopwatchCue);handler.postDelayed(clearStopwatchCue,2200)
+                if(cue.effects.any { !it.visual }) {
+                    val feedback=stopwatchFeedback ?: OvertimeReminderFeedback(this).also { stopwatchFeedback=it }
+                    feedback.play(cue.effects)
+                }
+            }
+        }
+        val next=engine.nextElapsed.takeUnless { manualClock.paused }
+        if(scheduledStopwatchElapsed!=next) {
+            handler.removeCallbacks(stopwatchDue);scheduledStopwatchElapsed=next
+            next?.let { handler.postDelayed(stopwatchDue,(it-elapsed).coerceAtLeast(1)) }
+        }
+    }
+
+    private fun cancelStopwatchReminders() {
+        handler.removeCallbacks(stopwatchDue);handler.removeCallbacks(clearStopwatchCue)
+        scheduledStopwatchElapsed=null;stopwatchCue=null;stopwatchEngine=null
+        stopwatchFeedback?.close();stopwatchFeedback=null
+    }
+
     private fun applyScreenState(lit: Boolean) {
         if (stopping || !overlayState.screenDriven || countdown == null) return
         val now = SystemClock.elapsedRealtime()
@@ -563,7 +623,7 @@ class FloatingService : Service() {
         if (ReminderSettingsStore.get(this).settings.value.strategy.validationError(seconds * 1000L) != null) return
         val next = timer.extendAt(manualClock.at(SystemClock.elapsedRealtime()), seconds * 1000L) ?: return
         countdown = next
-        cancelOvertime()
+        cancelOvertime();cancelStopwatchReminders()
         completionReminder.reset()
         handler.removeCallbacks(tick)
         tick.run()
@@ -638,12 +698,14 @@ class FloatingService : Service() {
         val c4Locked = c4Runtime?.locked() ?: c4Frame.requiresCode
         return NotificationCompat.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_notification).setContentTitle(if (overlayState.screenDriven) "亮屏计时 · ${if (overlayState.paused) "等待亮屏" else "计时中"}" else if (automatic) "指定 App 监测 · ${if (mutableMonitor.value.running) "计时中" else "已暂停/等待"}" else if (overlayState.paused) "Floating Focus · 已暂停" else if (finished) "Floating Focus · 超时计时" else "Floating Focus · 正在计时")
-            .setContentText(if (overlayState.screenDriven) "累计 ${formatUsageTime(overlayState.elapsedMillis)} · 息屏暂停，可随时结束" else if (c4Locked) "C4 · ${formatRemaining(overlayState.remainingMillis)}" else if (c4Frame.expired) "C4 超时 +${formatElapsed(c4Frame.overtimeMillis)} · 可结束，不可加时" else if (automatic) "${mutableMonitor.value.reason} · 点击管理；可随时停止" else if (overlayState.paused) "${if (overlayState.mode == TimerMode.STOPWATCH) formatElapsed(overlayState.elapsedMillis) else formatRemaining(overlayState.remainingMillis)} · 点击浮窗继续或结束" else if (finished) "正在记录超时时长，可随时结束" else "点击悬浮胶囊可展开操作")
+            .setContentText(if(overlayState.mode==TimerMode.STOPWATCH && !automatic)
+                "${formatElapsed(overlayState.elapsedMillis)} · ${if(overlayState.screenDriven) "息屏暂停，可随时结束" else if(overlayState.paused) "已暂停，可继续或结束" else "正计时，可随时结束"}" else if (c4Locked) "C4 · ${formatRemaining(overlayState.remainingMillis)}" else if (c4Frame.expired) "C4 超时 +${formatElapsed(c4Frame.overtimeMillis)} · 可结束，不可加时" else if (automatic) "${mutableMonitor.value.reason} · 点击管理；可随时停止" else if (overlayState.paused) "${if (overlayState.mode == TimerMode.STOPWATCH) formatElapsed(overlayState.elapsedMillis) else formatRemaining(overlayState.remainingMillis)} · 点击浮窗继续或结束" else if (finished) "正在记录超时时长，可随时结束" else "点击悬浮胶囊可展开操作")
             .setContentIntent(open).apply { if (!c4Locked) addAction(0, if (automatic) "停止监测" else "结束计时", stop) }
             .setWhen(if (overlayState.mode == TimerMode.STOPWATCH || finished)
                 System.currentTimeMillis() - (if (finished) overlayState.overtimeMillis else overlayState.elapsedMillis)
                 else System.currentTimeMillis() + overlayState.remainingMillis)
-            .setUsesChronometer((!automatic || mutableMonitor.value.running) && !overlayState.paused)
+            .setUsesChronometer(overlayState.mode != TimerMode.STOPWATCH && (!automatic || mutableMonitor.value.running) && !overlayState.paused)
+            .setShowWhen(overlayState.mode != TimerMode.STOPWATCH)
             .setChronometerCountDown(overlayState.mode == TimerMode.COUNTDOWN && !finished)
             .setOngoing(true).setOnlyAlertOnce(true).setSilent(true)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
@@ -686,7 +748,7 @@ class FloatingService : Service() {
         stopping = true
         screenObserver?.close(); screenObserver = null
         screenTracker?.finish(SystemClock.elapsedRealtime())
-        cancelOvertime()
+        cancelOvertime();cancelStopwatchReminders()
         checkpointRecord(SystemClock.elapsedRealtime())
         record?.takeIf { it.packageName.isNotBlank() }?.let { quotaStore.checkpoint(it.id, false, SystemClock.elapsedRealtime(), finish = true) }
         mutableMonitor.value = AutoMonitorStatus(reason = if (preserveError) mutableSession.value.error ?: "已停止" else "未开启")
@@ -726,7 +788,7 @@ class FloatingService : Service() {
     private fun cleanup() {
         initializing=false
         screenObserver?.close(); screenObserver = null
-        cancelOvertime()
+        cancelOvertime();cancelStopwatchReminders()
         c4Runtime?.close(); c4Runtime = null
         c4Frame = C4Frame()
         handler.removeCallbacksAndMessages(null)
@@ -790,6 +852,7 @@ class FloatingService : Service() {
         private const val EXTRA_C4_ENABLED = "c4_enabled_for_session"
         private const val EXTRA_SCREEN_DRIVEN = "screen_driven"
         private const val EXTRA_RECOVERY_ID = "recovery_record_id"
+        private const val EXTRA_STOPWATCH_REMINDERS = "stopwatch_reminders_for_session"
         private val mutableSession = MutableStateFlow(SessionState())
         val session = mutableSession.asStateFlow()
         private val mutableMonitor = MutableStateFlow(AutoMonitorStatus())
@@ -806,11 +869,13 @@ class FloatingService : Service() {
         fun start(context: Context, durationMillis: Long, mode: TimerMode = TimerMode.COUNTDOWN, targetPackage: String? = null,
                   presetId: String? = null, requestId: String = java.util.UUID.randomUUID().toString(),
                   c4Enabled: Boolean? = null, stopwatchBehavior: StopwatchBehavior? = null,
-                  recoveryId: String? = null): Boolean {
+                  recoveryId: String? = null, stopwatchReminders: StopwatchReminderRules? = null): Boolean {
             if (mutableMonitor.value.enabled || mutableSession.value.active || startPending) return false
             ReminderSettingsStore.get(context).settings.value.strategy.validationError(durationMillis, mode)?.let {
                 mutableSession.value = SessionState(error = it); return false
             }
+            val reminders=resolveStopwatchRules(mode) { stopwatchReminders ?: StopwatchReminderSettingsStore.get(context).snapshot() }
+            if(reminders==null) { mutableSession.value=SessionState(error="正计时提醒读取失败，请在设置中重新保存。");return false }
             if (!startAdmission.reserve(requestId, mutableMonitor.value.enabled || mutableSession.value.active)) return false
             mutableSession.value = SessionState()
             try {
@@ -821,7 +886,8 @@ class FloatingService : Service() {
                     .setAction(ACTION_START).putExtra(EXTRA_DURATION, if (mode == TimerMode.STOPWATCH) 0L else durationMillis)
                     .putExtra("mode", mode.name).putExtra("app_package", targetPackage).putExtra("preset_id", presetId)
                     .putExtra(EXTRA_REQUEST_ID, requestId).putExtra(EXTRA_C4_ENABLED, sessionC4Enabled)
-                    .putExtra(EXTRA_SCREEN_DRIVEN, screenDriven).putExtra(EXTRA_RECOVERY_ID,recoveryId))
+                    .putExtra(EXTRA_SCREEN_DRIVEN, screenDriven).putExtra(EXTRA_RECOVERY_ID,recoveryId)
+                    .putExtra(EXTRA_STOPWATCH_REMINDERS,StopwatchReminderSettingsStore.encodeSnapshot(reminders)))
                 return true
             } catch (e: RuntimeException) {
                 Log.w(TAG, "Foreground start rejected", e)
@@ -841,7 +907,8 @@ class FloatingService : Service() {
                     else "请先授予悬浮窗权限，再点击继续计时。")
                 return false
             }
-            return start(context,0,TimerMode.STOPWATCH,c4Enabled=false,stopwatchBehavior=source.stopwatchBehavior,recoveryId=recordId)
+            return start(context,0,TimerMode.STOPWATCH,c4Enabled=false,stopwatchBehavior=source.stopwatchBehavior,recoveryId=recordId,
+                stopwatchReminders=source.stopwatch?.stopwatchReminders ?: StopwatchReminderRules())
         }
         fun requestExtension(context: Context, expectedStart: Long) {
             if (!session.value.active) return

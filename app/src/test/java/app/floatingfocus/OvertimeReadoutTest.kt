@@ -37,10 +37,10 @@ class OvertimeReadoutTest {
         assertEquals(OvertimeReadout(60_000, 0), ReminderPresenter.present(ReminderSnapshot.at(Countdown(60_000, 0), 60_000)).overtime)
     }
 
-    @Test fun `long sessions include hours without changing original minute format elsewhere`() {
+    @Test fun `long sessions include hours and stopwatch uses padded hour format`() {
         assertEquals("59:59", formatUsageTime(3_599_999))
         assertEquals("1:00:00", formatUsageTime(3_600_000))
         assertEquals("8:00:00", formatUsageTime(28_800_000))
-        assertEquals("60:00", formatElapsed(3_600_000))
+        assertEquals("01:00:00", formatElapsed(3_600_000))
     }
 }

@@ -47,6 +47,8 @@ fun FocusOverlay(
     onContentMeasured: ((OverlayContentGeometry) -> OverlayContentPlacement)? = null,
     initialExpanded: Boolean? = null,
     overtimeCue: OvertimeCue? = null,
+    stopwatchCue: StopwatchCue? = null,
+    reserveStopwatchStatus: Boolean = false,
     reserveOvertimeStatus: Boolean = false,
     overtimeInfo: OvertimeReminderInfo? = null,
     onSnooze: ((Int, String) -> Unit)? = null,
@@ -87,7 +89,7 @@ fun FocusOverlay(
     } else 0f
 
     val vertical = appearance.shape == OverlayShape.VERTICAL_CAPSULE
-    val overtimeVisual = overtimeVisual(overtimeCue, interactive)
+    val overtimeVisual = overtimeVisual(stopwatchCue?.visualCue() ?: overtimeCue, interactive)
     val background = ReminderPresenter.highlight(appearance.colorArgb,
         maxOf(automaticHighlight, manualPulse.value, overtimeVisual.brightening))
     val foreground = Color(ReminderPresenter.contentColor(background))
@@ -103,14 +105,16 @@ fun FocusOverlay(
             .overtimeOutline(overtimeVisual.outline, foreground)) {
         Layout(content = {
             val probePrefix = if (onContentMeasured == null) "preview-" else ""
-            val header = toggleControls.overlayLayoutProbe(probePrefix + "time", appearance.overtime)
+            val header = toggleControls.overlayLayoutProbe(probePrefix + "time", appearance.overtime, appearance.stopwatchElapsedMillis)
                 .semantics { contentDescription = if (c4.active) "${appearance.title}，点击展开 C4，可拖动" else if (controlsEnabled)
                     "${appearance.title}，点击${if (expanded) "收起" else "展开"}操作，可拖动" else appearance.title }
                 .padding(4.dp)
             val title: @Composable () -> Unit = {
                 Icon(painterResource(R.drawable.ic_notification), contentDescription = null,
                     tint = foreground, modifier = Modifier.size(20.dp))
-                Text(appearance.title.removePrefix("◷").trim().let { if (finished) it.removePrefix("超时 ") else it }, style = textStyle,
+                if(appearance.stopwatchElapsedMillis != null) StopwatchTimeHeader(appearance.stopwatchElapsedMillis,textStyle,
+                    overtimeVisual.status, reserveStopwatchStatus)
+                else Text(appearance.title.removePrefix("◷").trim().let { if (finished) it.removePrefix("超时 ") else it }, style = textStyle,
                     fontSize = 18.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.Monospace,
                     maxLines = 1, softWrap = false)
             }
@@ -184,7 +188,10 @@ fun FocusOverlay(
         } else toggleControls) { measurables, constraints ->
             // Measure at a stable base size; apply the current reminder scale exactly once.
             val contentConstraints = Constraints(maxWidth = 240.dp.roundToPx())
-            val header = measurables.first().measure(contentConstraints)
+            // Stopwatch hours may grow beyond three digits. Measure the whole
+            // reading first; the existing frame then fits that one coordinate
+            // system to the safe area instead of clipping text at the old cap.
+            val header = measurables.first().measure(if (appearance.stopwatchElapsedMillis != null) Constraints() else contentConstraints)
             val controls = measurables.getOrNull(1)?.measure(contentConstraints)
             val contentWidth = maxOf(header.width, controls?.width ?: 0)
             val contentHeight = header.height + (controls?.height ?: 0)

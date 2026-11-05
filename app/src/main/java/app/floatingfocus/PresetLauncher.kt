@@ -16,5 +16,5 @@ internal suspend fun launchPresetWithTimer(context: Context, lifecycle: Lifecycl
     val preset = check.preset!!
     return launchAppWithTimer(context, lifecycle, preset.targetApp!!, preset.durationSeconds, preset.settings, preset.mode, preset.id,
         c4Enabled = preset.c4Enabled, useDailyQuota = preset.timeSource == PresetTimeSource.APP_DAILY_QUOTA,
-        stopwatchBehavior = preset.stopwatchBehavior)
+        stopwatchBehavior = preset.stopwatchBehavior, stopwatchReminders = preset.stopwatchReminders)
 }

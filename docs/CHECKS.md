@@ -122,3 +122,7 @@ UIAutomator 每次先删除旧快照并确认新文件生成，短暂失败最�
 ./scripts/test-device.ps1 -Suite screen_on -Serial emulator-5556 -AllowTestDataChanges：偏好不启动、下一次生效、锁屏亮起、息屏排除与连续模式、重建/背景及实际CSV。
 
 ./scripts/test-device.ps1 -Suite overlay_rotation -Serial emulator-5556 -AllowTestDataChanges：三形状两尺寸横竖反复切换、第二次拖动重测、独立位置与实际时间/窗口坐标。均仍使用现有备份还原入口，真机厂商清理与AOD不由模拟器覆盖。
+
+## 正计时周期提醒与小时显示
+
+`stopwatch_reminders`验证真实规则/滚轮、预设保存取消与启动、当前会话固定、60/120/180秒周期、同点合并、组件暂停、息屏暂停、异常续计及声震关闭。`stopwatch_hours`验证真实跨小时/100小时、三形状/展开、连续原生窗口和时间区域坐标、旋转、原生通知/桌面读数及大字体Text溢出。仅专用模拟器，沿用备份还原与源码/APK校验；实际听感和震感另列真机，见[验收](validation/20261105-stopwatch-reminders.md)。

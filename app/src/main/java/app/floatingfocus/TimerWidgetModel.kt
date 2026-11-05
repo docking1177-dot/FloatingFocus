@@ -5,7 +5,8 @@ enum class WidgetLayout { COMPACT, SHORT_PRESETS, TALL_PRESETS }
 
 data class TimerWidgetPresentation(val status: String, val time: String, val base: Long = 0,
     val running: Boolean = false, val countDown: Boolean = false, val overtime: Boolean = false,
-    val primary: WidgetCommand = WidgetCommand.START, val canEnd: Boolean = false)
+    val primary: WidgetCommand = WidgetCommand.START, val canEnd: Boolean = false,
+    val clockFormat: String? = null)
 
 /** Desktop display only; the existing service remains the sole clock and command owner. */
 object TimerWidgetModel {
@@ -32,7 +33,8 @@ object TimerWidgetModel {
             base = when { stopwatch -> now - elapsed; over -> now - overtime; else -> now + remaining },
             running = !s.paused, countDown = !stopwatch && !over, overtime = over,
             primary = when { s.screenDriven || s.c4Enabled || s.c4Locked || s.c4Active || s.automatic || over -> WidgetCommand.OPEN; s.paused -> WidgetCommand.RESUME; else -> WidgetCommand.PAUSE },
-            canEnd = SessionControls.canEnd(s))
+            canEnd = SessionControls.canEnd(s),
+            clockFormat = if(stopwatch && elapsed in 3600000L..35999999L) "0%s" else if(over) "+%s" else null)
     }
 
     fun accepts(s: SessionState, command: WidgetCommand, request: String?, leg: Long): Boolean {

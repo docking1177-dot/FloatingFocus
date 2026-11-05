@@ -48,7 +48,7 @@ object TimerWidgets {
                 val p = TimerWidgetModel.present(state, defaults, SystemClock.elapsedRealtime())
                 // Exclude per-second samples and draggable positions. Rebase only at real state changes.
                 val key = listOf(state.active, state.paused, state.mode, state.c4Locked, state.c4Active, state.startRequestId,
-                    state.timerStartedAt, state.durationMillis, state.error, p.primary, p.overtime, defaults,
+                    state.timerStartedAt, state.durationMillis, state.error, p.primary, p.overtime, p.clockFormat, defaults,
                     presets.map { listOf(it.id, it.name, it.durationSeconds, it.mode, it.targetApp, it.timeSource) })
                 if (key != lastKey) { lastKey = key; refresh(app) }
             }
@@ -111,7 +111,10 @@ object TimerWidgets {
         v.setViewVisibility(R.id.widget_clock, if (p.running) View.VISIBLE else View.GONE)
         v.setViewVisibility(R.id.widget_time, if (p.running) View.GONE else View.VISIBLE)
         v.setChronometerCountDown(R.id.widget_clock, p.countDown)
-        v.setChronometer(R.id.widget_clock, p.base, if (p.overtime) "+%s" else null, p.running)
+        // Set format before base so an already-running native clock immediately
+        // reflects the hour-padding bucket, without per-second RemoteViews updates.
+        v.setString(R.id.widget_clock,"setFormat",p.clockFormat)
+        v.setChronometer(R.id.widget_clock, p.base, p.clockFormat, p.running)
         v.setTextViewText(R.id.widget_time, p.time)
         val label = when (p.primary) {
             WidgetCommand.START -> "开始"; WidgetCommand.PAUSE -> "暂停"; WidgetCommand.RESUME -> "继续"; else -> "查看"

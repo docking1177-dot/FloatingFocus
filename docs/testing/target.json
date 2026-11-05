@@ -1,38 +1,35 @@
 {
-  "id": "FF-20261105-lifecycle-0bb65568",
-  "source_commit": "fc2af84132475b21f4d4cbe9f68e4588a59aaae2",
+  "id": "FF-20261105-stopwatch-reminders-904cde2d",
+  "source_commit": "411c2460e5ff9e2dc9aa8e988c58de282f994867",
   "builds": {
     "Debug": {
-      "sha256": "0bb65568353fbed6266e14718b6bfecd6d6f46bc4574df574dd26bf8624a209a",
-      "fingerprint": "940b19d2cd66f7a6c38285cddfb3c6a0c016193f10034d62e22400552afae2a6",
-      "reported_commit": "fc2af84132475b21f4d4cbe9f68e4588a59aaae2",
+      "sha256": "904cde2d3ab613ad21d5bcce19139b72e0a7cea0bdafd1590a65bd39cb68ba16",
+      "fingerprint": "639e2b09267f5a8408553dbd4581a2f70c4f369b77045a6bacecbe6aecf4b768",
+      "reported_commit": "411c2460e5ff9e2dc9aa8e988c58de282f994867",
       "reported_dirty": true,
       "version_name": "0.3.0",
       "version_code": 4,
-      "check": ".tools/checks/check-full-debug-20261105-151350-051.json",
+      "check": ".tools/checks/check-full-debug-20261105-200627-508.json",
       "apk": "app/build/outputs/apk/debug/app-debug.apk",
       "audio_local": true,
       "installable": true
     },
     "Release": {
-      "sha256": "be4a716c8e3bdf97ca6a238f1c915c5e20ea3f9c50ac01117f5097575034e3c4",
-      "fingerprint": "940b19d2cd66f7a6c38285cddfb3c6a0c016193f10034d62e22400552afae2a6",
-      "reported_commit": "fc2af84132475b21f4d4cbe9f68e4588a59aaae2",
+      "sha256": "1356c554e35e8ae98d120801331130505a05ddf54165a70b0ff0bd7f8053cf67",
+      "fingerprint": "639e2b09267f5a8408553dbd4581a2f70c4f369b77045a6bacecbe6aecf4b768",
+      "reported_commit": "411c2460e5ff9e2dc9aa8e988c58de282f994867",
       "reported_dirty": true,
       "version_name": "0.3.0",
       "version_code": 4,
-      "check": ".tools/checks/check-full-release-20261105-151628-285.json",
+      "check": ".tools/checks/check-full-release-20261105-200747-260.json",
       "apk": "app/build/outputs/apk/release/app-release-unsigned.apk",
       "audio_local": false,
       "installable": false
     }
   },
   "manual_focus_ids": [
-    "FF-PHONE-LIFECYCLE-001",
-    "FF-PHONE-RECOVERY-001",
-    "FF-PHONE-ROTATION-001",
-    "FF-PHONE-SCREEN-ON-001"
+    "FF-PHONE-SW-REMINDERS-001"
   ],
-  "validation_report": "docs/validation/20261105-timer-lifecycle.md",
-  "note": "版本0.3.0/4未变；记录原构建源码指纹，不因后续文档/脚本调整冒充新构建。194项app输入与APK另行核对；中间05f包的亮屏/历史结果仅按明确影响范围复用，保持历史APK身份；Debug本机C4素材不公开，Release无素材且未签名；本轮无真机验收。"
+  "validation_report": "docs/validation/20261105-stopwatch-reminders.md",
+  "note": "0.3.0/4不变；原构建和当前205项应用输入已核对。四套同APK原生回归、声震请求与真机观察分开；Debug含3段本机C4录音不公开，Release无录音且未签名；旧真机结果不适用于本包；历史Redmi闪动未关闭。"
 }

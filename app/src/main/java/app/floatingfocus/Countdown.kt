@@ -45,5 +45,6 @@ fun formatRemaining(millis: Long): String {
 /** Elapsed time floors seconds; unlike remaining time it never shows time not yet spent. */
 fun formatElapsed(millis: Long): String {
     val seconds = millis.coerceAtLeast(0) / 1000
-    return String.format(Locale.ROOT, "%02d:%02d", seconds / 60, seconds % 60)
+    return if(seconds<3600) String.format(Locale.ROOT, "%02d:%02d", seconds / 60, seconds % 60)
+        else String.format(Locale.ROOT, "%02d:%02d:%02d", seconds / 3600, seconds / 60 % 60, seconds % 60)
 }

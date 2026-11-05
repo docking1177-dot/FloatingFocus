@@ -13,7 +13,8 @@ internal val appTimerLaunchGate = AppTimerLaunchGate()
 suspend fun launchAppWithTimer(context: Context, lifecycle: Lifecycle, app: LaunchableApp,
                               seconds: Int, settings: ReminderSettings? = null, mode: TimerMode = TimerMode.COUNTDOWN,
                               presetId: String? = null, c4Enabled: Boolean? = null, useDailyQuota: Boolean = false,
-                              stopwatchBehavior: StopwatchBehavior? = null): String? {
+                              stopwatchBehavior: StopwatchBehavior? = null,
+                              stopwatchReminders: StopwatchReminderRules? = null): String? {
     if (FloatingService.session.value.active || FloatingService.monitoring.value.enabled || FloatingService.startPending || appTimerLaunchGate.busy)
         return "已有计时正在运行，请先结束。"
     var ownsTimer = false
@@ -42,7 +43,7 @@ suspend fun launchAppWithTimer(context: Context, lifecycle: Lifecycle, app: Laun
             applied = store.settings.value
         }
         ownsTimer = FloatingService.start(context, duration, mode, app.packageName, presetId, requestId,
-            c4Enabled = c4Enabled, stopwatchBehavior = stopwatchBehavior)
+            c4Enabled = c4Enabled, stopwatchBehavior = stopwatchBehavior, stopwatchReminders = stopwatchReminders)
         if (!ownsTimer) return FloatingService.session.value.error ?: "已有计时正在运行，请先结束。"
         val result = withTimeout(5000) { FloatingService.session.first { it.startRequestId == requestId && (it.active || it.error != null) } }
         if (result.error != null) return result.error

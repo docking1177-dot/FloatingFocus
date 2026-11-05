@@ -28,19 +28,26 @@ internal class OvertimeReminderFeedback(private val context: Context) : AutoClos
     private val endTone = Runnable { stopTone() }
     private val endVibration = Runnable { vibrating = false }
 
-    fun play(cue: OvertimeCue) {
-        if (OvertimeEffect.VIBRATION in cue.effects) {
+    fun play(cue: OvertimeCue) = play(cue.effects,cue.level.strength)
+
+    fun play(effects: Set<OvertimeEffect>, strength: Float = OvertimeLimit.STANDARD.strength) {
+        if (OvertimeEffect.VIBRATION in effects) {
             stopVibration()
-            vibrating = ReminderVibration.pair(context, cue.level.strength)
+            vibrating = ReminderVibration.pair(context, strength)
             if (vibrating) handler.postDelayed(endVibration, 240)
         }
-        if (OvertimeEffect.SOUND in cue.effects) playTone()
+        if (OvertimeEffect.SOUND in effects) playTone()
     }
 
     fun restrict(settings: OvertimeReminderSettings) {
         val audioAllowed = settings.enabled && settings.limit != OvertimeLimit.LIGHT
         if (!audioAllowed || OvertimeEffect.SOUND !in settings.effects) stopTone()
         if (!audioAllowed || OvertimeEffect.VIBRATION !in settings.effects) stopVibration()
+    }
+
+    fun restrict(permissions: StopwatchReminderPermissions) {
+        if(!permissions.sound) stopTone()
+        if(!permissions.vibration) stopVibration()
     }
 
     private fun playTone() {

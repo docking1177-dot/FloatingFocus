@@ -38,7 +38,7 @@ internal fun StopwatchRecoveryAction(record: TimerRecord, readable: Boolean = tr
     val pending by FloatingService.pendingStarts.collectAsStateWithLifecycle()
     val allowed by rememberOverlayPermission()
     var message by remember(record.id) { mutableStateOf<String?>(null) }
-    Text("已保存 ${formatUsageTime(record.displayElapsedMillis)} · ${record.stopwatchBehavior.label}",
+    Text("已保存 ${formatElapsed(record.displayElapsedMillis)} · ${record.stopwatchBehavior.label}",
         style=MaterialTheme.typography.bodyMedium)
     Text("最后保存 ${java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
         .withZone(java.time.ZoneId.systemDefault()).format(java.time.Instant.ofEpochMilli(record.endedWallMillis))}",

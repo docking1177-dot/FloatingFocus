@@ -3,7 +3,8 @@ package app.floatingfocus
 /** Only this segment's intervals count in history/quota; carriedMillis is a display baseline. */
 data class StopwatchCheckpoint(val behavior: StopwatchBehavior, val activity: ScreenTimeSnapshot,
     val carriedMillis: Long = 0, val continuationOf: String? = null, val rootId: String? = null,
-    val presetId: String? = null, val positions: OverlayPositions = OverlayPositions()) {
+    val presetId: String? = null, val positions: OverlayPositions = OverlayPositions(),
+    val stopwatchReminders: StopwatchReminderRules = StopwatchReminderRules()) {
     init {
         require(carriedMillis >= 0)
         Math.addExact(carriedMillis, activity.activeMillis)
@@ -32,6 +33,7 @@ object StopwatchCheckpointCodec {
             "intervals" to value.activity.intervals.map { listOf(it.startOffsetMillis,it.endOffsetMillis) }))
         value.continuationOf?.let { put("continuationOf",it) }; value.rootId?.let { put("rootId",it) }
         value.presetId?.let { put("presetId",it) }; put("positions",OverlayPositionsCodec.encode(value.positions))
+        put("stopwatchReminders",StopwatchReminderCodec.encode(value.stopwatchReminders))
     }
     fun decode(value: Any?): StopwatchCheckpoint? { return try {
         val row = value as? Map<*, *> ?: return null
@@ -47,6 +49,7 @@ object StopwatchCheckpointCodec {
         require(row.containsKey("positions"))
         require(row["positions"] is Map<*,*>)
         val positions = OverlayPositionsCodec.decode(row["positions"]) ?: return null
-        StopwatchCheckpoint(behavior,snapshot,number(row["carriedMillis"]),text("continuationOf"),text("rootId"),text("presetId"),positions)
+        val reminders=if(row.containsKey("stopwatchReminders")) StopwatchReminderCodec.decode(row["stopwatchReminders"]) ?: return null else StopwatchReminderRules()
+        StopwatchCheckpoint(behavior,snapshot,number(row["carriedMillis"]),text("continuationOf"),text("rootId"),text("presetId"),positions,reminders)
     } catch (_: RuntimeException) { null } }
 }

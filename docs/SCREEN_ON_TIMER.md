@@ -61,3 +61,7 @@ JVM：`StopwatchBehaviorTest`、`StopwatchRecoveryTest`、`LifecycleGuardsTest`�
 [本轮成果与实际验证](validation/20261105-timer-lifecycle.md)单独列明结果；此前亮屏计时的旧开关测试只代表历史版本。Redmi K80的AOD事件、厂商一键清理和实际窗口旋转仍需真机确认。模拟器播放或请求日志不证明真机声震效果。
 
 系统依据：[Service任务划除回调](https://developer.android.com/reference/android/app/Service#onTaskRemoved(android.content.Intent))、[系统停止前台服务应用](https://developer.android.com/develop/background-work/services/fgs/handle-user-stopping)、[屏幕状态](https://developer.android.com/reference/android/view/Display#getState())。
+
+## 周期提醒与小时读数
+
+正计时三级周期按实际运行累计，手动/息屏暂停不推进；异常续计沿用源检查点规则及累计，跳过已过去节点，不补停机提醒。旧检查点缺规则默认关闭，显式坏规则不降级。显示累计到1小时后为HH:MM:SS，超过24小时不归零；统计仍只计新段，不因提醒或格式修改而重算。见[周期提醒](STOPWATCH_REMINDERS.md)。
