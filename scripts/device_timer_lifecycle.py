@@ -8,6 +8,7 @@ import time
 from contextlib import contextmanager
 from device_controls import fixture, wait_for
 from device_preferences import pref_values
+from device_recovery import open_recovery, close_recovery, resume_recovery
 from device_quota import seed_quota, ledger
 
 PACKAGE='app.floatingfocus'
@@ -147,7 +148,7 @@ def screen_behavior(d):
         choose_behavior(d,'随亮屏计时');screen_source=start(d);time.sleep(2)
         choose_behavior(d,'息屏仍计时');d.stop();saved=record(d,screen_source)
         time.sleep(1);home(d);assert d.overlay() is None
-        d.tap('继续计时')
+        resume_recovery(d,screen_source)
         wait_for(lambda:any(r.get('stopwatch',{}).get('continuationOf')==screen_source for r in d.records()),'Screen continuation missing')
         resumed=next(r for r in d.records() if r.get('stopwatch',{}).get('continuationOf')==screen_source)
         assert resumed['stopwatch']['behavior']=='SCREEN_ON' and resumed['stopwatch']['carriedMillis']==saved['elapsedMillis']
@@ -210,9 +211,7 @@ def timer_lifecycle(d):
         d.shot('recovery-missing-overlay-permission')
         d.shell('appops','set',PACKAGE,'SYSTEM_ALERT_WINDOW','allow');home(d)
         d.shot('stopwatch-recovery-offer')
-        button=next(n for n in d.dump().iter('node') if n.get('text')=='继续计时')
-        x,y,r,b=d.bounds(button)
-        d.shell('input','tap',(x+r)//2,(y+b)//2);d.shell('input','tap',(x+r)//2,(y+b)//2)
+        resume_recovery(d,parent,duplicate=True)
         wait_for(lambda:d.overlay() and any(r.get('stopwatch',{}).get('continuationOf')==parent for r in d.records()),'Continuation not persisted')
         children=[r for r in d.records() if r.get('stopwatch',{}).get('continuationOf')==parent]
         assert len(children)==1
@@ -240,12 +239,14 @@ def timer_lifecycle(d):
         bad['stopwatch']['activity']=dict(spanMillis=10000,intervals=[[0,6000],[5000,9000]])
         bad['elapsedMillis']=10000
         d.adb('shell','run-as',PACKAGE,'tee','files/timer_records/lifecycle-malformed.json',data=json.dumps(bad).encode())
-        home(d)
+        home(d);open_recovery(d)
         assert any('进度读取失败' in n.get('text','') for n in d.dump().iter('node'))
         d.shot('recovery-malformed-checkpoint-error')
         d.shell('run-as',PACKAGE,'rm','-f','files/timer_records/lifecycle-malformed.json')
-        d.tap('进度读取失败，重试');time.sleep(.5)
-        assert not any('进度读取失败' in n.get('text','') for n in d.dump().iter('node'))
+        from device_interactions import tap_control
+        tap_control(d,'重试读取')
+        wait_for(lambda:not any('进度读取失败' in n.get('text','') for n in d.dump().iter('node')),'Retry did not clear read failure')
+        close_recovery(d)
         # Recovery must remain reachable independently of today's/week/month chart filters.
         d.stop()
         for index in (1,2):
@@ -271,7 +272,7 @@ def timer_lifecycle(d):
             saved=record(d,origin)
             edited=dict(source_preset,targetPackage='com.android.settings',targetLabel='Settings')
             d.write_prefs('timer_presets',dict(items=json.dumps([] if deleted else [edited])))
-            home(d);d.tap('继续计时')
+            home(d);resume_recovery(d,origin)
             wait_for(lambda:d.overlay() and any(r.get('stopwatch',{}).get('continuationOf')==origin for r in d.records()),
                 'Changed/deleted origin did not resume')
             resumed=next(r for r in d.records() if r.get('stopwatch',{}).get('continuationOf')==origin)

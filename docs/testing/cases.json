@@ -5148,7 +5148,7 @@
       "kind": "套件汇总",
       "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
       "steps": "./scripts/test-device.ps1 -Suite overlay_stability -AllowTestDataChanges",
-      "expected": "passedSuites明确包含overlay_stability且数据还原成功；未声称通过未执行细项",
+      "expected": "普通超时、完整C4、专属阶段前展开在同一格式内窗口和内容位置稳定；时间原区连击不结束，边缘与旋转锚点正确；模拟跨小时的累计/超时可分别扩宽一次，格式对内稳定且时间中心不动，不允许回跳。",
       "builds": [
         "Debug"
       ],
@@ -7483,7 +7483,7 @@
       "kind": "套件汇总",
       "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
       "steps": "执行现有test-device对应suite并保留results.json。",
-      "expected": "passedSuites明确列出此套件；只证明当次脚本断言，不证明听感、震感或厂商行为。",
+      "expected": "真实1小时/100小时边界改变数字槽宽度，同格式至少两次有效tick稳定，窗口可已有足够操作宽度而不增宽；否则只按实际格式一次增宽，时间全局中心不偏移；旋转、原生通知/组件与大字体读数完整。旧固定三位小时预留的结果不能替代当前规则。",
       "builds": [
         "Debug"
       ],
@@ -7817,6 +7817,329 @@
         "预设快照",
         "时间显示"
       ]
+    },
+    {
+      "id": "FF-JVM-HOMETIMERSELECTION",
+      "module": "首页",
+      "scenario": "首页真实会话/页面/最近模式/默认优先级；组件默认隔离",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有纯JUnit夹具，无需设备",
+      "steps": "运行 HomeTimerSelectionTest 全部测试并读取独立XML",
+      "expected": "失败/错误为0，跳过单列；仅证明该类断言，不代替实际触摸或声震",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/HomeTimerSelectionTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "首页",
+        "五项交互优化"
+      ]
+    },
+    {
+      "id": "FF-JVM-STOPWATCHRECOVERYPRESENTATION",
+      "module": "续计",
+      "scenario": "来源、承接累计与候选名称展示不猜测或写数据",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有纯JUnit夹具，无需设备",
+      "steps": "运行 StopwatchRecoveryPresentationTest 全部测试并读取独立XML",
+      "expected": "失败/错误为0，跳过单列；仅证明该类断言，不代替实际触摸或声震",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/StopwatchRecoveryPresentationTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "续计",
+        "五项交互优化"
+      ]
+    },
+    {
+      "id": "FF-JVM-OVERLAYLOCKPOLICY",
+      "module": "浮窗锁定",
+      "scenario": "会话与段绑定、幂等、C4限制不变、系统阈值及解锁还原",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有纯JUnit夹具，无需设备",
+      "steps": "运行 OverlayLockPolicyTest 全部测试并读取独立XML",
+      "expected": "失败/错误为0，跳过单列；仅证明该类断言，不代替实际触摸或声震",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/OverlayLockPolicyTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "浮窗锁定",
+        "五项交互优化"
+      ]
+    },
+    {
+      "id": "FF-JVM-STOPWATCHCOLOREFFECTS",
+      "module": "正计时提醒",
+      "scenario": "颜色快照兼容/严格坏字段、事件一次随机采样与可读前景",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有纯JUnit夹具，无需设备",
+      "steps": "运行 StopwatchColorEffectsTest 全部测试并读取独立XML",
+      "expected": "失败/错误为0，跳过单列；仅证明该类断言，不代替实际触摸或声震",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/StopwatchColorEffectsTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时提醒",
+        "五项交互优化"
+      ]
+    },
+    {
+      "id": "FF-JVM-STOPWATCHCOLORTIMING",
+      "module": "正计时提醒",
+      "scenario": "真实时间有界与离散交替/随机采样颜色不混色",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有纯JUnit夹具，无需设备",
+      "steps": "运行 StopwatchColorTimingTest 全部测试并读取独立XML",
+      "expected": "失败/错误为0，跳过单列；仅证明该类断言，不代替实际触摸或声震",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/StopwatchColorTimingTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "正计时提醒",
+        "五项交互优化"
+      ]
+    },
+    {
+      "id": "FF-JVM-TIMESLOT",
+      "module": "时间显示",
+      "scenario": "当前MM:SS/HH:MM:SS/增长小时及前缀稳定占位",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有纯JUnit夹具，无需设备",
+      "steps": "运行 TimeSlotTest 全部测试并读取独立XML",
+      "expected": "失败/错误为0，跳过单列；仅证明该类断言，不代替实际触摸或声震",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/TimeSlotTest.kt",
+        "./scripts/check.ps1 -Mode Unit -Offline"
+      ],
+      "scope": "类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "时间显示",
+        "五项交互优化"
+      ]
+    },
+    {
+      "id": "FF-SUITE-INTERACTIONS",
+      "module": "交互集成",
+      "scenario": "真实模式/候选/锁定/预览集成",
+      "priority": "P1",
+      "kind": "设备套件",
+      "preconditions": "专用API36模拟器，无已有FF固定入口/组件；备份还原数据",
+      "steps": "运行 scripts/test-device.ps1 -Suite interactions -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "冷启动恢复手选模式且组件默认未改；选择不启动、明确续计仅一关联段；原生锁定真实点击穿透Gallery菜单、解锁恢复触拖和原透明度；真实帧变色及恢复，1x/2x/关闭动画和快速覆盖不截断、不建会话记录",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器自动化",
+      "entry_points": [
+        "scripts/device_interactions.py"
+      ],
+      "scope": "功能场景",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "交互集成",
+        "五项交互优化"
+      ]
+    },
+    {
+      "id": "FF-SUITE-INTERACTION_C4",
+      "module": "浮窗锁定",
+      "scenario": "C4及续计会话锁定",
+      "priority": "P1",
+      "kind": "设备套件",
+      "preconditions": "专用API36模拟器，无已有FF固定入口/组件；备份还原数据",
+      "steps": "运行 scripts/test-device.ps1 -Suite interaction_c4 -Serial emulator-5556 -AllowTestDataChanges",
+      "expected": "锁定不提交数字/拖动；实际SystemUI通知解锁且输入保留；锁定跨归零只爆炸一次并保留窗口；正常结束或明确新续计不承接锁定",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器自动化",
+      "entry_points": [
+        "scripts/device_interaction_c4.py"
+      ],
+      "scope": "功能场景",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "浮窗锁定",
+        "五项交互优化"
+      ]
+    },
+    {
+      "id": "FF-PHONE-LOCK-001",
+      "module": "浮窗锁定",
+      "scenario": "HyperOS普通/C4锁定、真实穿透与可靠解锁",
+      "priority": "P0",
+      "kind": "功能场景",
+      "preconditions": "当前目标Debug APK；已有悬浮权限；允许通知；普通浮窗透明度0.95或1；C4音频仅本地Debug有素材",
+      "steps": "普通正计时启动→锁定→在浮窗覆盖下滑动/点击短视频→用首页解锁再拖动；C4 40秒启动，输入7→锁定→尝试输入→通知解锁→继续355608解除。通知不可用时验证首页解锁。",
+      "expected": "锁定读数继续且不能拖动/误操作，下层App按系统允许接收触摸；解锁恢复原显示/操作；C4未收锁定输入，解锁不是解除，原口令可完成。不能解锁或点击被吞即报异常。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "首页运行控制/浮窗操作/系统通知"
+      ],
+      "scope": "功能场景",
+      "manual_tier": "必须真机",
+      "manual_group": 0,
+      "gap": "AOSP已验证不同UID真实点击；不能证明HyperOS或目标App的遮挡/通知策略。无需重测桌面创建或后台保活。",
+      "impact_tags": [
+        "浮窗锁定",
+        "五项交互优化"
+      ]
+    },
+    {
+      "id": "FF-PHONE-PREVIEW-001",
+      "module": "正计时提醒",
+      "scenario": "本机声震许可与显式试听不叠加",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "当前目标Debug，设置正计时提醒；媒体音量适中；初始关闭两项总许可",
+      "steps": "选A→B/交替/随机并改A/B：预览保持在顶且恢复；总许可关闭时点试听/测试；开启后各点一次，再在静音/勿扰下试听并恢复原设置。",
+      "expected": "纯视觉不建会话/记录也不自行发声震；许可关闭仅提示未请求；许可开启实际声震一次且遵守系统限制，快速切换/退出无残留。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "真机人工",
+      "entry_points": [
+        "设置→正计时提醒"
+      ],
+      "scope": "功能场景",
+      "manual_tier": "必须真机",
+      "manual_group": 0,
+      "gap": "帧采样及请求/抑制反馈已能自动核实，实际听感/震感及HyperOS音频策略不能用日志代替。",
+      "impact_tags": [
+        "正计时提醒",
+        "五项交互优化"
+      ]
+    },
+    {
+      "id": "FF-SUITE-INTERACTION_THEME",
+      "module": "主题预览",
+      "scenario": "深色与两倍字体的实际颜色演示",
+      "priority": "P1",
+      "kind": "设备套件",
+      "preconditions": "专用API36模拟器，无已有FF固定入口/组件；备份还原数据",
+      "steps": "运行 scripts/test-device.ps1 -Suite interaction_theme -Serial emulator-5556 -AllowTestDataChanges；仅使用本机已有ffmpeg取帧",
+      "expected": "原生录屏中观察到颜色改变、末帧与前后独立帧缓冲确认恢复；不创建会话/记录，不写外观；截图另行核对可读性",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器自动化",
+      "entry_points": [
+        "scripts/device_interactions.py",
+        "./scripts/test-device.ps1 -Suite interaction_theme -Serial emulator-5556 -AllowTestDataChanges"
+      ],
+      "scope": "功能场景",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "交互集成",
+        "五项交互优化"
+      ]
     }
   ],
   "junit_classes": {
@@ -7869,7 +8192,13 @@
     "OverlayPositionsTest": "FF-JVM-OVERLAYPOSITIONS",
     "StopwatchRemindersTest": "FF-JVM-STOPWATCHREMINDERS",
     "StopwatchReminderSnapshotTest": "FF-JVM-STOPWATCHREMINDERSNAPSHOT",
-    "StopwatchTimeTest": "FF-JVM-STOPWATCHTIME"
+    "StopwatchTimeTest": "FF-JVM-STOPWATCHTIME",
+    "HomeTimerSelectionTest": "FF-JVM-HOMETIMERSELECTION",
+    "StopwatchRecoveryPresentationTest": "FF-JVM-STOPWATCHRECOVERYPRESENTATION",
+    "OverlayLockPolicyTest": "FF-JVM-OVERLAYLOCKPOLICY",
+    "StopwatchColorEffectsTest": "FF-JVM-STOPWATCHCOLOREFFECTS",
+    "StopwatchColorTimingTest": "FF-JVM-STOPWATCHCOLORTIMING",
+    "TimeSlotTest": "FF-JVM-TIMESLOT"
   },
   "device_details": {
     "widgets": {

@@ -1,8 +1,7 @@
 package app.floatingfocus
 
 import android.animation.ValueAnimator
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
+import android.os.SystemClock
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -18,22 +17,27 @@ import kotlin.math.sin
 
 internal data class OvertimeVisual(val brightening: Float = 0f, val outline: Float = 0f, val status: Boolean = false)
 
+@Composable
+internal fun reminderEffectProgress(id: Long?, active: Boolean, disabledProgress: Float=.5f, kind: String="pulse"): Float {
+    var value by remember { mutableFloatStateOf(1f) }
+    LaunchedEffect(id,active) {
+        value=1f
+        if(id!=null && active) {
+            if(ValueAnimator.areAnimatorsEnabled()) {
+                val start=SystemClock.elapsedRealtime();value=0f
+                while(value<1f) withFrameNanos { value=ReminderEffectTimeline.progress(SystemClock.elapsedRealtime()-start) }
+            } else { value=disabledProgress;delay(ReminderEffectTimeline.DURATION_MILLIS.toLong());value=1f }
+        }
+    }
+    SideEffect { if(id!=null) reminderEffectProbe(kind,id,value) }
+    return value
+}
+
 /** One bounded pulse per consumed cue. Never changes alpha, size, position or timing. */
 @Composable
 internal fun overtimeVisual(cue: OvertimeCue?, interactive: Boolean): OvertimeVisual {
-    val progress = remember { Animatable(1f) }
-    LaunchedEffect(cue?.id) {
-        progress.snapTo(1f)
-        if (cue != null && interactive) {
-            if (ValueAnimator.areAnimatorsEnabled()) {
-                progress.snapTo(0f)
-                progress.animateTo(1f, tween(1600))
-            } else {
-                progress.snapTo(.5f); delay(1000); progress.snapTo(1f)
-            }
-        }
-    }
-    val wave = sin(PI * progress.value).toFloat().coerceIn(0f, 1f)
+    val progress = reminderEffectProgress(cue?.id,interactive)
+    val wave = sin(PI * progress).toFloat().coerceIn(0f, 1f)
     val effects = if (interactive) cue?.effects.orEmpty() else emptySet()
     return OvertimeVisual(
         if (OvertimeEffect.BRIGHTEN in effects) wave * (cue?.level?.strength ?: 0f) else 0f,

@@ -11,6 +11,7 @@ import android.content.pm.ApplicationInfo
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.Rect
+import android.hardware.input.InputManager
 import android.os.Build
 import android.util.Log
 import android.view.Gravity
@@ -77,6 +78,13 @@ class OverlayWindow(private val context: Context,
     private var contentGeometry: OverlayContentGeometry? = null
     private var contentPlacement: OverlayContentPlacement? = null
     private var c4Active = false
+    private var touchLocked = false
+    private var requestedWindowOpacity = 1f
+    private val maximumObscuringOpacity: Float? by lazy {
+        if (Build.VERSION.SDK_INT >= 31)
+            context.getSystemService(InputManager::class.java).maximumObscuringOpacityForTouch
+        else null
+    }
     private var rememberedPositions = initialPositions ?: OverlayPositions(legacy=initialPosition)
     // Session-only defaults are not user drags. Keep them across direction/size
     // changes so returning while expanded cannot redefine the compact anchor.
@@ -268,11 +276,26 @@ class OverlayWindow(private val context: Context,
 
     private fun dp(value: Int) = (value * context.resources.displayMetrics.density).roundToInt()
 
-    fun setGeometry(shape: OverlayShape, size: Float, device: Boolean = false, opacity: Float = 1f, c4Active: Boolean = device) {
+    /** Cancel the child stream before removing touchability, so its late UP cannot click or persist a drag. */
+    fun setTouchLocked(locked: Boolean) {
+        if (touchLocked == locked) return
+        view.cancelGesture()
+        cancelDrag()
+        touchLocked = locked
+        params.flags = if (locked) params.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            else params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
+        params.alpha = OverlayLockPolicy.displayOpacity(requestedWindowOpacity, locked, maximumObscuringOpacity)
+        update()
+    }
+
+    fun setGeometry(shape: OverlayShape, size: Float, device: Boolean = false, opacity: Float = 1f,
+                    c4Active: Boolean = device, nativeOpacity: Boolean = c4Active) {
         this.c4Active = c4Active
         if (c4Active) { contentGeometry = null; contentPlacement = null; position.releaseContent() }
         view.setGeometry(shape, size, device, c4Active)
-        val windowAlpha = if (c4Active) opacity else 1f
+        // Production uses native opacity once; previews/lab may retain their existing Compose alpha.
+        requestedWindowOpacity = if (nativeOpacity) opacity else 1f
+        val windowAlpha = OverlayLockPolicy.displayOpacity(requestedWindowOpacity, touchLocked, maximumObscuringOpacity)
         if (params.alpha != windowAlpha) { params.alpha = windowAlpha; update() }
     }
 }

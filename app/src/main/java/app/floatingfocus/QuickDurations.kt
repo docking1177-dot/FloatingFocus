@@ -24,6 +24,13 @@ class QuickDurationsStore private constructor(context: Context) {
     private val currentStartupDefaults = MutableStateFlow(TimerStartupDefaults.decode(
         prefs.all["startup_mode"] as? String, prefs.all["startup_seconds"] as? Int))
     val startupDefaults = currentStartupDefaults.asStateFlow()
+    // Explicit home chip choices only. Presets, live-session sync and widget/tile defaults never write this key.
+    private val currentHomeMode = MutableStateFlow(HomeTimerMode.decode(prefs.all["home_last_mode"]))
+    val lastHomeMode = currentHomeMode.asStateFlow()
+    fun rememberHomeMode(mode: TimerMode) {
+        prefs.edit { putString("home_last_mode", mode.name) }
+        currentHomeMode.value = mode
+    }
     fun save(values: List<Int>, defaults: TimerStartupDefaults = currentStartupDefaults.value) {
         require(QuickDurations.validSeconds(values))
         val copy = values.toList()

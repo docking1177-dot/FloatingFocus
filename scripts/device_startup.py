@@ -1,6 +1,8 @@
 """Startup defaults through real settings, wheels, recreation and timer records."""
 import time
 from device_preferences import pref_values, set_wheel, wheel
+from device_controls import wait_for
+from device_widgets import add_test_widget, remove_test_widgets, find_desktop_widget, require_empty_widgets
 
 PACKAGE = 'app.floatingfocus'
 
@@ -33,7 +35,7 @@ def startup(d):
             assert not (left <= (x+r)/2 <= right and top <= (y+b)/2 <= bottom), 'Fixture overlay covers settings target'
         d.tap('手动设置')
         assert '.SettingsActivity' in d.foreground(), 'Settings action did not open its actual Activity'
-        d.tap('启动默认配置', scroll=True)
+        d.tap('组件/磁贴默认模式', scroll=True)
     def save():
         park_overlay(.24)
         d.tap('保存', scroll=True)
@@ -56,10 +58,11 @@ def startup(d):
     d.write_prefs('quick_durations', {'seconds': '300,600,900,1800'})
     d.start(); idle()
     assert selected('倒计时') and selected('15分')
+    d.tap('倒计时')  # Explicit home memory is independent from the defaults edited below.
     before = len(d.records())
     settings()
     d.tap('正计时')
-    assert '默认倒计时时长' not in texts()
+    assert '默认倒计时时长' in texts(), 'Countdown default must remain editable independently of shortcut mode'
     d.tap('倒计时'); d.tap('默认倒计时时长')
     assert wheel(d, '分')[1] == 15 and wheel(d, '秒')[1] == 0
     set_wheel(d, '分', 2); set_wheel(d, '秒', 5); d.tap('确认')
@@ -97,7 +100,9 @@ def startup(d):
     assert selected('倒计时') and '已选时长 · 2 分 5 秒' in texts()
     assert d.records()[-1]['id'] == row['id']
     finish(); fresh()
-    assert selected('正计时'); idle()
+    assert selected('倒计时'); idle()
+    assert pref_values(d,'quick_durations')['home_last_mode']=='COUNTDOWN'
+    assert pref_values(d,'quick_durations')['startup_mode']=='STOPWATCH'
     settings(); d.tap('倒计时'); d.tap('默认倒计时时长')
     assert wheel(d, '分')[1] == 2 and wheel(d, '秒')[1] == 5
     d.tap('取消'); d.shell('input', 'keyevent', 'KEYCODE_BACK')
@@ -110,13 +115,25 @@ def startup(d):
     assert pref_values(d, 'quick_durations')['startup_mode'] == 'STOPWATCH'
     settings(); d.tap('恢复默认', scroll=True); save()
     assert pref_values(d, 'quick_durations') == saved | {'startup_mode': 'STOPWATCH'}
-    fresh(); assert selected('正计时'); idle()
-    d.shot('startup-stopwatch-home')
-    d.tap('开始正计时'); time.sleep(.5)
-    final = d.records()[-1]
-    assert final['mode'] == 'STOPWATCH' and final['plannedMillis'] == 0
-    finish()
+    fresh(); assert selected('倒计时'); idle()
+    d.shot('startup-home-independent-from-shortcut-mode')
+    # Prove the saved shortcut mode through a real Launcher3 widget, not by manually choosing the same home mode.
+    require_empty_widgets(d.shell('dumpsys','appwidget'))
+    try:
+        add_test_widget(d,1,1)
+        root=find_desktop_widget(d)
+        primary=next(n for n in root.iter('node') if n.get('resource-id')==PACKAGE+':id/widget_primary')
+        x,y,r,b=d.bounds(primary);count=len(d.records());d.tapxy((x+r)//2,(y+b)//2)
+        wait_for(lambda:d.overlay() and len(d.records())==count+1,'Saved widget default did not start')
+        final=d.records()[-1]
+        assert final['mode']=='STOPWATCH' and final['plannedMillis']==0
+        d.start();assert selected('正计时'),'Active widget session did not override home display'
+        assert pref_values(d,'quick_durations')['home_last_mode']=='COUNTDOWN'
+        finish()
+    finally:
+        remove_test_widgets(d)
+    fresh();assert selected('倒计时');idle()
     return dict(firstUseCountdown900=True, savedCountdown125=True, slotsIndependent=True,
                 noAutomaticStart=True, existingChoicePreserved=True, recreationPreserved=True,
                 activeSessionRecovered=True, stopwatchRetainsCountdown=True,
-                slotResetPreservesStartup=True, actualCountdown=row, actualStopwatch=final)
+                slotResetPreservesStartup=True, homeModeIndependent=True, actualWidgetDefault=True, actualCountdown=row, actualStopwatch=final)

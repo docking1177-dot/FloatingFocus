@@ -11,9 +11,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
@@ -48,6 +52,8 @@ fun FocusOverlay(
     initialExpanded: Boolean? = null,
     overtimeCue: OvertimeCue? = null,
     stopwatchCue: StopwatchCue? = null,
+    overlayLocked: Boolean = false,
+    onLock: (() -> Unit)? = null,
     reserveStopwatchStatus: Boolean = false,
     reserveOvertimeStatus: Boolean = false,
     overtimeInfo: OvertimeReminderInfo? = null,
@@ -55,7 +61,11 @@ fun FocusOverlay(
     onStop: () -> Unit
 ) {
     if (c4.active && c4Expanded) {
-        C4DevicePanel(c4, onC4Key, onC4Toggle, onStop)
+        Box {
+            C4DevicePanel(c4, onC4Key, onC4Toggle, onStop)
+            if(overlayLocked) Icon(painterResource(R.drawable.ic_lock),"浮窗已锁定",tint=Color.White,
+                modifier=Modifier.align(Alignment.TopEnd).padding(24.dp).size(16.dp))
+        }
         return
     }
     val finished = !c4.active && appearance.finished
@@ -90,9 +100,11 @@ fun FocusOverlay(
 
     val vertical = appearance.shape == OverlayShape.VERTICAL_CAPSULE
     val overtimeVisual = overtimeVisual(stopwatchCue?.visualCue() ?: overtimeCue, interactive)
-    val background = ReminderPresenter.highlight(appearance.colorArgb,
+    val cueColor = stopwatchColor(appearance.colorArgb, stopwatchCue, interactive)
+    val background = ReminderPresenter.highlight(cueColor,
         maxOf(automaticHighlight, manualPulse.value, overtimeVisual.brightening))
     val foreground = Color(ReminderPresenter.contentColor(background))
+    val lockPainter = painterResource(R.drawable.ic_lock)
     val textStyle = TextStyle(color = foreground,
         shadow = if (foreground == Color.White) Shadow(Color.Black, blurRadius = 2f) else null)
     // The background padding belongs to the same tap target as the time. Native
@@ -102,7 +114,14 @@ fun FocusOverlay(
     // One alpha layer for the whole window. No glyph backgrounds or independent opaque children.
     Surface(color = Color(background), shape = CircleShape,
         modifier = Modifier.padding(2.dp).graphicsLayer { this.alpha = appearance.opacity }
-            .overtimeOutline(overtimeVisual.outline, foreground)) {
+            .overtimeOutline(overtimeVisual.outline, foreground).drawWithContent {
+                drawContent()
+                if(overlayLocked && (appearance.overtime != null || c4.expired)) {
+                    translate(8.dp.toPx(),this.size.height/2-7.dp.toPx()) {
+                        with(lockPainter) { draw(Size(14.dp.toPx(),14.dp.toPx()),colorFilter=ColorFilter.tint(foreground)) }
+                    }
+                }
+            }) {
         Layout(content = {
             val probePrefix = if (onContentMeasured == null) "preview-" else ""
             val header = toggleControls.overlayLayoutProbe(probePrefix + "time", appearance.overtime, appearance.stopwatchElapsedMillis)
@@ -110,7 +129,7 @@ fun FocusOverlay(
                     "${appearance.title}，点击${if (expanded) "收起" else "展开"}操作，可拖动" else appearance.title }
                 .padding(4.dp)
             val title: @Composable () -> Unit = {
-                Icon(painterResource(R.drawable.ic_notification), contentDescription = null,
+                Icon(painterResource(if(overlayLocked) R.drawable.ic_lock else R.drawable.ic_notification), contentDescription = if(overlayLocked) "浮窗已锁定" else null,
                     tint = foreground, modifier = Modifier.size(20.dp))
                 if(appearance.stopwatchElapsedMillis != null) StopwatchTimeHeader(appearance.stopwatchElapsedMillis,textStyle,
                     overtimeVisual.status, reserveStopwatchStatus)
@@ -175,6 +194,7 @@ fun FocusOverlay(
                         style = textStyle, fontSize = 11.sp, modifier = Modifier.widthIn(max = 230.dp))
                 } else if (expanded && !c4.active) {
                     FlowRow(horizontalArrangement = Arrangement.Center) {
+                        if(onLock!=null) TextButton(onClick=onLock,enabled=controlsEnabled) { Text("锁定浮窗",style=textStyle) }
                         if (onTogglePause != null) TextButton(onClick = onTogglePause, enabled = controlsEnabled) {
                             Text(if (paused) "继续计时" else "暂停计时", style = textStyle)
                         }
@@ -191,7 +211,7 @@ fun FocusOverlay(
             // Stopwatch hours may grow beyond three digits. Measure the whole
             // reading first; the existing frame then fits that one coordinate
             // system to the safe area instead of clipping text at the old cap.
-            val header = measurables.first().measure(if (appearance.stopwatchElapsedMillis != null) Constraints() else contentConstraints)
+            val header = measurables.first().measure(if (!c4.active && (appearance.stopwatchElapsedMillis != null || appearance.overtime != null)) Constraints() else contentConstraints)
             val controls = measurables.getOrNull(1)?.measure(contentConstraints)
             val contentWidth = maxOf(header.width, controls?.width ?: 0)
             val contentHeight = header.height + (controls?.height ?: 0)

@@ -126,3 +126,9 @@ UIAutomator 每次先删除旧快照并确认新文件生成，短暂失败最�
 ## 正计时周期提醒与小时显示
 
 `stopwatch_reminders`验证真实规则/滚轮、预设保存取消与启动、当前会话固定、60/120/180秒周期、同点合并、组件暂停、息屏暂停、异常续计及声震关闭。`stopwatch_hours`验证真实跨小时/100小时、三形状/展开、连续原生窗口和时间区域坐标、旋转、原生通知/桌面读数及大字体Text溢出。仅专用模拟器，沿用备份还原与源码/APK校验；实际听感和震感另列真机，见[验收](validation/20261105-stopwatch-reminders.md)。
+
+## 五项交互专项
+
+`interactions`核对实际模式记忆/续计选择/跨UID触摸穿透/动画1x、2x与关闭；`interaction_c4`核对真实通知解锁、锁定跨零及新续计清锁；`interaction_theme`核对原生录屏中的深色及两倍字体预览，使用本机已有ffmpeg，不向应用增加依赖。均走原test-device.ps1备份/还原及源码/APK身份门禁。C4通知持续计秒时，scripts/uiautomator/LiveDump.java只在测试进程通过设备已有UIAutomator生成新层级，不等idle、不复用旧文件，不用服务Intent冒充点击。模板SDK/JDK及缓存仅本机.tools。
+
+小时/超时的多个读数可能分秒跨格式：各自允许一次必要扩宽，必须同格式稳定、全局时间锚点不变、不能往返。原始失败及修正后的复测分别保留。实际证据见[成果说明](validation/20261110-interaction-refinements.md)。

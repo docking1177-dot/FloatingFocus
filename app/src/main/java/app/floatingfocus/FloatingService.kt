@@ -60,7 +60,9 @@ data class SessionState(
     /** Effective countdown setting captured at admission, including the ordinary pre-C4 stage. */
     val c4Enabled: Boolean = false,
     val overtimeReminder: OvertimeReminderInfo? = null,
-    val screenDriven: Boolean = false
+    val screenDriven: Boolean = false,
+    /** Session-only touch lock; never part of settings, presets or recovery checkpoints. */
+    val overlayLocked: Boolean = false
 )
 
 class FloatingService : Service() {
@@ -193,7 +195,7 @@ class FloatingService : Service() {
                 paused = manualClock.paused, c4Locked = c4Frame.requiresCode, c4Active = c4Frame.active, startRequestId = activeStartRequestId,
                 durationMillis = timer.durationMillis, sampledAt = physicalNow,
                 c4Enabled = overlayState.c4Enabled, overtimeReminder = overlayState.overtimeReminder,
-                screenDriven = overlayState.screenDriven)
+                screenDriven = overlayState.screenDriven, overlayLocked = overlayState.overlayLocked)
             checkpointRecord(physicalNow)
             record?.let { recordStore.save(it, checkpoint = true) }
             if (!initializing) mutableSession.value = overlayState
@@ -230,6 +232,15 @@ class FloatingService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_OVERLAY_LOCK) {
+            val id = intent.getStringExtra(EXTRA_REQUEST_ID)
+            if (id != null && intent.hasExtra(EXTRA_OVERLAY_LOCKED)) {
+                applyOverlayLock(OverlayLockRequest(id, intent.getLongExtra("timer_start", -1L),
+                    intent.getBooleanExtra(EXTRA_OVERLAY_LOCKED, false)))
+            }
+            if (countdown == null && monitor == null && !successPending && !startPending) stopSelf(startId)
+            return START_NOT_STICKY
+        }
         if (intent?.action == ACTION_OVERTIME_SNOOZE) {
             val id = intent.getStringExtra(EXTRA_REQUEST_ID)
             if (id != null) snoozeOvertime(OvertimeSnoozeRequest(
@@ -429,10 +440,18 @@ class FloatingService : Service() {
                 overlayState.overtimeMillis, overlayState.mode, overlayState.elapsedMillis, countdown?.durationMillis ?: 0), settings)
             val appearance = if (c4Frame.active) ReminderPresenter.forC4(c4Frame, settings.shape)
                 else if (manualClock.paused) normal.copy(pulseDepth = 0f, animationStrength = 0f) else normal
-            SideEffect { overlay.setGeometry(appearance.shape, appearance.size, c4Frame.active && c4Expanded, appearance.opacity, c4Frame.active) }
+            SideEffect {
+                overlay.setGeometry(appearance.shape, appearance.size, c4Frame.active && c4Expanded,
+                    appearance.opacity, c4Frame.active, nativeOpacity = true)
+                overlay.setTouchLocked(overlayState.overlayLocked)
+            }
             val timerStart = overlayState.timerStartedAt
             val requestId = overlayState.startRequestId
-            FocusOverlay(if (c4Frame.active) appearance.copy(opacity = 1f) else appearance, interactive, extensionRequest = extensionRequest,
+            // Native alpha controls obscuring opacity; render alpha must not apply it a second time.
+            FocusOverlay(appearance.copy(opacity = 1f), interactive, controlsEnabled = !overlayState.overlayLocked,
+                overlayLocked=overlayState.overlayLocked,
+                onLock={ requestId?.let { setOverlayLocked(this,it,timerStart,true) } },
+                extensionRequest = extensionRequest,
                 onContentMeasured = overlay::measureContent,
                 overtimeCue = overtimeCue,
                 stopwatchCue = stopwatchCue, reserveStopwatchStatus = stopwatchRules.reserveStatus,
@@ -443,20 +462,21 @@ class FloatingService : Service() {
                     requestId?.let { id -> snoozeOvertime(OvertimeSnoozeRequest(OvertimeKey(id, timerStart), seconds, operationId)) }
                 }) else null,
                 extensionStrategy = settings.strategy, c4 = c4Frame, c4Expanded = c4Expanded,
-                onC4Toggle = { if (!stopping) {
+                onC4Toggle = { if (!stopping && !overlayState.overlayLocked) {
                     c4Expanded = !c4Expanded
                     // A skipped compact effect must not reappear when the device is collapsed later.
                     if (c4Expanded) overtimeCue = null
                 } }, paused = overlayState.paused,
                 onC4Key = { key ->
-                    if (!stopping && c4Runtime?.key(key) == C4KeyResult.DEFUSED) finishSession(defusedFeedback = true)
+                    if (!stopping && !overlayState.overlayLocked && c4Runtime?.key(key) == C4KeyResult.DEFUSED) finishSession(defusedFeedback = true)
                 },
                 // Preserve the ordinary overlay's existing resume affordance;
                 // starting a pause remains on the established widget/tile controls.
                 onTogglePause = if (SessionControls.canResume(overlayState))
-                    ({ setPaused(timerStart, false) }) else null,
-                onExtend = if (countdown != null && !c4Frame.active) ({ seconds -> extendTimer(timerStart, seconds) }) else null) {
-                if (c4Runtime?.locked() != true) finishSession()
+                    ({ if (!overlayState.overlayLocked) setPaused(timerStart, false) }) else null,
+                onExtend = if (countdown != null && !c4Frame.active)
+                    ({ seconds -> if (!overlayState.overlayLocked) extendTimer(timerStart, seconds) }) else null) {
+                if (!overlayState.overlayLocked && c4Runtime?.locked() != true) finishSession()
             }
         } }
     }
@@ -566,7 +586,7 @@ class FloatingService : Service() {
         engine.update(elapsed,manualClock.paused)?.let { raw ->
             val cue=raw.allowed(stopwatchStore.permissions.value)
             Log.d(TAG,"Stopwatch reminder level=${cue.level} elapsed=$elapsed effects=${cue.effects} next=${engine.nextElapsed}")
-            if(cue.effects.isNotEmpty()) {
+            if(cue.effects.isNotEmpty() || cue.colors.isNotEmpty()) {
                 stopwatchCue=cue
                 handler.removeCallbacks(clearStopwatchCue);handler.postDelayed(clearStopwatchCue,2200)
                 if(cue.effects.any { !it.visual }) {
@@ -599,6 +619,20 @@ class FloatingService : Service() {
         record?.let { recordStore.save(it) }
         getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification())
         Log.d(TAG, "Screen timer lit=$lit session=$activeStartRequestId elapsed=${overlayState.elapsedMillis}")
+    }
+
+    private fun applyOverlayLock(request: OverlayLockRequest) {
+        val timer = countdown ?: return
+        val overlay = window ?: return
+        if (stopping || initializing || timer.startedAt != request.legStartedAt || overlayState.overlayLocked == request.locked) return
+        val next = OverlayLockPolicy.apply(overlayState, request) ?: return
+        // Synchronous cancellation/flag update precedes publishing a new Compose state.
+        overlay.setTouchLocked(request.locked)
+        if (stopping) return
+        overlayState = next
+        mutableSession.value = overlayState
+        getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification())
+        Log.d(TAG, "Overlay touch locked=${request.locked} session=${request.sessionId} leg=${request.legStartedAt}")
     }
 
     private fun setPaused(expectedStart: Long, paused: Boolean) {
@@ -696,11 +730,18 @@ class FloatingService : Service() {
         val finished = overlayState.stage == ReminderStage.FINISHED
         // Runtime construction can publish its first frame before the property is assigned.
         val c4Locked = c4Runtime?.locked() ?: c4Frame.requiresCode
+        val lock = overlayState.takeIf { it.active && !it.automatic && it.startRequestId != null }?.let { state ->
+            PendingIntent.getService(this, 2, overlayLockIntent(this, state.startRequestId!!,
+                state.timerStartedAt, !state.overlayLocked), PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        }
         return NotificationCompat.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_notification).setContentTitle(if (overlayState.screenDriven) "亮屏计时 · ${if (overlayState.paused) "等待亮屏" else "计时中"}" else if (automatic) "指定 App 监测 · ${if (mutableMonitor.value.running) "计时中" else "已暂停/等待"}" else if (overlayState.paused) "Floating Focus · 已暂停" else if (finished) "Floating Focus · 超时计时" else "Floating Focus · 正在计时")
             .setContentText(if(overlayState.mode==TimerMode.STOPWATCH && !automatic)
                 "${formatElapsed(overlayState.elapsedMillis)} · ${if(overlayState.screenDriven) "息屏暂停，可随时结束" else if(overlayState.paused) "已暂停，可继续或结束" else "正计时，可随时结束"}" else if (c4Locked) "C4 · ${formatRemaining(overlayState.remainingMillis)}" else if (c4Frame.expired) "C4 超时 +${formatElapsed(c4Frame.overtimeMillis)} · 可结束，不可加时" else if (automatic) "${mutableMonitor.value.reason} · 点击管理；可随时停止" else if (overlayState.paused) "${if (overlayState.mode == TimerMode.STOPWATCH) formatElapsed(overlayState.elapsedMillis) else formatRemaining(overlayState.remainingMillis)} · 点击浮窗继续或结束" else if (finished) "正在记录超时时长，可随时结束" else "点击悬浮胶囊可展开操作")
-            .setContentIntent(open).apply { if (!c4Locked) addAction(0, if (automatic) "停止监测" else "结束计时", stop) }
+            .setContentIntent(open).apply {
+                if (lock != null) addAction(0, if (overlayState.overlayLocked) "解锁浮窗" else "锁定浮窗", lock)
+                if (!c4Locked) addAction(0, if (automatic) "停止监测" else "结束计时", stop)
+            }
             .setWhen(if (overlayState.mode == TimerMode.STOPWATCH || finished)
                 System.currentTimeMillis() - (if (finished) overlayState.overtimeMillis else overlayState.elapsedMillis)
                 else System.currentTimeMillis() + overlayState.remainingMillis)
@@ -843,6 +884,8 @@ class FloatingService : Service() {
         val startPending: Boolean get() = startAdmission.pendingId != null
         private const val ACTION_EXTENSION_EDITOR = "app.floatingfocus.EXTENSION_EDITOR"
         private const val ACTION_OVERTIME_SNOOZE = "app.floatingfocus.OVERTIME_SNOOZE"
+        private const val ACTION_OVERLAY_LOCK = "app.floatingfocus.OVERLAY_LOCK"
+        private const val EXTRA_OVERLAY_LOCKED = "overlay_locked"
         private const val ACTION_APP_OPENED = "app.floatingfocus.APP_OPENED"
         private const val ACTION_STOP = "app.floatingfocus.STOP"
         private const val ACTION_WIDGET_CONTROL = "app.floatingfocus.WIDGET_CONTROL"
@@ -915,6 +958,15 @@ class FloatingService : Service() {
             context.startService(Intent(context, FloatingService::class.java).setAction(ACTION_EXTENSION_EDITOR)
                 .putExtra("timer_start", expectedStart))
         }
+        /** Home remains the unlock route when notification permission is unavailable. */
+        fun setOverlayLocked(context: Context, expectedSessionId: String, expectedStart: Long, locked: Boolean) {
+            if (!OverlayLockPolicy.accepts(session.value, OverlayLockRequest(expectedSessionId, expectedStart, locked))) return
+            context.startService(overlayLockIntent(context, expectedSessionId, expectedStart, locked))
+        }
+        private fun overlayLockIntent(context: Context, sessionId: String, leg: Long, locked: Boolean): Intent =
+            Intent(context, FloatingService::class.java).setAction(ACTION_OVERLAY_LOCK)
+                .setData("floatingfocus://overlay-lock/$sessionId/$leg/$locked".toUri())
+                .putExtra(EXTRA_REQUEST_ID, sessionId).putExtra("timer_start", leg).putExtra(EXTRA_OVERLAY_LOCKED, locked)
         fun requestOvertimeSnooze(context: Context, expectedSessionId: String, expectedStart: Long,
                                   seconds: Int, operationId: String) {
             if (!session.value.active) return

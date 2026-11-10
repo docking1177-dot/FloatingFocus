@@ -6,6 +6,7 @@ import subprocess
 import time
 from device_controls import fixture, wait_for
 from device_preferences import pref_values
+from device_recovery import resume_recovery
 from device_timer_lifecycle import home, end, screen_environment, record, effective_millis
 from device_widgets import add_test_widget, remove_test_widgets, find_desktop_widget, require_empty_widgets
 
@@ -13,7 +14,8 @@ PACKAGE='app.floatingfocus'
 LEVELS=('primary','middle','high')
 
 def rules(enabled=True):
-    return {k:dict(enabled=enabled,intervalSeconds=60*(i+1),effects=e) for i,(k,e) in enumerate(zip(LEVELS,
+    return {k:dict(enabled=enabled,intervalSeconds=60*(i+1),effects=e,
+        color=dict(mode='NONE',a=0xff4285f4-2**32,b=0xffffc857-2**32)) for i,(k,e) in enumerate(zip(LEVELS,
         ['BRIGHTEN','OUTLINE','BRIGHTEN,STATUS,VIBRATION,SOUND']))}
 
 def logs(d):return d.shell('logcat','-d','-s','FloatingFocus:*')
@@ -38,7 +40,7 @@ def resumed(d, base, name, value=None, behavior='CONTINUOUS',shape='ROUNDED_RECT
         stopwatchReminders=value if value is not None else rules()))
     d.adb('shell','run-as',PACKAGE,'tee',f'files/timer_records/{name}.json',data=json.dumps(row).encode())
     d.write_prefs('reminder_settings',dict(shape=shape,color='BLUE',baseSize=size,opacity=.7,intensity=1.,colorEnabled=False,sizeEnabled=False))
-    home(d);d.shell('logcat','-c');d.tap('继续计时')
+    home(d);d.shell('logcat','-c');resume_recovery(d,name)
     wait_for(lambda:d.overlay() and any(r.get('stopwatch',{}).get('continuationOf')==name for r in d.records()),'No unique linked resume')
     child=next(r for r in d.records() if r.get('stopwatch',{}).get('continuationOf')==name)
     assert child['stopwatch']['carriedMillis']==base
@@ -161,6 +163,54 @@ def stopwatch_reminders(d):
             sourceRulesOnRecovery=True,screenPauseFreezes=True,pastThresholdNotReplayed=True,audioOffRespected=True,
             explicitAuditionRequested=True,note='Native API requests are not actual listening/vibration proof')
 
+def hour_window_sample(d):
+    # Bracket the latest Compose time bounds with two native frame reads. A
+    # boundary update between them is kept as incoherent evidence, never used
+    # to assert a global anchor from mismatched coordinate generations.
+    # A cleared log has no sample until the next genuine running tick.
+    wait_for(lambda: 'role=time bounds=' in logs(d), 'No actual time-area geometry during hour sampling', timeout=4)
+    before=d.overlay();assert before,'Hour sample lost its native window'
+    log=logs(d)
+    hits=re.findall(r'role=time bounds=([-\d.,]+) stopwatchElapsedMillis=(\d+)',log)
+    assert hits,'No actual time-area geometry during hour sampling'
+    bounds,elapsed=hits[-1]
+    after=d.overlay();assert after,'Hour sample lost its native window'
+    return dict(at=time.monotonic(),window=after[0],frame=after[1],
+        beforeFrame=before[1],coherent=before==after,
+        bounds=tuple(map(float,bounds.split(','))),elapsed=int(elapsed))
+
+
+def assert_hour_transition(samples,boundary,tag):
+    assert samples and len({s['window'] for s in samples})==1,('Native window replaced',tag)
+    coherent=[s for s in samples if s['coherent']]
+    pre=[s for s in coherent if s['elapsed']<boundary]
+    post=[s for s in coherent if s['elapsed']>=boundary]
+    assert pre and post,('Sampling did not cross the actual format boundary',tag,samples)
+    for label,group in [('before',pre),('after',post)]:
+        assert len({s['elapsed']//1000 for s in group})>=2,('Not enough actual running ticks within format',tag,label)
+        assert len({tuple(s['frame']) for s in group})==1,('Window unstable within time format',tag,label,group)
+        assert len({tuple(s['bounds']) for s in group})==1,('Time slot unstable within time format',tag,label,group)
+    old,new=pre[0],post[0]
+    assert new['bounds'][2]-new['bounds'][0] > old['bounds'][2]-old['bounds'][0],('Format did not grow its time slot',tag)
+    # Expanded controls or minimum-shape dimensions can already dominate the
+    # width. Native frame may remain the same, or grow exactly once; it may not
+    # bounce, shrink or repeatedly remeasure during ordinary ticks.
+    unique=[]
+    for sample in samples:
+        frame=tuple(sample['frame'])
+        if not unique or frame!=unique[-1]:unique.append(frame)
+    assert len(unique)<=2,('Native frame bounced/repeatedly changed at format boundary',tag,unique)
+    for axis in (0,1):
+        assert new['frame'][axis+2]-new['frame'][axis] >= old['frame'][axis+2]-old['frame'][axis],('Format growth shrank native frame',tag)
+    def center(s):
+        x,y,_,_=s['frame'];l,t,r,b=s['bounds']
+        return x+(l+r)/2,y+(t+b)/2
+    anchor=center(old)
+    assert all(max(abs(a-b) for a,b in zip(center(s),anchor))<=2 for s in coherent),('Global time anchor moved at format growth',tag,anchor,[center(s) for s in coherent])
+    return dict(stableWithinFormat=True,singleTimeSlotGrowth=True,nativeFrameChanges=len(unique)-1,
+        globalTimeAnchor=anchor,window=old['window'],before=old,after=new,samples=samples)
+
+
 def stopwatch_hours(d):
     results=[]
     with screen_environment(d):
@@ -175,25 +225,26 @@ def stopwatch_hours(d):
             ('ROUNDED_RECTANGLE',False,3600000),('ROUNDED_RECTANGLE',True,3600000),
             ('CIRCLE',False,3600000),('VERTICAL_CAPSULE',True,3600000),('ROUNDED_RECTANGLE',True,360000000)]):
             home(d);rotate(0)
-            id_=resumed(d,boundary-7000,f'sw-hours-{index}',rules(False),shape=shape)
+            id_=resumed(d,boundary-15000,f'sw-hours-{index}',rules(False),shape=shape)
+            # Center before expansion/sampling so safe-area clamping cannot masquerade as an anchor regression.
+            d.shell('input','swipe',*d.center(),d.width//2,int(d.height*.45),450)
             if expanded:d.tapxy(*d.center());time.sleep(.4)
             tag=f'hours-{index}-{shape}-{expanded}'
             d.shell('logcat','-c')
             d.shot(tag+'-before')
-            movie=subprocess.Popen([d.exe,'-s',d.serial,'shell','screenrecord','--time-limit','10','--size','540x1170','/sdcard/ff-stopwatch-hours.mp4'],
+            movie=subprocess.Popen([d.exe,'-s',d.serial,'shell','screenrecord','--time-limit','22','--size','540x1170','/sdcard/ff-stopwatch-hours.mp4'],
                 stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
-            frames=[];until=time.monotonic()+10
+            samples=[];until=time.monotonic()+22
             while time.monotonic()<until:
-                frames.append(d.frame());time.sleep(.15)
+                samples.append(hour_window_sample(d));time.sleep(.15)
             _,err=movie.communicate(timeout=15);assert movie.returncode==0,err
             (d.output/(tag+'.mp4')).write_bytes(d.adb('exec-out','cat','/sdcard/ff-stopwatch-hours.mp4'))
             d.shell('rm','-f','/sdcard/ff-stopwatch-hours.mp4')
             log=logs(d)
             values=[int(n) for n in re.findall(r'role=time bounds=[-\d.,]+ stopwatchElapsedMillis=(\d+)',log)]
             assert values and min(values)<boundary<=max(values),(tag,values)
-            assert len(set(frames))==1,('Hour transition moved/resized native window',tag,set(frames))
-            time_bounds=set(re.findall(r'role=time bounds=([-\d.,]+) stopwatchElapsedMillis=',log))
-            assert len(time_bounds)==1,(tag,time_bounds)
+            assert 'Stopwatch text=' in log and 'overflow=true' not in log,('Hour text overflow or missing real text probe',tag)
+            transition=assert_hour_transition(samples,boundary,tag)
             d.shot(tag+'-after');(d.output/(tag+'.log')).write_text(log,encoding='utf-8')
             notice=d.shell('dumpsys','notification','--noredact')
             entry=next(p for p in notice.split('NotificationRecord(') if 'pkg=app.floatingfocus' in p and 'id=1 ' in p)
@@ -202,7 +253,7 @@ def stopwatch_hours(d):
             (d.output/(tag+'-notification.txt')).write_text(entry,encoding='utf-8')
             rotate(1);time.sleep(.4);d.shot(tag+'-landscape');rotate(0)
             assert effective_millis(record(d,id_))>0
-            results.append(dict(shape=shape,expanded=expanded,boundary=boundary,frame=frames[0],timeBounds=list(time_bounds),
+            results.append(dict(shape=shape,expanded=expanded,boundary=boundary,transition=transition,
                 minimumElapsed=min(values),maximumElapsed=max(values),notificationReading=expected))
             end(d)
         id_=resumed(d,3600000000,'sw-hours-1000',rules(False),shape='CIRCLE')
@@ -232,5 +283,5 @@ def stopwatch_hours(d):
         d.shot('hours-large-font-full-reading');(d.output/'hours-large-font-text.log').write_text(text_log,encoding='utf-8')
         end(d)
         (d.output/'stopwatch-hour-cases.json').write_text(json.dumps(results,indent=2),encoding='utf-8')
-        return dict(actualHourRollover=True,actualHundredHourRollover=True,stableNativeFrames=True,stableTimeBounds=True,
+        return dict(actualHourRollover=True,actualHundredHourRollover=True,stableWithinFormat=True,singleTimeSlotGrowth=True,preservedGlobalTimeAnchor=True,
             notificationPadded=True,nativeWidgetPadded=True,thousandHoursNoDayWrap=True,largeFontNoTextOverflow=True,rotations=True,cases=results)

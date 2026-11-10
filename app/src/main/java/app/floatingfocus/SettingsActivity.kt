@@ -140,6 +140,8 @@ class SettingsActivity : ComponentActivity() {
                 StrategyScreen(settings.strategy, previewSeconds, { strategy -> updateSettings { it.copy(strategy = strategy) } }, back)
                 return@FocusTheme
             }
+            val (stopwatchPreview, previewStopwatchRule) = rememberStopwatchPreview()
+            LaunchedEffect(mode, page) { stopwatchPreview.clear() }
             Scaffold { insets ->
                 BoxWithConstraints(Modifier.fillMaxSize().padding(insets)) {
                     val previewHeight = minOf(184.dp, maxHeight * 0.3f)
@@ -159,7 +161,11 @@ class SettingsActivity : ComponentActivity() {
                                 } else Toast.makeText(this@SettingsActivity, "暂时无法读取预设，保存未完成，请重试。", Toast.LENGTH_LONG).show()
                             }) { Text("保存") }
                         }
-                        SettingsPreview(settings, previewHeight, previewSeconds * 1000L, if (editing) mode else TimerMode.COUNTDOWN)
+                        SettingsPreview(settings, previewHeight, previewSeconds * 1000L, if (editing) mode else TimerMode.COUNTDOWN,
+                            stopwatchCue = stopwatchPreview.cue, reserveStopwatchStatus = stopwatchRules.reserveStatus)
+                        if (stopwatchPreview.feedback.isNotEmpty()) Text(stopwatchPreview.feedback,
+                            style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier=Modifier.padding(horizontal=FocusSpacing.page))
                         HorizontalDivider()
                         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = FocusSpacing.page, vertical = FocusSpacing.medium),
                             verticalArrangement = Arrangement.spacedBy(FocusSpacing.small)) {
@@ -181,7 +187,8 @@ class SettingsActivity : ComponentActivity() {
                                 } else {
                                     StopwatchBehaviorSetting(stopwatchBehavior) { stopwatchBehavior = it }
                                     Text("周期提醒",style=MaterialTheme.typography.titleMedium)
-                                    StopwatchRulesEditor(stopwatchRules,{ stopwatchRulesJson=StopwatchReminderSettingsStore.encodeSnapshot(it) })
+                                    StopwatchRulesEditor(stopwatchRules,{ stopwatchRulesJson=StopwatchReminderSettingsStore.encodeSnapshot(it) },
+                                        onSelect = { stopwatchPreview.clear() }, onPreview = previewStopwatchRule)
                                     Text("仅修改此预设；声音/震动总许可在设置的正计时提醒中管理。",style=MaterialTheme.typography.bodySmall)
                                     Text("仅修改此预设；运行时计入该 App 已启用的每日额度。", style = MaterialTheme.typography.bodySmall)
                                 }
@@ -269,15 +276,18 @@ internal fun EffectSwitch(label: String, enabled: Boolean, available: Boolean = 
 
 /** Local visual sample only: never starts a service, changes a session or requests vibration. */
 @Composable
-private fun SettingsPreview(settings: ReminderSettings, height: Dp, durationMillis: Long, mode: TimerMode) {
+private fun SettingsPreview(settings: ReminderSettings, height: Dp, durationMillis: Long, mode: TimerMode,
+    stopwatchCue: StopwatchCue? = null, reserveStopwatchStatus: Boolean = false) {
     var progress by rememberSaveable { mutableFloatStateOf(0f) }
-    val snapshot = if (mode == TimerMode.STOPWATCH) ReminderSnapshot(0, 0f, mode = mode, elapsedMillis = (progress * durationMillis).toLong())
+    val snapshot = if (mode == TimerMode.STOPWATCH) ReminderSnapshot(0, 0f, mode = mode,
+        elapsedMillis = stopwatchCue?.elapsedMillis ?: (progress * durationMillis).toLong())
         else ReminderSnapshot.at(Countdown(durationMillis, 0), (progress * durationMillis).toLong())
     Column(Modifier.fillMaxWidth().padding(horizontal = FocusSpacing.page)) {
         // Measure at natural height before fitting: a short landscape preview must not
         // squeeze the real overlay's text measurement into a tiny circle.
         OverlayPreview(height) {
-            FocusOverlay(ReminderPresenter.present(snapshot, settings), interactive = true, controlsEnabled = false, onStop = {})
+            FocusOverlay(ReminderPresenter.present(snapshot, settings), interactive = true, controlsEnabled = false,
+                stopwatchCue = stopwatchCue, reserveStopwatchStatus = reserveStopwatchStatus, onStop = {})
         }
         Text("预览进度 · ${(progress * 100).roundToInt()}%", style = MaterialTheme.typography.bodySmall)
         Slider(progress, { progress = it }, modifier = Modifier.semantics { contentDescription = "预览进度" })

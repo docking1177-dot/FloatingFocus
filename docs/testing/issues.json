@@ -681,5 +681,100 @@
       "app/src/test/java/app/floatingfocus/StopwatchRemindersTest.kt"
     ],
     "status": "两用例RED292/2失败→完整Debug292/0及Release284/0；原门禁与类汇总粒度不同，不伪造同粒度解除记录"
+  },
+  {
+    "id": "FF-ISSUE-INTERACTION-HARNESS",
+    "type": "回归脚本与设备时序",
+    "description": "本轮实际失败来自原生默认alpha不输出、持续计秒不idle、通知排列/收起与点击未到达C4、远端日期引号、首个真实几何tick、双读数分秒进位，以及截图慢于短效果/录屏可变帧率等测试假设。复测引用真实独立批次，不改旧结果，也不将旧失败批次拆成逐项通过；输入时序仍须真机确认。",
+    "affected_cases": [
+      "FF-GATE-DEVICE",
+      "FF-SUITE-INTERACTIONS",
+      "FF-SUITE-INTERACTION_C4",
+      "FF-SUITE-STOPWATCH_HOURS",
+      "FF-SUITE-OVERLAY_STABILITY",
+      "FF-SUITE-INTERACTION_THEME"
+    ],
+    "failed_records": [
+      "DEVICE-20261106-100526-results-5d5bef7d7416:FF-GATE-DEVICE:0",
+      "DEVICE-20261106-102756-results-4760129ff4ac:FF-GATE-DEVICE:0",
+      "DEVICE-20261106-103152-results-b379d1d70709:FF-GATE-DEVICE:0",
+      "DEVICE-20261110-205551-results-a28285e224f8:FF-GATE-DEVICE:0",
+      "DEVICE-20261110-210233-results-659236e821db:FF-GATE-DEVICE:0",
+      "DEVICE-20261110-210350-results-3c451165040d:FF-GATE-DEVICE:0",
+      "DEVICE-20261110-210527-results-da1985abc1de:FF-GATE-DEVICE:0",
+      "DEVICE-20261110-211333-results-0c6b06999cd5:FF-GATE-DEVICE:0",
+      "DEVICE-20261110-211538-results-fa57b36a1b51:FF-GATE-DEVICE:0",
+      "DEVICE-20261110-212541-results-56f2e2de1e7b:FF-GATE-DEVICE:0",
+      "DEVICE-20261110-213045-results-7026bf343ee9:FF-GATE-DEVICE:0",
+      "DEVICE-20261110-214217-results-3eb7d8f5c35e:FF-GATE-DEVICE:0",
+      "DEVICE-20261110-214715-results-07d3fe4a83fd:FF-GATE-DEVICE:0",
+      "DEVICE-20261110-214927-results-e30c6dadb88c:FF-GATE-DEVICE:0"
+    ],
+    "retests": [
+      {
+        "of": "DEVICE-20261106-100526-results-5d5bef7d7416:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261106-102232-results-41117aab3a31:FF-GATE-DEVICE:1"
+      },
+      {
+        "of": "DEVICE-20261106-102756-results-4760129ff4ac:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261110-211039-results-fdd6ba9e6596:FF-GATE-DEVICE:1"
+      },
+      {
+        "of": "DEVICE-20261106-103152-results-b379d1d70709:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261110-211039-results-fdd6ba9e6596:FF-GATE-DEVICE:1"
+      },
+      {
+        "of": "DEVICE-20261110-205551-results-a28285e224f8:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261110-211039-results-fdd6ba9e6596:FF-GATE-DEVICE:1"
+      },
+      {
+        "of": "DEVICE-20261110-210233-results-659236e821db:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261110-211039-results-fdd6ba9e6596:FF-GATE-DEVICE:1"
+      },
+      {
+        "of": "DEVICE-20261110-210350-results-3c451165040d:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261110-211039-results-fdd6ba9e6596:FF-GATE-DEVICE:1"
+      },
+      {
+        "of": "DEVICE-20261110-210527-results-da1985abc1de:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261110-211039-results-fdd6ba9e6596:FF-GATE-DEVICE:1"
+      },
+      {
+        "of": "DEVICE-20261110-211333-results-0c6b06999cd5:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261110-211812-results-1c7829959d15:FF-GATE-DEVICE:3"
+      },
+      {
+        "of": "DEVICE-20261110-211538-results-fa57b36a1b51:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261110-211812-results-1c7829959d15:FF-GATE-DEVICE:3"
+      },
+      {
+        "of": "DEVICE-20261110-212541-results-56f2e2de1e7b:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261110-213812-results-105f03641308:FF-GATE-DEVICE:5"
+      },
+      {
+        "of": "DEVICE-20261110-213045-results-7026bf343ee9:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261110-213812-results-105f03641308:FF-GATE-DEVICE:5"
+      },
+      {
+        "of": "DEVICE-20261110-214217-results-3eb7d8f5c35e:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261110-215554-results-266612caa76a:FF-GATE-DEVICE:1"
+      },
+      {
+        "of": "DEVICE-20261110-214715-results-07d3fe4a83fd:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261110-215554-results-266612caa76a:FF-GATE-DEVICE:1"
+      },
+      {
+        "of": "DEVICE-20261110-214927-results-e30c6dadb88c:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261110-215554-results-266612caa76a:FF-GATE-DEVICE:1"
+      }
+    ],
+    "evidence": [
+      "scripts/device_interactions.py",
+      "scripts/device_interaction_c4.py",
+      "scripts/device_recovery.py",
+      "scripts/device_stopwatch_reminders.py",
+      "scripts/device_overlay_stability.py"
+    ],
+    "status": "对应范围同APK已复测；严格全仓库指纹分类保留，跨指纹不自动解除原失败，真机未测"
   }
 ]

@@ -33,7 +33,7 @@ internal fun QuickDurationsScreen(values: List<Int>, defaults: TimerStartupDefau
         }
         if (!QuickDurations.validSeconds(draft)) Text("请设置四个不同的时长。", color = MaterialTheme.colorScheme.error)
         HorizontalDivider()
-        Text("启动默认配置", style = MaterialTheme.typography.titleMedium)
+        Text("组件/磁贴默认模式", style = MaterialTheme.typography.titleMedium)
         Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(FocusSpacing.small)) {
             TimerMode.entries.forEach { option ->
                 Row(Modifier.weight(1f).selectable(selected = startupMode == option, role = Role.RadioButton,
@@ -45,9 +45,8 @@ internal fun QuickDurationsScreen(values: List<Int>, defaults: TimerStartupDefau
                 }
             }
         }
-        if (startupMode == TimerMode.COUNTDOWN)
-            DurationEntry("默认倒计时时长", startupSeconds, { startupSeconds = it }, minSeconds = 1)
-        Text("打开首页时采用；返回或恢复页面、计时中保留当前选择，不自动开始。",
+        DurationEntry("默认倒计时时长", startupSeconds, { startupSeconds = it }, minSeconds = 1)
+        Text("首页记住上次手动选择的模式；默认倒计时时长用于新首页及组件/磁贴。恢复页面不自动开始。",
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Row {
             TextButton(onClick = { draft = QuickDurations.defaultSeconds }) { Text("恢复默认") }

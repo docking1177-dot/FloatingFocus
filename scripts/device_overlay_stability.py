@@ -52,7 +52,14 @@ def overlay_stability(d):
         while time.monotonic()<until:
             frame=d.overlay()
             assert frame,'Window disappeared during '+name
-            samples.append(dict(at=time.monotonic(),window=frame[0],frame=frame[1]))
+            item=dict(at=time.monotonic(),window=frame[0],frame=frame[1])
+            if simulation:
+                trace=d.shell('logcat','-d','-s','FloatingFocus:*')
+                hits=re.findall(r'role=time bounds=([-\d.,]+) totalMillis=(\d+) overtimeMillis=(\d+)',trace)
+                if hits:
+                    coords,total,over=hits[-1]
+                    item.update(bounds=list(map(float,coords.split(','))),total=int(total),over=int(over),coherent=d.overlay()==frame)
+            samples.append(item)
             time.sleep(.12)
         _,err=movie.communicate(timeout=15)
         assert movie.returncode==0,err
@@ -153,12 +160,48 @@ def overlay_stability(d):
     d.stop()
     wait_for(lambda:d.overlay() is None,'Lab overlay did not close')
     assert d.records()==before_lab,'Isolated rollover simulation changed real records'
-    assert all(len(r['frames'])==1 for r in results),'Window frame changes across ordinary ticks; see samples/log/video'
+    fixed=[r for r in results if not r['simulation']]
+    assert all(len(r['frames'])==1 for r in fixed),'Window frame changes across same-format ordinary ticks; see samples/log/video'
+    hour=next(r for r in results if r['simulation'])
+    coherent=[v for v in hour['samples'] if v.get('coherent')]
+    groups=([v for v in coherent if v['total']<3600000 and v['over']<3600000],
+            [v for v in coherent if v['total']>=3600000 and v['over']>=3600000])
+    assert all(len(v)>=2 for v in groups),'Insufficient coherent samples before/after both readings crossed an hour'
+    for group in groups:
+        assert len({tuple(v['frame']) for v in group})==1,'Native window moved within one format'
+        assert len({tuple(v['bounds']) for v in group})==1,'Time area moved within one format'
+    def center(v):
+        x,y,_,_=v['frame'];l,t,r,b=v['bounds'];return x+(l+r)/2,y+(t+b)/2
+    origin=center(groups[0][0])
+    assert all(max(abs(a-b) for a,b in zip(center(v),origin))<=2 for v in coherent),'Time anchor moved across intentional hour growth'
+    transitions=[]
+    for v in hour['samples']:
+        if not transitions or transitions[-1]!=v['frame']:transitions.append(v['frame'])
+    # Total and overtime differ by the one-second plan and can cross one hour
+    # in different ticks. Each distinct pair of formats gets one stable frame.
+    formats={}
+    for value in coherent:
+        key=(value['total']>=3600000,value['over']>=3600000)
+        formats.setdefault(key,[]).append(value)
+    for group in formats.values():
+        assert len({tuple(v['frame']) for v in group})==1,'Native frame changed within the same pair of formats'
+        assert len({tuple(v['bounds']) for v in group})==1,'Time area changed within the same pair of formats'
+    # A native frame read may straddle the short intermediate format, which is
+    # deliberately excluded from anchor assertions. Count the two proven
+    # readout boundaries rather than requiring a coherent sample of that tick.
+    readingChanges=sum(min(v[key] for v in coherent)<3600000<=max(v[key] for v in coherent)
+                       for key in ('total','over'))
+    assert len(transitions)<=1+readingChanges,'More native changes than actual reading-format boundaries'
+    widths=[v[2]-v[0] for v in transitions]
+    assert widths==sorted(widths),'Native frame bounced or shrank across hour growth'
+    assert groups[1][0]['bounds'][2]-groups[1][0]['bounds'][0] > groups[0][0]['bounds'][2]-groups[0][0]['bounds'][0],'Hour slot failed to grow'
+    hour['formatGrowth']=dict(anchor=origin,nativeChanges=len(transitions)-1,formatPairs=[list(k) for k in formats])
+    (d.output/'overlay-stability-samples.json').write_text(json.dumps(results,indent=2),encoding='utf-8')
     assert all(len({s['window'] for s in r['samples']})==1 for r in results),'Window recreated during ordinary ticks'
     assert all(all(len({tuple(round(float(n)) for n in coords.split(',')) for coords in values})==1
-                   for values in r['bounds'].values()) for r in results),'Compose content shifts across ticks; see samples/log/video'
+                   for values in r['bounds'].values()) for r in fixed),'Compose content shifts across ticks; see samples/log/video'
     return dict(temporalWindowFramesStable=True,temporalContentBoundsStable=True,
         scenarios=[r['name'] for r in results],beforeStageFrames=dict(compact=compact,expanded=expanded),
         originalTimeTapAtBothEdges=True,preStageRotationAndCollapse=True,anchors=anchors,
-        totalHourRollover=True,
+        totalHourRollover=True,intendedHourGrowthPreservesAnchor=True,
         samples='overlay-stability-samples.json',note='Seven-second runtime traces per scenario, not static screenshot acceptance')

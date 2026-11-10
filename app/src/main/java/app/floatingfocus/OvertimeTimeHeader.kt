@@ -69,7 +69,7 @@ internal fun OvertimeDigits(text: String, style: TextStyle, size: TextUnit,
         fontWeight = weight, textAlign = TextAlign.Center)
     val measurer = rememberTextMeasurer()
     val width = with(LocalDensity.current) {
-        measurer.measure(prefix + "00:00:00", style = digits, maxLines = 1, softWrap = false).size.width.toDp()
+        measurer.measure(timeSlotSample(text), style = digits, maxLines = 1, softWrap = false).size.width.toDp()
     }
     // Longer values may grow naturally; never hide a real time value behind an ellipsis.
     Text(text, style = digits, modifier = Modifier.widthIn(min = width), maxLines = 1, softWrap = false)

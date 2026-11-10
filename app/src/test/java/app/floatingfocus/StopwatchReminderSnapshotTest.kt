@@ -4,7 +4,8 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class StopwatchReminderSnapshotTest {
-    private val rules=StopwatchReminderRules(primary=StopwatchRule(true,65,setOf(OvertimeEffect.OUTLINE)))
+    private val rules=StopwatchReminderRules(primary=StopwatchRule(true,65,setOf(OvertimeEffect.OUTLINE),
+        StopwatchColorSettings(StopwatchColorMode.ALTERNATING,0xff35a879.toInt(),0xffdc6378.toInt())))
     @Test fun presetRoundTripAndOldDefaultAreIndependentOfCurrentRules() {
         val p=TimerPreset("p","Preset",15,ReminderSettings(),mode=TimerMode.STOPWATCH,stopwatchReminders=rules)
         val row=TimerPresetCodec.encode(p)

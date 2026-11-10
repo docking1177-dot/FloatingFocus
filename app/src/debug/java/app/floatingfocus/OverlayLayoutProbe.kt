@@ -10,6 +10,10 @@ internal fun stopwatchTextProbe(text: String,width: Int,height: Int,overflow: Bo
     Log.d("FloatingFocus", "Stopwatch text=$text size=$width,$height overflow=$overflow")
 }
 
+internal fun reminderEffectProbe(kind: String,id: Long,progress: Float) {
+    Log.d("FloatingFocus","Reminder effect kind=$kind id=$id progress=$progress")
+}
+
 /** Debug geometry evidence across real ticks; does not change measurement or state. */
 internal fun Modifier.overlayLayoutProbe(role: String, readout: OvertimeReadout? = null, stopwatchElapsed: Long? = null): Modifier = onGloballyPositioned {
     val b = it.boundsInWindow()

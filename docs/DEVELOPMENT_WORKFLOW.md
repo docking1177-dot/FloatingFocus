@@ -100,3 +100,7 @@ git push -u origin HEAD
 ```
 
 另一台电脑先 clone，再单独登录该电脑的 Git 凭据管理器。需要重新登录时，可运行 `git credential-manager github login --username docking1177-dot --device` 并按终端提示在 GitHub 完成确认。不要运行会打印密码的 `git credential fill`，也不要把访问令牌贴进聊天、脚本或 remote URL。
+
+## 当前工作区的公开历史边界
+
+本机旧本地历史包含未公开的视频工程，当前开发分支不可原样推送全部祖先。公开同步用与本地应用及本次任务树一致、排除floating-focus-video/的伴随提交，并以已核实的公开提交为父提交，普通推送、不强推。映射记录在本机.tools的publication JSON；公开分支的应用树须与本地逻辑提交一致。此限制仅针对本工作区的旧历史；不要在有用户改动时重置分支、覆盖文件或擅自重写远端。后续可在另有明确需求时采用干净的公开checkout简化流程，本轮不迁移工作区。

@@ -147,15 +147,7 @@ internal fun HistoryScreen(records: List<TimerRecord>, loading: Boolean, storage
         }
     }
     if (showApps) HistoryAppPicker(apps, appPackage, { showApps = false }) { appPackage = it; showApps = false }
-    if (showRecovery) AlertDialog(onDismissRequest={ showRecovery=false },title={ Text("全部中断正计时") },text={
-        LazyColumn(Modifier.heightIn(max=440.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
-            items(recoverableRecords,key={ it.id }) { row ->
-                Column { Text(row.appName,style=MaterialTheme.typography.titleSmall)
-                    StopwatchRecoveryAction(row,storageError==null)
-                    HorizontalDivider() }
-            }
-        }
-    },confirmButton={ TextButton(onClick={ showRecovery=false }) { Text("关闭") } })
+    if (showRecovery) StopwatchRecoveryDialog(records, loading, storageError, onRetry) { showRecovery = false }
     if (showHelp) AlertDialog(onDismissRequest = { showHelp = false }, title = { Text("统计说明") }, text = {
         Text("记录 FF 会话时长，含手动计时；离开目标 App 后仍计时，不代表 App 实际前台使用时间。\n\n" +
             "按设备当前时区及已保存的会话时间轴拆分小时和日期；本周从周一开始。当前时区变化后，历史分布可能变化。\n\n" +

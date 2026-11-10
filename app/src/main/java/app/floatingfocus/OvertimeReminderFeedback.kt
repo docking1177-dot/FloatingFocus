@@ -39,6 +39,22 @@ internal class OvertimeReminderFeedback(private val context: Context) : AutoClos
         if (OvertimeEffect.SOUND in effects) playTone()
     }
 
+    /** User feedback reports a request or suppression; it cannot verify physical output. */
+    fun preview(effects: Set<OvertimeEffect>, permissions: StopwatchReminderPermissions): String {
+        val messages = mutableListOf<String>()
+        if (OvertimeEffect.SOUND in effects) messages += if (!permissions.sound) "提示音未请求：总许可关闭" else playTone()
+        if (OvertimeEffect.VIBRATION in effects) {
+            if (!permissions.vibration) messages += "震动未请求：总许可关闭"
+            else {
+                stopVibration()
+                vibrating = ReminderVibration.pair(context, OvertimeLimit.STANDARD.strength)
+                if (vibrating) handler.postDelayed(endVibration, 240)
+                messages += if (vibrating) "震动已请求，实际触感由系统决定" else ReminderVibration.lastDiagnostic
+            }
+        }
+        return messages.joinToString("；")
+    }
+
     fun restrict(settings: OvertimeReminderSettings) {
         val audioAllowed = settings.enabled && settings.limit != OvertimeLimit.LIGHT
         if (!audioAllowed || OvertimeEffect.SOUND !in settings.effects) stopTone()
@@ -50,26 +66,28 @@ internal class OvertimeReminderFeedback(private val context: Context) : AutoClos
         if(!permissions.vibration) stopVibration()
     }
 
-    private fun playTone() {
+    private fun playTone(): String {
         stopTone()
         if (manager.ringerMode != AudioManager.RINGER_MODE_NORMAL ||
             notifications.currentInterruptionFilter != NotificationManager.INTERRUPTION_FILTER_ALL ||
             manager.isStreamMute(AudioManager.STREAM_MUSIC) || manager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
             Log.d(TAG, "Overtime tone suppressed by system audio policy")
-            return
+            return "提示音未请求：系统静音、勿扰或媒体音量限制"
         }
         try {
             focusRequested = true
             focused = manager.requestAudioFocus(focus) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-            if (!focused) { Log.d(TAG, "Overtime tone skipped: no audio focus"); stopTone(); return }
+            if (!focused) { Log.d(TAG, "Overtime tone skipped: no audio focus"); stopTone(); return "提示音未请求：无法获取音频焦点" }
             val player = ToneGenerator(AudioManager.STREAM_MUSIC, 20)
             tone = player
             val started = player.startTone(ToneGenerator.TONE_PROP_BEEP, 120)
             Log.d(TAG, "Overtime tone requested=$started duration=120ms; listening not verified")
             handler.postDelayed(endTone, 180)
+            return if (started) "提示音已请求，实际声音由系统决定" else "提示音不可用：系统未接受请求"
         } catch (e: RuntimeException) {
             stopTone()
             Log.w(TAG, "Overtime tone unavailable; timer continues", e)
+            return "提示音不可用"
         }
     }
 

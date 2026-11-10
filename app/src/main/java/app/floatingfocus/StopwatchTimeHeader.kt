@@ -15,13 +15,12 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 
-/** Reserve three hour positions before the first hour appears. Larger values are never clipped. */
+/** Stable within the current time format; hours are measured only after they appear. */
 @Composable
 internal fun StopwatchTimeHeader(elapsed: Long,style: TextStyle,status: Boolean,reserveStatus: Boolean) {
     val digits=style.copy(fontSize=18.sp,fontFamily=FontFamily.Monospace,fontWeight=FontWeight.Medium,textAlign=TextAlign.Center)
-    val hours=(elapsed.coerceAtLeast(0)/3600000).toString().length.coerceAtLeast(3)
     val measurer=rememberTextMeasurer()
-    val reserve=measurer.measure("0".repeat(hours)+":00:00",style=digits,maxLines=1,softWrap=false).size
+    val reserve=measurer.measure(timeSlotSample(formatElapsed(elapsed)),style=digits,maxLines=1,softWrap=false).size
     Column(horizontalAlignment=Alignment.CenterHorizontally) {
         Text(formatElapsed(elapsed),style=digits,maxLines=1,softWrap=false,
             onTextLayout={ stopwatchTextProbe(it.layoutInput.text.text,it.size.width,it.size.height,it.hasVisualOverflow) },

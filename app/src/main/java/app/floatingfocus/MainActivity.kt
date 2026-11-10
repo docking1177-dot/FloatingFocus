@@ -45,7 +45,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -86,18 +85,20 @@ class MainActivity : ComponentActivity() {
     private fun FocusScreen() {
         val session by FloatingService.session.collectAsStateWithLifecycle()
         val monitor by FloatingService.monitoring.collectAsStateWithLifecycle()
-        val quickDurations by QuickDurationsStore.get(this).durations.collectAsStateWithLifecycle()
+        val durationsStore = remember { QuickDurationsStore.get(this@MainActivity) }
+        val quickDurations by durationsStore.durations.collectAsStateWithLifecycle()
+        val startupDefaults by durationsStore.startupDefaults.collectAsStateWithLifecycle()
         var selection by rememberSaveable(stateSaver = Saver<TimerStartupDefaults, Any>(
             save = { listOf(it.mode.name, it.durationSeconds) },
             restore = { TimerStartupDefaults.restoreSelection(it) })) {
             mutableStateOf(TimerStartupDefaults.initialHomeSelection(
-                QuickDurationsStore.get(this).startupDefaults.value, session))
+                durationsStore.startupDefaults.value, SessionState(), durationsStore.lastHomeMode.value))
         }
-        val mode = selection.mode
-        LaunchedEffect(session.active,session.startRequestId) {
-            if (session.active && session.mode==TimerMode.STOPWATCH) selection=selection.copy(mode=TimerMode.STOPWATCH)
-        }
-        val seconds = selection.durationSeconds
+        // Active session configuration wins even after saved-state restore, without writing home memory.
+        val displayedSelection = TimerStartupDefaults.initialHomeSelection(
+            startupDefaults, session, restoredSelection = selection)
+        val mode = displayedSelection.mode
+        val seconds = displayedSelection.durationSeconds
         var customSeconds by rememberSaveable { mutableIntStateOf(60) }
         var strategyError by rememberSaveable { mutableStateOf<String?>(null) }
         val overlayAllowed by rememberOverlayPermission()
@@ -166,11 +167,20 @@ class MainActivity : ComponentActivity() {
                                     Text(if (monitor.enabled) "停止 App 监测" else "结束计时")
                                 }
                             }
+                            if(session.active && !session.automatic) {
+                                TextButton(onClick={ session.startRequestId?.let {
+                                    FloatingService.setOverlayLocked(this@MainActivity,it,session.timerStartedAt,!session.overlayLocked)
+                                } }) { Text(if(session.overlayLocked) "解锁浮窗" else "锁定浮窗") }
+                                Text(if(session.overlayLocked) "浮窗已锁定，可在此处或通知解锁。" else
+                                    "锁定后触摸穿透；必要时暂降不透明度，解锁恢复。",
+                                    style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
                             OvertimeHomeControls(session) { id, leg, duration, operation ->
                                 FloatingService.requestOvertimeSnooze(this@MainActivity, id, leg, duration, operation)
                             }
                         }
-                    } else HomeStopwatchRecovery()
+                    }
+                    HomeStopwatchRecovery()
                     Spacer(Modifier.height(12.dp))
                     }) { entry ->
                         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
@@ -179,7 +189,10 @@ class MainActivity : ComponentActivity() {
                                     HomeSection {
                                         FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                             TimerMode.entries.forEach { option ->
-                                                FilterChip(mode == option, { selection = selection.copy(mode = option) }, label = { Text(option.label) },
+                                                FilterChip(mode == option, {
+                                                    selection = selection.copy(mode = option)
+                                                    durationsStore.rememberHomeMode(option)
+                                                }, label = { Text(option.label) },
                                                     enabled = !session.active && !monitor.enabled && !starting)
                                             }
                                             Spacer(Modifier.weight(1f))
