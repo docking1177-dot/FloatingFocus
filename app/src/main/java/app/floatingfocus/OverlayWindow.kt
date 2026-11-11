@@ -60,6 +60,7 @@ class OverlayWindow(private val context: Context,
                     private val initialPosition: OverlayAnchor? = null,
                     private val onPositionChanged: (OverlayAnchor) -> Unit = {},
                     initialPositions: OverlayPositions? = null,
+                    private val initialOffsetDp: Int = 0,
                     private val onPositionsChanged: (OverlayPositions) -> Unit = {},
                     private val onFailure: (RuntimeException) -> Unit) {
     private val manager = context.getSystemService(WindowManager::class.java)
@@ -80,6 +81,7 @@ class OverlayWindow(private val context: Context,
     private var c4Active = false
     private var touchLocked = false
     private var requestedWindowOpacity = 1f
+    private var obscuringWindowCount = 1
     private val maximumObscuringOpacity: Float? by lazy {
         if (Build.VERSION.SDK_INT >= 31)
             context.getSystemService(InputManager::class.java).maximumObscuringOpacityForTouch
@@ -89,6 +91,8 @@ class OverlayWindow(private val context: Context,
     // Session-only defaults are not user drags. Keep them across direction/size
     // changes so returning while expanded cannot redefine the compact anchor.
     private val defaultAnchors = mutableMapOf<OverlayOrientation, OverlayAnchor>()
+    private val separatedAnchors = mutableMapOf<OverlayOrientation, OverlayAnchor>()
+    private val draggedDirections = mutableSetOf<OverlayOrientation>()
     private var viewport: Point? = null
     private var direction = OverlayOrientation.PORTRAIT
     private val dragCheckpoint=OverlayDragCheckpoint()
@@ -116,6 +120,9 @@ class OverlayWindow(private val context: Context,
         if (attached || closed) return
         owner.create()
         ownerCreated = true
+        // Fullscreen Apps can hide/show bars without an orientation change.
+        // Re-evaluate the same visible-inset fit used by WindowManager.
+        view.setOnApplyWindowInsetsListener { _, insets -> view.requestLayout(); insets }
         view.setViewTreeLifecycleOwner(owner)
         view.setViewTreeSavedStateRegistryOwner(owner)
         view.setViewTreeViewModelStoreOwner(owner)
@@ -133,7 +140,7 @@ class OverlayWindow(private val context: Context,
     private fun safeSize(): Point {
         if (Build.VERSION.SDK_INT >= 30) {
             val metrics = manager.currentWindowMetrics
-            val insets = metrics.windowInsets.getInsetsIgnoringVisibility(
+            val insets = metrics.windowInsets.getInsets(
                 WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
             return Point(metrics.bounds.width() - insets.left - insets.right,
                 metrics.bounds.height() - insets.top - insets.bottom)
@@ -172,14 +179,20 @@ class OverlayWindow(private val context: Context,
     fun positionsSnapshot(): OverlayPositions = rememberedPositions
 
     private fun restorePosition(width: Int, height: Int, size: Point) {
-        val preferred = dragCheckpoint.pending(OverlayViewport(size.x,size.y))
+        val dragging = dragCheckpoint.pending(OverlayViewport(size.x,size.y))
+        val preferred = dragging
             ?: rememberedPositions.anchor(direction) ?: defaultAnchors[direction]
         if (!positioned) {
             positioned = true
             position.anchor(size.x - width - dp(16), dp(36), width, height)
             if (preferred == null) defaultAnchors[direction] = position.snapshot(size.x,size.y)
         }
-        preferred?.let { position.restore(it,size.x,size.y) }
+        val anchor = preferred ?: defaultAnchors[direction]
+        val displayed = if (dragging != null || direction in draggedDirections || initialOffsetDp == 0) anchor
+            else separatedAnchors.getOrPut(direction) {
+                (anchor ?: position.snapshot(size.x,size.y)).forNewWindow(size.y,dp(initialOffsetDp),height)
+            }
+        displayed?.let { position.restore(it,size.x,size.y) }
     }
 
     fun measureContent(content: OverlayContentGeometry): OverlayContentPlacement {
@@ -268,6 +281,8 @@ class OverlayWindow(private val context: Context,
         val anchor=dragCheckpoint.finish(OverlayViewport(size.x,size.y)) ?: return
         if (viewport?.x!=size.x || viewport?.y!=size.y) return
         rememberedPositions=rememberedPositions.remember(direction,anchor)
+        draggedDirections += direction
+        separatedAnchors.remove(direction)
         onPositionsChanged(rememberedPositions)
         onPositionChanged(anchor)
     }
@@ -284,7 +299,7 @@ class OverlayWindow(private val context: Context,
         touchLocked = locked
         params.flags = if (locked) params.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
             else params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
-        params.alpha = OverlayLockPolicy.displayOpacity(requestedWindowOpacity, locked, maximumObscuringOpacity)
+        params.alpha = OverlayLockPolicy.displayOpacity(requestedWindowOpacity, locked, maximumObscuringOpacity, obscuringWindowCount)
         update()
     }
 
@@ -295,7 +310,14 @@ class OverlayWindow(private val context: Context,
         view.setGeometry(shape, size, device, c4Active)
         // Production uses native opacity once; previews/lab may retain their existing Compose alpha.
         requestedWindowOpacity = if (nativeOpacity) opacity else 1f
-        val windowAlpha = OverlayLockPolicy.displayOpacity(requestedWindowOpacity, touchLocked, maximumObscuringOpacity)
+        val windowAlpha = OverlayLockPolicy.displayOpacity(requestedWindowOpacity, touchLocked, maximumObscuringOpacity, obscuringWindowCount)
         if (params.alpha != windowAlpha) { params.alpha = windowAlpha; update() }
+    }
+
+    fun setObscuringWindowCount(count: Int) {
+        if (obscuringWindowCount == count) return
+        obscuringWindowCount = count.coerceAtLeast(1)
+        val next = OverlayLockPolicy.displayOpacity(requestedWindowOpacity, touchLocked, maximumObscuringOpacity, obscuringWindowCount)
+        if (params.alpha != next) { params.alpha = next; update() }
     }
 }

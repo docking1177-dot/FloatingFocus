@@ -19,7 +19,8 @@ data class QuotaSummary(val limitMillis: Long, val usedMillis: Long, val enabled
 
 data class QuotaLedger(val zoneId: String, val resetMinute: Int, val clock: QuotaClock, val day: QuotaDay,
                        val apps: Map<String, AppQuota> = emptyMap(), val history: List<QuotaDay> = emptyList(),
-                       val cursor: QuotaCursor? = null, val pendingReset: Int? = null, val clockWarning: String? = null) {
+                       val cursor: QuotaCursor? = null, val pendingReset: Int? = null, val clockWarning: String? = null,
+                       val cursors: List<QuotaCursor> = emptyList()) {
     val nextResetMillis: Long get() = pendingReset?.let { QuotaCalendar.atOrAfter(day.endMillis, it, zoneId) } ?: day.endMillis
     companion object {
         const val MAX_LIMIT_MILLIS = Countdown.MAX_DURATION_MILLIS
@@ -72,27 +73,42 @@ class DailyAppQuota(initial: QuotaLedger, private val owner: String = UUID.rando
         val end = QuotaCalendar.atOrAfter(state.nextResetMillis, minute, state.zoneId)
         state = state.copy(day = state.day.copy(endMillis = end), pendingReset = minute)
     }
+    private fun cursors() = state.cursors.ifEmpty { listOfNotNull(state.cursor) }
+    private fun saveCursors(rows: List<QuotaCursor>) {
+        state = state.copy(cursors = rows, cursor = rows.lastOrNull())
+    }
     fun begin(id: String, packageName: String, time: QuotaTime) {
-        if (state.cursor?.id == id) return
-        // Do not settle an abandoned cursor when a new session starts, even in the same boot.
-        moveClock(time); rollTo(state.clock.logicalMillis)
-        state = state.copy(cursor = QuotaCursor(id, packageName, owner, time.boot, time.elapsedMillis,
+        if (cursors().any { it.id == id }) return
+        // Settle all live intervals before inserting another session. Abandoned
+        // process cursors are not charged, including after a reboot.
+        refresh(time)
+        val live = cursors().filter { it.owner == owner && !it.closed }
+        saveCursors(live + QuotaCursor(id, packageName, owner, time.boot, time.elapsedMillis,
             logicalAt(time), running = true))
     }
     fun checkpoint(id: String, running: Boolean, time: QuotaTime, finish: Boolean = false) {
-        val cursor = state.cursor ?: return
-        if (cursor.id != id || cursor.owner != owner || cursor.closed || time.boot != cursor.boot || time.elapsedMillis < cursor.elapsedMillis) return
+        val cursor = cursors().firstOrNull { it.id == id } ?: return
+        if (cursor.owner != owner || cursor.closed || time.boot != cursor.boot || time.elapsedMillis < cursor.elapsedMillis) return
         refresh(time)
-        state = state.copy(cursor = state.cursor!!.copy(running = running, closed = finish))
+        saveCursors(cursors().map { if (it.id == id) it.copy(running = running, closed = finish) else it })
     }
     fun refresh(time: QuotaTime) {
-        val cursor = state.cursor
+        val rows = cursors()
         moveClock(time)
         val now = logicalAt(time)
-        if (cursor != null && cursor.owner == owner && !cursor.closed && time.boot == cursor.boot && time.elapsedMillis >= cursor.elapsedMillis) {
-            if (cursor.running) charge(cursor.packageName, cursor.logicalMillis, now)
-            state = state.copy(cursor = cursor.copy(elapsedMillis = time.elapsedMillis, logicalMillis = now))
+        val live = rows.filter { it.owner == owner && !it.closed && time.boot == it.boot && time.elapsedMillis >= it.elapsedMillis }
+        // Every mutation settles ALL cursors first, so their next coverage starts
+        // at this same boundary. Charge a package once even with two running rows.
+        val starts = live.filter { it.running }.groupBy { it.packageName }.mapValues { (_, group) -> group.minOf { it.logicalMillis } }
+        // All packages share the calendar. Settle every package's slice BEFORE
+        // rolling the day, so an earlier map entry cannot discard another App's past day.
+        if (starts.isNotEmpty()) while (starts.values.min() < now) {
+            val end = minOf(now, state.nextResetMillis)
+            starts.forEach { (pkg, from) -> charge(pkg, from, end) }
+            if (end == now) break
+            rollOne()
         }
+        if (rows.isNotEmpty()) saveCursors(rows.map { if (it in live) it.copy(elapsedMillis = time.elapsedMillis, logicalMillis = now) else it })
         rollTo(now)
     }
     private fun logicalAt(time: QuotaTime): Long = state.clock.logicalMillis -

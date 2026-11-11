@@ -1,37 +1,37 @@
 {
-  "id": "FF-20261110-interactions-f8513890",
-  "source_commit": "09bea957524e04290e5eb3106af0ee66b6e8d582",
+  "id": "FF-20261111-dual-ecd25461",
+  "source_commit": "befc2720953e7bd8a010a2a041232589c3e4ad22",
   "builds": {
     "Debug": {
-      "sha256": "f85138900b50203ab83c21feb1622f57145daa6b99e67c2cb833a6a38b620386",
-      "fingerprint": "1a30cbfa273b025883b258d96c6e2d0e0af8280a83f4309fd4b889caace9b03c",
-      "reported_commit": "09bea957524e04290e5eb3106af0ee66b6e8d582",
+      "sha256": "ecd25461af812e696f5c477e10e35b798e5512a0ff4318f6dfd0a15512966b67",
+      "fingerprint": "2546b82bf22e1029873514884612ee6b3c5de7a377a6ed06392b79abd0db3e5f",
+      "reported_commit": "befc2720953e7bd8a010a2a041232589c3e4ad22",
       "reported_dirty": true,
       "version_name": "0.3.0",
       "version_code": 4,
-      "check": ".tools/checks/check-full-debug-20261106-101957-759.json",
+      "check": ".tools/checks/check-full-debug-20261111-194644-069.json",
       "apk": "app/build/outputs/apk/debug/app-debug.apk",
       "audio_local": true,
       "installable": true
     },
     "Release": {
-      "sha256": "569366982c12383d777d82bb6d1a7bc76f3f8ac9c283458eebca94339891142a",
-      "fingerprint": "1a30cbfa273b025883b258d96c6e2d0e0af8280a83f4309fd4b889caace9b03c",
-      "reported_commit": "09bea957524e04290e5eb3106af0ee66b6e8d582",
+      "sha256": "37d61abaea4cee828898cc49119d4fb9dbcf29c5bed714c9726fb8e0b1aee3a5",
+      "fingerprint": "2546b82bf22e1029873514884612ee6b3c5de7a377a6ed06392b79abd0db3e5f",
+      "reported_commit": "befc2720953e7bd8a010a2a041232589c3e4ad22",
       "reported_dirty": true,
       "version_name": "0.3.0",
       "version_code": 4,
-      "check": ".tools/checks/check-full-release-20261106-102123-434.json",
+      "check": ".tools/checks/check-full-release-20261111-194847-880.json",
       "apk": "app/build/outputs/apk/release/app-release-unsigned.apk",
       "audio_local": false,
       "installable": false
     }
   },
   "manual_focus_ids": [
-    "FF-PHONE-LOCK-001",
-    "FF-PHONE-PREVIEW-001"
+    "FF-PHONE-DUAL-001",
+    "FF-PHONE-OPACITY-001"
   ],
-  "validation_report": "docs/validation/20261110-interaction-refinements.md",
-  "application_inputs": "docs/validation/20261110-interaction-application-inputs.json",
-  "note": "0.3.0/4不变；11月6日构建后219项应用输入未变。11月10日修改回归脚本/资料不冒充新APK。严格全仓库指纹不同的同SHA批次保留原分类，成果报告另核对同APK及应用输入；Debug三段本机C4录音不公开，Release无录音且未签名。无本包真机验收，历史HyperOS闪动不结案。"
+  "validation_report": "docs/validation/20261111-dual-overlays.md",
+  "application_inputs": "docs/validation/20261111-dual-application-inputs.json",
+  "note": "本轮0.3.0/4不变；225项应用输入核对。原始检查commit/dirty/指纹保持，后续脚本及资料不冒充新APK；跨全仓库指纹设备结果保守分类，报告另核对同APK。Debug含3段本机音频仅本地，Release无音频未签名；真机未验收。 用户2026-11-11明确暂缓Redmi横屏贴底问题，标待处理，不要求本轮测试；已完成的通用边界修正与模拟器证据保留。"
 }

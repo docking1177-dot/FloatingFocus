@@ -11,8 +11,16 @@ object QuotaLedgerCodec {
         "clock" to mapOf("logicalMillis" to s.clock.logicalMillis, "elapsedMillis" to s.clock.elapsedMillis, "boot" to s.clock.boot),
         "day" to day(s.day), "history" to s.history.map(::day),
         "apps" to s.apps.mapValues { (_, a) -> mapOf("limitMillis" to a.limitMillis, "enabled" to a.enabled, "enabledSince" to a.enabledSince) },
+        "cursors" to s.cursors.map(::cursor),
         "cursor" to (s.cursor?.let { mapOf("id" to it.id, "packageName" to it.packageName, "owner" to it.owner, "boot" to it.boot,
             "elapsedMillis" to it.elapsedMillis, "logicalMillis" to it.logicalMillis, "running" to it.running, "closed" to it.closed) } ?: emptyMap()))
+    private fun cursor(c: QuotaCursor) = mapOf("id" to c.id, "packageName" to c.packageName, "owner" to c.owner,
+        "boot" to c.boot, "elapsedMillis" to c.elapsedMillis, "logicalMillis" to c.logicalMillis,
+        "running" to c.running, "closed" to c.closed)
+    private fun readCursor(v: Map<*, *>) = QuotaCursor(v.text("id"), v.text("packageName"), v.text("owner"), v.long("boot").toInt(),
+        v.long("elapsedMillis"), v.long("logicalMillis"), v.bool("running"), v.bool("closed")).also {
+        require(it.elapsedMillis >= 0 && it.logicalMillis > 0)
+    }
     private fun day(d: QuotaDay) = mapOf("startMillis" to d.startMillis, "endMillis" to d.endMillis, "used" to d.used)
     private fun Map<*, *>.long(key: String): Long = (get(key) as? Number)?.let {
         val v = it.toDouble(); require(v.isFinite() && v % 1 == 0.0); it.toLong()
@@ -49,11 +57,11 @@ object QuotaLedgerCodec {
         }
         require((history + day).all { apps.keys.containsAll(it.used.keys) })
         val v = m.map("cursor")
-        val cursor = if (v.isEmpty()) null else QuotaCursor(v.text("id"), v.text("packageName"), v.text("owner"), v.long("boot").toInt(),
-            v.long("elapsedMillis"), v.long("logicalMillis"), v.bool("running"), v.bool("closed")).also {
-            require(it.elapsedMillis >= 0 && it.logicalMillis > 0)
-        }
-        QuotaLedger(zone, reset.toInt(), clock, day, apps, history, cursor, pending.takeIf { it >= 0 }?.toInt())
+        val cursor = if (v.isEmpty()) null else readCursor(v)
+        val cursors = if (!m.containsKey("cursors")) emptyList() else
+            (m["cursors"] as? List<*>)?.map { readCursor(it as Map<*, *>) } ?: error("Invalid cursors")
+        require(cursors.map { it.id }.distinct().size == cursors.size)
+        QuotaLedger(zone, reset.toInt(), clock, day, apps, history, cursor, pending.takeIf { it >= 0 }?.toInt(), cursors = cursors)
     } catch (_: RuntimeException) { null }
 }
 

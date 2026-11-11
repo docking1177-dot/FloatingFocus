@@ -36,6 +36,17 @@ data class OverlayAnchor(val xFraction: Float, val yFraction: Float) {
         require(xFraction.isFinite() && xFraction in 0f..1f)
         require(yFraction.isFinite() && yFraction in 0f..1f)
     }
+    /** Session-local separation; never written as a completed user drag. */
+    fun forNewWindow(availableHeight: Int, offsetPixels: Int, windowHeight: Int = 0): OverlayAnchor {
+        if (offsetPixels == 0) return this
+        val safe = availableHeight.coerceAtLeast(1).toFloat()
+        val height = windowHeight.coerceIn(0,availableHeight.coerceAtLeast(0)).toFloat()
+        val maxTop = (safe-height).coerceAtLeast(0f)
+        val top = (yFraction*safe-height/2).coerceIn(0f,maxTop)
+        val delta = offsetPixels.toFloat().coerceIn(0f,safe)
+        val next = if (top+delta <= maxTop) top+delta else (top-delta).coerceAtLeast(0f)
+        return copy(yFraction = ((next+height/2)/safe).coerceIn(0f,1f))
+    }
     companion object {
         fun decode(x: Any?, y: Any?): OverlayAnchor? {
             val xf = (x as? Number)?.toFloat()?.takeIf { it.isFinite() && it in 0f..1f } ?: return null

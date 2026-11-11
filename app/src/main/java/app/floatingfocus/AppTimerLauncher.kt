@@ -15,13 +15,11 @@ suspend fun launchAppWithTimer(context: Context, lifecycle: Lifecycle, app: Laun
                               presetId: String? = null, c4Enabled: Boolean? = null, useDailyQuota: Boolean = false,
                               stopwatchBehavior: StopwatchBehavior? = null,
                               stopwatchReminders: StopwatchReminderRules? = null): String? {
-    if (FloatingService.session.value.active || FloatingService.monitoring.value.enabled || FloatingService.startPending || appTimerLaunchGate.busy)
-        return "已有计时正在运行，请先结束。"
+    if (FloatingService.atCapacity || FloatingService.monitoring.value.enabled || FloatingService.startPending || appTimerLaunchGate.busy)
+        return "最多同时运行两个浮窗，或已有启动请求。"
     var ownsTimer = false
     var opened = false
     val store = ReminderSettingsStore.get(context)
-    val previous = store.settings.value
-    var applied: ReminderSettings? = null
     val requestId = java.util.UUID.randomUUID().toString()
     if (!appTimerLaunchGate.acquire()) return "已有计时正在启动，请稍后再试。"
     try {
@@ -38,14 +36,10 @@ suspend fun launchAppWithTimer(context: Context, lifecycle: Lifecycle, app: Laun
         val intent = context.packageManager.getLaunchIntentForPackage(app.packageName)
             ?: return "该 App 已卸载、停用或无法打开，请重新选择。"
         if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return "请返回主界面后再试。"
-        if (settings != null) {
-            store.update { settings }
-            applied = store.settings.value
-        }
         ownsTimer = FloatingService.start(context, duration, mode, app.packageName, presetId, requestId,
-            c4Enabled = c4Enabled, stopwatchBehavior = stopwatchBehavior, stopwatchReminders = stopwatchReminders)
-        if (!ownsTimer) return FloatingService.session.value.error ?: "已有计时正在运行，请先结束。"
-        val result = withTimeout(5000) { FloatingService.session.first { it.startRequestId == requestId && (it.active || it.error != null) } }
+            c4Enabled = c4Enabled, stopwatchBehavior = stopwatchBehavior, stopwatchReminders = stopwatchReminders, appearance = settings, appName = app.label)
+        if (!ownsTimer) return FloatingService.latestStart.value.error ?: "最多同时运行两个浮窗，或已有启动请求。"
+        val result = withTimeout(5000) { FloatingService.startResults.first { it[requestId]?.let { row -> row.active || row.error != null } == true }[requestId]!! }
         if (result.error != null) return result.error
         if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return "启动已取消，请在主界面重新点击。"
         context.startActivity(intent)
@@ -62,8 +56,6 @@ suspend fun launchAppWithTimer(context: Context, lifecycle: Lifecycle, app: Laun
         try {
             if (!opened) {
                 if (ownsTimer) FloatingService.cancelFailedLaunch(context, requestId)
-                // Do not overwrite a later settings edit while a launch was pending.
-                if (applied != null && store.settings.value == applied) store.update { previous }
             }
         } finally { appTimerLaunchGate.release() }
     }

@@ -15,7 +15,7 @@ import org.json.JSONArray
 class TimerRecordStore private constructor(context: Context) {
     private val directory = File(context.filesDir, "timer_records")
     private val io = Executors.newSingleThreadExecutor()
-    private val checkpointQueued = AtomicBoolean(false)
+    private val checkpointQueued = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
     private val current = MutableStateFlow<List<TimerRecord>>(emptyList())
     val records = current.asStateFlow()
     private val problem = MutableStateFlow<String?>(null)
@@ -62,7 +62,7 @@ class TimerRecordStore private constructor(context: Context) {
     }
 
     fun save(record: TimerRecord, checkpoint: Boolean = false, after: (() -> Unit)? = null) {
-        if (checkpoint && !checkpointQueued.compareAndSet(false, true)) return
+        if (checkpoint && !checkpointQueued.add(record.id)) return
         ownership.submitted(record)
         io.execute {
             try {
@@ -70,7 +70,7 @@ class TimerRecordStore private constructor(context: Context) {
                 ownership.written(record); failedWrites.remove(record.id)
                 current.value = (current.value.filterNot { it.id == record.id } + record).sortedByDescending { it.startedWallMillis }
             } catch (e: Exception) { failedWrites[record.id]=record; report(e) }
-            finally { if (checkpoint) checkpointQueued.set(false); after?.invoke() }
+            finally { if (checkpoint) checkpointQueued.remove(record.id); after?.invoke() }
         }
     }
 

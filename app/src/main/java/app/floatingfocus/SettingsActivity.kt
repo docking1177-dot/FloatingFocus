@@ -216,8 +216,8 @@ class SettingsActivity : ComponentActivity() {
                             EffectSlider("提醒强度", settings.intensity, 0f..1f) { v -> updateSettings { it.copy(intensity = v) } }
                             Text("此强度控制渐进效果与归零震动；周期提醒在对应设置中管理。", style = MaterialTheme.typography.bodySmall)
                             EffectSlider("基础大小", settings.baseSize, 0.75f..1.5f) { v -> updateSettings { it.copy(baseSize = v) } }
-                            EffectSlider("不透明度", settings.opacity, 0.3f..1f) { v -> updateSettings { it.copy(opacity = v) } }
-                            Text("不透明度同时作用于背景、文字和图标。", style = MaterialTheme.typography.bodySmall)
+                            EffectSlider("背景不透明度", settings.opacity, 0.3f..1f) { v -> updateSettings { it.copy(opacity = v) } }
+                            EffectSlider("数字与图标不透明度", settings.foregroundOpacity, 0.3f..1f) { v -> updateSettings { it.copy(foregroundOpacity = v) } }
                         }
                     }
                 }

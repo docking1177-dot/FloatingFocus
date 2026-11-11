@@ -26,7 +26,7 @@ from device_developer import developer
 from device_history import history
 from device_preset_styles import preset_styles
 from device_preset_shortcuts import preset_shortcuts, require_empty_pins, PINNED_MATCH_FLAGS
-from device_widgets import widgets, require_empty_widgets
+from device_widgets import widgets, dual_widgets, require_empty_widgets
 from device_home_navigation import home_navigation, home_reorder
 from device_unified_timer import home_unified
 from device_overlay_stability import overlay_stability
@@ -35,6 +35,7 @@ from device_screen_on_timer import screen_on
 from device_timer_lifecycle import timer_lifecycle, overlay_rotation
 from device_stopwatch_reminders import stopwatch_reminders, stopwatch_hours
 from device_interactions import interactions, interaction_theme
+from device_dual_overlays import dual_overlays, landscape_bottom, opacity_channels
 from device_interaction_c4 import c4_lock_companion as interaction_c4
 from device_quota import quota
 from device_controls import home_swipe, overtime, overtime_preview, tile
@@ -475,7 +476,7 @@ def inline(d):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--serial', default='emulator-5554')
-    p.add_argument('--suite', choices=['smoke', 'edges', 'inline', 'settings', 'home', 'home_unified', 'home_reorder', 'home_swipe', 'overlay_stability', 'overlay_rotation', 'timer_lifecycle', 'stopwatch_reminders', 'stopwatch_hours', 'interactions', 'interaction_c4', 'interaction_theme', 'screen_on', 'overtime', 'overtime_reminders', 'overtime_reminders_lifecycle', 'overtime_preview', 'tile', 'preferences', 'startup', 'theme', 'c4', 'c4_keypad', 'c4_compact', 'onboarding', 'developer', 'history', 'preset_styles', 'preset_shortcuts', 'preset_c4', 'preset_c4_extensions', 'widgets', 'quota', 'all'], default='all')
+    p.add_argument('--suite', choices=['dual_widgets', 'opacity_channels', 'dual_overlays', 'landscape_bottom', 'smoke', 'edges', 'inline', 'settings', 'home', 'home_unified', 'home_reorder', 'home_swipe', 'overlay_stability', 'overlay_rotation', 'timer_lifecycle', 'stopwatch_reminders', 'stopwatch_hours', 'interactions', 'interaction_c4', 'interaction_theme', 'screen_on', 'overtime', 'overtime_reminders', 'overtime_reminders_lifecycle', 'overtime_preview', 'tile', 'preferences', 'startup', 'theme', 'c4', 'c4_keypad', 'c4_compact', 'onboarding', 'developer', 'history', 'preset_styles', 'preset_shortcuts', 'preset_c4', 'preset_c4_extensions', 'widgets', 'quota', 'all'], default='all')
     p.add_argument('--apk', type=Path, default=ROOT / 'app/build/outputs/apk/debug/app-debug.apk')
     p.add_argument('--allow-test-data-changes', action='store_true')
     args = p.parse_args()

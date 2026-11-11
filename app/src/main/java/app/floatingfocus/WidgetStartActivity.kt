@@ -69,8 +69,8 @@ class WidgetStartActivity : ComponentActivity() {
     private fun attempt() {
         if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return
         consumed = true
-        if (FloatingService.session.value.active || FloatingService.startPending || FloatingService.monitoring.value.enabled) {
-            message = "已有计时正在运行，请先结束。"; return
+        if (FloatingService.atCapacity || FloatingService.startPending || FloatingService.monitoring.value.enabled) {
+            message = "最多同时运行两个浮窗，或已有启动请求。"; return
         }
         if (!OverlayPermission.granted(this)) {
             needsPermission = true
@@ -82,7 +82,7 @@ class WidgetStartActivity : ComponentActivity() {
         val millis = if (defaults.mode == TimerMode.STOPWATCH) 0L else defaults.durationSeconds * 1000L
         ReminderSettingsStore.get(this).settings.value.strategy.validationError(millis, defaults.mode)?.let { message = it; return }
         if (FloatingService.start(this, millis, defaults.mode)) finish()
-        else message = FloatingService.session.value.error ?: "已有计时正在运行，请先结束。"
+        else message = FloatingService.latestStart.value.error ?: "最多同时运行两个浮窗，或已有启动请求。"
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

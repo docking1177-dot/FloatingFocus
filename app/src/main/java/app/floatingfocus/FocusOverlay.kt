@@ -58,6 +58,7 @@ fun FocusOverlay(
     reserveOvertimeStatus: Boolean = false,
     overtimeInfo: OvertimeReminderInfo? = null,
     onSnooze: ((Int, String) -> Unit)? = null,
+    nativeOpacity: Boolean = false,
     onStop: () -> Unit
 ) {
     if (c4.active && c4Expanded) {
@@ -111,9 +112,10 @@ fun FocusOverlay(
     // hit testing rejects transparent corners; child controls consume their own taps.
     val toggleControls = Modifier.clickable(enabled = controlsEnabled,
         interactionSource = remember { MutableInteractionSource() }, indication = null) { if (c4.active) onC4Toggle() else expanded = !expanded }
-    // One alpha layer for the whole window. No glyph backgrounds or independent opaque children.
-    Surface(color = Color(background), shape = CircleShape,
-        modifier = Modifier.padding(2.dp).graphicsLayer { this.alpha = appearance.opacity }
+    val opacity = OverlayOpacity(appearance.opacity, appearance.foregroundOpacity)
+    // Relative paint alphas retain exact independent values after the one native/root alpha.
+    Surface(color = Color(background).copy(alpha = opacity.background), shape = CircleShape,
+        modifier = Modifier.padding(2.dp).graphicsLayer { this.alpha = if (nativeOpacity) 1f else opacity.window }
             .overtimeOutline(overtimeVisual.outline, foreground).drawWithContent {
                 drawContent()
                 if(overlayLocked && (appearance.overtime != null || c4.expired)) {
@@ -124,7 +126,7 @@ fun FocusOverlay(
             }) {
         Layout(content = {
             val probePrefix = if (onContentMeasured == null) "preview-" else ""
-            val header = toggleControls.overlayLayoutProbe(probePrefix + "time", appearance.overtime, appearance.stopwatchElapsedMillis)
+            val header = toggleControls.graphicsLayer { alpha = opacity.foreground }.overlayLayoutProbe(probePrefix + "time", appearance.overtime, appearance.stopwatchElapsedMillis)
                 .semantics { contentDescription = if (c4.active) "${appearance.title}，点击展开 C4，可拖动" else if (controlsEnabled)
                     "${appearance.title}，点击${if (expanded) "收起" else "展开"}操作，可拖动" else appearance.title }
                 .padding(4.dp)
@@ -147,7 +149,7 @@ fun FocusOverlay(
                 verticalArrangement = Arrangement.spacedBy(8.dp)) { title() }
             else Row(header, verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)) { title() }
-            if (showingControls) Column(Modifier.overlayLayoutProbe(probePrefix + "controls"), horizontalAlignment = Alignment.CenterHorizontally) {
+            if (showingControls) Column(Modifier.graphicsLayer { alpha = opacity.foreground }.overlayLayoutProbe(probePrefix + "controls"), horizontalAlignment = Alignment.CenterHorizontally) {
                 if (!c4.active && appearance.confirmationRequired) {
                     Text("确认提醒", style = textStyle)
                     TextButton(onClick = onConfirm, enabled = controlsEnabled) { Text("已看到提醒", style = textStyle) }

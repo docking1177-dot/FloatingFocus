@@ -81,7 +81,7 @@ def widget_control_points(tree, bounds):
     return {id:[point(n) for n in nodes] for id,nodes in groups.items()}
 
 
-def widgets(d):
+def widgets(d, dual_only=False):
     def wait(check, message, seconds=10):
         deadline = time.monotonic() + seconds
         while time.monotonic() < deadline:
@@ -161,6 +161,12 @@ def widgets(d):
     old_font=d.shell('settings','get','system','font_scale').strip()
     old_night=d.shell('cmd','uimode','night').strip()
     results={}
+    # Two independent Chronometers may leave no 500ms idle window. Reuse the
+    # fresh SDK UIAutomator reader already used for notification controls.
+    from device_live_ui import prepare_live_dump, live_dump
+    prepare_live_dump(d)
+    idle_dump=d.dump
+    d.dump=lambda:live_dump(d)
     try:
         seed();add(1);add(2)
         controls=capture_controls();d.shot('widgets-idle-light')
@@ -176,10 +182,28 @@ def widgets(d):
         time.sleep(1);assert d.overlay();end()
         results['defaultPauseResumeEnd']=True
 
-        print('Widgets: latest presets, countdown/stopwatch and conflict...',flush=True)
+        print('Widgets: latest presets, two slots and oldest controls...',flush=True)
         count=len(d.records());press('widget_preset_one');first=started(count,target='com.android.gallery3d')
-        press('widget_preset_two');assert len(d.records())==count+1 and d.records()[-1]['id']==first['id']
-        end()
+        # The second preset gets the second slot. Both widget instances still
+        # control the oldest timer, then follow the survivor after it ends.
+        from device_dual_overlays import windows
+        press('widget_preset_two');second=started(count+1,'STOPWATCH',0,'com.android.gallery3d')
+        assert len(windows(d))==2
+        assert all(n.get('enabled')=='false' for n in find('widget_preset_one'))
+        press('widget_primary');time.sleep(.4)
+        wait(lambda:all(n.get('text')=='继续' for n in find('widget_primary')),'Widgets did not pause oldest')
+        elapsed=next(r for r in d.records() if r['id']==second['id'])['elapsedMillis']
+        time.sleep(1.4)
+        assert next(r for r in d.records() if r['id']==second['id'])['elapsedMillis']>elapsed,'Widget pause affected second timer'
+        press('widget_end');wait(lambda:len(windows(d))==1,'Oldest end affected both windows');home()
+        assert next(r for r in d.records() if r['id']==first['id'])['status']=='MANUAL'
+        assert next(r for r in d.records() if r['id']==second['id'])['status']=='RUNNING'
+        wait(lambda:all(n.get('text')=='暂停' for n in find('widget_primary')),'Widgets did not adopt survivor')
+        assert all(n.get('enabled')=='true' for n in find('widget_preset_one'))
+        end();results['oldestControlsAndTwoSlots']=True
+        if dual_only:
+            results['scope']='default controls and two slots only; excludes legacy resize/audio/theme paths'
+            return results
         count=len(d.records());press('widget_preset_two');started(count,'STOPWATCH',0,'com.android.gallery3d')
         press('widget_primary');time.sleep(.4);assert len(find('widget_time'))==2
         press('widget_primary');end()
@@ -187,7 +211,7 @@ def widgets(d):
         seed();controls=capture_controls()
         assert find('widget_preset_name_one')[0].get('text')=='最新70秒'
         count=len(d.records());press('widget_preset_one');started(count,planned=70000,target='com.android.gallery3d');end()
-        results['latestPresetsAndConflict']=True
+        results['latestPresetsAndCapacity']=True
 
         print('Widgets: quota preset reads the common balance and pause excludes usage...',flush=True)
         from device_quota import seed_quota, ledger as quota_ledger, APP
@@ -254,7 +278,12 @@ def widgets(d):
         center_x=(x+r)//2
         sx,sy=(x+r)//2,y+round(8*d.density)
         d.shell('input','swipe',sx,sy,sx,sy,1000)
-        handle=next(n for n in d.dump().iter('node') if n.get('resource-id')=='com.android.launcher3:id/widget_resize_bottom_handle')
+        resize_tree=d.dump()
+        for _ in range(4):
+            handle=next((n for n in resize_tree.iter('node') if n.get('resource-id')=='com.android.launcher3:id/widget_resize_bottom_handle'),None)
+            if handle is not None: break
+            time.sleep(.3);resize_tree=d.dump()
+        assert handle is not None,'Launcher did not expose a fresh resize handle after long press'
         hx,hy=point(handle)
         d.shell('input','swipe',hx,hy,hx,hy+round(112*d.density),700)
         d.tapxy(int(d.width*.88),int(d.height*.7));home()
@@ -270,4 +299,10 @@ def widgets(d):
         d.shell('appops','set',PACKAGE,'SYSTEM_ALERT_WINDOW','allow')
         d.shell('settings','put','system','font_scale',old_font if old_font!='null' else '1.0')
         d.shell('cmd','uimode','night',old_night.partition(':')[2].strip() or 'no')
-        remove_all()
+        try: remove_all()
+        finally: d.dump=idle_dump
+
+
+def dual_widgets(d):
+    """Scoped regression; does not represent the full historical widgets suite."""
+    return widgets(d,dual_only=True)

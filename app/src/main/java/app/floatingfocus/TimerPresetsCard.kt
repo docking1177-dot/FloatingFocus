@@ -82,7 +82,7 @@ fun TimerPresetsCard(seconds: Int, mode: TimerMode = TimerMode.COUNTDOWN, enable
                     try {
                         error = launchPresetWithTimer(context, lifecycle, preset.id)
                         if (error == null) check.preset?.let { onApplied(if (it.timeSource == PresetTimeSource.APP_DAILY_QUOTA)
-                            ((FloatingService.session.value.durationMillis + 999) / 1000).toInt().coerceAtLeast(1) else it.durationSeconds, it.mode) }
+                            (((FloatingService.sessions.value.lastOrNull()?.durationMillis ?: 0L) + 999) / 1000).toInt().coerceAtLeast(1) else it.durationSeconds, it.mode) }
                     } finally { busy = false; onBusyChange(false) }
                 }
             }

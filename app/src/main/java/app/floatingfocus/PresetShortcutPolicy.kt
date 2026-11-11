@@ -42,7 +42,7 @@ object PresetLaunchPolicy {
         val preset = items.firstOrNull { it.id == id }
             ?: return PresetLaunchCheck(issue = PresetLaunchIssue.MISSING, message = "该预设已删除，请在 FF 中重新添加。")
         fun reject(issue: PresetLaunchIssue, message: String) = PresetLaunchCheck(preset, issue, message)
-        if (active) return reject(PresetLaunchIssue.ACTIVE, "已有计时正在运行，请先结束。")
+        if (active) return reject(PresetLaunchIssue.ACTIVE, "已达双浮窗上限或正在启动，请先结束一路或稍后重试。")
         val app = preset.targetApp
         if (app == null || !saved(app)) return reject(PresetLaunchIssue.BINDING, "请先为预设绑定 FF 中的快捷 App。")
         if (!available(app)) return reject(PresetLaunchIssue.UNAVAILABLE, "该 App 已卸载、停用或无法打开，请重新选择。")

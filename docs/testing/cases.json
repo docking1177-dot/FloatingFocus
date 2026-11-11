@@ -5174,7 +5174,7 @@
       "module": "悬浮窗",
       "scenario": "专项采样区间的窗口帧稳定（不推断场景覆盖）",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
       "steps": "运行overlay_stability，核对独立结果及逐秒坐标/视频",
       "expected": "该版本脚本实际采样区间内窗口边界不改变；不据此推断采样前已展开、覆盖小时进位或全部C4阶段。具体场景、时钟推进和窗口ID以对应批次原始数据及新增专项用例为准",
@@ -5203,7 +5203,7 @@
       "module": "悬浮窗",
       "scenario": "C4阶段前原时间区域双击",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
       "steps": "运行overlay_stability，核对独立结果及逐秒坐标/视频",
       "expected": "上下边缘展开时原时间区域位置和字号不变；同一点再点击收起，仍为原运行会话，不误结束",
@@ -5232,7 +5232,7 @@
       "module": "悬浮窗",
       "scenario": "超时小时格式进位",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
       "steps": "运行overlay_stability，核对独立结果及逐秒坐标/视频",
       "expected": "隔离Lab连续走过小时边界，窗口和按钮不变位，读数完整；正式记录未修改",
@@ -5261,7 +5261,7 @@
       "module": "悬浮窗",
       "scenario": "新测量路径旋转与收起",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
       "steps": "运行overlay_stability，核对独立结果及逐秒坐标/视频",
       "expected": "横屏重测后仍可按时间区展开收起，时间锚点误差不超过2px；恢复原系统旋转设置",
@@ -5290,7 +5290,7 @@
       "module": "系统控制",
       "scenario": "C4阶段前磁贴不暂停",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
       "steps": "运行tile套件并核对SystemUI和会话记录",
       "expected": "120秒C4会话尚未进入专属阶段，真实磁贴显示查看且只打开FF；同一会话保持运行，阶段前仍可从首页结束",
@@ -5320,7 +5320,7 @@
       "module": "系统控制",
       "scenario": "修改全局C4不改变活跃会话暂停策略",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
       "steps": "运行tile套件并核对SystemUI和会话记录",
       "expected": "120秒C4会话尚未进入专属阶段，真实磁贴显示查看且只打开FF；同一会话保持运行，阶段前仍可从首页结束",
@@ -5350,7 +5350,7 @@
       "module": "悬浮窗",
       "scenario": "Redmi普通累计主显展开逐秒闪动",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
       "steps": "Debug中选累计主显，C4关闭，倒计时2秒；到时后展开观察10秒，再在上下边缘反复点击原时间区。",
       "expected": "时间持续更新，整窗不闪下回弹，按钮不逐秒换位；原时间点击只展开/收起；C4从开始没有暂停入口，阶段前仍可结束；不把模拟器稳定当真机通过",
@@ -5379,7 +5379,7 @@
       "module": "悬浮窗",
       "scenario": "Redmi启用C4会话展开闪动及阶段前锚点",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "使用对应SHA构建；设备脚本仅专用API36模拟器。真机配置见本轮验收记录。",
       "steps": "C4开启，以普通60秒倒计时启动；末段前双击原时间区，再在C4阶段展开观察10秒并拖动；输入7355608结束。",
       "expected": "时间持续更新，整窗不闪下回弹，按钮不逐秒换位；原时间点击只展开/收起；C4从开始没有暂停入口，阶段前仍可结束；不把模拟器稳定当真机通过",
@@ -5594,7 +5594,7 @@
       "module": "超时提醒",
       "scenario": "新设置持久化与原设置独立",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
       "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
       "expected": "通过真实滚轮/开关保存指定间隔、允许效果、上限和交互方式，进程重启后逐字段一致。",
@@ -5625,7 +5625,7 @@
       "module": "超时提醒",
       "scenario": "真实首轮仅允许视觉",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
       "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
       "expected": "1分钟基准首轮排定在48000—72000毫秒；首轮仅选允许视觉，未请求短音，不重复消费归零事件。",
@@ -5655,7 +5655,7 @@
       "module": "超时提醒",
       "scenario": "浮窗确认下一次不构成加时",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
       "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
       "expected": "取消不计次数；三次明确确认各增加一次延后；同一会话与计划值保留，下一轮不提前于选择间隔，未出现加时事件。",
@@ -5686,7 +5686,7 @@
       "module": "超时提醒",
       "scenario": "首页滚轮取消与旋转草稿",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
       "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
       "expected": "首页滚轮旋转后仍显示当前草稿；取消不增加次数；不会因重建提交一次新提醒请求。",
@@ -5717,7 +5717,7 @@
       "module": "超时提醒",
       "scenario": "加时换段后旧提醒草稿不可提交",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
       "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
       "expected": "浮窗明确加时后保留会话并增加相应计划，旧段首页滚轮自动关闭，延后次数不再增加。",
@@ -5747,7 +5747,7 @@
       "module": "超时提醒",
       "scenario": "明确截止不被基准编辑提前",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
       "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
       "expected": "C4首页选定下一次间隔后编辑基准，已排定的单次截止完全不变；该轮后恢复新基准浮动。",
@@ -5777,7 +5777,7 @@
       "module": "超时提醒",
       "scenario": "真实STATUS与描边期间内容和窗口稳定",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
       "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
       "expected": "专项实际采样区间的窗口ID、窗口框以及对应时间/操作或C4内容坐标只有一个值；不以低频框采样或截图替代内容坐标和录屏。",
@@ -5808,7 +5808,7 @@
       "module": "超时提醒",
       "scenario": "C4完整跳过视觉、折叠使用允许效果",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
       "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
       "expected": "完整装置到期不应用视觉且不重建窗口；收起不补发旧cue，后续折叠轮次使用允许视觉；原爆炸仅消费一次，暂停/加时未出现。",
@@ -5870,7 +5870,7 @@
       "module": "超时提醒",
       "scenario": "总关闭取消排期、重新开启只排一轮",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
       "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
       "expected": "活动超时会话关闭总开关后下一截止为null；重新开启只有一个新的48—72秒截止，不补发已超时周期。",
@@ -5900,7 +5900,7 @@
       "module": "超时提醒",
       "scenario": "强停后重新打开不恢复旧提醒",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
       "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
       "expected": "设置保留，但没有旧浮窗、活动计时服务、周期截止或补发事件。",
@@ -5930,7 +5930,7 @@
       "module": "超时提醒",
       "scenario": "撤销悬浮权限清理活动周期",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
       "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
       "expected": "权限撤销后浮窗与计时服务消失，不留下周期提醒；测试结束恢复原授权。",
@@ -5960,7 +5960,7 @@
       "module": "超时提醒",
       "scenario": "正计时不创建C4或超时调度",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定SHA构建；使用专用模拟器并备份还原数据；周期功能主动开启，除非场景要求关闭。真机必须核对本轮APK与声音条件。",
       "steps": "运行 overtime_reminders，检查本场景的原始日志、结构化结果及实际界面。",
       "expected": "即使两类设置都开启，独立正计时仍无C4阶段/音轨请求及超时周期截止，正常结束。",
@@ -5990,7 +5990,7 @@
       "module": "超时提醒",
       "scenario": "厂商跨App浮窗的周期视觉与触摸",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "本轮相同SHA的本地Debug、REDMI K80/Android16、原悬浮/通知权限及日常省电设置；周期提醒主动开启。先完成视觉项，再沿同一超时会话检查声震；C4项需要本机录音。无需模拟器。",
       "steps": "使用本轮Debug，间隔1分钟、轻量上限、仅状态或描边；启动短倒计时并切视频App，观察一次真实周期，再展开/收起/拖动；同一会话可继续后两项。",
       "expected": "状态出现/消失时数字、操作区和外框不闪跳；提亮或描边后恢复既有透明度；展开/收起/拖动/下层触摸保持原语义。",
@@ -6022,7 +6022,7 @@
       "module": "超时提醒",
       "scenario": "周期短音、两段短震与系统限制",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "本轮相同SHA的本地Debug、REDMI K80/Android16、原悬浮/通知权限及日常省电设置；周期提醒主动开启。先完成视觉项，再沿同一超时会话检查声震；C4项需要本机录音。无需模拟器。",
       "steps": "沿用已有超时会话，选明显上限并主动延后3次；依次仅开震动、仅开声音，各选择1分钟后提醒。用日常静音/勿扰/媒体播放状态再核对代表组合。只观察周期，不把原归零震动混入。",
       "expected": "开启单独效果后可感知短音或两短震；关闭某项不影响其他允许效果；静音/勿扰/媒体静音/焦点限制被尊重，未强制调高音量。",
@@ -6054,7 +6054,7 @@
       "module": "超时提醒",
       "scenario": "C4尾音与锁屏/后台清理",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "本轮相同SHA的本地Debug、REDMI K80/Android16、原悬浮/通知权限及日常省电设置；周期提醒主动开启。先完成视觉项，再沿同一超时会话检查声震；C4项需要本机录音。无需模拟器。",
       "steps": "含本机C4音轨Debug启动10秒C4，归零听尾音；展开观察第一轮，再收起观察后续。锁屏跨过一次排期后解锁，最后结束或划除FF。",
       "expected": "C4原声与周期短音不重叠；完整装置不被提醒改形/自动切换；锁屏回来最多一轮不连发，结束或划除FF后没有残留提醒。",
@@ -6214,7 +6214,7 @@
       "module": "随亮屏计时",
       "scenario": "缺少悬浮权限不开始",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
       "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
       "expected": "选择计时方式本身不启动、不请求权限；明确开始时缺悬浮权限被阻止，授权后仍需明确开始。",
@@ -6246,7 +6246,7 @@
       "module": "随亮屏计时",
       "scenario": "重复亮灭屏同会话与息屏空档",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
       "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
       "expected": "多个亮屏区间仍一个ID，息屏落盘记录冻结，累计等于非重叠亮屏区间之和。",
@@ -6278,7 +6278,7 @@
       "module": "随亮屏计时",
       "scenario": "锁屏未解锁亮起",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
       "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
       "expected": "实际Keyguard showing=true且正常亮屏时累计继续，不以解锁作为起点。",
@@ -6310,7 +6310,7 @@
       "module": "随亮屏计时",
       "scenario": "主动结束解除本轮自动计时",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
       "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
       "expected": "结束保存MANUAL，后续息屏/亮屏不重开、不新增记录。",
@@ -6342,7 +6342,7 @@
       "module": "随亮屏计时",
       "scenario": "普通会话冲突",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
       "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
       "expected": "已有会话不被替换；可以编辑下次计时方式，但本次ID和行为快照保持不变。",
@@ -6374,7 +6374,7 @@
       "module": "随亮屏计时",
       "scenario": "C4专属阶段冲突",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
       "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
       "expected": "现有C4口令阶段不被新模式替换，也不经新模式提供退出路径。",
@@ -6406,7 +6406,7 @@
       "module": "随亮屏计时",
       "scenario": "强停后恢复最后检查点",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
       "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
       "expected": "重开仅把原记录改为INTERRUPTED，累计与区间保持强停后已落盘值，无自动监听/浮窗。",
@@ -6438,7 +6438,7 @@
       "module": "随亮屏计时",
       "scenario": "真实文件选择器CSV导出",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
       "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
       "expected": "选中记录的累计/跨度/区间分别与保存值一致，前十列仍保留原定义。",
@@ -6470,7 +6470,7 @@
       "module": "随亮屏计时",
       "scenario": "损坏新JSON不降级成连续时间",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
       "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
       "expected": "重启实际解码重叠活动区间后提示统计不完整，不默默把跨度计为有效时长。",
@@ -6502,7 +6502,7 @@
       "module": "随亮屏计时",
       "scenario": "深色大字体与旋转重建",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
       "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
       "expected": "切换主题/1.5字号/横屏后仍为同一会话，本次方式保持；设置页是偏好选择，截图另核图。",
@@ -6534,7 +6534,7 @@
       "module": "随亮屏计时",
       "scenario": "撤销悬浮权限清理",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
       "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
       "expected": "活跃模式撤权后浮窗/服务结束，下次亮屏不自动重开。",
@@ -6566,7 +6566,7 @@
       "module": "随亮屏计时",
       "scenario": "后台亮屏继续且不绑定前台App",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "指定源码/APK身份。设备回归仅专用API36模拟器，原数据及测试配置备份还原。",
       "steps": "执行对应真实测试入口，查看本批次原始断言及结构化细项，不以脚本存在代替通过。",
       "expected": "Gallery实际前台时仍累计亮屏，不把该记录绑定Gallery。",
@@ -6598,7 +6598,7 @@
       "module": "随亮屏计时",
       "scenario": "Redmi锁屏亮起/AOD的实际统计边界",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "同SHA本轮Debug，Redmi K80/Android16，已有悬浮权限与日常通知/省电设置。无需开启无障碍或使用情况权限。",
       "steps": "设置→正计时方式选随亮屏；回首页选正计时并明确开始。息屏20秒，锁屏点亮10秒，再解锁核对；若日常使用AOD，保持AOD30秒再核对。最后明确结束。",
       "expected": "正常锁屏亮起计入；AOD或息屏整段不增加累计；重新亮屏继续同一条记录。",
@@ -6631,7 +6631,7 @@
       "module": "随亮屏计时",
       "scenario": "HyperOS后台亮灭与任务划除",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "同SHA本轮Debug，Redmi K80/Android16，已有悬浮权限与日常通知/省电设置。无需开启无障碍或使用情况权限。",
       "steps": "沿用上一项模式，在视频App/桌面间使用2—3分钟，包含两次息屏。查看同一记录累计后，从最近任务划掉FF，再亮屏并重新打开FF核对。保持日常省电习惯。",
       "expected": "后台仍按当前屏幕状态累计；划掉任务应保留同会话。厂商若同时结束进程，停机不补且不自动拉活，重新进入可明确续计。",
@@ -6854,7 +6854,7 @@
       "module": "正计时生命周期",
       "scenario": "实际任务划除后同会话继续",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
       "steps": "从Launcher最近任务真实上滑移除FF，再等待至少2秒。",
       "expected": "FF任务已消失；浮窗与同ID运行记录仍在，累计增加。",
@@ -6885,7 +6885,7 @@
       "module": "正计时生命周期",
       "scenario": "预设计时方式保存与取消",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
       "steps": "预设编辑选亮屏，先取消再保存；再改回连续。",
       "expected": "取消不写，保存只改该预设；全局不变。",
@@ -6916,7 +6916,7 @@
       "module": "正计时生命周期",
       "scenario": "关联新段与重复点击",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
       "steps": "强停后明确继续，快速连点两次，核对父子ID。",
       "expected": "只产生一个后继；父记录不改；携带可靠累计。",
@@ -6947,7 +6947,7 @@
       "module": "正计时生命周期",
       "scenario": "停机不计与不自动恢复",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
       "steps": "强停等待，再打开但不点继续。",
       "expected": "浮窗不自动出现，已保存累计及额度不补停机。",
@@ -6978,7 +6978,7 @@
       "module": "正计时生命周期",
       "scenario": "缺权限不消费来源",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
       "steps": "恢复前撤掉测试悬浮权限，再重新允许后明确继续。",
       "expected": "无权限不启动、不产生后继；授权后仍需明确点击。",
@@ -7009,7 +7009,7 @@
       "module": "正计时生命周期",
       "scenario": "续计额度与CSV只记新增",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
       "steps": "核对原始记录、账本游标及系统文档选择器实际CSV。",
       "expected": "新段累计/额度仅新增区间，CSV含来源/根ID和承接值。",
@@ -7040,7 +7040,7 @@
       "module": "正计时生命周期",
       "scenario": "跨图表范围访问候选",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
       "steps": "放置两条70天前中断记录，进入历史全部中断正计时。",
       "expected": "两条候选均可见且可分别选择，不受图表日期过滤。",
@@ -7071,7 +7071,7 @@
       "module": "正计时生命周期",
       "scenario": "损坏新检查点与重试",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
       "steps": "损坏新格式区间，重新读取；删除该测试坏文件后重试。",
       "expected": "显示读错且不放行；重试恢复真实数据，不降级旧格式。",
@@ -7102,7 +7102,7 @@
       "module": "正计时生命周期",
       "scenario": "改绑后明确续计保留原归属",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
       "steps": "原App正计时强停后修改原预设绑定，再明确继续。",
       "expected": "续计仍属于原App，不启动原App或新App，不改回预设新绑定。",
@@ -7133,7 +7133,7 @@
       "module": "正计时生命周期",
       "scenario": "删除来源不串写位置",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
       "steps": "原预设正计时强停后删除预设，再继续并拖动。",
       "expected": "预设仍删除，普通位置表不变，续计段保存新位置。",
@@ -7164,7 +7164,7 @@
       "module": "正计时方式",
       "scenario": "设置不启动且仅下一次生效",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
       "steps": "缺悬浮权限时选择亮屏；允许后明确开始；运行中修改为连续。",
       "expected": "设置不启动也不请求权限；活跃会话仍按旧方式，下次按新方式。",
@@ -7195,7 +7195,7 @@
       "module": "浮窗",
       "scenario": "折叠居中与展开后方向恢复",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
       "steps": "先不拖动竖屏，横屏展开后再回竖屏收起；再测三形状两大小和各方向独立拖动。",
       "expected": "标题居中、双向分别恢复已拖动位置，窗口/内容实测一致。",
@@ -7226,7 +7226,7 @@
       "module": "生命周期",
       "scenario": "Redmi划除与一键清理的真实策略",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "安装本轮目标SHA的APK；Redmi K80/Android16/HyperOS，记录日常省电设置，已有悬浮与通知权限。此项无需C4本机音频，不新增授权。",
       "steps": "先选连续正计时并开始，切其他App后划掉FF；看浮窗/通知仍计时。另起一轮用系统一键清理，再查看；记录是否开启厂商后台限制。",
       "expected": "普通划除保持同会话。若一键清理杀进程，不能补停机或自动重开；重新进入提供可靠正计时续计。明确结束必须停止。",
@@ -7258,7 +7258,7 @@
       "module": "恢复",
       "scenario": "手机强停后的明确续计",
       "priority": "P0",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "安装本轮目标SHA的APK；Redmi K80/Android16/HyperOS，记录日常省电设置，已有悬浮与通知权限。此项无需C4本机音频，不新增授权。",
       "steps": "开始正计时约20秒；应用信息强行停止；等20秒再开FF，不点继续应保持停止。点继续后使用约10秒并结束。",
       "expected": "显示最后保存累计并明确续计，结果约旧累计加10秒而非加30秒；只有一个续计段，不重复扣额度。误差为未保存检查点，日志由AI读取。",
@@ -7290,7 +7290,7 @@
       "module": "浮窗",
       "scenario": "常用形状下横竖屏位置与触摸",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "安装本轮目标SHA的APK；Redmi K80/Android16/HyperOS，记录日常省电设置，已有悬浮与通知权限。此项无需C4本机音频，不新增授权。",
       "steps": "用常用形状启动；竖屏拖左上、横屏拖右上，展开后回竖屏再收起，反复两次。连续点原时间区域。",
       "expected": "各方向恢复各自位置；数字不偏、不截断；点击只展开/收起，不误触结束。不以本项替代尚未关闭的HyperOS逐秒闪动历史问题。",
@@ -7322,7 +7322,7 @@
       "module": "浮窗",
       "scenario": "未拖动方向的默认锚点稳定",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "同一目标APK及源码身份；仅专用API36模拟器，备份还原数据。",
       "steps": "清空测试方向表，竖屏开始但不拖动；横屏展开并拖动，再回竖屏收起。",
       "expected": "收起后的原竖屏frame与初始相同，误差不超过2px；方向表不伪造竖屏拖动记录。",
@@ -7511,7 +7511,7 @@
       "module": "正计时提醒",
       "scenario": "真实渲染预览不启动会话",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
       "steps": "依次选择三级并预览视觉；修改间隔滚轮并重入。",
       "expected": "不创建浮窗/记录；滚轮值持久保存。",
@@ -7542,7 +7542,7 @@
       "module": "正计时提醒",
       "scenario": "预设独立草稿与真实启动",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
       "steps": "保存当前正计时为预设；先改后取消，再改后保存；当前规则与预设不同后点击该预设。",
       "expected": "取消不改预设；保存只改该预设；实际Gallery会话读取预设规则，全局不变。",
@@ -7573,7 +7573,7 @@
       "module": "正计时提醒",
       "scenario": "本次会话配置固定",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
       "steps": "普通正计时开始后修改当前规则。",
       "expected": "运行记录中的规则快照保持开始值；只影响后续启动。",
@@ -7604,7 +7604,7 @@
       "module": "正计时提醒",
       "scenario": "三周期真实触发与同点合并",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
       "steps": "规则60/120/180秒，续计至58秒；实际等待180秒节点。",
       "expected": "日志仅PRIMARY60、MIDDLE120、HIGH180，误差<2.5秒；同点不叠加，声震总许可关闭时效果集合无声震。",
@@ -7635,7 +7635,7 @@
       "module": "正计时提醒",
       "scenario": "两种暂停与恢复周期",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
       "steps": "通过实际桌面组件暂停/继续；随亮屏续计息屏5秒；从已到达180秒恢复。",
       "expected": "暂停期间记录和节点冻结；亮屏继续下一节点；已到达节点不重播。",
@@ -7666,7 +7666,7 @@
       "module": "正计时提醒",
       "scenario": "实际小时进位与原生窗口稳定",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
       "steps": "折叠/展开、三形状，跨59:59/1h及99h/100h，采集10秒录屏、连续frames及内容坐标；旋转。",
       "expected": "显示跨小时；同场景窗口frame和时间区域坐标不变；文字无裁剪。",
@@ -7697,7 +7697,7 @@
       "module": "正计时提醒",
       "scenario": "真实通知与原生桌面读数",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
       "steps": "1h/100h检查真实通知，1h和1000h添加真实Launcher组件。",
       "expected": "通知和组件分别实际显示01:00或100/1000小时；不把纯字符串测试代替原生读数。",
@@ -7728,7 +7728,7 @@
       "module": "正计时提醒",
       "scenario": "大字体长小时无文字溢出",
       "priority": "P1",
-      "kind": "单例",
+      "kind": "功能场景",
       "preconditions": "当前目标APK及源码身份；模拟器操作仅专用API36并备份还原；手机项目使用同SHA交付包。",
       "steps": "字体2.0，恢复100000小时可靠测试夹具并查看真实Text布局和截图。",
       "expected": "真实Text的hasVisualOverflow=false，完整时间可见，不靠缩字/裁剪。",
@@ -8140,6 +8140,657 @@
         "交互集成",
         "五项交互优化"
       ]
+    },
+    {
+      "id": "FF-JVM-DUALOVERLAYPOLICY",
+      "module": "双浮窗",
+      "scenario": "DualOverlayPolicy模型类",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 app/src/test/java/app/floatingfocus/DualOverlayPolicyTest.kt 并查看该范围原始断言及结果",
+      "expected": "第二路可准入，第三路拒绝；仅一路C4；投影最早活跃会话；绑定旧ID/段结束被拒绝",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/DualOverlayPolicyTest.kt"
+      ],
+      "scope": "模型类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "双浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-JVM-DUALQUOTA",
+      "module": "额度",
+      "scenario": "DualQuota模型类",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 app/src/test/java/app/floatingfocus/DualQuotaTest.kt 并查看该范围原始断言及结果",
+      "expected": "重叠同包取并集，不同包/暂停独立；跨午夜两包分别分摊；重启不补停机",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/DualQuotaTest.kt"
+      ],
+      "scope": "模型类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "额度",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-JVM-OVERLAYOPACITY",
+      "module": "悬浮窗",
+      "scenario": "OverlayOpacity模型类",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 app/src/test/java/app/floatingfocus/OverlayOpacityTest.kt 并查看该范围原始断言及结果",
+      "expected": "旧值迁入两项，保存往返；原生/绘制各应用一次，两锁定窗组合阈值不超限，C4保持固定",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/OverlayOpacityTest.kt"
+      ],
+      "scope": "模型类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "悬浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-JVM-OVERLAYINITIALOFFSET",
+      "module": "悬浮窗",
+      "scenario": "OverlayInitialOffset模型类",
+      "priority": "P1",
+      "kind": "模型类汇总",
+      "preconditions": "现有JUnit夹具，无需设备",
+      "steps": "运行 app/src/test/java/app/floatingfocus/OverlayInitialOffsetTest.kt 并查看该范围原始断言及结果",
+      "expected": "原锚点不变；底边按实际高度向上错开；最终钳制后两窗仍不同",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "JVM"
+      ],
+      "recommended_path": "JVM",
+      "entry_points": [
+        "app/src/test/java/app/floatingfocus/OverlayInitialOffsetTest.kt"
+      ],
+      "scope": "模型类汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "悬浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-SUITE-DUAL_OVERLAYS",
+      "module": "双浮窗",
+      "scenario": "两真实Launcher3图标启动两会话，容量/控制/配置/额度检查",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36，数据由runner备份还原；有悬浮权限，C4声音关闭",
+      "steps": "运行 ./scripts/test-device.ps1 -Suite dual_overlays -AllowTestDataChanges 并查看该范围原始断言及结果",
+      "expected": "只按该版本实际脚本断言判断；不代表真机桌面/触感/听感",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器",
+      "entry_points": [
+        "./scripts/test-device.ps1 -Suite dual_overlays -AllowTestDataChanges"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "双浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-SUITE-LANDSCAPE_BOTTOM",
+      "module": "双浮窗",
+      "scenario": "三种形状在全屏Gallery横屏拖到底边；诊断purpose批次只证明其诊断范围",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36，数据由runner备份还原；有悬浮权限，C4声音关闭",
+      "steps": "运行 ./scripts/test-device.ps1 -Suite landscape_bottom -AllowTestDataChanges 并查看该范围原始断言及结果",
+      "expected": "只按该版本实际脚本断言判断；不代表真机桌面/触感/听感",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器",
+      "entry_points": [
+        "./scripts/test-device.ps1 -Suite landscape_bottom -AllowTestDataChanges"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "双浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-SUITE-OPACITY_CHANNELS",
+      "module": "双浮窗",
+      "scenario": "真实双滑块独立保存并作用于真实普通浮窗",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36，数据由runner备份还原；有悬浮权限，C4声音关闭",
+      "steps": "运行 ./scripts/test-device.ps1 -Suite opacity_channels -AllowTestDataChanges 并查看该范围原始断言及结果",
+      "expected": "只按该版本实际脚本断言判断；不代表真机桌面/触感/听感",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器",
+      "entry_points": [
+        "./scripts/test-device.ps1 -Suite opacity_channels -AllowTestDataChanges"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "双浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-DUAL-001",
+      "module": "双浮窗",
+      "scenario": "两窗独立记录",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，数据由runner备份还原；有悬浮权限，C4声音关闭",
+      "steps": "运行 scripts/device_dual_overlays.py:dual_overlays 并查看该范围原始断言及结果",
+      "expected": "两桌面预设对应不同记录，模式/时长/目标App均正确",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器",
+      "entry_points": [
+        "scripts/device_dual_overlays.py:dual_overlays"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "双浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-DUAL-002",
+      "module": "双浮窗",
+      "scenario": "第三路拒绝",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，数据由runner备份还原；有悬浮权限，C4声音关闭",
+      "steps": "运行 scripts/device_dual_overlays.py:dual_overlays 并查看该范围原始断言及结果",
+      "expected": "原两窗及记录保留，无第三条有效记录",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器",
+      "entry_points": [
+        "scripts/device_dual_overlays.py:dual_overlays"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "双浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-DUAL-003",
+      "module": "双浮窗",
+      "scenario": "预设样式隔离",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，数据由runner备份还原；有悬浮权限，C4声音关闭",
+      "steps": "运行 scripts/device_dual_overlays.py:dual_overlays 并查看该范围原始断言及结果",
+      "expected": "两预设启动后全局外观文件值不变",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器",
+      "entry_points": [
+        "scripts/device_dual_overlays.py:dual_overlays"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "双浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-DUAL-004",
+      "module": "双浮窗",
+      "scenario": "逐路暂停",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，数据由runner备份还原；有悬浮权限，C4声音关闭",
+      "steps": "运行 scripts/device_dual_overlays.py:dual_overlays 并查看该范围原始断言及结果",
+      "expected": "第二路暂停冻结正计时，第一路持续运行",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器",
+      "entry_points": [
+        "scripts/device_dual_overlays.py:dual_overlays"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "双浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-DUAL-005",
+      "module": "双浮窗",
+      "scenario": "逐路结束",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，数据由runner备份还原；有悬浮权限，C4声音关闭",
+      "steps": "运行 scripts/device_dual_overlays.py:dual_overlays 并查看该范围原始断言及结果",
+      "expected": "首路MANUAL、第二路RUNNING，原生窗口仅减一",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器",
+      "entry_points": [
+        "scripts/device_dual_overlays.py:dual_overlays"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "双浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-DUAL-006",
+      "module": "双浮窗",
+      "scenario": "同ID两窗与临时错开",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，数据由runner备份还原；有悬浮权限，C4声音关闭",
+      "steps": "运行 scripts/device_dual_overlays.py:dual_overlays 并查看该范围原始断言及结果",
+      "expected": "两窗不同初始坐标、重测不漂移，不改保存锚点",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器",
+      "entry_points": [
+        "scripts/device_dual_overlays.py:dual_overlays"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "双浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-DUAL-007",
+      "module": "双浮窗",
+      "scenario": "C4并发边界",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，数据由runner备份还原；有悬浮权限，C4声音关闭",
+      "steps": "运行 scripts/device_dual_overlays.py:dual_overlays 并查看该范围原始断言及结果",
+      "expected": "第二路C4被拒绝；一路C4可与普通计时共存",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器",
+      "entry_points": [
+        "scripts/device_dual_overlays.py:dual_overlays"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "双浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-OPACITY-001",
+      "module": "悬浮窗",
+      "scenario": "透明度操作隔离",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，数据由runner备份还原；有悬浮权限，C4声音关闭",
+      "steps": "运行 scripts/device_dual_overlays.py:opacity_channels 并查看该范围原始断言及结果",
+      "expected": "调背景不改前景，调前景不改背景",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器",
+      "entry_points": [
+        "scripts/device_dual_overlays.py:opacity_channels"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "悬浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-OPACITY-002",
+      "module": "悬浮窗",
+      "scenario": "重启持久化",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，数据由runner备份还原；有悬浮权限，C4声音关闭",
+      "steps": "运行 scripts/device_dual_overlays.py:opacity_channels 并查看该范围原始断言及结果",
+      "expected": "重启后保存值均不变",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器",
+      "entry_points": [
+        "scripts/device_dual_overlays.py:opacity_channels"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "悬浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-OPACITY-003",
+      "module": "悬浮窗",
+      "scenario": "预览无会话",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，数据由runner备份还原；有悬浮权限，C4声音关闭",
+      "steps": "运行 scripts/device_dual_overlays.py:opacity_channels 并查看该范围原始断言及结果",
+      "expected": "滑块操作期间记录数量不变且无跨应用浮窗",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器",
+      "entry_points": [
+        "scripts/device_dual_overlays.py:opacity_channels"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "悬浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-OPACITY-004",
+      "module": "悬浮窗",
+      "scenario": "原生透明度预算",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，数据由runner备份还原；有悬浮权限，C4声音关闭",
+      "steps": "运行 scripts/device_dual_overlays.py:opacity_channels 并查看该范围原始断言及结果",
+      "expected": "真实普通窗原生alpha为两保存值较大者，像素最终值另由模型与截图核对",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器",
+      "entry_points": [
+        "scripts/device_dual_overlays.py:opacity_channels"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "悬浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-SUITE-DUAL_WIDGETS",
+      "module": "桌面组件",
+      "scenario": "默认控制与两窗最早会话投影",
+      "priority": "P1",
+      "kind": "套件汇总",
+      "preconditions": "专用FloatingFocus_API_36，数据由runner备份还原；有悬浮权限，C4声音关闭",
+      "steps": "运行 ./scripts/test-device.ps1 -Suite dual_widgets -AllowTestDataChanges 并查看该范围原始断言及结果",
+      "expected": "只覆盖默认开始/暂停/继续/结束与双窗控制，不代表旧组件全套缩放等通过",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器",
+      "entry_points": [
+        "./scripts/test-device.ps1 -Suite dual_widgets -AllowTestDataChanges"
+      ],
+      "scope": "套件汇总",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "桌面组件",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-DUAL-WIDGET-001",
+      "module": "桌面组件",
+      "scenario": "两窗时控制最早会话",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "专用FloatingFocus_API_36，数据由runner备份还原；有悬浮权限，C4声音关闭",
+      "steps": "运行 scripts/device_widgets.py:widgets 并查看该范围原始断言及结果",
+      "expected": "第二预设新建第二窗；组件仅暂停首路，结束后接管幸存一路",
+      "builds": [
+        "Debug"
+      ],
+      "environments": [
+        "模拟器"
+      ],
+      "recommended_path": "模拟器",
+      "entry_points": [
+        "scripts/device_widgets.py:widgets"
+      ],
+      "scope": "单例",
+      "manual_tier": "自动化优先",
+      "manual_group": null,
+      "gap": "",
+      "impact_tags": [
+        "桌面组件",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-PHONE-DUAL-001",
+      "module": "双浮窗",
+      "scenario": "HyperOS双桌面入口与两锁定窗",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "本轮同签名0.3.0 Debug，Redmi悬浮/桌面快捷方式权限已允许；关闭C4以验证普通窗，无需使用情况或无障碍权限",
+      "steps": "创建两个C4关闭的不同预设桌面图标；依次点击；拖开两窗，暂停/结束其中一路；两窗重开并重叠锁定，点下层App，再回FF分别解锁。",
+      "expected": "目标App/模式/时长正确，两窗互不结束；第三路拒绝；系统允许时下层收到触摸，解锁入口始终可达。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "真机",
+      "entry_points": [
+        "设置→悬浮窗；桌面预设；首页逐路控制"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 0,
+      "gap": "模拟器不代表HyperOS实际表现",
+      "impact_tags": [
+        "双浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-PHONE-LANDSCAPE-001",
+      "module": "双浮窗",
+      "scenario": "横屏全屏App安全底边（待处理）",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "用户2026-11-11明确暂缓，此项本轮不要求执行；恢复排查后使用当时目标APK及已授权Redmi。",
+      "steps": "开启普通浮窗后进入横屏全屏App，拖到底边；三种形状、展开/收起各试一次，再切回竖屏。",
+      "expected": "可到实际安全底边，无额外留白；导航不被覆盖，数字对齐、时间锚点及方向位置保留。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "真机",
+      "entry_points": [
+        "设置→悬浮窗；桌面预设；首页逐路控制"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 0,
+      "gap": "待处理：用户暂缓手机排查；保留已完成的通用修正及AOSP通过，不推断Redmi问题解决。",
+      "impact_tags": [
+        "双浮窗",
+        "双浮窗"
+      ]
+    },
+    {
+      "id": "FF-PHONE-OPACITY-001",
+      "module": "双浮窗",
+      "scenario": "复杂底图下独立透明度",
+      "priority": "P1",
+      "kind": "功能场景",
+      "preconditions": "本轮同签名0.3.0 Debug，Redmi悬浮/桌面快捷方式权限已允许；关闭C4以验证普通窗，无需使用情况或无障碍权限",
+      "steps": "设置背景0.3、数字/图标1.0，进入常用App；再反向设值并重开一个普通窗；C4固定主题单独看。",
+      "expected": "背景和数字只响应各自设置；没有矩形文字底板；C4保持固定外观。",
+      "builds": [
+        "Debug",
+        "Release"
+      ],
+      "environments": [
+        "真机"
+      ],
+      "recommended_path": "真机",
+      "entry_points": [
+        "设置→悬浮窗；桌面预设；首页逐路控制"
+      ],
+      "scope": "单例",
+      "manual_tier": "必须真机",
+      "manual_group": 0,
+      "gap": "模拟器不代表HyperOS实际表现",
+      "impact_tags": [
+        "双浮窗",
+        "双浮窗"
+      ]
     }
   ],
   "junit_classes": {
@@ -8198,7 +8849,11 @@
     "OverlayLockPolicyTest": "FF-JVM-OVERLAYLOCKPOLICY",
     "StopwatchColorEffectsTest": "FF-JVM-STOPWATCHCOLOREFFECTS",
     "StopwatchColorTimingTest": "FF-JVM-STOPWATCHCOLORTIMING",
-    "TimeSlotTest": "FF-JVM-TIMESLOT"
+    "TimeSlotTest": "FF-JVM-TIMESLOT",
+    "DualOverlayPolicyTest": "FF-JVM-DUALOVERLAYPOLICY",
+    "DualQuotaTest": "FF-JVM-DUALQUOTA",
+    "OverlayOpacityTest": "FF-JVM-OVERLAYOPACITY",
+    "OverlayInitialOffsetTest": "FF-JVM-OVERLAYINITIALOFFSET"
   },
   "device_details": {
     "widgets": {
@@ -8209,7 +8864,8 @@
       "savedStopwatchAndColdStart": "FF-WIDGET-005",
       "realLauncherResize": "FF-WIDGET-006",
       "quotaLatestBalanceAndPause": "FF-QUOTA-WIDGET-001",
-      "c4OvertimeOpenAndEnd": "FF-WIDGET-007"
+      "c4OvertimeOpenAndEnd": "FF-WIDGET-007",
+      "oldestControlsAndTwoSlots": "FF-DUAL-WIDGET-001"
     },
     "home": {
       "tabIsolation": "FF-HOME-001",
@@ -8335,6 +8991,24 @@
       "stableNativeFrames": "FF-SW-HOURS-001",
       "nativeWidgetPadded": "FF-SW-NATIVE-CLOCK-001",
       "largeFontNoTextOverflow": "FF-SW-FONT-001"
+    },
+    "dual_overlays": {
+      "twoIndependentRecords": "FF-DUAL-001",
+      "thirdRejected": "FF-DUAL-002",
+      "presetDoesNotChangeGlobalAppearance": "FF-DUAL-003",
+      "secondPauseDoesNotPauseFirst": "FF-DUAL-004",
+      "oldestEndKeepsSecond": "FF-DUAL-005",
+      "samePresetTwoWindows": "FF-DUAL-006",
+      "oneC4AndOrdinary": "FF-DUAL-007"
+    },
+    "opacity_channels": {
+      "uiChannelsIndependent": "FF-OPACITY-001",
+      "restartKeptBoth": "FF-OPACITY-002",
+      "noPreviewSession": "FF-OPACITY-003",
+      "nativeUsesMaximum": "FF-OPACITY-004"
+    },
+    "dual_widgets": {
+      "oldestControlsAndTwoSlots": "FF-DUAL-WIDGET-001"
     }
   }
 }

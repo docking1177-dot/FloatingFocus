@@ -56,6 +56,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -84,6 +86,9 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalLayoutApi::class)
     private fun FocusScreen() {
         val session by FloatingService.session.collectAsStateWithLifecycle()
+        val sessions by FloatingService.sessions.collectAsStateWithLifecycle()
+        val startResult by FloatingService.latestStart.collectAsStateWithLifecycle()
+        val atCapacity = sessions.size >= DualOverlayPolicy.LIMIT
         val monitor by FloatingService.monitoring.collectAsStateWithLifecycle()
         val durationsStore = remember { QuickDurationsStore.get(this@MainActivity) }
         val quickDurations by durationsStore.durations.collectAsStateWithLifecycle()
@@ -92,11 +97,11 @@ class MainActivity : ComponentActivity() {
             save = { listOf(it.mode.name, it.durationSeconds) },
             restore = { TimerStartupDefaults.restoreSelection(it) })) {
             mutableStateOf(TimerStartupDefaults.initialHomeSelection(
-                durationsStore.startupDefaults.value, SessionState(), durationsStore.lastHomeMode.value))
+                durationsStore.startupDefaults.value, FloatingService.session.value, durationsStore.lastHomeMode.value))
         }
         // Active session configuration wins even after saved-state restore, without writing home memory.
         val displayedSelection = TimerStartupDefaults.initialHomeSelection(
-            startupDefaults, session, restoredSelection = selection)
+            startupDefaults, SessionState(), restoredSelection = selection)
         val mode = displayedSelection.mode
         val seconds = displayedSelection.durationSeconds
         var customSeconds by rememberSaveable { mutableIntStateOf(60) }
@@ -143,47 +148,53 @@ class MainActivity : ComponentActivity() {
                     }
                     Spacer(Modifier.height(12.dp))
                     HomeEntryPager(entryOrder, selectedEntryId, enabled = !starting, states = entryStates,
-                        onSelected = { selectedEntryId = it }, onReorder = navigation::save, betweenTabsAndPage = {
-                    if (session.active || monitor.enabled) {
-                        Spacer(Modifier.height(8.dp))
-                        HomeSection {
-                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                Text(when {
-                                    monitor.enabled -> monitor.reason
-                                    session.screenDriven -> "${if (session.paused) "等待亮屏" else "亮屏计时"} · ${formatElapsed(session.elapsedMillis)}"
-                                    session.paused -> "已暂停 · ${if (session.mode == TimerMode.STOPWATCH) formatElapsed(session.elapsedMillis) else formatRemaining(session.remainingMillis)}"
-                                    session.mode == TimerMode.STOPWATCH -> "正计时 · ${formatElapsed(session.elapsedMillis)}"
-                                    session.c4Active && session.stage == ReminderStage.FINISHED -> "C4 超时 +${formatUsageTime(session.overtimeMillis)}"
-                                    session.stage == ReminderStage.FINISHED -> "超时 +${formatElapsed(session.overtimeMillis)}"
-                                    else -> "计时中 · ${formatRemaining(session.remainingMillis)}"
-                                }, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-                                if (SessionControls.canExtend(session))
-                                    TextButton(onClick = { FloatingService.requestExtension(this@MainActivity, session.timerStartedAt) }) { Text("加时") }
-                                if (!session.c4Locked) TextButton(onClick = {
-                                    if (session.screenDriven) startService(FloatingService.widgetControlIntent(this@MainActivity, WidgetCommand.END, session))
-                                    else FloatingService.stop(this@MainActivity)
-                                },
-                                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) {
-                                    Text(if (monitor.enabled) "停止 App 监测" else "结束计时")
+                        onSelected = { selectedEntryId = it }, onReorder = navigation::save, betweenTabsAndPage = {}) { entry ->
+                        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                            sessions.forEachIndexed { index, session ->
+                                Spacer(Modifier.height(8.dp))
+                                HomeSection {
+                                    if (sessions.size > 1) Text("浮窗 ${index + 1} · ${session.label}", style = MaterialTheme.typography.labelMedium)
+                                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                        Text(when {
+                                            monitor.enabled -> monitor.reason
+                                            session.screenDriven -> "${if (session.paused) "等待亮屏" else "亮屏计时"} · ${formatElapsed(session.elapsedMillis)}"
+                                            session.paused -> "已暂停 · ${if (session.mode == TimerMode.STOPWATCH) formatElapsed(session.elapsedMillis) else formatRemaining(session.remainingMillis)}"
+                                            session.mode == TimerMode.STOPWATCH -> "正计时 · ${formatElapsed(session.elapsedMillis)}"
+                                            session.c4Active && session.stage == ReminderStage.FINISHED -> "C4 超时 +${formatUsageTime(session.overtimeMillis)}"
+                                            session.stage == ReminderStage.FINISHED -> "超时 +${formatElapsed(session.overtimeMillis)}"
+                                            else -> "计时中 · ${formatRemaining(session.remainingMillis)}"
+                                        }, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                                        if (SessionControls.canExtend(session))
+                                            TextButton(onClick = { FloatingService.requestExtension(this@MainActivity, session.timerStartedAt, session.startRequestId) }) { Text("加时") }
+                                        if (SessionControls.canPause(session) || SessionControls.canResume(session)) TextButton(onClick = {
+                                            startService(FloatingService.widgetControlIntent(this@MainActivity,
+                                                if (session.paused) WidgetCommand.RESUME else WidgetCommand.PAUSE, session))
+                                        }, modifier = Modifier.semantics { contentDescription = "${if (session.paused) "继续" else "暂停"}浮窗 ${index + 1}" }) {
+                                            Text(if (session.paused) "继续" else "暂停")
+                                        }
+                                        if (!session.c4Locked) TextButton(onClick = {
+                                            startService(FloatingService.widgetControlIntent(this@MainActivity, WidgetCommand.END, session))
+                                        },
+                                            modifier = Modifier.semantics { contentDescription = "结束浮窗 ${index + 1}" },
+                                            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) {
+                                            Text(if (monitor.enabled) "停止 App 监测" else "结束计时")
+                                        }
+                                    }
+                                    if(session.active && !session.automatic) {
+                                        TextButton(onClick={ session.startRequestId?.let {
+                                            FloatingService.setOverlayLocked(this@MainActivity,it,session.timerStartedAt,!session.overlayLocked)
+                                        } }) { Text(if(session.overlayLocked) "解锁浮窗" else "锁定浮窗") }
+                                        Text(if(session.overlayLocked) "浮窗已锁定，可在此处或通知解锁。" else
+                                            "锁定后触摸穿透；必要时暂降不透明度，解锁恢复。",
+                                            style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                    OvertimeHomeControls(session) { id, leg, duration, operation ->
+                                        FloatingService.requestOvertimeSnooze(this@MainActivity, id, leg, duration, operation)
+                                    }
                                 }
                             }
-                            if(session.active && !session.automatic) {
-                                TextButton(onClick={ session.startRequestId?.let {
-                                    FloatingService.setOverlayLocked(this@MainActivity,it,session.timerStartedAt,!session.overlayLocked)
-                                } }) { Text(if(session.overlayLocked) "解锁浮窗" else "锁定浮窗") }
-                                Text(if(session.overlayLocked) "浮窗已锁定，可在此处或通知解锁。" else
-                                    "锁定后触摸穿透；必要时暂降不透明度，解锁恢复。",
-                                    style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                            OvertimeHomeControls(session) { id, leg, duration, operation ->
-                                FloatingService.requestOvertimeSnooze(this@MainActivity, id, leg, duration, operation)
-                            }
-                        }
-                    }
-                    HomeStopwatchRecovery()
-                    Spacer(Modifier.height(12.dp))
-                    }) { entry ->
-                        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                            HomeStopwatchRecovery()
+                            Spacer(Modifier.height(12.dp))
                             when (entry) {
                                 HomeEntry.TIMER -> {
                                     HomeSection {
@@ -193,7 +204,7 @@ class MainActivity : ComponentActivity() {
                                                     selection = selection.copy(mode = option)
                                                     durationsStore.rememberHomeMode(option)
                                                 }, label = { Text(option.label) },
-                                                    enabled = !session.active && !monitor.enabled && !starting)
+                                                    enabled = !atCapacity && !monitor.enabled && !starting)
                                             }
                                             Spacer(Modifier.weight(1f))
                                             TextButton(onClick = { startActivity(Intent(this@MainActivity, SettingsActivity::class.java)
@@ -202,7 +213,7 @@ class MainActivity : ComponentActivity() {
                                         if (mode == TimerMode.COUNTDOWN) {
                                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                                 quickDurations.forEach { value ->
-                                                    FilterChip(selected = seconds == value, enabled = !session.active && !monitor.enabled && !starting,
+                                                    FilterChip(selected = seconds == value, enabled = !atCapacity && !monitor.enabled && !starting,
                                                         onClick = { selection = selection.copy(durationSeconds = value) }, modifier = Modifier.weight(1f),
                                                         label = { Text(if (value % 60 == 0) "${value / 60}分" else "%d:%02d".format(java.util.Locale.ROOT, value / 60, value % 60),
                                                             modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center,
@@ -210,7 +221,7 @@ class MainActivity : ComponentActivity() {
                                                 }
                                             }
                                             DurationEntry("自定义时长", customSeconds, { customSeconds = it; selection = selection.copy(durationSeconds = it) },
-                                                enabled = !session.active && !monitor.enabled && !starting, minSeconds = 1)
+                                                enabled = !atCapacity && !monitor.enabled && !starting, minSeconds = 1)
                                             if (seconds !in quickDurations && seconds != customSeconds) Text("已选时长 · ${durationLabel(seconds)}",
                                                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }
@@ -218,7 +229,7 @@ class MainActivity : ComponentActivity() {
                                         if (!overlayAllowed) {
                                             PermissionCard("允许显示悬浮窗", "用于在其他 App 上方显示倒计时。", "去授权") { permissionHelp = true }
                                         }
-                                        if (!session.active && !monitor.enabled) {
+                                        if (!atCapacity && !monitor.enabled) {
                                             Button(enabled = !starting, onClick = {
                                                 if (!OverlayPermission.granted(this@MainActivity)) permissionHelp = true
                                                 else {
@@ -228,13 +239,13 @@ class MainActivity : ComponentActivity() {
                                             }, modifier = Modifier.fillMaxWidth().height(48.dp)) { Text(if (mode == TimerMode.STOPWATCH) "开始正计时" else "开始倒计时") }
                                         }
                                         HorizontalDivider(Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
-                                        QuickLaunchCard(seconds, mode = mode, enabled = !session.active && !monitor.enabled && !starting,
+                                        QuickLaunchCard(seconds, mode = mode, enabled = !atCapacity && !monitor.enabled && !starting,
                                             onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true })
                                     }
                                 }
                                 HomeEntry.PRESETS -> {
                                     HomeSection {
-                                        TimerPresetsCard(seconds, mode = mode, enabled = !session.active && !monitor.enabled && !starting,
+                                        TimerPresetsCard(seconds, mode = mode, enabled = !atCapacity && !monitor.enabled && !starting,
                                             onBusyChange = { quickStarting = it }, onPermissionRequired = { permissionHelp = true },
                                             onApplied = { selectedSeconds, selectedMode ->
                                                 selection = TimerStartupDefaults(selectedMode, selectedSeconds)
@@ -262,7 +273,7 @@ class MainActivity : ComponentActivity() {
                                     } else openSettings(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName))
                                 }
                             }
-                            (session.error ?: permissionMessage)?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(vertical = 12.dp)) }
+                            (startResult.error ?: session.error ?: permissionMessage)?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(vertical = 12.dp)) }
                         }
                     }
                 }

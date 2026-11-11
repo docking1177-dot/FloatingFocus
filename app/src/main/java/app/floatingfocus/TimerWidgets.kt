@@ -42,16 +42,16 @@ object TimerWidgets {
         val app = context.applicationContext
         if (observer?.isActive == true || ids(app, AppWidgetManager.getInstance(app)).isEmpty()) return
         observer = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate).launch {
-            combine(FloatingService.session, QuickDurationsStore.get(app).startupDefaults, TimerPresetStore.get(app).presets) {
-                    state, defaults, presets -> Triple(state, defaults, presets)
-            }.collect { (state, defaults, presets) ->
+            combine(FloatingService.session, FloatingService.sessions, FloatingService.pendingStarts,
+                QuickDurationsStore.get(app).startupDefaults, TimerPresetStore.get(app).presets) {
+                    state, sessions, pending, defaults, presets ->
                 val p = TimerWidgetModel.present(state, defaults, SystemClock.elapsedRealtime())
                 // Exclude per-second samples and draggable positions. Rebase only at real state changes.
                 val key = listOf(state.active, state.paused, state.mode, state.c4Locked, state.c4Active, state.startRequestId,
-                    state.timerStartedAt, state.durationMillis, state.error, p.primary, p.overtime, p.clockFormat, defaults,
+                    state.timerStartedAt, state.durationMillis, state.error, sessions.size, pending, p.primary, p.overtime, p.clockFormat, defaults,
                     presets.map { listOf(it.id, it.name, it.durationSeconds, it.mode, it.targetApp, it.timeSource) })
                 if (key != lastKey) { lastKey = key; refresh(app) }
-            }
+            }.collect {}
         }
     }
 
@@ -136,7 +136,7 @@ object TimerWidgets {
                 val preset = presets?.getOrNull(index)
                 val name = preset?.name ?: if (presets == null) "读取失败" else "添加预设"
                 v.setTextViewText(text, name)
-                val enabled = !state.active && !FloatingService.startPending
+                val enabled = !FloatingService.atCapacity && !FloatingService.startPending
                 v.setBoolean(button, "setEnabled", enabled)
                 v.setFloat(button, "setAlpha", if (enabled) 1f else .38f)
                 v.setContentDescription(button, preset?.let { "启动预设 ${it.name}，${if (it.timeSource == PresetTimeSource.APP_DAILY_QUOTA) "今日 App 额度" else if (it.mode == TimerMode.STOPWATCH) "正计时" else durationLabel(it.durationSeconds)}" } ?: name)

@@ -28,6 +28,10 @@ def preset_shortcuts(d):
         args=['am','start','-n',PACKAGE+'/.PresetShortcutActivity','-a',ACTION,'--es','preset_id',id]
         for key,value in extras.items(): args+=['--es',key,str(value)]
         d.shell(*args)
+    def finish_all():
+        from device_dual_overlays import end_first, windows
+        while windows(d):
+            count=len(windows(d));end_first(d);wait(lambda:len(windows(d))<count,"One targeted end did not remove just that window")
     def idle():
         assert d.overlay() is None
         assert not has_timer_service(d.shell('dumpsys','activity','services',PACKAGE))
@@ -128,10 +132,12 @@ def preset_shortcuts(d):
         pin(two['name']); wait(lambda: 'ff.preset.desktop-test-two' in pinned(),'Second shortcut not pinned')
         d.shell('appops','set',PACKAGE,'SYSTEM_ALERT_WINDOW','allow')
         d.stop(); click_icon(one['name']); original=started(planned=90000)
-        # Another fresh click is consumed, but cannot replace this same or another active preset.
-        entry(two['id']); wait(lambda: '已有计时正在运行，请先结束。' in texts(),'Active session conflict missing')
-        assert d.records()[-1]['id']==original['id'] and len(d.records())==record_count[0]
-        d.tap('取消'); d.finish()
+        # A second request coexists; only a third is blocked. Neither replaces the first.
+        entry(two['id']); started(planned=120000)
+        assert next(r for r in d.records() if r['id']==original['id'])['status']=='RUNNING'
+        entry(one['id']); wait(lambda:any('双浮窗上限' in t for t in texts()),'Third session conflict missing')
+        assert len(d.records())==record_count[0]
+        d.tap('取消'); finish_all()
         click_icon(two['name']); started(planned=120000); d.finish()
 
         print('Desktop shortcuts: rename, latest snapshot, invalid inputs and store errors...',flush=True)
@@ -179,17 +185,20 @@ def preset_shortcuts(d):
         seed([items[0],broken]); entry(two['id']); wait(lambda: '修复预设' in texts(),'No binding repair')
         idle(); d.tap('取消')
 
-        print('Desktop shortcuts: overtime and C4 cannot be replaced...',flush=True)
+        print('Desktop shortcuts: overtime/C4 coexist and third start is rejected...',flush=True)
         seed([items[0],dict(two,durationSeconds=1)])
         entry(two['id']); overtime=started(planned=1000); time.sleep(1.3)
-        entry(one['id']); wait(lambda: '已有计时正在运行，请先结束。' in texts(),'Overtime was replaced')
-        assert d.records()[-1]['id']==overtime['id']; d.tap('取消'); d.finish()
+        entry(one['id']); started(files['package'],0)
+        assert next(r for r in d.records() if r['id']==overtime['id'])['status']=='RUNNING'
+        entry(one['id']); wait(lambda:any('双浮窗上限' in t for t in texts()),'Overtime third start not rejected')
+        d.tap('取消'); finish_all()
         d.stop(); d.write_prefs('c4_settings',dict(enabled=True,sound=False,noticeAcknowledged=True))
         seed([items[0],dict(two,durationSeconds=40,c4Enabled=True)])
         entry(two['id']); c4=started(planned=40000)
-        entry(one['id']); wait(lambda: '已有计时正在运行，请先结束。' in texts(),'C4 shortcut bypass')
-        assert d.overlay() and d.records()[-1]['id']==c4['id']
-        d.shot('shortcut-c4-conflict'); d.tap('取消')
+        entry(one['id']); started(files['package'],0)
+        assert next(r for r in d.records() if r['id']==c4['id'])['status']=='RUNNING'
+        entry(two['id']); wait(lambda:any('双浮窗上限' in t for t in texts()),'C4 third start not rejected')
+        d.shot('shortcut-c4-capacity'); d.tap('取消')
         d.stop(); d.write_prefs('c4_settings',dict(enabled=False,sound=False,noticeAcknowledged=True))
 
         seed(items)
@@ -209,10 +218,10 @@ def preset_shortcuts(d):
         (d.output/'shortcuts-after.txt').write_text(pinned(),encoding='utf-8')
         d.shot('shortcut-deleted')
         return dict(systemConfirmation=True,cancelDoesNotLaunch=True,unconfirmedHelp=True,repeatedIdReused=True,twoDesktopIcons=True,coldAndHotLaunch=True,
-                    activeConflictPreserved=True,latestSnapshot=True,renamedLabel=True,sameNameDistinctId=True,
+                    twoSlotsNoReplacement=True,latestSnapshot=True,renamedLabel=True,sameNameDistinctId=True,
                     injectedExtrasIgnored=True,readFailureDistinct=True,permissionReturnExplicit=True,
                     recreationDoesNotReplay=True,unavailableRepair=True,deletedIdDisabled=True,
-                    overtimeConflictPreserved=True,c4ConflictPreserved=True,draftTaskPreserved=True,
+                    overtimeCoexistenceNoReplacement=True,c4CoexistenceNoReplacement=True,draftTaskPreserved=True,
                     launcher='com.android.launcher3',noOriginalPins=no_original_pins,
                     notExecuted=['Unsupported launcher hardware','Physical phone launcher','Pin waiting edit/delete interaction race'])
     finally:

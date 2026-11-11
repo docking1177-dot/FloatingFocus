@@ -40,12 +40,14 @@ data class ReminderSettings(
     // style remains for legacy storage and the debug confirmation experiment.
     val colorEnabled: Boolean = style == ReminderStyle.COLOR,
     val sizeEnabled: Boolean = style == ReminderStyle.SIZE,
-    val strategy: ReminderStrategy = ReminderStrategy()
+    val strategy: ReminderStrategy = ReminderStrategy(),
+    val foregroundOpacity: Float = opacity
 ) {
     init {
         require(intensity.isFinite() && intensity in 0f..1f)
         require(baseSize.isFinite() && baseSize in 0.75f..1.5f)
         require(opacity.isFinite() && opacity in 0.3f..1f)
+        require(foregroundOpacity.isFinite() && foregroundOpacity in 0.3f..1f)
     }
 }
 
@@ -61,7 +63,8 @@ data class ReminderPresentation(
     val shape: OverlayShape = OverlayShape.ROUNDED_RECTANGLE,
     val animationStrength: Float = 1f,
     val overtime: OvertimeReadout? = null,
-    val stopwatchElapsedMillis: Long? = null
+    val stopwatchElapsedMillis: Long? = null,
+    val foregroundOpacity: Float = opacity
 )
 
 object ReminderPresenter {
@@ -110,7 +113,7 @@ object ReminderPresenter {
             finished = finished,
             colorArgb = if (settings.colorEnabled) mix(baseColor, color, settings.intensity) else baseColor,
             size = settings.baseSize * if (settings.sizeEnabled) 1f + 0.5f * sizeProgress * settings.intensity else 1f,
-            opacity = settings.opacity,
+            opacity = settings.opacity, foregroundOpacity = settings.foregroundOpacity,
             pulseDepth = if (stage == ReminderStage.URGENT) HIGHLIGHT_DEPTH * settings.intensity else 0f,
             confirmationRequired = settings.style == ReminderStyle.CONFIRM &&
                 stage != ReminderStage.QUIET && stage != acknowledgedStage,

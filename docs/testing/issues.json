@@ -776,5 +776,50 @@
       "scripts/device_overlay_stability.py"
     ],
     "status": "对应范围同APK已复测；严格全仓库指纹分类保留，跨指纹不自动解除原失败，真机未测"
+  },
+  {
+    "id": "FF-ISSUE-FULLSCREEN-BOTTOM",
+    "type": "应用缺陷",
+    "description": "全屏App隐藏状态栏后，应用仍扣除不可见inset，原生父框bottom1080但浮窗bottom1014；仅在FF内无法复现。",
+    "affected_cases": [
+      "FF-SUITE-LANDSCAPE_BOTTOM",
+      "FF-PHONE-LANDSCAPE-001"
+    ],
+    "failed_records": [
+      "DEVICE-20261111-194552-results-7b49bdea4dab:FF-GATE-DEVICE:0"
+    ],
+    "retests": [
+      {
+        "of": "DEVICE-20261111-194552-results-7b49bdea4dab:FF-GATE-DEVICE:0",
+        "record": "DEVICE-20261111-194827-results-8c9007af0eef:FF-GATE-DEVICE:1"
+      }
+    ],
+    "evidence": [
+      ".tools/device-checks/20261111-194552/results.json",
+      ".tools/device-checks/20261111-194827/results.json",
+      "app/src/main/java/app/floatingfocus/OverlayWindow.kt"
+    ],
+    "status": "通用修正三形状/全屏Gallery模拟器通过；Redmi横屏贴底问题按用户2026-11-11要求暂缓，待处理，不再要求本轮测试。"
+  },
+  {
+    "id": "FF-ISSUE-DUAL-WIDGET-HARNESS",
+    "type": "测试脚本/验证缺口",
+    "description": "195435两路Chronometer导致idle树读取失败；改用已有live-ui。195909完整widgets末尾未取得Launcher缩放手柄，未证明缩放通过；限定dual_widgets独立通过，仅覆盖默认控制与两路投影，不用它关闭整个旧套件失败。",
+    "affected_cases": [
+      "FF-SUITE-WIDGETS",
+      "FF-DUAL-WIDGET-001",
+      "FF-SUITE-DUAL_WIDGETS"
+    ],
+    "failed_records": [
+      "DEVICE-20261111-195435-results-5ee8cfab30da:FF-GATE-DEVICE:0",
+      "DEVICE-20261111-195909-results-83a35915e5cb:FF-GATE-DEVICE:0"
+    ],
+    "retests": [],
+    "evidence": [
+      ".tools/device-checks/20261111-195909/results.json",
+      ".tools/device-checks/20261111-200615/results.json",
+      "scripts/device_widgets.py"
+    ],
+    "status": "两窗控制限定范围通过；完整旧组件缩放检查仍待复测"
   }
 ]
